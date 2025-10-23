@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unified Pet System Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .test-section {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h2 {
+            color: #333;
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 10px;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        .danger {
+            background: #dc3545;
+        }
+        .danger:hover {
+            background: #c82333;
+        }
+        .success {
+            background: #28a745;
+        }
+        .success:hover {
+            background: #218838;
+        }
+        .warning {
+            background: #ffc107;
+            color: #333;
+        }
+        .warning:hover {
+            background: #e0a800;
+        }
+        .log {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            padding: 10px;
+            margin-top: 10px;
+            font-family: monospace;
+            font-size: 12px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .status {
+            padding: 10px;
+            border-radius: 4px;
+            margin-top: 10px;
+        }
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .status.warning {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeeba;
+        }
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .info-item {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 4px;
+            border: 1px solid #dee2e6;
+        }
+        .info-label {
+            font-weight: bold;
+            color: #666;
+            font-size: 12px;
+        }
+        .info-value {
+            font-size: 18px;
+            color: #333;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🧪 Unified Pet System Test Suite</h1>
+    
+    <div class="test-section">
+        <h2>📊 System Status</h2>
+        <div id="system-status" class="status warning">Checking system...</div>
+        <div class="info-grid" id="system-info"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>🔄 Migration Test</h2>
+        <p>Test the migration from 5 legacy backup systems to unified system</p>
+        <button onclick="testMigration()">Run Migration Test</button>
+        <button onclick="checkMigrationStatus()" class="warning">Check Migration Status</button>
+        <button onclick="resetMigration()" class="danger">Reset Migration Flag</button>
+        <div id="migration-log" class="log"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>💾 Backup System Test</h2>
+        <p>Test save, restore, and delete operations</p>
+        <button onclick="createTestPet()">Create Test Pet</button>
+        <button onclick="saveToUnified()">Save to Unified</button>
+        <button onclick="restoreFromUnified()">Restore from Unified</button>
+        <button onclick="deleteTestPet()">Delete Test Pet</button>
+        <div id="backup-log" class="log"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>📈 Storage Analysis</h2>
+        <p>Analyze localStorage usage and efficiency</p>
+        <button onclick="analyzeStorage()">Analyze Storage</button>
+        <button onclick="compareSystems()">Compare Old vs New</button>
+        <div id="storage-log" class="log"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>🧹 Cleanup Tools</h2>
+        <p>Emergency cleanup and maintenance</p>
+        <button onclick="showLegacyBackups()" class="warning">Show Legacy Backups</button>
+        <button onclick="cleanLegacyBackups()" class="danger">Clean Legacy Backups</button>
+        <button onclick="emergencyCleanup()" class="danger">Emergency Cleanup (All Data)</button>
+        <div id="cleanup-log" class="log"></div>
+    </div>
+    
+    <!-- Load the unified system scripts -->
+    <script src="../assets/pet-data-manager-es5.js"></script>
+    <script src="../assets/pet-data-migration-es5.js"></script>
+    
+    <script>
+        // Initialize
+        window.perkieEffects = new Map();
+        window.petNames = {};
+        var testSessionKey = 'test_pet_' + Date.now();
+        
+        // Check system status on load
+        window.addEventListener('DOMContentLoaded', function() {
+            checkSystemStatus();
+        });
+        
+        function log(containerId, message, type) {
+            var container = document.getElementById(containerId);
+            var timestamp = new Date().toLocaleTimeString();
+            var icon = type === 'error' ? '❌' : type === 'warning' ? '⚠️' : '✅';
+            container.innerHTML += timestamp + ' ' + icon + ' ' + message + '\n';
+            container.scrollTop = container.scrollHeight;
+        }
+        
+        function checkSystemStatus() {
+            var statusEl = document.getElementById('system-status');
+            var infoEl = document.getElementById('system-info');
+            
+            try {
+                // Check if managers are loaded
+                var managersLoaded = window.PetDataManager && window.PetDataMigration;
+                
+                // Get storage info
+                var storageInfo = window.PetDataManager ? window.PetDataManager.getStorageInfo() : null;
+                
+                // Check for legacy backups
+                var legacyCount = 0;
+                var legacyKeys = ['perkieEffects_backup', 'perkieThumbnails_backup', 'perkieAllEffects_backup', 'perkieSessionPets_backup'];
+                legacyKeys.forEach(function(key) {
+                    if (localStorage.getItem(key)) legacyCount++;
+                });
+                
+                // Check migration status
+                var migrated = localStorage.getItem('perkieMigrationCompleted');
+                
+                // Update status
+                if (managersLoaded) {
+                    statusEl.className = 'status success';
+                    statusEl.textContent = '✅ Unified Pet System is loaded and ready';
+                } else {
+                    statusEl.className = 'status error';
+                    statusEl.textContent = '❌ Unified Pet System not loaded';
+                }
+                
+                // Update info grid
+                infoEl.innerHTML = 
+                    '<div class="info-item">' +
+                    '<div class="info-label">Managers Loaded</div>' +
+                    '<div class="info-value">' + (managersLoaded ? 'Yes ✅' : 'No ❌') + '</div>' +
+                    '</div>' +
+                    '<div class="info-item">' +
+                    '<div class="info-label">Migration Status</div>' +
+                    '<div class="info-value">' + (migrated ? 'Completed ✅' : 'Pending ⏳') + '</div>' +
+                    '</div>' +
+                    '<div class="info-item">' +
+                    '<div class="info-label">Legacy Backups</div>' +
+                    '<div class="info-value">' + legacyCount + ' found</div>' +
+                    '</div>' +
+                    '<div class="info-item">' +
+                    '<div class="info-label">Unified Storage</div>' +
+                    '<div class="info-value">' + (storageInfo ? storageInfo.sizeKB : 'N/A') + '</div>' +
+                    '</div>' +
+                    '<div class="info-item">' +
+                    '<div class="info-label">Pet Count</div>' +
+                    '<div class="info-value">' + (storageInfo ? storageInfo.petCount : '0') + '</div>' +
+                    '</div>' +
+                    '<div class="info-item">' +
+                    '<div class="info-label">Version</div>' +
+                    '<div class="info-value">' + (storageInfo ? storageInfo.version : 'N/A') + '</div>' +
+                    '</div>';
+                    
+            } catch (error) {
+                statusEl.className = 'status error';
+                statusEl.textContent = '❌ Error checking system: ' + error.message;
+            }
+        }
+        
+        function testMigration() {
+            log('migration-log', 'Starting migration test...', 'info');
+            
+            try {
+                // Create some legacy test data
+                var testEffects = {};
+                testEffects['legacy_pet_1'] = 'data:image/png;base64,TEST1';
+                testEffects['legacy_pet_2'] = 'data:image/png;base64,TEST2';
+                localStorage.setItem('perkieEffects_backup', JSON.stringify(testEffects));
+                
+                var testThumbnails = {};
+                testThumbnails['legacy_pet_1_thumb'] = 'data:image/png;base64,THUMB1';
+                localStorage.setItem('perkieThumbnails_backup', JSON.stringify(testThumbnails));
+                
+                log('migration-log', 'Created legacy test data', 'success');
+                
+                // Run migration
+                var result = window.PetDataMigration.run();
+                
+                if (result.success) {
+                    log('migration-log', 'Migration successful! Migrated ' + result.petsCount + ' pets', 'success');
+                    log('migration-log', result.message, 'success');
+                } else {
+                    log('migration-log', 'Migration failed: ' + result.error, 'error');
+                }
+                
+                // Refresh status
+                checkSystemStatus();
+                
+            } catch (error) {
+                log('migration-log', 'Test error: ' + error.message, 'error');
+            }
+        }
+        
+        function checkMigrationStatus() {
+            var status = localStorage.getItem('perkieMigrationCompleted');
+            if (status) {
+                log('migration-log', 'Migration completed at: ' + status, 'success');
+            } else {
+                log('migration-log', 'Migration not yet completed', 'warning');
+            }
+            
+            // Check for legacy cleanup date
+            var cleanupDate = localStorage.getItem('perkieLegacyCleanupDate');
+            if (cleanupDate) {
+                log('migration-log', 'Legacy cleanup scheduled for: ' + new Date(cleanupDate).toLocaleDateString(), 'info');
+            }
+        }
+        
+        function resetMigration() {
+            if (confirm('This will reset the migration flag. Are you sure?')) {
+                localStorage.removeItem('perkieMigrationCompleted');
+                localStorage.removeItem('perkieLegacyCleanupDate');
+                log('migration-log', 'Migration flag reset', 'warning');
+                checkSystemStatus();
+            }
+        }
+        
+        function createTestPet() {
+            // Create test pet data
+            var effects = {
+                blackwhite: { dataUrl: 'data:image/png;base64,BW_TEST_' + Date.now() },
+                popart: { dataUrl: 'data:image/png;base64,POP_TEST_' + Date.now() },
+                dithering: { dataUrl: 'data:image/png;base64,DITH_TEST_' + Date.now() }
+            };
+            
+            window.perkieEffects.set(testSessionKey, effects);
+            window.petNames[testSessionKey] = 'Test Pet ' + new Date().toLocaleTimeString();
+            
+            log('backup-log', 'Created test pet: ' + testSessionKey, 'success');
+            log('backup-log', 'Effects: ' + Object.keys(effects).join(', '), 'info');
+        }
+        
+        function saveToUnified() {
+            if (window.PetDataManager) {
+                var saved = window.PetDataManager.saveUnified();
+                if (saved) {
+                    log('backup-log', 'Saved to unified backup successfully', 'success');
+                    var info = window.PetDataManager.getStorageInfo();
+                    log('backup-log', 'Storage size: ' + info.sizeKB + ', Pets: ' + info.petCount, 'info');
+                } else {
+                    log('backup-log', 'Failed to save to unified backup', 'error');
+                }
+            } else {
+                log('backup-log', 'PetDataManager not loaded', 'error');
+            }
+            checkSystemStatus();
+        }
+        
+        function restoreFromUnified() {
+            // Clear current data
+            window.perkieEffects.clear();
+            window.petNames = {};
+            log('backup-log', 'Cleared current data', 'info');
+            
+            if (window.PetDataManager) {
+                var restored = window.PetDataManager.restoreUnified();
+                if (restored) {
+                    log('backup-log', 'Restored from unified backup successfully', 'success');
+                    log('backup-log', 'Restored ' + window.perkieEffects.size + ' pets', 'info');
+                    
+                    // List restored pets
+                    window.perkieEffects.forEach(function(effects, key) {
+                        log('backup-log', '  - ' + key + ': ' + Object.keys(effects).length + ' effects', 'info');
+                    });
+                } else {
+                    log('backup-log', 'No data to restore', 'warning');
+                }
+            } else {
+                log('backup-log', 'PetDataManager not loaded', 'error');
+            }
+        }
+        
+        function deleteTestPet() {
+            if (window.PetDataManager) {
+                var deleted = window.PetDataManager.deletePet(testSessionKey);
+                if (deleted) {
+                    log('backup-log', 'Deleted test pet: ' + testSessionKey, 'success');
+                } else {
+                    log('backup-log', 'Failed to delete test pet', 'error');
+                }
+            } else {
+                log('backup-log', 'PetDataManager not loaded', 'error');
+            }
+            checkSystemStatus();
+        }
+        
+        function analyzeStorage() {
+            log('storage-log', '=== Storage Analysis ===', 'info');
+            
+            var totalSize = 0;
+            var categorized = {
+                unified: 0,
+                legacy: 0,
+                session: 0,
+                other: 0
+            };
+            
+            for (var i = 0; i < localStorage.length; i++) {
+                var key = localStorage.key(i);
+                var value = localStorage.getItem(key);
+                var size = value ? value.length : 0;
+                totalSize += size;
+                
+                if (key === 'perkiePersistence') {
+                    categorized.unified = size;
+                } else if (key.indexOf('perkieEffects_backup') === 0 || 
+                          key.indexOf('perkieThumbnails_backup') === 0 ||
+                          key.indexOf('perkieAllEffects_backup') === 0 ||
+                          key.indexOf('perkieSessionPets_backup') === 0) {
+                    categorized.legacy += size;
+                } else if (key.indexOf('pet_session_') === 0) {
+                    categorized.session += size;
+                } else {
+                    categorized.other += size;
+                }
+            }
+            
+            log('storage-log', 'Total localStorage: ' + (totalSize / 1024).toFixed(2) + ' KB', 'info');
+            log('storage-log', 'Unified System: ' + (categorized.unified / 1024).toFixed(2) + ' KB', 'success');
+            log('storage-log', 'Legacy Backups: ' + (categorized.legacy / 1024).toFixed(2) + ' KB', 'warning');
+            log('storage-log', 'Session Data: ' + (categorized.session / 1024).toFixed(2) + ' KB', 'info');
+            log('storage-log', 'Other Data: ' + (categorized.other / 1024).toFixed(2) + ' KB', 'info');
+            
+            // Calculate potential savings
+            if (categorized.legacy > 0) {
+                var savings = ((categorized.legacy / (categorized.unified + categorized.legacy)) * 100).toFixed(1);
+                log('storage-log', '💡 Potential savings after migration: ' + savings + '%', 'success');
+            }
+        }
+        
+        function compareSystems() {
+            log('storage-log', '=== System Comparison ===', 'info');
+            
+            // Count legacy backups
+            var legacyCount = 0;
+            var legacyKeys = ['perkieEffects_backup', 'perkieThumbnails_backup', 'perkieAllEffects_backup', 'perkieSessionPets_backup'];
+            legacyKeys.forEach(function(key) {
+                if (localStorage.getItem(key)) {
+                    legacyCount++;
+                    var size = (localStorage.getItem(key).length / 1024).toFixed(2);
+                    log('storage-log', 'Legacy: ' + key + ' (' + size + ' KB)', 'warning');
+                }
+            });
+            
+            // Check unified system
+            var unified = localStorage.getItem('perkiePersistence');
+            if (unified) {
+                var unifiedSize = (unified.length / 1024).toFixed(2);
+                log('storage-log', 'Unified: perkiePersistence (' + unifiedSize + ' KB)', 'success');
+                
+                try {
+                    var data = JSON.parse(unified);
+                    log('storage-log', '  - Pets: ' + Object.keys(data.pets || {}).length, 'info');
+                    log('storage-log', '  - Sessions: ' + Object.keys(data.sessions || {}).length, 'info');
+                    log('storage-log', '  - Version: ' + data.version, 'info');
+                } catch (e) {
+                    log('storage-log', 'Could not parse unified data', 'error');
+                }
+            } else {
+                log('storage-log', 'No unified backup found', 'warning');
+            }
+            
+            log('storage-log', 'Summary: ' + legacyCount + ' legacy systems vs 1 unified system', 'info');
+        }
+        
+        function showLegacyBackups() {
+            log('cleanup-log', '=== Legacy Backups Found ===', 'info');
+            
+            var legacyKeys = ['perkieEffects_backup', 'perkieThumbnails_backup', 'perkieAllEffects_backup', 'perkieSessionPets_backup'];
+            var found = false;
+            
+            legacyKeys.forEach(function(key) {
+                var value = localStorage.getItem(key);
+                if (value) {
+                    found = true;
+                    var size = (value.length / 1024).toFixed(2);
+                    try {
+                        var data = JSON.parse(value);
+                        var count = Array.isArray(data) ? data.length : Object.keys(data).length;
+                        log('cleanup-log', key + ': ' + count + ' items, ' + size + ' KB', 'warning');
+                    } catch (e) {
+                        log('cleanup-log', key + ': ' + size + ' KB (invalid JSON)', 'error');
+                    }
+                }
+            });
+            
+            if (!found) {
+                log('cleanup-log', 'No legacy backups found', 'success');
+            }
+        }
+        
+        function cleanLegacyBackups() {
+            if (confirm('This will remove all legacy backup systems. Make sure migration is complete. Continue?')) {
+                var removed = 0;
+                var legacyKeys = ['perkieEffects_backup', 'perkieThumbnails_backup', 'perkieAllEffects_backup', 'perkieSessionPets_backup'];
+                
+                legacyKeys.forEach(function(key) {
+                    if (localStorage.getItem(key)) {
+                        localStorage.removeItem(key);
+                        removed++;
+                        log('cleanup-log', 'Removed: ' + key, 'success');
+                    }
+                });
+                
+                log('cleanup-log', 'Cleaned ' + removed + ' legacy backups', 'success');
+                checkSystemStatus();
+            }
+        }
+        
+        function emergencyCleanup() {
+            if (window.PetDataManager && window.PetDataManager.emergencyCleanup) {
+                // This will show its own confirm dialog
+                var cleaned = window.PetDataManager.emergencyCleanup();
+                if (cleaned) {
+                    log('cleanup-log', 'Emergency cleanup completed', 'success');
+                    checkSystemStatus();
+                } else {
+                    log('cleanup-log', 'Emergency cleanup cancelled', 'warning');
+                }
+            } else {
+                log('cleanup-log', 'PetDataManager not loaded', 'error');
+            }
+        }
+    </script>
+</body>
+</html>

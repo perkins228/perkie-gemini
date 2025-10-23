@@ -1,0 +1,15 @@
+
+{% if settings.cart_low_stock_threshold > 0 %}
+  {% if item.variant.inventory_policy == 'deny' and item.variant.inventory_quantity <= settings.cart_low_stock_threshold %}
+    <div 
+      class="ks-cart-low-stock-text"
+      style="color: {{ settings.cart_low_stock_text_color }}">
+      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" class="svg-icon-alert-circle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line>
+      </svg>
+      <span>
+        {{ 'kondasoft.cart.low_stock_text_html' | t: count: item.variant.inventory_quantity }}
+      </span>
+    </div>
+  {% endif %}
+{% endif %}

@@ -1,0 +1,679 @@
+{% liquid 
+  assign header_block = section.blocks | where: 'type', 'header' | first
+
+  if header_block.settings.cell_7_text != blank or header_block.settings.cell_7_img != nil
+    assign cols_count = 7
+  elsif header_block.settings.cell_6_text != blank or header_block.settings.cell_6_img != nil
+    assign cols_count = 6
+  elsif header_block.settings.cell_5_text != blank or header_block.settings.cell_5_img != nil
+    assign cols_count = 5
+  elsif header_block.settings.cell_4_text != blank or header_block.settings.cell_4_img != nil
+    assign cols_count = 4
+  elsif header_block.settings.cell_3_text != blank or header_block.settings.cell_3_img != nil
+    assign cols_count = 3
+  elsif header_block.settings.cell_2_text != blank or header_block.settings.cell_2_img != nil
+    assign cols_count = 2
+  else
+    assign cols_count = 1
+  endif
+%}
+
+{%- style -%}
+  #ks-table-compare-{{ section.id }} {
+    padding-top: {{ section.settings.pt | times: 0.75 | round: 0 }}px;
+    padding-bottom: {{ section.settings.pb | times: 0.75 | round: 0 }}px;
+  }
+
+  #ks-table-compare-{{ section.id }}  .table > :not(caption) > * > * {
+    {% assign table_border_opacity = section.settings.table_border_opacity | divided_by: 100.0 %}
+    border-color: {{ section.settings.table_text_color | color_modify: 'alpha', table_border_opacity }};
+  }
+
+  {% if section.settings.table_striped_rows %}
+    #ks-table-compare-{{ section.id }} .table-striped > tbody > tr:nth-of-type(odd) > * {
+      background-color: rgba(var(--color-foreground), .05);
+    }
+  {% endif %}
+
+  @media screen and (min-width: 750px) {
+    #ks-table-compare-{{ section.id }} {
+      padding-top: {{ section.settings.pt }}px;
+      padding-bottom: {{ section.settings.pb }}px;
+    }
+  }
+{% endstyle %}
+  
+<div 
+  id="ks-table-compare-{{ section.id }}"
+  class="ks-table-compare color-{{ section.settings.color_scheme }} gradient">
+
+
+  <div 
+    class="page-width"  
+    style="max-width: {{ section.settings.page_width | append: 'px' }}">
+
+      <div class="ks-section-header">
+      {%- unless section.settings.title == blank -%}
+        <h2 
+          class="
+            title title-wrapper--no-top-margin inline-richtext 
+            {{ section.settings.heading_size }}
+            {% if settings.animations_reveal_on_scroll %}scroll-trigger animate--slide-in{% endif %}
+          ">
+          {{ section.settings.title }}
+        </h2>
+      {%- endunless -%}
+      {%- unless section.settings.description == blank -%}
+        <div class="description rte {{ section.settings.description_size }} {% if settings.animations_reveal_on_scroll %} scroll-trigger animate--slide-in{% endif %}">
+          {{ section.settings.description }}
+        </div>
+      {%- endunless -%}
+    </div>
+
+    <div class="table-responsive {% if settings.animations_reveal_on_scroll %}scroll-trigger animate--slide-in{% endif %}">
+      <table 
+        class="table table-striped"
+        style="
+          --table-min-width: {{ section.settings.table_min_width | append: 'px' }};
+          --table-first-col-width: {{ section.settings.table_first_col_width | append: '%' }};
+          --icon-checked-circle-color: {{ section.settings.icon_color_checked_circle }};
+          --icon-checked-color: {{ section.settings.icon_color_checked }};
+          --icon-unchecked-color: {{ section.settings.icon_color_unchecked }};
+        ">
+        {% unless section.settings.table_caption == blank %}
+          <caption class="">
+            {{ section.settings.table_caption }}
+          </caption>
+        {% endunless %}
+        <thead>
+          <tr>
+            {% for count in (1..cols_count) %}
+              {% liquid
+                case count
+                  when 1
+                    assign img = header_block.settings.cell_1_img
+                    assign text = header_block.settings.cell_1_text
+                  when 2
+                    assign img = header_block.settings.cell_2_img
+                    assign text = header_block.settings.cell_2_text
+                  when 3
+                    assign img = header_block.settings.cell_3_img
+                    assign text = header_block.settings.cell_3_text
+                  when 4
+                    assign img = header_block.settings.cell_4_img
+                    assign text = header_block.settings.cell_4_text
+                  when 5
+                    assign img = header_block.settings.cell_5_img
+                    assign text = header_block.settings.cell_5_text
+                  when 6
+                    assign img = header_block.settings.cell_6_img
+                    assign text = header_block.settings.cell_6_text
+                  when 7
+                    assign img = header_block.settings.cell_7_img
+                    assign text = header_block.settings.cell_7_text
+                endcase
+              %}
+              <th scope="col">
+                {% unless img == nil  %}
+                  <div class="img-wrapper">
+                    <img
+                      src="{{ img | image_url: height: 60 }}"
+                      class="img-fluid"
+                      alt="{{ img.alt | escape }}"
+                      width="{{  30 | times: img.aspect_ratio | round }}"
+                      height="30"
+                      loading="lazy">
+                  </div>
+                {% endunless %}
+                {% unless text == blank or text == '#'  %}
+                  <span class="d-block">
+                    {{ text }}
+                  </span>
+                {% endunless %}
+              </th>
+            {% endfor %}
+          </tr>
+        </thead>
+        <tbody>
+          {% for block in section.blocks %}
+            {% if block.type == 'row' %}
+              <tr> 
+                <th scope="row" class="{{ section.settings.first_col_text_align }}">
+                  {{ block.settings.title }}
+                </th>
+                {% for count in (2..cols_count) %}
+                  {% liquid
+                    case count
+                      when 2
+                        assign checkbox = block.settings.cell_2_checkbox
+                        assign text = block.settings.cell_2_text
+                      when 3
+                        assign checkbox = block.settings.cell_3_checkbox
+                        assign text = block.settings.cell_3_text
+                      when 4
+                        assign checkbox = block.settings.cell_4_checkbox
+                        assign text = block.settings.cell_4_text
+                      when 5
+                        assign checkbox = block.settings.cell_5_checkbox
+                        assign text = block.settings.cell_5_text
+                      when 6
+                        assign checkbox = block.settings.cell_6_checkbox
+                        assign text = block.settings.cell_6_text
+                      when 7
+                        assign checkbox = block.settings.cell_7_checkbox
+                        assign text = block.settings.cell_7_text
+                    endcase
+                  %}
+                  <td>
+                    {% unless checkbox == blank %}
+                      <div class="img-wrapper">
+                        {% if checkbox == 'checked-circle' %}
+                          {% render 'ks-svg-icons', icon: 'checkbox-circle', size: 20 %}
+                        {% elsif checkbox == 'checked' %}
+                          {% render 'ks-svg-icons', icon: 'check', size: 20 %}
+                        {% else %}
+                          {% render 'ks-svg-icons', icon: 'x', size: 20 %}
+                        {% endif %} 
+                      </div>
+                    {% endunless %}
+                    {% unless text == blank  %}
+                      <span class="d-block">
+                        {{ text }}
+                      </span>
+                    {% endunless %}
+                  </td>
+                {% endfor %}
+              </tr>
+            {% endif %}
+          {% endfor %}
+        </tbody>
+      </table> 
+    </div>
+
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "KS - Table compare",
+  "tag": "section",
+  "settings": [
+    {
+      "type": "header",
+      "content": "General"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "Color scheme",
+      "default": "scheme-1"
+    },
+    {
+      "type": "text",
+      "id": "page_width",
+      "label": "Page width (px)",
+      "info": "Leave empty to use the global \"page-width\"."
+    },
+    {
+      "type": "inline_richtext",
+      "id": "title",
+      "label": "Heading",
+      "default": "Table Compare",
+    },
+    {
+      "type": "select",
+      "id": "heading_size",
+      "label": "Heading size",
+      "options": [
+        { "value": "h2", "label": "Small" },
+        { "value": "h1", "label": "Medium" },
+        { "value": "h0", "label": "Large" },
+        { "value": "hxl", "label": "Extra large" },
+        { "value": "hxxl", "label": "Extra extra large" }
+      ],
+      "default": "h1"
+    },
+    {
+      "type": "richtext",
+      "id": "description",
+      "label": "Description",
+      "default": "<p>An optional description for this section</p>",
+    },
+    {
+      "type": "select",
+      "id": "description_size",
+      "label": "Description size",
+      "default": "fs-md",
+      "options": [
+        { "value": "fs-xs", "label": "xs" },
+        { "value": "fs-sm", "label": "sm" },
+        { "value": "fs-md", "label": "md" },
+        { "value": "fs-lg", "label": "lg" },
+        { "value": "fs-xl", "label": "xl" }
+      ]
+    },
+    {
+      "type": "header",
+      "content": "Table"
+    },
+    {
+      "type": "text",
+      "id": "table_min_width",
+      "label": "Min-width (px)",
+      "info": "Prevent the table from shrinking too much on mobile",
+      "default": "700"
+    },
+    {
+      "type": "range",
+      "id": "table_first_col_width",
+      "label": "First column width",
+      "info": "Fine-tune the table propotions.",
+      "min": 10,
+      "max": 50,
+      "step": 1,
+      "default": 30,
+      "unit": "%"
+    },
+    {
+      "type": "select",
+      "id": "first_col_text_align",
+      "label": "First column text-align",
+      "default": "text-center",
+      "options": [
+        { "value": "text-start", "label": "Left" },
+        { "value": "text-center", "label": "Center" },
+        { "value": "text-end", "label": "Right" }
+      ]
+    },
+    {
+      "type": "checkbox",
+      "id": "table_striped_rows",
+      "label": "Striped rows",
+      "default": true
+    },
+    {
+      "type": "textarea",
+      "id": "table_caption",
+      "label": "Caption",
+      "default": "Add on optional caption explaining the table comparison. Leave empty to disable."
+    },
+    {
+      "type": "header",
+      "content": "Icon colors"
+    },
+    {
+      "type": "color",
+      "id": "icon_color_checked_circle",
+      "label": "Checked circle",
+      "default": "#15803d"
+    },
+    {
+      "type": "color",
+      "id": "icon_color_checked",
+      "label": "Checked",
+      "default": "#121212"
+    },
+    {
+      "type": "color",
+      "id": "icon_color_unchecked",
+      "label": "Unchecked",
+      "default": "#b91c1c"
+    },
+    {
+      "type": "header",
+      "content": "Spacing"
+    },
+    {
+      "type": "range",
+      "id": "pt",
+      "label": "Top",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "default": 36,
+      "unit": "px",
+    },
+    {
+      "type": "range",
+      "id": "pb",
+      "label": "Bottom",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "default": 36,
+      "unit": "px",
+    }
+  ],
+  "blocks": [
+    {
+      "type": "header",
+      "name": "Header",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "header",
+          "content": "Styling"
+        },
+        {
+          "type": "select",
+          "id": "bg_color",
+          "label": "Background color",
+          "default": "bg-light",
+          "options": [
+            { "value": "bg-primary",  "label": "Prim." },
+            { "value": "bg-secondary", "label": "Sec." },
+            { "value": "bg-dark", "label": "Dark" },
+            { "value": "bg-light", "label": "Light" },
+            { "value": "bg-white", "label": "White" }
+          ]
+        },
+        {
+          "type": "range",
+          "id": "bg_opacity",
+          "label": "Background opacity",
+          "min": 0,
+          "max": 100,
+          "step": 1,
+          "default": 100,
+          "unit": "%"
+        },
+        {
+          "type": "select",
+          "id": "text_color",
+          "label": "Text color",
+          "default": "text-dark",
+          "options": [
+            { "value": "text-primary",  "label": "Prim." },
+            { "value": "text-secondary", "label": "Sec." },
+            { "value": "text-dark", "label": "Dark" },
+            { "value": "text-light", "label": "Light" },
+            { "value": "text-white", "label": "White" },
+          ]
+        },
+        {
+          "type": "select",
+          "id": "border_color",
+          "label": "Border color",
+          "default": "border-light",
+          "options": [
+            { "value": "border-primary",  "label": "Prim." },
+            { "value": "border-secondary", "label": "Sec." },
+            { "value": "border-dark", "label": "Dark" },
+            { "value": "border-light", "label": "Light" },
+            { "value": "border-white", "label": "White" }
+          ]
+        },
+        {
+          "type": "range",
+          "id": "border_opacity",
+          "label": "Border opacity",
+          "min": 0,
+          "max": 100,
+          "step": 5,
+          "default": 100,
+          "unit": "%"
+        },
+        {
+          "type": "header",
+          "content": "Cell 1"
+        },
+        {
+          "type": "text",
+          "id": "cell_1_text",
+          "label": "Text",
+          "default": "#"
+        },
+        {
+          "type": "image_picker",
+          "id": "cell_1_img",
+          "label": "Image"
+        },
+        {
+          "type": "header",
+          "content": "Cell 2"
+        },
+        {
+          "type": "text",
+          "id": "cell_2_text",
+          "label": "Text",
+          "default": "Our Product"
+        },
+        {
+          "type": "image_picker",
+          "id": "cell_2_img",
+          "label": "Image"
+        },
+        {
+          "type": "header",
+          "content": "Cell 3"
+        },
+        {
+          "type": "text",
+          "id": "cell_3_text",
+          "label": "Text",
+          "default": "Competitor 1"
+        },
+        {
+          "type": "image_picker",
+          "id": "cell_3_img",
+          "label": "Image"
+        },
+        {
+          "type": "header",
+          "content": "Cell 4"
+        },
+        {
+          "type": "text",
+          "id": "cell_4_text",
+          "label": "Text",
+          "default": "Competitor 2"
+        },
+        {
+          "type": "image_picker",
+          "id": "cell_4_img",
+          "label": "Image"
+        },
+        {
+          "type": "header",
+          "content": "Cell 5"
+        },
+        {
+          "type": "text",
+          "id": "cell_5_text",
+          "label": "Text",
+          "default": "Competitor 3"
+        },
+        {
+          "type": "image_picker",
+          "id": "cell_5_img",
+          "label": "Image"
+        },
+        {
+          "type": "header",
+          "content": "Cell 6"
+        },
+        {
+          "type": "text",
+          "id": "cell_6_text",
+          "label": "Text",
+          "default": "Competitor 4"
+        },
+        {
+          "type": "image_picker",
+          "id": "cell_6_img",
+          "label": "Image"
+        },
+        {
+          "type": "header",
+          "content": "Cell 7"
+        },
+        {
+          "type": "text",
+          "id": "cell_7_text",
+          "label": "Text",
+          "default": "Competitor 5"
+        },
+        {
+          "type": "image_picker",
+          "id": "cell_7_img",
+          "label": "Image"
+        }
+      ]
+    },
+    {
+      "type": "row",
+      "name": "Row",
+      "settings": [
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Title",
+          "default": "Feature name"
+        },
+        {
+          "type": "header",
+          "content": "Cell 2"
+        },
+        {
+          "type": "select",
+          "id": "cell_2_checkbox",
+          "label": "Checkbox",
+          "options": [
+            { "value": "", "label": "None" },
+            { "value": "checked-circle", "label": "Checked circle" },
+            { "value": "checked", "label": "Checked" },
+            { "value": "unchecked", "label": "Unchecked" },
+          ],
+          "default": "checked-circle"
+        },
+        {
+          "type": "text",
+          "id": "cell_2_text",
+          "label": "Text"
+        },
+        {
+          "type": "header",
+          "content": "Cell 3"
+        },
+        {
+          "type": "select",
+          "id": "cell_3_checkbox",
+          "label": "Checkbox",
+          "options": [
+            { "value": "", "label": "None" },
+            { "value": "checked-circle", "label": "Checked circle" },
+            { "value": "checked", "label": "Checked" },
+            { "value": "unchecked", "label": "Unchecked" }
+          ],
+           "default": "unchecked"
+        },
+        {
+          "type": "text",
+          "id": "cell_3_text",
+          "label": "Text"
+        },
+        {
+          "type": "header",
+          "content": "Cell 4"
+        },
+        {
+          "type": "select",
+          "id": "cell_4_checkbox",
+          "label": "Checkbox",
+          "options": [
+            { "value": "", "label": "None" },
+            { "value": "checked-circle", "label": "Checked circle" },
+            { "value": "checked", "label": "Checked" },
+            { "value": "unchecked", "label": "Unchecked" }
+          ],
+           "default": "unchecked"
+        },
+        {
+          "type": "text",
+          "id": "cell_4_text",
+          "label": "Text"
+        },
+        {
+          "type": "header",
+          "content": "Cell 5"
+        },
+        {
+          "type": "select",
+          "id": "cell_5_checkbox",
+          "label": "Checkbox",
+          "options": [
+            { "value": "", "label": "None" },
+            { "value": "checked-circle", "label": "Checked circle" },
+            { "value": "checked", "label": "Checked" },
+            { "value": "unchecked", "label": "Unchecked" }
+          ],
+           "default": "unchecked"
+        },
+        {
+          "type": "text",
+          "id": "cell_5_text",
+          "label": "Text"
+        },
+        {
+          "type": "header",
+          "content": "Cell 6"
+        },
+        {
+          "type": "select",
+          "id": "cell_6_checkbox",
+          "label": "Checkbox",
+          "options": [
+            { "value": "", "label": "None" },
+            { "value": "checked-circle", "label": "Checked circle" },
+            { "value": "checked", "label": "Checked" },
+            { "value": "unchecked", "label": "Unchecked" }
+          ],
+           "default": "unchecked"
+        },
+        {
+          "type": "text",
+          "id": "cell_6_text",
+          "label": "Text"
+        },
+        {
+          "type": "header",
+          "content": "Cell 7"
+        },
+        {
+          "type": "select",
+          "id": "cell_7_checkbox",
+          "label": "Checkbox",
+          "options": [
+            { "value": "", "label": "None" },
+            { "value": "checked-circle", "label": "Checked circle" },
+            { "value": "checked", "label": "Checked" },
+            { "value": "unchecked", "label": "Unchecked" }
+          ],
+           "default": "unchecked"
+        },
+        {
+          "type": "text",
+          "id": "cell_7_text",
+          "label": "Text"
+        }
+      ]
+    }
+  ],
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  },
+  "presets": [
+    {
+      "name": "Table compare",
+      "blocks": [
+        { "type": "header" },
+        { "type": "row" },
+        { "type": "row" },
+        { "type": "row" },
+        { "type": "row" },
+        { "type": "row" }
+      ]
+    }
+  ]
+}
+{% endschema %}

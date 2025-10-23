@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pet Cart Integration Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .test-section {
+            background: #f5f5f5;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+        .success { color: #28a745; }
+        .error { color: #dc3545; }
+        .info { color: #007bff; }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        .form-data {
+            background: white;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        .form-data pre {
+            margin: 0;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Pet Cart Integration Test</h1>
+    
+    <div class="test-section">
+        <h2>1. Setup Mock Pet Data</h2>
+        <p>This simulates processed pet images in the perkieEffects cache.</p>
+        <button onclick="setupMockData()">Setup Mock Pet Data</button>
+        <div id="setup-status"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>2. Test Pet Selector</h2>
+        <p>Mock pet selector component (simplified for testing).</p>
+        
+        <!-- Simplified Pet Selector -->
+        <div class="ks-pet-selector" id="pet-selector-test" data-section-id="test">
+            <div class="ks-pet-selector__header">
+                <h3>Add Your Pet Image</h3>
+                <p>Choose from your saved pet images</p>
+            </div>
+            <div class="ks-pet-selector__content" id="pet-selector-content-test">
+                <div class="ks-pet-selector__loading">
+                    <p>Loading pets...</p>
+                </div>
+            </div>
+        </div>
+        
+        <button onclick="loadPets()">Load Mock Pets</button>
+        <div id="pet-selector-status"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>3. Test Cart Form Integration</h2>
+        <p>Mock Shopify product form with hidden pet properties.</p>
+        
+        <!-- Mock Product Form -->
+        <form id="product-form-test" data-type="add-to-cart-form">
+            <input type="hidden" name="id" value="12345" class="product-variant-id">
+            
+            <!-- Pet Properties (matches buy-buttons.liquid) -->
+            <input type="hidden" name="properties[Pet Name]" id="pet-name-test" value="">
+            <input type="hidden" name="properties[Pet Session]" id="pet-session-test" value="">
+            <input type="hidden" name="properties[Pet Effect]" id="pet-effect-test" value="">
+            <input type="hidden" name="properties[Pet Image URL]" id="pet-image-url-test" value="">
+            <input type="hidden" name="properties[Has Custom Pet]" id="has-custom-pet-test" value="false">
+            
+            <button type="button" onclick="simulateCartAdd()">Simulate Add to Cart</button>
+        </form>
+        
+        <div id="form-data-display" class="form-data" style="display: none;">
+            <h4>Form Data to be Sent:</h4>
+            <pre id="form-data-content"></pre>
+        </div>
+    </div>
+    
+    <div class="test-section">
+        <h2>4. Event System Test</h2>
+        <p>Test the event communication between components.</p>
+        <button onclick="simulatePetSelection()">Simulate Pet Selection</button>
+        <button onclick="simulateProcessorComplete()">Simulate Processor Complete</button>
+        <div id="event-log"></div>
+    </div>
+
+    <script>
+        // Mock perkieEffects cache
+        window.perkieEffects = new Map();
+        
+        // Event logging
+        function logEvent(message, type = 'info') {
+            const log = document.getElementById('event-log');
+            const timestamp = new Date().toLocaleTimeString();
+            log.innerHTML += `<div class="${type}">[${timestamp}] ${message}</div>`;
+        }
+        
+        // Setup mock pet data
+        function setupMockData() {
+            window.perkieEffects.clear();
+            
+            // Mock pet 1
+            window.perkieEffects.set('fluffy_dog_123_enhancedblackwhite', 'data:image/png;base64,mock-bw-data-1');
+            window.perkieEffects.set('fluffy_dog_123_popart', 'data:image/png;base64,mock-popart-data-1');
+            window.perkieEffects.set('fluffy_dog_123_color', 'data:image/png;base64,mock-color-data-1');
+            
+            // Mock pet 2
+            window.perkieEffects.set('buddy_cat_456_enhancedblackwhite', 'data:image/png;base64,mock-bw-data-2');
+            window.perkieEffects.set('buddy_cat_456_dithering', 'data:image/png;base64,mock-dithering-data-2');
+            
+            document.getElementById('setup-status').innerHTML = 
+                `<div class="success">✅ Mock data setup complete: ${window.perkieEffects.size} entries</div>`;
+            
+            logEvent('Mock pet data setup complete', 'success');
+        }
+        
+        // Load pets (simplified version of selector logic)
+        function loadPets() {
+            if (!window.perkieEffects || window.perkieEffects.size === 0) {
+                document.getElementById('pet-selector-status').innerHTML = 
+                    '<div class="error">❌ No pet data found. Setup mock data first.</div>';
+                return;
+            }
+            
+            const pets = extractPetDataFromCache();
+            const contentEl = document.getElementById('pet-selector-content-test');
+            
+            if (pets.length === 0) {
+                contentEl.innerHTML = '<div class="error">No pets found</div>';
+                return;
+            }
+            
+            const petsHtml = `
+                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px;">
+                    ${pets.map(pet => `
+                        <div style="border: 2px solid #ddd; border-radius: 8px; padding: 10px; cursor: pointer;"
+                             onclick="selectPet('${pet.sessionKey}', '${pet.name}')">
+                            <div style="text-align: center;">
+                                <strong>${pet.name}</strong><br>
+                                <small>${pet.effects.size} effects</small>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+            
+            contentEl.innerHTML = petsHtml;
+            document.getElementById('pet-selector-status').innerHTML = 
+                `<div class="success">✅ Loaded ${pets.length} pets</div>`;
+            
+            logEvent(`Loaded ${pets.length} pets successfully`, 'success');
+        }
+        
+        // Extract pet data (matches actual implementation)
+        function extractPetDataFromCache() {
+            const pets = new Map();
+            
+            window.perkieEffects.forEach((imageUrl, key) => {
+                const match = key.match(/^(.+?)_(enhancedblackwhite|popart|dithering|color)$/);
+                if (match) {
+                    const sessionKey = match[1];
+                    const effect = match[2];
+                    
+                    if (!pets.has(sessionKey)) {
+                        pets.set(sessionKey, {
+                            sessionKey,
+                            name: extractPetName(sessionKey),
+                            effects: new Map()
+                        });
+                    }
+                    
+                    pets.get(sessionKey).effects.set(effect, imageUrl);
+                }
+            });
+            
+            return Array.from(pets.values());
+        }
+        
+        // Extract pet name (matches actual implementation)
+        function extractPetName(sessionKey) {
+            const parts = sessionKey.split('_');
+            if (parts.length > 0) {
+                let name = parts[0].replace(/\.[^/.]+$/, "");
+                name = name.replace(/[_-]/g, ' ');
+                return name.charAt(0).toUpperCase() + name.slice(1);
+            }
+            return 'My Pet';
+        }
+        
+        // Select pet (matches actual implementation)
+        function selectPet(sessionKey, petName) {
+            const selectedPetData = {
+                sessionKey,
+                petName,
+                effects: {}
+            };
+            
+            // Get all effects for this pet
+            window.perkieEffects.forEach((imageUrl, key) => {
+                if (key.startsWith(sessionKey + '_')) {
+                    const effect = key.replace(sessionKey + '_', '');
+                    selectedPetData.effects[effect] = imageUrl;
+                }
+            });
+            
+            // Dispatch selection event
+            const event = new CustomEvent('petSelected', {
+                detail: selectedPetData
+            });
+            document.dispatchEvent(event);
+            
+            logEvent(`Pet selected: ${petName} (${sessionKey})`, 'success');
+        }
+        
+        // Simulate cart add
+        function simulateCartAdd() {
+            const form = document.getElementById('product-form-test');
+            const formData = new FormData(form);
+            
+            const data = {};
+            for (let [key, value] of formData.entries()) {
+                data[key] = value;
+            }
+            
+            document.getElementById('form-data-content').textContent = JSON.stringify(data, null, 2);
+            document.getElementById('form-data-display').style.display = 'block';
+            
+            logEvent('Form data prepared for cart submission', 'info');
+        }
+        
+        // Simulate pet selection
+        function simulatePetSelection() {
+            if (window.perkieEffects.size === 0) {
+                logEvent('❌ No pet data available. Setup mock data first.', 'error');
+                return;
+            }
+            
+            // Select first available pet
+            const pets = extractPetDataFromCache();
+            if (pets.length > 0) {
+                selectPet(pets[0].sessionKey, pets[0].name);
+            }
+        }
+        
+        // Simulate processor complete
+        function simulateProcessorComplete() {
+            const event = new CustomEvent('petProcessorComplete', {
+                detail: {
+                    imageUrl: 'data:image/png;base64,mock-new-image',
+                    effect: 'enhancedblackwhite',
+                    sessionId: 'test_session_123',
+                    sessionKey: 'new_pet_789',
+                    fileName: 'new-pet.jpg',
+                    artistNotes: 'Test notes'
+                }
+            });
+            document.dispatchEvent(event);
+            
+            logEvent('Pet processor complete event dispatched', 'info');
+        }
+        
+        // Event listeners (matches buy-buttons.liquid)
+        document.addEventListener('petSelected', function(event) {
+            const petData = event.detail;
+            const sectionId = 'test';
+            
+            // Populate form fields
+            document.getElementById(`pet-name-${sectionId}`).value = petData.petName || '';
+            document.getElementById(`pet-session-${sectionId}`).value = petData.sessionKey || '';
+            document.getElementById(`has-custom-pet-${sectionId}`).value = 'true';
+            
+            // Set primary effect
+            let primaryEffect = 'enhancedblackwhite';
+            let primaryImageUrl = petData.effects[primaryEffect];
+            
+            if (!primaryImageUrl) {
+                const availableEffects = Object.keys(petData.effects);
+                if (availableEffects.length > 0) {
+                    primaryEffect = availableEffects[0];
+                    primaryImageUrl = petData.effects[primaryEffect];
+                }
+            }
+            
+            document.getElementById(`pet-effect-${sectionId}`).value = primaryEffect;
+            document.getElementById(`pet-image-url-${sectionId}`).value = 
+                primaryImageUrl ? primaryImageUrl.substring(0, 250) : '';
+            
+            logEvent(`✅ Form fields populated for ${petData.petName}`, 'success');
+        });
+        
+        document.addEventListener('petProcessorComplete', function(event) {
+            logEvent('🎉 Pet processor complete event received', 'success');
+            logEvent(`Details: ${JSON.stringify(event.detail)}`, 'info');
+        });
+        
+        // Initial setup
+        document.addEventListener('DOMContentLoaded', function() {
+            logEvent('Test page loaded', 'info');
+        });
+    </script>
+</body>
+</html>

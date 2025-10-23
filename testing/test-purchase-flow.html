@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Purchase Flow Test - Pet Background Remover</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .test-section {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .status {
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+        .warning { background: #fff3cd; color: #856404; }
+        .info { background: #d1ecf1; color: #0c5460; }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover { background: #0056b3; }
+        .test-results {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 4px;
+        }
+        pre {
+            background: #000;
+            color: #0f0;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>🧪 Purchase Flow Test</h1>
+    
+    <div class="test-section">
+        <h2>Step 1: Check Module Loading</h2>
+        <button onclick="checkModules()">Check Modules</button>
+        <div id="module-status"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Step 2: Initialize Test Component</h2>
+        <button onclick="initializeComponent()">Initialize Component</button>
+        <div id="init-status"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Step 3: Simulate Image Processing</h2>
+        <button onclick="simulateImageProcess()">Process Test Image</button>
+        <div id="process-status"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Step 4: Test Add to Cart</h2>
+        <button onclick="testAddToCart()">Add to Cart</button>
+        <div id="cart-status"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Test Results</h2>
+        <div class="test-results">
+            <pre id="console-output">Console output will appear here...</pre>
+        </div>
+    </div>
+
+    <script>
+        // Console capture
+        const consoleOutput = document.getElementById('console-output');
+        const originalLog = console.log;
+        const originalError = console.error;
+        
+        console.log = function(...args) {
+            originalLog.apply(console, args);
+            logToOutput('[LOG]', args, 'info');
+        };
+        
+        console.error = function(...args) {
+            originalError.apply(console, args);
+            logToOutput('[ERROR]', args, 'error');
+        };
+        
+        function logToOutput(prefix, args, type) {
+            const message = args.map(arg => {
+                if (typeof arg === 'object') {
+                    return JSON.stringify(arg, null, 2);
+                }
+                return String(arg);
+            }).join(' ');
+            
+            consoleOutput.textContent += `${prefix} ${new Date().toLocaleTimeString()}: ${message}\n`;
+            consoleOutput.scrollTop = consoleOutput.scrollHeight;
+        }
+
+        // Test functions
+        let testComponent = null;
+
+        function checkModules() {
+            const status = document.getElementById('module-status');
+            status.innerHTML = '';
+            
+            const modules = [
+                { name: 'CartManager', obj: window.CartManager },
+                { name: 'ImageUploader', obj: window.ImageUploader },
+                { name: 'SessionManager', obj: window.SessionManager },
+                { name: 'SimpleSessionManager', obj: window.SimpleSessionManager },
+                { name: 'APIClient', obj: window.APIClient },
+                { name: 'EffectProcessor', obj: window.EffectProcessor },
+                { name: 'ProgressTracker', obj: window.ProgressTracker }
+            ];
+            
+            modules.forEach(mod => {
+                const div = document.createElement('div');
+                div.className = 'status ' + (mod.obj ? 'success' : 'error');
+                div.textContent = `${mod.name}: ${mod.obj ? '✅ Loaded' : '❌ Not Found'}`;
+                status.appendChild(div);
+                console.log(`Module ${mod.name}:`, mod.obj ? 'Loaded' : 'Not Found');
+            });
+        }
+
+        function initializeComponent() {
+            const status = document.getElementById('init-status');
+            
+            try {
+                // Create a mock component with minimal required properties
+                testComponent = {
+                    sectionId: 'test-123',
+                    previewProductVariantId: '12345678', // Mock variant ID
+                    apiUrl: 'https://inspirenet-bg-removal-api-725543555429.us-central1.run.app',
+                    sessionId: `test_${Date.now()}`,
+                    cartSessionId: `cart_${Date.now()}`,
+                    currentPetName: 'TestPet',
+                    currentOriginalImageUrl: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==',
+                    currentProcessedImageUrl: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==',
+                    selectedEffect: 'enhancedblackwhite',
+                    cleanupHandlers: [],
+                    
+                    // Mock the showStatus method
+                    showStatus: function(message, type) {
+                        console.log(`Status [${type}]: ${message}`);
+                        const statusDiv = document.createElement('div');
+                        statusDiv.className = `status ${type}`;
+                        statusDiv.textContent = message;
+                        status.appendChild(statusDiv);
+                    },
+                    
+                    // Add the addToProduct method from our fix
+                    addToProduct: async function() {
+                        if (!this.currentProcessedImageUrl) {
+                            this.showStatus('Please process an image first', 'error');
+                            return;
+                        }
+
+                        if (!this.currentPetName) {
+                            this.currentPetName = `Pet_${Date.now()}`;
+                        }
+
+                        try {
+                            // Use CartManager if available
+                            if (this.cartManager && typeof this.cartManager.addToCart === 'function') {
+                                const sessionData = {
+                                    originalUrl: this.currentOriginalImageUrl,
+                                    processedUrl: this.currentProcessedImageUrl,
+                                    selectedEffect: this.selectedEffect || 'enhancedblackwhite',
+                                    sessionId: this.cartSessionId || this.sessionId
+                                };
+                                
+                                console.log('Using CartManager.addToCart with data:', sessionData);
+                                await this.cartManager.addToCart(this.currentPetName, sessionData);
+                            } else {
+                                // Fallback: Direct Shopify cart API
+                                const formData = {
+                                    items: [{
+                                        id: this.previewProductVariantId,
+                                        quantity: 1,
+                                        properties: {
+                                            '_pet_name': this.currentPetName,
+                                            '_original_image': this.currentOriginalImageUrl,
+                                            '_processed_image': this.currentProcessedImageUrl,
+                                            '_effect_applied': this.selectedEffect || 'enhancedblackwhite',
+                                            '_session_id': this.cartSessionId || this.sessionId
+                                        }
+                                    }]
+                                };
+                                
+                                console.log('Using Shopify Cart API with data:', formData);
+                                
+                                const response = await fetch('/cart/add.js', {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify(formData)
+                                });
+
+                                if (response.ok) {
+                                    const result = await response.json();
+                                    console.log('Cart API Response:', result);
+                                    this.showStatus('Added to cart!', 'success');
+                                } else {
+                                    throw new Error(`Cart API failed: ${response.status}`);
+                                }
+                            }
+                        } catch (error) {
+                            console.error('Failed to add to cart:', error);
+                            this.showStatus('Failed to add to cart. Please try again.', 'error');
+                        }
+                    }
+                };
+                
+                // Initialize CartManager if available
+                if (window.CartManager) {
+                    testComponent.cartManager = new CartManager({
+                        previewProductVariantId: testComponent.previewProductVariantId,
+                        successMessage: 'Successfully added to cart!',
+                        onSuccess: (result) => {
+                            console.log('CartManager Success:', result);
+                            testComponent.showStatus('Added to cart via CartManager!', 'success');
+                        },
+                        onError: (msg) => {
+                            console.error('CartManager Error:', msg);
+                            testComponent.showStatus(msg, 'error');
+                        }
+                    });
+                    console.log('CartManager initialized');
+                } else {
+                    console.log('CartManager not available, will use fallback');
+                }
+                
+                status.innerHTML = '<div class="status success">✅ Test component initialized</div>';
+                console.log('Test component created:', testComponent);
+                
+            } catch (error) {
+                status.innerHTML = `<div class="status error">❌ Initialization failed: ${error.message}</div>`;
+                console.error('Initialization error:', error);
+            }
+        }
+
+        function simulateImageProcess() {
+            const status = document.getElementById('process-status');
+            
+            if (!testComponent) {
+                status.innerHTML = '<div class="status error">❌ Please initialize component first</div>';
+                return;
+            }
+            
+            // Simulate having processed an image
+            testComponent.currentOriginalImageUrl = 'data:image/png;base64,TEST_ORIGINAL';
+            testComponent.currentProcessedImageUrl = 'data:image/png;base64,TEST_PROCESSED';
+            testComponent.selectedEffect = 'enhancedblackwhite';
+            testComponent.currentPetName = `TestPet_${Date.now()}`;
+            
+            status.innerHTML = '<div class="status success">✅ Simulated image processing complete</div>';
+            console.log('Image processing simulated:', {
+                pet: testComponent.currentPetName,
+                effect: testComponent.selectedEffect,
+                hasOriginal: !!testComponent.currentOriginalImageUrl,
+                hasProcessed: !!testComponent.currentProcessedImageUrl
+            });
+        }
+
+        async function testAddToCart() {
+            const status = document.getElementById('cart-status');
+            
+            if (!testComponent) {
+                status.innerHTML = '<div class="status error">❌ Please initialize component first</div>';
+                return;
+            }
+            
+            status.innerHTML = '<div class="status info">⏳ Testing add to cart...</div>';
+            
+            try {
+                await testComponent.addToProduct();
+                status.innerHTML += '<div class="status success">✅ Add to cart method executed</div>';
+            } catch (error) {
+                status.innerHTML += `<div class="status error">❌ Add to cart failed: ${error.message}</div>`;
+                console.error('Add to cart test failed:', error);
+            }
+        }
+
+        // Auto-check modules on load
+        window.addEventListener('load', () => {
+            setTimeout(checkModules, 1000);
+        });
+    </script>
+</body>
+</html>

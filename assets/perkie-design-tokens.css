@@ -1,0 +1,370 @@
+/**
+ * Perkie Prints Design Tokens
+ * Beautiful, simple, intuitive design system
+ * Mobile-first with emotional pet owner connection
+ */
+
+:root {
+  /* =========================
+     Color Palette
+     ========================= */
+  
+  /* Primary - Warm, friendly, trustworthy */
+  --perkie-primary-50: #fef5f1;
+  --perkie-primary-100: #fde6db;
+  --perkie-primary-200: #fac8b5;
+  --perkie-primary-300: #f6a085;
+  --perkie-primary-400: #f06d4e;
+  --perkie-primary-500: #e84a2b;
+  --perkie-primary-600: #d93118;
+  --perkie-primary-700: #b52415;
+  --perkie-primary-800: #912016;
+  --perkie-primary-900: #751e15;
+  
+  /* Secondary - Playful, energetic */
+  --perkie-secondary-50: #fef7ee;
+  --perkie-secondary-100: #fdecd7;
+  --perkie-secondary-200: #fad4ad;
+  --perkie-secondary-300: #f6b578;
+  --perkie-secondary-400: #f18c41;
+  --perkie-secondary-500: #ed6c1b;
+  --perkie-secondary-600: #de5111;
+  --perkie-secondary-700: #b83c10;
+  --perkie-secondary-800: #933114;
+  --perkie-secondary-900: #772a14;
+  
+  /* Accent - Premium, magical */
+  --perkie-accent-50: #f6f5ff;
+  --perkie-accent-100: #eeecff;
+  --perkie-accent-200: #deddff;
+  --perkie-accent-300: #c4bfff;
+  --perkie-accent-400: #a697ff;
+  --perkie-accent-500: #8a6aff;
+  --perkie-accent-600: #7a47ff;
+  --perkie-accent-700: #6b31eb;
+  --perkie-accent-800: #5928c5;
+  --perkie-accent-900: #4a22a1;
+  
+  /* Neutral - Clean, modern */
+  --perkie-neutral-50: #fafafa;
+  --perkie-neutral-100: #f5f5f5;
+  --perkie-neutral-200: #e5e5e5;
+  --perkie-neutral-300: #d4d4d4;
+  --perkie-neutral-400: #a3a3a3;
+  --perkie-neutral-500: #737373;
+  --perkie-neutral-600: #525252;
+  --perkie-neutral-700: #404040;
+  --perkie-neutral-800: #262626;
+  --perkie-neutral-900: #171717;
+  
+  /* Success, Warning, Error */
+  --perkie-success: #10b981;
+  --perkie-success-light: #d1fae5;
+  --perkie-warning: #f59e0b;
+  --perkie-warning-light: #fef3c7;
+  --perkie-error: #ef4444;
+  --perkie-error-light: #fee2e2;
+  
+  /* =========================
+     Typography - Mobile First
+     ========================= */
+  
+  /* Font Families */
+  --perkie-font-display: 'Playfair Display', Georgia, serif;
+  --perkie-font-body: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --perkie-font-mono: 'JetBrains Mono', 'Courier New', monospace;
+  
+  /* Font Sizes - Mobile */
+  --perkie-text-xs: 0.75rem;    /* 12px */
+  --perkie-text-sm: 0.875rem;   /* 14px */
+  --perkie-text-base: 1rem;     /* 16px */
+  --perkie-text-lg: 1.125rem;   /* 18px */
+  --perkie-text-xl: 1.25rem;    /* 20px */
+  --perkie-text-2xl: 1.5rem;    /* 24px */
+  --perkie-text-3xl: 1.875rem;  /* 30px */
+  --perkie-text-4xl: 2.25rem;   /* 36px */
+  --perkie-text-5xl: 3rem;      /* 48px */
+  
+  /* Line Heights */
+  --perkie-leading-none: 1;
+  --perkie-leading-tight: 1.25;
+  --perkie-leading-snug: 1.375;
+  --perkie-leading-normal: 1.5;
+  --perkie-leading-relaxed: 1.625;
+  --perkie-leading-loose: 2;
+  
+  /* Font Weights */
+  --perkie-font-thin: 100;
+  --perkie-font-light: 300;
+  --perkie-font-normal: 400;
+  --perkie-font-medium: 500;
+  --perkie-font-semibold: 600;
+  --perkie-font-bold: 700;
+  --perkie-font-black: 900;
+  
+  /* =========================
+     Spacing - Mobile First
+     ========================= */
+  
+  --perkie-space-0: 0;
+  --perkie-space-1: 0.25rem;   /* 4px */
+  --perkie-space-2: 0.5rem;    /* 8px */
+  --perkie-space-3: 0.75rem;   /* 12px */
+  --perkie-space-4: 1rem;      /* 16px */
+  --perkie-space-5: 1.25rem;   /* 20px */
+  --perkie-space-6: 1.5rem;    /* 24px */
+  --perkie-space-8: 2rem;      /* 32px */
+  --perkie-space-10: 2.5rem;   /* 40px */
+  --perkie-space-12: 3rem;     /* 48px */
+  --perkie-space-16: 4rem;     /* 64px */
+  --perkie-space-20: 5rem;     /* 80px */
+  
+  /* =========================
+     Border Radius
+     ========================= */
+  
+  --perkie-radius-none: 0;
+  --perkie-radius-sm: 0.125rem;
+  --perkie-radius-base: 0.25rem;
+  --perkie-radius-md: 0.375rem;
+  --perkie-radius-lg: 0.5rem;
+  --perkie-radius-xl: 0.75rem;
+  --perkie-radius-2xl: 1rem;
+  --perkie-radius-3xl: 1.5rem;
+  --perkie-radius-full: 9999px;
+  
+  /* =========================
+     Shadows - Soft & Elegant
+     ========================= */
+  
+  --perkie-shadow-xs: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --perkie-shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+  --perkie-shadow-base: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --perkie-shadow-md: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  --perkie-shadow-lg: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+  --perkie-shadow-xl: 0 25px 50px -12px rgb(0 0 0 / 0.25);
+  --perkie-shadow-inner: inset 0 2px 4px 0 rgb(0 0 0 / 0.05);
+  
+  /* Colored shadows for hover states */
+  --perkie-shadow-primary: 0 10px 40px -10px rgba(232, 74, 43, 0.35);
+  --perkie-shadow-accent: 0 10px 40px -10px rgba(138, 106, 255, 0.35);
+  
+  /* =========================
+     Animation & Transitions
+     ========================= */
+  
+  --perkie-duration-75: 75ms;
+  --perkie-duration-100: 100ms;
+  --perkie-duration-150: 150ms;
+  --perkie-duration-200: 200ms;
+  --perkie-duration-300: 300ms;
+  --perkie-duration-500: 500ms;
+  --perkie-duration-700: 700ms;
+  --perkie-duration-1000: 1000ms;
+  
+  /* Easing Functions */
+  --perkie-ease-linear: linear;
+  --perkie-ease-in: cubic-bezier(0.4, 0, 1, 1);
+  --perkie-ease-out: cubic-bezier(0, 0, 0.2, 1);
+  --perkie-ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+  --perkie-ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  
+  /* =========================
+     Z-Index Layers
+     ========================= */
+  
+  --perkie-z-negative: -1;
+  --perkie-z-0: 0;
+  --perkie-z-10: 10;
+  --perkie-z-20: 20;
+  --perkie-z-30: 30;
+  --perkie-z-40: 40;
+  --perkie-z-50: 50;
+  --perkie-z-modal: 100;
+  --perkie-z-overlay: 200;
+  --perkie-z-toast: 300;
+  --perkie-z-tooltip: 400;
+  
+  /* =========================
+     Breakpoints
+     ========================= */
+  
+  --perkie-screen-sm: 640px;
+  --perkie-screen-md: 768px;
+  --perkie-screen-lg: 1024px;
+  --perkie-screen-xl: 1280px;
+  --perkie-screen-2xl: 1536px;
+}
+
+/* =========================
+   Tablet Adjustments
+   ========================= */
+
+@media (min-width: 768px) {
+  :root {
+    /* Scale up typography for tablets */
+    --perkie-text-base: 1.0625rem;  /* 17px */
+    --perkie-text-lg: 1.25rem;      /* 20px */
+    --perkie-text-xl: 1.5rem;       /* 24px */
+    --perkie-text-2xl: 1.875rem;    /* 30px */
+    --perkie-text-3xl: 2.25rem;     /* 36px */
+    --perkie-text-4xl: 3rem;        /* 48px */
+    --perkie-text-5xl: 4rem;        /* 64px */
+  }
+}
+
+/* =========================
+   Desktop Adjustments
+   ========================= */
+
+@media (min-width: 1024px) {
+  :root {
+    /* Scale up typography for desktop */
+    --perkie-text-base: 1.125rem;   /* 18px */
+    --perkie-text-lg: 1.375rem;     /* 22px */
+    --perkie-text-xl: 1.625rem;     /* 26px */
+    --perkie-text-2xl: 2rem;        /* 32px */
+    --perkie-text-3xl: 2.5rem;      /* 40px */
+    --perkie-text-4xl: 3.5rem;      /* 56px */
+    --perkie-text-5xl: 4.5rem;      /* 72px */
+  }
+}
+
+/* =========================
+   Utility Classes
+   ========================= */
+
+/* Gradient Backgrounds */
+.perkie-gradient-primary {
+  background: linear-gradient(135deg, var(--perkie-primary-400) 0%, var(--perkie-primary-600) 100%);
+}
+
+.perkie-gradient-accent {
+  background: linear-gradient(135deg, var(--perkie-accent-400) 0%, var(--perkie-accent-600) 100%);
+}
+
+.perkie-gradient-warm {
+  background: linear-gradient(135deg, var(--perkie-secondary-300) 0%, var(--perkie-primary-500) 100%);
+}
+
+.perkie-gradient-premium {
+  background: linear-gradient(135deg, var(--perkie-accent-500) 0%, var(--perkie-primary-500) 50%, var(--perkie-secondary-500) 100%);
+}
+
+/* Smooth Transitions */
+.perkie-transition {
+  transition-property: all;
+  transition-duration: var(--perkie-duration-200);
+  transition-timing-function: var(--perkie-ease-in-out);
+}
+
+.perkie-transition-colors {
+  transition-property: background-color, border-color, color, fill, stroke;
+  transition-duration: var(--perkie-duration-200);
+  transition-timing-function: var(--perkie-ease-in-out);
+}
+
+.perkie-transition-transform {
+  transition-property: transform;
+  transition-duration: var(--perkie-duration-200);
+  transition-timing-function: var(--perkie-ease-in-out);
+}
+
+/* Touch Target Sizes (Mobile) */
+.perkie-touch-target {
+  min-height: 44px;
+  min-width: 44px;
+}
+
+/* Focus States */
+.perkie-focus-ring {
+  outline: 2px solid transparent;
+  outline-offset: 2px;
+}
+
+.perkie-focus-ring:focus-visible {
+  outline-color: var(--perkie-primary-500);
+}
+
+/* Loading States */
+.perkie-shimmer {
+  background: linear-gradient(
+    90deg,
+    var(--perkie-neutral-200) 0%,
+    var(--perkie-neutral-100) 50%,
+    var(--perkie-neutral-200) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+/* Pulse Animation */
+.perkie-pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+/* Scale on Hover */
+.perkie-hover-scale {
+  transition: transform var(--perkie-duration-200) var(--perkie-ease-in-out);
+}
+
+.perkie-hover-scale:hover {
+  transform: scale(1.05);
+}
+
+/* Card Elevation */
+.perkie-card {
+  background: white;
+  border-radius: var(--perkie-radius-xl);
+  box-shadow: var(--perkie-shadow-base);
+  transition: box-shadow var(--perkie-duration-300) var(--perkie-ease-in-out);
+}
+
+.perkie-card:hover {
+  box-shadow: var(--perkie-shadow-lg);
+}
+
+/* Button Base */
+.perkie-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--perkie-space-3) var(--perkie-space-6);
+  font-family: var(--perkie-font-body);
+  font-weight: var(--perkie-font-medium);
+  font-size: var(--perkie-text-base);
+  line-height: var(--perkie-leading-tight);
+  border-radius: var(--perkie-radius-lg);
+  transition: all var(--perkie-duration-200) var(--perkie-ease-in-out);
+  cursor: pointer;
+  user-select: none;
+}
+
+/* Primary Button */
+.perkie-button-primary {
+  background: var(--perkie-primary-500);
+  color: white;
+}
+
+.perkie-button-primary:hover {
+  background: var(--perkie-primary-600);
+  box-shadow: var(--perkie-shadow-primary);
+  transform: translateY(-2px);
+}
+
+/* Mobile Touch Feedback */
+@media (hover: none) {
+  .perkie-button:active {
+    transform: scale(0.98);
+  }
+}

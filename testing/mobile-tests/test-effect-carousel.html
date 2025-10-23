@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1">
+    <title>Pet Effect Carousel - Mobile Test</title>
+    <style>
+        :root {
+            --color-foreground: 0, 0, 0;
+            --color-button: 33, 150, 243;
+            --color-button-text: 255, 255, 255;
+            --border-radius: 8px;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: #f5f5f5;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 16px;
+            box-shadow: 0 2px 20px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+        
+        .instructions {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        
+        .ks-pet-bg-remover__effect-selection {
+            margin: 2rem 0;
+        }
+        
+        .ks-pet-bg-remover__effect-label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            font-size: 18px;
+        }
+        
+        .ks-pet-bg-remover__effect-dropdown {
+            position: relative;
+            margin-bottom: 20px;
+        }
+        
+        .ks-pet-bg-remover__effect-select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            background: white;
+            cursor: pointer;
+        }
+        
+        .selected-effect {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f0f7ff;
+            border-radius: 8px;
+            text-align: center;
+        }
+        
+        .selected-effect h3 {
+            margin: 0 0 10px 0;
+            color: #1976d2;
+        }
+        
+        .selected-effect p {
+            margin: 0;
+            font-size: 24px;
+        }
+        
+        .device-info {
+            margin-top: 30px;
+            padding: 15px;
+            background: #f5f5f5;
+            border-radius: 8px;
+            font-size: 12px;
+            color: #666;
+        }
+        
+        .test-controls {
+            margin-top: 20px;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .test-btn {
+            padding: 10px 20px;
+            background: rgb(33, 150, 243);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        
+        .test-btn:hover {
+            background: rgb(25, 118, 210);
+        }
+        
+        .test-btn:active {
+            transform: scale(0.95);
+        }
+        
+        @media (max-width: 480px) {
+            body {
+                padding: 10px;
+            }
+            
+            .container {
+                padding: 15px;
+            }
+            
+            h1 {
+                font-size: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Pet Effect Carousel Test</h1>
+        <p class="instructions">
+            Test the native-like swipe carousel for effect selection. On mobile devices, 
+            swipe left/right to browse effects. The carousel features momentum scrolling, 
+            snap points, and haptic feedback.
+        </p>
+        
+        <div class="ks-pet-bg-remover__effect-selection">
+            <label class="ks-pet-bg-remover__effect-label">Choose Your Effect:</label>
+            
+            <div class="ks-pet-bg-remover__effect-dropdown">
+                <select class="ks-pet-bg-remover__effect-select" data-effect-selector>
+                    <option value="">Select an effect...</option>
+                    <option value="enhancedblackwhite">Enhanced Black & White</option>
+                    <option value="popart">Pop Art</option>
+                    <option value="retro8bit">8-Bit Retro</option>
+                    <option value="dithering">Dithering</option>
+                    <option value="color">Original Color</option>
+                </select>
+            </div>
+        </div>
+        
+        <div class="selected-effect">
+            <h3>Selected Effect:</h3>
+            <p id="selected-effect-display">None</p>
+        </div>
+        
+        <div class="test-controls">
+            <button class="test-btn" onclick="testHaptics()">Test Haptics</button>
+            <button class="test-btn" onclick="toggleMobile()">Toggle Mobile Mode</button>
+            <button class="test-btn" onclick="resetCarousel()">Reset Carousel</button>
+        </div>
+        
+        <div class="device-info">
+            <strong>Device Info:</strong><br>
+            Touch Support: <span id="touch-support"></span><br>
+            User Agent: <span id="user-agent"></span><br>
+            Screen Size: <span id="screen-size"></span><br>
+            Haptic Support: <span id="haptic-support"></span>
+        </div>
+    </div>
+    
+    <script src="../../shopify-theme/assets/ks-pet-effect-carousel.js"></script>
+    <script>
+        // Update device info
+        document.getElementById('touch-support').textContent = 
+            ('ontouchstart' in window) ? 'Yes' : 'No';
+        document.getElementById('user-agent').textContent = 
+            navigator.userAgent.includes('Mobile') ? 'Mobile' : 'Desktop';
+        document.getElementById('screen-size').textContent = 
+            `${window.innerWidth} x ${window.innerHeight}`;
+        document.getElementById('haptic-support').textContent = 
+            ('vibrate' in navigator) ? 'Yes' : 'No';
+        
+        // Listen for effect changes
+        document.addEventListener('change', (e) => {
+            if (e.target.matches('[data-effect-selector]')) {
+                const selectedEffect = e.target.value;
+                const displayName = e.target.options[e.target.selectedIndex].text;
+                document.getElementById('selected-effect-display').textContent = 
+                    selectedEffect ? displayName : 'None';
+                
+                console.log('Effect selected:', selectedEffect);
+            }
+        });
+        
+        // Test functions
+        function testHaptics() {
+            if ('vibrate' in navigator) {
+                navigator.vibrate([50, 30, 50]);
+                alert('Haptic feedback triggered!');
+            } else {
+                alert('Haptic feedback not supported on this device');
+            }
+        }
+        
+        function toggleMobile() {
+            const carousel = document.querySelector('.pet-effect-carousel');
+            if (carousel) {
+                carousel.style.display = carousel.style.display === 'none' ? 'block' : 'none';
+                document.querySelector('.ks-pet-bg-remover__effect-dropdown').style.display = 
+                    carousel.style.display === 'none' ? 'block' : 'none';
+            }
+        }
+        
+        function resetCarousel() {
+            // Re-initialize carousel
+            const existingCarousel = document.querySelector('.pet-effect-carousel');
+            if (existingCarousel) {
+                existingCarousel.remove();
+            }
+            
+            const carousel = new PetEffectCarousel();
+            carousel.init();
+        }
+        
+        // Initialize carousel on load
+        window.addEventListener('load', () => {
+            // Override mobile check for testing
+            if (window.location.search.includes('force-mobile')) {
+                PetEffectCarousel.prototype.checkMobile = () => true;
+            }
+        });
+        
+        // Add keyboard shortcuts for testing
+        document.addEventListener('keydown', (e) => {
+            const select = document.querySelector('[data-effect-selector]');
+            if (!select) return;
+            
+            if (e.key === 'ArrowLeft') {
+                const currentIndex = select.selectedIndex;
+                if (currentIndex > 0) {
+                    select.selectedIndex = currentIndex - 1;
+                    select.dispatchEvent(new Event('change', { bubbles: true }));
+                }
+            } else if (e.key === 'ArrowRight') {
+                const currentIndex = select.selectedIndex;
+                if (currentIndex < select.options.length - 1) {
+                    select.selectedIndex = currentIndex + 1;
+                    select.dispatchEvent(new Event('change', { bubbles: true }));
+                }
+            }
+        });
+    </script>
+</body>
+</html>

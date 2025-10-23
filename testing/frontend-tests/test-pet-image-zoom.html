@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Pet Image Zoom Test</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 20px;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #f5f5f5;
+    }
+    
+    .test-container {
+      max-width: 800px;
+      margin: 0 auto;
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 2px 20px rgba(0,0,0,0.1);
+    }
+    
+    h1 {
+      margin: 0 0 20px 0;
+      font-size: 24px;
+      color: #333;
+    }
+    
+    .test-section {
+      margin-bottom: 40px;
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      padding: 20px;
+    }
+    
+    .test-section h2 {
+      margin: 0 0 15px 0;
+      font-size: 18px;
+      color: #555;
+    }
+    
+    .image-container {
+      width: 100%;
+      height: 400px;
+      background: #f9f9f9;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      overflow: hidden;
+      position: relative;
+    }
+    
+    .test-image {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+    
+    .instructions {
+      margin-top: 15px;
+      padding: 15px;
+      background: #e8f4fd;
+      border-radius: 6px;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+    
+    .instructions ul {
+      margin: 10px 0;
+      padding-left: 20px;
+    }
+    
+    .status {
+      margin-top: 15px;
+      padding: 10px;
+      background: #f0f0f0;
+      border-radius: 4px;
+      font-family: monospace;
+      font-size: 12px;
+    }
+    
+    @media (max-width: 600px) {
+      body {
+        padding: 10px;
+      }
+      
+      .test-container {
+        padding: 15px;
+      }
+      
+      .image-container {
+        height: 300px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="test-container">
+    <h1>Pet Image Zoom Functionality Test</h1>
+    
+    <div class="test-section">
+      <h2>Canvas-based Image (Protected)</h2>
+      <div class="image-container" id="canvas-container">
+        <canvas class="test-image" id="test-canvas"></canvas>
+      </div>
+      <div class="instructions">
+        <strong>Test Instructions:</strong>
+        <ul>
+          <li><strong>Mobile:</strong> Pinch to zoom, double-tap to zoom 2x</li>
+          <li><strong>Desktop:</strong> Mouse wheel to zoom, double-click to zoom 2x</li>
+          <li><strong>Drag to pan</strong> when zoomed in</li>
+          <li><strong>Zoom controls:</strong> Use +/- buttons or reset button</li>
+        </ul>
+      </div>
+      <div class="status" id="canvas-status">Status: Loading...</div>
+    </div>
+    
+    <div class="test-section">
+      <h2>Regular Image</h2>
+      <div class="image-container" id="img-container">
+        <img class="test-image" id="test-img" alt="Test pet image">
+      </div>
+      <div class="instructions">
+        <strong>Expected Behavior:</strong>
+        <ul>
+          <li>Smooth spring-based animations</li>
+          <li>Zoom indicator shows percentage</li>
+          <li>Constraints prevent panning beyond image bounds</li>
+          <li>Zoom range: 1x to 4x</li>
+        </ul>
+      </div>
+      <div class="status" id="img-status">Status: Loading...</div>
+    </div>
+  </div>
+  
+  <!-- Load the zoom script -->
+  <script src="../../shopify-theme/assets/ks-pet-image-zoom.js"></script>
+  
+  <script>
+    // Test image URL (using a placeholder)
+    const testImageUrl = 'https://picsum.photos/800/600?random=1';
+    
+    // Setup canvas test
+    const canvas = document.getElementById('test-canvas');
+    const ctx = canvas.getContext('2d');
+    const canvasImg = new Image();
+    
+    canvasImg.onload = function() {
+      canvas.width = canvasImg.width;
+      canvas.height = canvasImg.height;
+      ctx.drawImage(canvasImg, 0, 0);
+      
+      // Initialize zoom on canvas container
+      const canvasContainer = document.getElementById('canvas-container');
+      const canvasZoom = new PetImageZoom(canvasContainer, {
+        minZoom: 1,
+        maxZoom: 4,
+        doubleTapZoom: 2,
+        showControls: true,
+        showIndicator: true
+      });
+      
+      document.getElementById('canvas-status').textContent = 'Status: Canvas zoom initialized';
+    };
+    
+    canvasImg.onerror = function() {
+      document.getElementById('canvas-status').textContent = 'Status: Failed to load image';
+    };
+    
+    canvasImg.src = testImageUrl;
+    
+    // Setup regular image test
+    const img = document.getElementById('test-img');
+    img.onload = function() {
+      const imgContainer = document.getElementById('img-container');
+      const imgZoom = new PetImageZoom(imgContainer, {
+        minZoom: 1,
+        maxZoom: 4,
+        doubleTapZoom: 2,
+        showControls: true,
+        showIndicator: true
+      });
+      
+      document.getElementById('img-status').textContent = 'Status: Image zoom initialized';
+    };
+    
+    img.onerror = function() {
+      document.getElementById('img-status').textContent = 'Status: Failed to load image';
+    };
+    
+    img.src = testImageUrl;
+    
+    // Log touch events for debugging
+    document.addEventListener('touchstart', (e) => {
+      console.log('Touch start:', e.touches.length, 'touches');
+    });
+    
+    document.addEventListener('gesturestart', (e) => {
+      console.log('Gesture start (should be prevented)');
+    });
+  </script>
+</body>
+</html>

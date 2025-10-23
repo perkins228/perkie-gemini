@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pre-warming Fail Safes Verification</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .test-section {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+        }
+        h2 {
+            color: #666;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 10px;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin: 5px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            font-family: monospace;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .warning {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeeba;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        pre {
+            background: #f4f4f4;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔒 Pre-warming Fail Safes Verification</h1>
+    
+    <div class="test-section">
+        <h2>Current Status</h2>
+        <div id="status" class="status info">Checking warming status...</div>
+    </div>
+
+    <div class="test-section">
+        <h2>Test Controls</h2>
+        <button onclick="checkWarmingStatus()">Check Status</button>
+        <button onclick="simulateWarmingAttempt()">Simulate Warming Attempt</button>
+        <button onclick="clearSessionStorage()">Clear Session Storage</button>
+        <button onclick="clearAllWarmingData()">Clear All Warming Data</button>
+        <button onclick="openNewTab()">Open New Tab (Test Cross-Tab)</button>
+    </div>
+
+    <div class="test-section">
+        <h2>Test Results</h2>
+        <div id="results"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Storage Inspector</h2>
+        <h3>Session Storage</h3>
+        <pre id="sessionStorage"></pre>
+        <h3>Local Storage (Pet Processor Keys)</h3>
+        <pre id="localStorage"></pre>
+    </div>
+
+    <script>
+        // Check and display current warming status
+        function checkWarmingStatus() {
+            const results = [];
+            
+            // Check session warmup
+            const sessionWarmup = sessionStorage.getItem('petProcessor_sessionWarmupDone');
+            if (sessionWarmup === 'true') {
+                results.push('✅ Session warmup already done (blocking further warmups this session)');
+            } else {
+                results.push('⚠️ Session warmup not done (warmup allowed)');
+            }
+            
+            // Check global cooldown
+            const lastAttempt = localStorage.getItem('petProcessor_lastWarmupAttempt');
+            if (lastAttempt) {
+                const timeSince = Date.now() - parseInt(lastAttempt);
+                const cooldown = 15 * 60 * 1000; // 15 minutes
+                const remaining = cooldown - timeSince;
+                
+                if (remaining > 0) {
+                    const minRemaining = Math.ceil(remaining / 60000);
+                    results.push(`🕐 Global cooldown active (${minRemaining} min remaining)`);
+                } else {
+                    results.push('✅ Global cooldown expired (warmup allowed)');
+                }
+            } else {
+                results.push('ℹ️ No previous warmup attempts recorded');
+            }
+            
+            // Check for in-progress warmups
+            let inProgressCount = 0;
+            for (let key in localStorage) {
+                if (key.startsWith('petProcessor_warmupInProgress_')) {
+                    inProgressCount++;
+                }
+            }
+            if (inProgressCount > 0) {
+                results.push(`⚠️ ${inProgressCount} warmup(s) currently in progress`);
+            }
+            
+            updateStatus(results.join('<br>'), 'info');
+            updateStorageDisplay();
+        }
+        
+        // Simulate a warming attempt
+        function simulateWarmingAttempt() {
+            const results = [];
+            
+            // Check session limit
+            if (sessionStorage.getItem('petProcessor_sessionWarmupDone') === 'true') {
+                results.push('❌ BLOCKED: Session warmup already done');
+                updateResults(results.join('<br>'), 'error');
+                return;
+            }
+            
+            // Check global cooldown
+            const lastAttempt = localStorage.getItem('petProcessor_lastWarmupAttempt');
+            const cooldown = 15 * 60 * 1000;
+            if (lastAttempt && (Date.now() - parseInt(lastAttempt)) < cooldown) {
+                const remaining = Math.ceil((cooldown - (Date.now() - parseInt(lastAttempt))) / 60000);
+                results.push(`❌ BLOCKED: Global cooldown active (${remaining} min remaining)`);
+                updateResults(results.join('<br>'), 'error');
+                return;
+            }
+            
+            // Simulate successful warmup
+            const timestamp = Date.now();
+            sessionStorage.setItem('petProcessor_sessionWarmupDone', 'true');
+            localStorage.setItem('petProcessor_lastWarmupAttempt', timestamp);
+            localStorage.setItem('petProcessor_lastWarmupSuccess', timestamp);
+            
+            results.push('✅ Warmup simulation successful!');
+            results.push('✅ Session warmup marked as done');
+            results.push('✅ Global cooldown started (15 minutes)');
+            
+            updateResults(results.join('<br>'), 'success');
+            checkWarmingStatus();
+        }
+        
+        // Clear session storage
+        function clearSessionStorage() {
+            const keys = [];
+            for (let key in sessionStorage) {
+                if (key.includes('petProcessor') || key.includes('pet_')) {
+                    keys.push(key);
+                    sessionStorage.removeItem(key);
+                }
+            }
+            updateResults(`Cleared ${keys.length} session storage keys:<br>${keys.join('<br>')}`, 'warning');
+            checkWarmingStatus();
+        }
+        
+        // Clear all warming data
+        function clearAllWarmingData() {
+            const keys = [];
+            
+            // Clear session storage
+            for (let key in sessionStorage) {
+                if (key.includes('petProcessor') || key.includes('pet_')) {
+                    keys.push('Session: ' + key);
+                    sessionStorage.removeItem(key);
+                }
+            }
+            
+            // Clear local storage
+            for (let key in localStorage) {
+                if (key.includes('petProcessor') || key.includes('pet_')) {
+                    keys.push('Local: ' + key);
+                    localStorage.removeItem(key);
+                }
+            }
+            
+            updateResults(`Cleared ${keys.length} total keys:<br>${keys.join('<br>')}`, 'warning');
+            checkWarmingStatus();
+        }
+        
+        // Open new tab for cross-tab testing
+        function openNewTab() {
+            window.open(window.location.href, '_blank');
+        }
+        
+        // Update status display
+        function updateStatus(message, type) {
+            const statusEl = document.getElementById('status');
+            statusEl.innerHTML = message;
+            statusEl.className = 'status ' + type;
+        }
+        
+        // Update results display
+        function updateResults(message, type) {
+            const resultsEl = document.getElementById('results');
+            const result = document.createElement('div');
+            result.className = 'status ' + type;
+            result.innerHTML = `[${new Date().toLocaleTimeString()}] ${message}`;
+            resultsEl.insertBefore(result, resultsEl.firstChild);
+        }
+        
+        // Update storage display
+        function updateStorageDisplay() {
+            // Session Storage
+            const sessionData = {};
+            for (let key in sessionStorage) {
+                if (key.includes('petProcessor') || key.includes('pet_')) {
+                    sessionData[key] = sessionStorage.getItem(key);
+                }
+            }
+            document.getElementById('sessionStorage').textContent = 
+                Object.keys(sessionData).length > 0 
+                    ? JSON.stringify(sessionData, null, 2)
+                    : 'No pet processor keys in session storage';
+            
+            // Local Storage
+            const localData = {};
+            for (let key in localStorage) {
+                if (key.includes('petProcessor') || key.includes('pet_')) {
+                    localData[key] = localStorage.getItem(key);
+                }
+            }
+            document.getElementById('localStorage').textContent = 
+                Object.keys(localData).length > 0
+                    ? JSON.stringify(localData, null, 2)
+                    : 'No pet processor keys in local storage';
+        }
+        
+        // Initial check on load
+        window.addEventListener('load', () => {
+            checkWarmingStatus();
+            updateResults('Page loaded. Ready for testing.', 'info');
+        });
+    </script>
+</body>
+</html>

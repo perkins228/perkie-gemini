@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pet Selector Mobile Preview</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+      background: #f5f5f5;
+    }
+    
+    /* Mobile device frame */
+    .mobile-frame {
+      width: 375px;
+      height: 667px;
+      margin: 20px auto;
+      background: white;
+      border: 2px solid #333;
+      border-radius: 20px;
+      overflow-y: auto;
+      position: relative;
+    }
+    
+    .device-label {
+      text-align: center;
+      margin: 10px 0;
+      font-size: 12px;
+      color: #666;
+    }
+    
+    /* Simulate product page content */
+    .product-header {
+      padding: 20px;
+      background: white;
+      border-bottom: 1px solid #e5e5e5;
+    }
+    
+    .product-title {
+      font-size: 24px;
+      font-weight: 600;
+      margin: 0 0 10px;
+    }
+    
+    .product-price {
+      font-size: 20px;
+      color: #333;
+    }
+    
+    /* Copy exact styles from pet selector */
+    .ks-pet-selector {
+      padding: 1rem;
+      background: #ffffff;
+      border-radius: 8px;
+      margin: 1rem;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    .ks-pet-selector__header {
+      margin-bottom: 1rem;
+    }
+    
+    .ks-pet-selector__title {
+      font-size: 1.125rem;
+      font-weight: 600;
+      color: #1a202c;
+      margin: 0 0 0.5rem;
+    }
+    
+    .ks-pet-selector__description {
+      font-size: 0.875rem;
+      color: #4a5568;
+      margin: 0;
+      display: none;
+    }
+    
+    /* Current empty state styles */
+    .ks-pet-selector__empty-primary {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 2rem 1.5rem;
+      background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+      border: 2px dashed #e1e4e8;
+      border-radius: 12px;
+      text-align: center;
+      gap: 1.5rem;
+      transition: all 0.2s ease;
+    }
+    
+    .ks-pet-selector__empty-content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1rem;
+      width: 100%;
+    }
+    
+    .ks-pet-selector__empty-icon {
+      width: 64px;
+      height: 64px;
+      background: #e3f2fd;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      margin-bottom: 0.5rem;
+    }
+    
+    .ks-pet-selector__empty-title {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: #1a202c;
+      margin: 0;
+      line-height: 1.3;
+    }
+    
+    .ks-pet-selector__empty-subtitle {
+      font-size: 0.875rem;
+      color: #4a5568;
+      margin: 0;
+      line-height: 1.4;
+      max-width: 280px;
+    }
+    
+    .ks-pet-selector__btn-primary {
+      background: #007bff;
+      color: white;
+      padding: 12px 32px;
+      border-radius: 8px;
+      text-decoration: none;
+      font-size: 15px;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      min-height: 44px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    /* Mobile optimizations */
+    @media (max-width: 750px) {
+      .ks-pet-selector__empty-primary {
+        padding: 1.5rem 1rem;
+        gap: 1rem;
+      }
+      
+      .ks-pet-selector__empty-primary .ks-pet-selector__empty-icon {
+        width: 56px;
+        height: 56px;
+        font-size: 24px;
+      }
+      
+      .ks-pet-selector__empty-primary .ks-pet-selector__empty-title {
+        font-size: 1.125rem;
+      }
+      
+      .ks-pet-selector__empty-primary .ks-pet-selector__empty-subtitle {
+        font-size: 0.813rem;
+      }
+      
+      .ks-pet-selector__btn-primary {
+        width: 100%;
+        padding: 14px 24px;
+      }
+    }
+    
+    /* Height measurement */
+    .height-indicator {
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: rgba(255, 0, 0, 0.1);
+      padding: 5px 10px;
+      font-size: 12px;
+      border-radius: 4px;
+      z-index: 1000;
+    }
+    
+    /* Alternative compact design for comparison */
+    .compact-alternative {
+      margin-top: 20px;
+      padding: 12px 16px;
+      background: #f8f9fa;
+      border: 1px solid #e1e4e8;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    
+    .compact-alternative:hover {
+      background: #e9ecef;
+      border-color: #007bff;
+    }
+    
+    .compact-icon {
+      width: 40px;
+      height: 40px;
+      background: #007bff;
+      color: white;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      flex-shrink: 0;
+    }
+    
+    .compact-text {
+      flex: 1;
+    }
+    
+    .compact-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: #1a202c;
+      margin: 0 0 2px;
+    }
+    
+    .compact-subtitle {
+      font-size: 12px;
+      color: #6b7280;
+      margin: 0;
+    }
+    
+    .compact-cta {
+      background: #007bff;
+      color: white;
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 500;
+      white-space: nowrap;
+    }
+  </style>
+</head>
+<body>
+  <div class="device-label">iPhone 8 (375x667)</div>
+  <div class="mobile-frame">
+    <!-- Product page header -->
+    <div class="product-header">
+      <h1 class="product-title">Custom Pet T-Shirt</h1>
+      <div class="product-price">$39.99</div>
+    </div>
+    
+    <!-- Current Pet Selector Implementation -->
+    <div class="ks-pet-selector">
+      <div class="ks-pet-selector__header">
+        <h3 class="ks-pet-selector__title">Pet Customization</h3>
+        <p class="ks-pet-selector__description" style="display: none;">
+          Choose from your saved pet images or create a new one
+        </p>
+      </div>
+      
+      <div class="ks-pet-selector__empty-primary">
+        <div class="ks-pet-selector__empty-content">
+          <div class="ks-pet-selector__empty-icon">🐾</div>
+          <div class="ks-pet-selector__empty-text">
+            <h4 class="ks-pet-selector__empty-title">Add Your Pet to This Product</h4>
+            <p class="ks-pet-selector__empty-subtitle">Upload your pet's photo to create a custom design</p>
+          </div>
+        </div>
+        <a href="#" class="ks-pet-selector__btn-primary">Upload Pet Photo</a>
+      </div>
+      <div class="height-indicator" id="current-height"></div>
+    </div>
+    
+    <!-- Alternative Compact Design -->
+    <div class="ks-pet-selector" style="margin-top: 40px;">
+      <div class="ks-pet-selector__header">
+        <h3 class="ks-pet-selector__title">Pet Customization</h3>
+      </div>
+      
+      <div class="compact-alternative">
+        <div class="compact-icon">🐾</div>
+        <div class="compact-text">
+          <div class="compact-title">Add Your Pet</div>
+          <div class="compact-subtitle">Upload photo for custom design</div>
+        </div>
+        <div class="compact-cta">Upload</div>
+      </div>
+      <div class="height-indicator" id="alt-height"></div>
+    </div>
+  </div>
+  
+  <script>
+    // Measure heights
+    window.addEventListener('load', () => {
+      const current = document.querySelector('.ks-pet-selector__empty-primary');
+      const alternative = document.querySelector('.compact-alternative');
+      const currentHeight = current.parentElement.offsetHeight;
+      const altHeight = alternative.parentElement.offsetHeight;
+      
+      document.getElementById('current-height').textContent = `Height: ${currentHeight}px`;
+      document.getElementById('alt-height').textContent = `Height: ${altHeight}px`;
+      
+      console.log('Current design height:', currentHeight);
+      console.log('Compact alternative height:', altHeight);
+      console.log('Space saved:', currentHeight - altHeight + 'px');
+    });
+  </script>
+</body>
+</html>

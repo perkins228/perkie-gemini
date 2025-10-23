@@ -1,0 +1,295 @@
+{% comment %}
+  Renders product buy-buttons.
+  Accepts:
+  - product: {Object} product object.
+  - block: {Object} passing the block information.
+  - product_form_id: {String} product form id.
+  - section_id: {String} id of section to which this snippet belongs.
+  - show_pickup_availability: {Boolean} for the pickup availability. If true the pickup availability is rendered, false - not rendered (optional).
+
+  Usage:
+  {% render 'buy-buttons', block: block, product: product, product_form_id: product_form_id, section_id: section.id, show_pickup_availability: true %}
+{% endcomment %}
+<div {{ block.shopify_attributes }}>
+  {%- if product != blank -%}
+    {%- liquid
+      assign gift_card_recipient_feature_active = false
+      if block.settings.show_gift_card_recipient and product.gift_card?
+        assign gift_card_recipient_feature_active = true
+      endif
+
+      assign show_dynamic_checkout = false
+      if block.settings.show_dynamic_checkout and gift_card_recipient_feature_active == false
+        assign show_dynamic_checkout = true
+      endif
+    -%}
+
+    <product-form
+      class="product-form"
+      data-hide-errors="{{ gift_card_recipient_feature_active }}"
+      data-section-id="{{ section.id }}"
+    >
+      <div class="product-form__error-message-wrapper" role="alert" hidden>
+        <span class="svg-wrapper">
+          {{- 'icon-error.svg' | inline_asset_content -}}
+        </span>
+        <span class="product-form__error-message"></span>
+      </div>
+
+      {%- form 'product',
+        product,
+        id: product_form_id,
+        class: 'form',
+        novalidate: 'novalidate',
+        data-type: 'add-to-cart-form',
+        enctype: 'multipart/form-data'
+      -%}
+        <input
+          type="hidden"
+          name="id"
+          value="{{ product.selected_or_first_available_variant.id }}"
+          {% if product.selected_or_first_available_variant.available == false
+            or quantity_rule_soldout
+            or product.selected_or_first_available_variant == null
+          %}
+            disabled
+          {% endif %}
+          class="product-variant-id"
+        >
+
+        <!-- Pet Image Line Item Properties (Hidden) -->
+        <!-- Direct Google Cloud Storage URLs for employee access -->
+        <input type="hidden" name="properties[_original_image_url]" id="original-url-{{ section.id }}" value="">
+        <input type="hidden" name="properties[_processed_image_url]" id="processed-url-{{ section.id }}" value="">
+        
+        <!-- Pet and processing metadata -->
+        <input type="hidden" name="properties[_pet_name]" id="pet-name-{{ section.id }}" value="">
+        <input type="hidden" name="properties[_effect_applied]" id="effect-applied-{{ section.id }}" value="">
+        <input type="hidden" name="properties[_artist_notes]" id="artist-notes-{{ section.id }}" value="">
+        <input type="hidden" name="properties[_has_custom_pet]" id="has-custom-pet-{{ section.id }}" value="false">
+
+        {%- if gift_card_recipient_feature_active -%}
+          {%- render 'gift-card-recipient-form', product: product, form: form, section: section -%}
+        {%- endif -%}
+
+        <div class="product-form__buttons">
+          {%- liquid
+            assign check_against_inventory = true
+            if product.selected_or_first_available_variant.inventory_management != 'shopify' or product.selected_or_first_available_variant.inventory_policy == 'continue'
+              assign check_against_inventory = false
+            endif
+            if product.selected_or_first_available_variant.quantity_rule.min > product.selected_or_first_available_variant.inventory_quantity and check_against_inventory
+              assign quantity_rule_soldout = true
+            endif
+          -%}
+          <button
+            id="ProductSubmitButton-{{ section_id }}"
+            type="submit"
+            name="add"
+            class="product-form__submit button button--full-width {% if show_dynamic_checkout %}button--secondary{% else %}button--primary{% endif %}"
+            {% if product.selected_or_first_available_variant.available == false
+              or quantity_rule_soldout
+              or product.selected_or_first_available_variant == null
+            %}
+              disabled
+            {% endif %}
+          >
+            <span>
+              {%- if product.selected_or_first_available_variant == null -%}
+                {{ 'products.product.unavailable' | t }}
+              {%- elsif product.selected_or_first_available_variant.available == false or quantity_rule_soldout -%}
+                {{ 'products.product.sold_out' | t }}
+              {%- else -%}
+                {{ 'products.product.add_to_cart' | t }}
+              {%- endif -%}
+            </span>
+            {%- render 'loading-spinner' -%}
+          </button>
+          {%- if show_dynamic_checkout -%}
+            {{ form | payment_button }}
+          {%- endif -%}
+
+          {% comment %} KondaSoft {% endcomment %}
+          {% render 'ks-wishlist-pdp-button', product: product %}
+          {% comment %} /KondaSoft {% endcomment %}
+        </div>
+      {%- endform -%}
+    </product-form>
+  {%- else -%}
+    <div class="product-form">
+      <div class="product-form__buttons form">
+        <button
+          type="submit"
+          name="add"
+          class="product-form__submit button button--full-width button--primary"
+          disabled
+        >
+          {{ 'products.product.sold_out' | t }}
+        </button>
+      </div>
+    </div>
+  {%- endif -%}
+
+  {%- if show_pickup_availability -%}
+    {{ 'component-pickup-availability.css' | asset_url | stylesheet_tag }}
+
+    {%- assign pick_up_availabilities = product.selected_or_first_available_variant.store_availabilities
+      | where: 'pick_up_enabled', true
+    -%}
+
+    <pickup-availability
+      class="product__pickup-availabilities quick-add-hidden"
+      {% if product.selected_or_first_available_variant.available and pick_up_availabilities.size > 0 %}
+        available
+      {% endif %}
+      data-root-url="{{ routes.root_url }}"
+      data-variant-id="{{ product.selected_or_first_available_variant.id }}"
+      data-has-only-default-variant="{{ product.has_only_default_variant }}"
+      data-product-page-color-scheme="gradient color-{{ section.settings.color_scheme }}"
+    >
+      <template>
+        <pickup-availability-preview class="pickup-availability-preview">
+          <span class="svg-wrapper">
+            {{- 'icon-unavailable.svg' | inline_asset_content -}}
+          </span>
+          <div class="pickup-availability-info">
+            <p class="caption-large">{{ 'products.product.pickup_availability.unavailable' | t }}</p>
+            <button class="pickup-availability-button link link--text underlined-link">
+              {{ 'products.product.pickup_availability.refresh' | t }}
+            </button>
+          </div>
+        </pickup-availability-preview>
+      </template>
+    </pickup-availability>
+
+    <script src="{{ 'pickup-availability.js' | asset_url }}" defer="defer"></script>
+  {%- endif -%}
+
+  <!-- Pet Selection Integration -->
+  <script>
+    (function() {
+      const sectionId = '{{ section.id }}';
+      
+      // Listen for pet selection events
+      document.addEventListener('petSelected', function(event) {
+        const petData = event.detail;
+        console.log('Pet selected for cart integration:', petData);
+        
+        if (!petData || !petData.sessionKey) {
+          // Clear all fields if no pet selected
+          document.getElementById(`original-url-${sectionId}`).value = '';
+          document.getElementById(`processed-url-${sectionId}`).value = '';
+          document.getElementById(`pet-name-${sectionId}`).value = '';
+          document.getElementById(`effect-applied-${sectionId}`).value = '';
+          document.getElementById(`artist-notes-${sectionId}`).value = '';
+          document.getElementById(`has-custom-pet-${sectionId}`).value = 'false';
+          return;
+        }
+        
+        const sessionKey = petData.sessionKey;
+        
+        // Get stored metadata from PetStorage
+        const metadata = window.PetStorage ? window.PetStorage.getMetadata(sessionKey) : null;
+        
+        // Populate basic fields
+        document.getElementById(`pet-name-${sectionId}`).value = petData.petName || '';
+        document.getElementById(`has-custom-pet-${sectionId}`).value = 'true';
+        
+        // Set primary effect (enhancedblackwhite preferred, fallback to any available)
+        let primaryEffect = 'enhancedblackwhite';
+        let primaryImageUrl = petData.effects[primaryEffect];
+        
+        if (!primaryImageUrl) {
+          // Find first available effect
+          const availableEffects = Object.keys(petData.effects);
+          if (availableEffects.length > 0) {
+            primaryEffect = availableEffects[0];
+            primaryImageUrl = petData.effects[primaryEffect];
+          }
+        }
+        
+        document.getElementById(`effect-applied-${sectionId}`).value = primaryEffect;
+        
+        // Add artist notes if available (fixed: artistNote singular, not plural)
+        if (metadata && metadata.artistNote) {
+          document.getElementById(`artist-notes-${sectionId}`).value = metadata.artistNote;
+        }
+        
+        // Upload to cloud if URLs don't already exist
+        const needsUpload = !metadata || !metadata.gcsUrl || !metadata.originalUrl;
+
+        if (needsUpload) {
+          console.log('📤 Uploading images to cloud storage...');
+
+          // Get pet processor instance
+          const processor = window.petProcessor || window.PetProcessorV5Instance;
+          if (processor && processor.syncSelectedToCloud) {
+            processor.syncSelectedToCloud(sessionKey, primaryEffect, function(urls) {
+              if (urls && urls.processed) {
+                // Store cloud URLs directly in order properties
+                const originalUrlField = document.getElementById(`original-url-${sectionId}`);
+                const processedUrlField = document.getElementById(`processed-url-${sectionId}`);
+
+                if (originalUrlField && urls.original) {
+                  originalUrlField.value = urls.original;
+                  console.log('✅ Original URL saved:', urls.original);
+                }
+                if (processedUrlField && urls.processed) {
+                  processedUrlField.value = urls.processed;
+                  console.log('✅ Processed URL saved:', urls.processed);
+                }
+              } else {
+                console.warn('⚠️ Cloud upload failed - using cached URLs if available');
+                // Fallback: Try to use cached URLs from metadata
+                if (metadata) {
+                  const originalUrlField = document.getElementById(`original-url-${sectionId}`);
+                  const processedUrlField = document.getElementById(`processed-url-${sectionId}`);
+
+                  if (originalUrlField && metadata.originalUrl) {
+                    originalUrlField.value = metadata.originalUrl;
+                  }
+                  if (processedUrlField && metadata.gcsUrl) {
+                    processedUrlField.value = metadata.gcsUrl;
+                  }
+                }
+              }
+            });
+          } else {
+            console.warn('⚠️ syncSelectedToCloud not available - using existing data');
+          }
+        } else {
+          console.log('✅ Using cached GCS URLs from metadata');
+          // URLs already exist in metadata, just ensure they're in form fields
+          const originalUrlField = document.getElementById(`original-url-${sectionId}`);
+          const processedUrlField = document.getElementById(`processed-url-${sectionId}`);
+
+          if (originalUrlField && metadata.originalUrl) {
+            originalUrlField.value = metadata.originalUrl;
+          }
+          if (processedUrlField && metadata.gcsUrl) {
+            processedUrlField.value = metadata.gcsUrl;
+          }
+        }
+      });
+      
+      // Clear pet data when pet is deselected (optional enhancement)
+      document.addEventListener('petDeselected', function() {
+        const inputs = [
+          `pet-name-${sectionId}`,
+          `pet-session-${sectionId}`,
+          `pet-effect-${sectionId}`,
+          `pet-image-url-${sectionId}`
+        ];
+        
+        inputs.forEach(inputId => {
+          const input = document.getElementById(inputId);
+          if (input) input.value = '';
+        });
+        
+        const hasCustomPetInput = document.getElementById(`has-custom-pet-${sectionId}`);
+        if (hasCustomPetInput) hasCustomPetInput.value = 'false';
+      });
+      
+    })();
+  </script>
+</div>

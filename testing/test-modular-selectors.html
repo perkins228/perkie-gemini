@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Modular Selectors Logic Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .test-case { 
+            border: 1px solid #ccc; 
+            padding: 15px; 
+            margin: 10px 0; 
+            border-radius: 5px;
+        }
+        .pass { background: #d4edda; border-color: #28a745; }
+        .fail { background: #f8d7da; border-color: #dc3545; }
+        code { background: #f4f4f4; padding: 2px 5px; }
+    </style>
+</head>
+<body>
+    <h1>Modular Pet & Font Selectors - Logic Test</h1>
+    <p>Testing the metafield-based conditional logic for showing/hiding selectors</p>
+
+    <div id="test-results"></div>
+
+    <script>
+        // Simulate Liquid template logic in JavaScript
+        function testSelectorLogic(enablePetSelector, supportsFontStyles) {
+            // Simulate the Liquid logic
+            let showPetSelector;
+            
+            // Check if pet selector should be shown (default true for backward compatibility)
+            if (enablePetSelector === false) {
+                showPetSelector = false;
+            } else {
+                showPetSelector = true;
+            }
+            
+            let showFontSelector = supportsFontStyles === true;
+            
+            return {
+                showPetSelector: showPetSelector,
+                showFontSelector: showFontSelector
+            };
+        }
+
+        // Test cases
+        const testCases = [
+            {
+                name: "Default behavior (no metafields set)",
+                input: { enablePetSelector: undefined, supportsFontStyles: undefined },
+                expected: { showPetSelector: true, showFontSelector: false },
+                description: "Backward compatibility - shows pet selector by default"
+            },
+            {
+                name: "Physical product (keychain)",
+                input: { enablePetSelector: true, supportsFontStyles: false },
+                expected: { showPetSelector: true, showFontSelector: false },
+                description: "Shows only pet selector for simple products"
+            },
+            {
+                name: "Typography product (t-shirt)",
+                input: { enablePetSelector: true, supportsFontStyles: true },
+                expected: { showPetSelector: true, showFontSelector: true },
+                description: "Shows both selectors for typography-heavy products"
+            },
+            {
+                name: "Non-customizable product",
+                input: { enablePetSelector: false, supportsFontStyles: false },
+                expected: { showPetSelector: false, showFontSelector: false },
+                description: "Hides both selectors"
+            },
+            {
+                name: "Font-only product (edge case)",
+                input: { enablePetSelector: false, supportsFontStyles: true },
+                expected: { showPetSelector: false, showFontSelector: true },
+                description: "Shows only font selector"
+            },
+            {
+                name: "Explicit true for pet selector",
+                input: { enablePetSelector: true, supportsFontStyles: undefined },
+                expected: { showPetSelector: true, showFontSelector: false },
+                description: "Respects explicit true value"
+            }
+        ];
+
+        // Run tests
+        const resultsDiv = document.getElementById('test-results');
+        let allPassed = true;
+
+        testCases.forEach((testCase, index) => {
+            const result = testSelectorLogic(
+                testCase.input.enablePetSelector,
+                testCase.input.supportsFontStyles
+            );
+            
+            const passed = 
+                result.showPetSelector === testCase.expected.showPetSelector &&
+                result.showFontSelector === testCase.expected.showFontSelector;
+            
+            if (!passed) allPassed = false;
+            
+            const testDiv = document.createElement('div');
+            testDiv.className = `test-case ${passed ? 'pass' : 'fail'}`;
+            testDiv.innerHTML = `
+                <h3>Test ${index + 1}: ${testCase.name} - ${passed ? '✅ PASS' : '❌ FAIL'}</h3>
+                <p><strong>Description:</strong> ${testCase.description}</p>
+                <p><strong>Input:</strong> 
+                    <code>enable_pet_selector: ${testCase.input.enablePetSelector}</code>, 
+                    <code>supports_font_styles: ${testCase.input.supportsFontStyles}</code>
+                </p>
+                <p><strong>Expected:</strong> 
+                    Pet: ${testCase.expected.showPetSelector ? 'Show' : 'Hide'}, 
+                    Font: ${testCase.expected.showFontSelector ? 'Show' : 'Hide'}
+                </p>
+                <p><strong>Got:</strong> 
+                    Pet: ${result.showPetSelector ? 'Show' : 'Hide'}, 
+                    Font: ${result.showFontSelector ? 'Show' : 'Hide'}
+                </p>
+            `;
+            resultsDiv.appendChild(testDiv);
+        });
+
+        // Summary
+        const summaryDiv = document.createElement('div');
+        summaryDiv.style.marginTop = '20px';
+        summaryDiv.style.padding = '15px';
+        summaryDiv.style.background = allPassed ? '#d4edda' : '#f8d7da';
+        summaryDiv.style.borderRadius = '5px';
+        summaryDiv.innerHTML = `
+            <h2>${allPassed ? '✅ All Tests Passed!' : '❌ Some Tests Failed'}</h2>
+            <p>The modular selector logic is ${allPassed ? 'working correctly' : 'has issues that need fixing'}.</p>
+            <h3>Configuration Guide:</h3>
+            <ul>
+                <li><strong>Keychains/Phone Cases:</strong> Set <code>enable_pet_selector: true</code>, <code>supports_font_styles: false</code></li>
+                <li><strong>T-Shirts/Cards:</strong> Set <code>enable_pet_selector: true</code>, <code>supports_font_styles: true</code></li>
+                <li><strong>Standard Products:</strong> Set <code>enable_pet_selector: false</code>, <code>supports_font_styles: false</code></li>
+                <li><strong>Default (no config):</strong> Shows pet selector only (backward compatible)</li>
+            </ul>
+        `;
+        resultsDiv.appendChild(summaryDiv);
+    </script>
+</body>
+</html>

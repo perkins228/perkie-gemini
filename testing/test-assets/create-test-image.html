@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Create Test Image</title>
+</head>
+<body>
+    <h1>Create a Test Image</h1>
+    <canvas id="canvas" width="800" height="600"></canvas>
+    <br>
+    <button onclick="downloadImage()">Download Test Image</button>
+    
+    <script>
+        // Create a simple test image
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        
+        // Create a gradient background
+        const gradient = ctx.createLinearGradient(0, 0, 800, 600);
+        gradient.addColorStop(0, '#4a90e2');
+        gradient.addColorStop(1, '#7b68ee');
+        ctx.fillStyle = gradient;
+        ctx.fillRect(0, 0, 800, 600);
+        
+        // Add some text
+        ctx.fillStyle = 'white';
+        ctx.font = '48px Arial';
+        ctx.textAlign = 'center';
+        ctx.fillText('Test Pet Image', 400, 300);
+        ctx.font = '24px Arial';
+        ctx.fillText('For Timer Testing', 400, 350);
+        
+        // Draw a simple "pet" shape
+        ctx.fillStyle = '#8b4513';
+        ctx.beginPath();
+        ctx.arc(400, 200, 60, 0, Math.PI * 2);
+        ctx.fill();
+        
+        // Eyes
+        ctx.fillStyle = 'white';
+        ctx.beginPath();
+        ctx.arc(380, 190, 10, 0, Math.PI * 2);
+        ctx.arc(420, 190, 10, 0, Math.PI * 2);
+        ctx.fill();
+        
+        ctx.fillStyle = 'black';
+        ctx.beginPath();
+        ctx.arc(380, 190, 5, 0, Math.PI * 2);
+        ctx.arc(420, 190, 5, 0, Math.PI * 2);
+        ctx.fill();
+        
+        function downloadImage() {
+            canvas.toBlob(function(blob) {
+                const a = document.createElement('a');
+                const url = URL.createObjectURL(blob);
+                a.href = url;
+                a.download = 'test-pet.jpg';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            }, 'image/jpeg', 0.9);
+        }
+    </script>
+</body>
+</html>

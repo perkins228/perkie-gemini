@@ -1,0 +1,4 @@
+node_modules
+npm-debug.log
+perkieprints-sa-key.json
+.env

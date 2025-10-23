@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pet Processor v5 Test</title>
+    <style>
+        :root {
+            --color-foreground: 51, 51, 51;
+            --color-background: 255, 255, 255;
+            --color-button: 51, 51, 51;
+            --color-button-text: 255, 255, 255;
+            --font-body-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+        
+        body {
+            font-family: var(--font-body-family);
+            margin: 0;
+            padding: 20px;
+            background: rgb(var(--color-background));
+            color: rgb(var(--color-foreground));
+        }
+        
+        .test-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        .test-info {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+            font-size: 0.9rem;
+        }
+        
+        .test-info h3 {
+            margin: 0 0 0.5rem;
+            color: #333;
+        }
+        
+        .test-info ul {
+            margin: 0.5rem 0;
+            padding-left: 1.5rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>Pet Processor v5 - Integration Test</h1>
+        
+        <div class="test-info">
+            <h3>Upload Functionality Test - Critical Fix Applied:</h3>
+            <ul>
+                <li><strong>🔧 Fixed Issue:</strong> Upload button now properly binds to file input</li>
+                <li><strong>✅ Verify Upload Button:</strong> Click "Choose File" button should open file picker</li>
+                <li><strong>✅ Check Console:</strong> Should see "Upload elements found - binding events" message</li>
+                <li><strong>✅ Test File Input:</strong> File input should trigger handleFileSelect when file is selected</li>
+                <li><strong>✅ Verify Drag & Drop:</strong> Drag image onto upload area should work</li>
+            </ul>
+            
+            <h3>Full Test Instructions:</h3>
+            <ul>
+                <li>Upload a pet photo (JPEG/PNG, max 50MB)</li>
+                <li>Verify EXIF orientation is handled correctly (try a rotated mobile photo)</li>
+                <li>Watch the processing animation</li>
+                <li>Test effect switching (should be instant after processing)</li>
+                <li>Test on mobile and desktop</li>
+                <li>Test "Start Over" and "Add to Cart" buttons</li>
+            </ul>
+            <p><strong>API Endpoint:</strong> https://inspirenet-bg-removal-api-725543555429.us-central1.run.app/api/v2/process-with-effects</p>
+            <p><strong>Expected Effects:</strong> enhancedblackwhite, popart, dithering, color</p>
+            
+            <div id="upload-test-status" style="margin-top: 1rem; padding: 1rem; background: #e3f2fd; border-radius: 4px;">
+                <strong>Upload Test Status:</strong> <span id="upload-status">Initializing...</span>
+            </div>
+        </div>
+        
+        <!-- Test section with unique ID -->
+        <section id="ks-pet-bg-remover-test123" class="ks-pet-processor-section">
+            <!-- Content will be populated by JavaScript -->
+        </section>
+    </div>
+    
+    <!-- Load our consolidated files -->
+    <link rel="stylesheet" href="../assets/pet-processor-v5.css">
+    <script src="../assets/pet-processor-v5-es5.js"></script>
+    
+    <script>
+        // Upload functionality test
+        function testUploadFunctionality() {
+            const statusElement = document.getElementById('upload-status');
+            
+            // Wait for pet processor to initialize
+            setTimeout(() => {
+                const fileInput = document.getElementById('file-input-test123');
+                const uploadButton = document.querySelector('[data-action="browse"]');
+                const uploadArea = document.getElementById('upload-area-test123');
+                
+                let status = [];
+                
+                // Test 1: File input exists
+                if (fileInput) {
+                    status.push('✅ File input found');
+                    console.log('✅ File input element found:', fileInput);
+                } else {
+                    status.push('❌ File input missing');
+                    console.error('❌ File input element not found');
+                }
+                
+                // Test 2: Upload button exists
+                if (uploadButton) {
+                    status.push('✅ Upload button found');
+                    console.log('✅ Upload button found:', uploadButton);
+                } else {
+                    status.push('❌ Upload button missing');
+                    console.error('❌ Upload button not found');
+                }
+                
+                // Test 3: Upload area exists
+                if (uploadArea) {
+                    status.push('✅ Upload area found');
+                    console.log('✅ Upload area found:', uploadArea);
+                } else {
+                    status.push('❌ Upload area missing');
+                    console.error('❌ Upload area not found');
+                }
+                
+                // Test 4: Click handler test
+                if (uploadButton && fileInput) {
+                    // Test if clicking upload button triggers file input
+                    const originalClick = fileInput.click;
+                    let clickTriggered = false;
+                    
+                    fileInput.click = function() {
+                        clickTriggered = true;
+                        console.log('✅ File input click triggered successfully');
+                        // Restore original click function
+                        fileInput.click = originalClick;
+                    };
+                    
+                    // Simulate button click
+                    uploadButton.click();
+                    
+                    if (clickTriggered) {
+                        status.push('✅ Button click handler working');
+                    } else {
+                        status.push('❌ Button click handler failed');
+                    }
+                } else {
+                    status.push('❌ Cannot test click handler - elements missing');
+                }
+                
+                statusElement.innerHTML = status.join('<br>');
+                
+                // Overall test result
+                const allPassed = status.every(s => s.startsWith('✅'));
+                if (allPassed) {
+                    statusElement.parentElement.style.background = '#e8f5e8';
+                    console.log('🎉 All upload functionality tests passed!');
+                } else {
+                    statusElement.parentElement.style.background = '#ffeaea';
+                    console.error('⚠️ Some upload functionality tests failed');
+                }
+            }, 1000);
+        }
+        
+        // Test event listener
+        document.addEventListener('petProcessorComplete', (event) => {
+            console.log('Pet processor completed:', event.detail);
+            alert(`Processing complete! Effect: ${event.detail.effect}`);
+        });
+        
+        // Run upload functionality test
+        document.addEventListener('DOMContentLoaded', testUploadFunctionality);
+        
+        // Test cleanup function
+        setTimeout(() => {
+            console.log('Emergency cleanup function available as: window.emergencyCleanupPetData()');
+        }, 1500);
+    </script>
+</body>
+</html>

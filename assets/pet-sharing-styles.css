@@ -1,0 +1,280 @@
+/* Pet Social Sharing Styles - Mobile-First Design */
+/* Elegant simplicity with growth-focused UX */
+
+/* Share Button - Minimal Visual Impact */
+.pet-share-btn {
+  position: absolute;
+  bottom: 12px;
+  right: 12px;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: rgb(var(--color-button));
+  color: rgb(var(--color-button-text));
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  transition: all 0.3s ease;
+  z-index: 10;
+  display: none;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+.pet-share-btn:hover {
+  transform: scale(1.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+}
+
+.pet-share-btn:active {
+  transform: scale(0.95);
+}
+
+/* Share Sheet - Slide-up Modal */
+.share-sheet {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: rgb(var(--color-background));
+  border-radius: 16px 16px 0 0;
+  padding: 0;
+  transform: translateY(100%);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 1000;
+  max-height: 70vh;
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.share-sheet.active {
+  transform: translateY(0);
+}
+
+/* Handle Bar */
+.share-sheet-handle {
+  width: 40px;
+  height: 4px;
+  background: rgba(var(--color-foreground), 0.2);
+  border-radius: 2px;
+  margin: 12px auto 8px;
+}
+
+/* Share Content */
+.share-sheet-content {
+  padding: 0 24px 24px;
+}
+
+.share-title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin: 0 0 8px;
+  color: rgb(var(--color-foreground));
+}
+
+.share-preview {
+  font-size: 0.875rem;
+  color: rgba(var(--color-foreground), 0.7);
+  margin: 0 0 20px;
+  line-height: 1.4;
+}
+
+/* Platform Grid */
+.share-platforms {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin: 0 0 20px;
+}
+
+.platform-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 8px;
+  border: none;
+  background: rgba(var(--color-foreground), 0.05);
+  border-radius: 12px;
+  cursor: pointer;
+  min-height: 72px;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  transition: all 0.2s ease;
+}
+
+.platform-btn:hover {
+  background: rgba(var(--color-foreground), 0.1);
+  transform: translateY(-2px);
+}
+
+.platform-btn:active {
+  transform: translateY(0);
+  background: rgba(var(--color-foreground), 0.15);
+}
+
+.platform-icon {
+  font-size: 24px;
+  margin-bottom: 4px;
+}
+
+.platform-name {
+  font-size: 0.75rem;
+  color: rgb(var(--color-foreground));
+  text-align: center;
+}
+
+/* Cancel Button */
+.share-cancel-btn {
+  width: 100%;
+  padding: 14px;
+  background: rgba(var(--color-foreground), 0.1);
+  color: rgb(var(--color-foreground));
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.share-cancel-btn:hover {
+  background: rgba(var(--color-foreground), 0.15);
+}
+
+.share-cancel-btn:active {
+  background: rgba(var(--color-foreground), 0.2);
+}
+
+/* Tablet Adjustments */
+@media (min-width: 481px) and (max-width: 768px) {
+  .share-sheet {
+    max-width: 500px;
+    left: 50%;
+    right: auto;
+    transform: translateX(-50%) translateY(100%);
+  }
+  
+  .share-sheet.active {
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+/* Desktop Responsive */
+@media (min-width: 769px) {
+  .pet-share-btn {
+    width: 48px;
+    height: 48px;
+    font-size: 22px;
+  }
+  
+  .share-sheet {
+    left: 50%;
+    right: auto;
+    transform: translateX(-50%) translateY(100%);
+    width: 400px;
+    border-radius: 16px;
+    bottom: 20px;
+    max-height: 80vh;
+  }
+  
+  .share-sheet.active {
+    transform: translateX(-50%) translateY(0);
+  }
+  
+  .share-platforms {
+    gap: 16px;
+  }
+  
+  .platform-btn {
+    padding: 16px 12px;
+    min-height: 80px;
+  }
+  
+  .platform-icon {
+    font-size: 28px;
+    margin-bottom: 6px;
+  }
+  
+  .platform-name {
+    font-size: 0.875rem;
+  }
+}
+
+/* Dark Mode Support */
+@media (prefers-color-scheme: dark) {
+  .share-sheet {
+    background: #1a1a1a;
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.5);
+  }
+  
+  .platform-btn {
+    background: rgba(255, 255, 255, 0.05);
+  }
+  
+  .platform-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+  }
+  
+  .share-cancel-btn {
+    background: rgba(255, 255, 255, 0.1);
+  }
+}
+
+/* Accessibility */
+@media (prefers-reduced-motion: reduce) {
+  .pet-share-btn,
+  .share-sheet,
+  .platform-btn {
+    transition: none;
+  }
+}
+
+/* High Contrast Mode */
+@media (prefers-contrast: high) {
+  .pet-share-btn {
+    border: 2px solid currentColor;
+  }
+  
+  .platform-btn {
+    border: 1px solid currentColor;
+  }
+  
+  .share-cancel-btn {
+    border: 1px solid currentColor;
+  }
+}
+
+/* Loading State */
+.share-loading {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  border: 2px solid rgba(var(--color-foreground), 0.2);
+  border-top-color: rgb(var(--color-foreground));
+  border-radius: 50%;
+  animation: shareSpinner 0.8s linear infinite;
+}
+
+@keyframes shareSpinner {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Success Animation */
+@keyframes shareSuccess {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.share-success {
+  animation: shareSuccess 0.5s ease;
+}

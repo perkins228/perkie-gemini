@@ -1,0 +1,56 @@
+{% if settings.cart_discount_form_show %}
+  {% comment %} Assign safe translation variables at the top {% endcomment %}
+  {% assign input_label = 'kondasoft.cart.discount_form.input_label' | t %}
+  {% assign input_label_safe = input_label %}
+  {% if input_label contains 'Translation missing' %}
+    {% assign input_label_safe = 'Enter your discount code' %}
+  {% endif %}
+  
+  {% assign button_label = 'kondasoft.cart.discount_form.button_label' | t %}
+  {% assign button_label_safe = button_label %}
+  {% if button_label contains 'Translation missing' %}
+    {% assign button_label_safe = 'Apply' %}
+  {% endif %}
+
+  <details class="ks-cart-discount-form">
+    <summary onclick="ksCartDrawerFixScrollPosition(this)">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" class="ks-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7.01" y2="7"></line>
+      </svg>
+      <span class="summary__title">
+        {% assign discount_title = 'kondasoft.cart.discount_form_title' | t %}
+        {% if discount_title contains 'Translation missing' %}
+          Apply a discount code
+        {% else %}
+          {{ discount_title }}
+        {% endif %}
+        {{- 'icon-caret.svg' | inline_asset_content -}}
+      </span>
+    </summary>
+    <div class="details-inner">
+      <ks-cart-discount-form>
+        <div class="field">
+          <input 
+            type="text" 
+            class="field__input" 
+            placeholder="{{ input_label_safe }}">
+          <label 
+            class="field__label" 
+            for="ks-shipping-calculator-zip">
+            {{ input_label_safe }}
+          </label>
+        </div>
+        <button 
+          class="button" 
+          type="button"
+          data-text="{{ button_label_safe }}">
+          <span>{{ button_label_safe }}</span>
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" class="ks-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M5 12h13M12 5l7 7-7 7"></path>
+          </svg>
+          {%- render 'loading-spinner' -%}
+        </button>
+      </ks-cart-discount-form>
+    </div>
+  </details>
+{% endif %}

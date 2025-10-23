@@ -1,0 +1,125 @@
+{% if settings.cart_shipping_calc_show %}
+  {% comment %} Assign safe translation variables at the top {% endcomment %}
+  {% assign country_label = 'kondasoft.cart.shipping_calculator.country' | t %}
+  {% assign country_label_safe = country_label %}
+  {% if country_label contains 'Translation missing' %}
+    {% assign country_label_safe = 'Country' %}
+  {% endif %}
+  
+  {% assign province_label = 'kondasoft.cart.shipping_calculator.province' | t %}
+  {% assign province_label_safe = province_label %}
+  {% if province_label contains 'Translation missing' %}
+    {% assign province_label_safe = 'Province' %}
+  {% endif %}
+  
+  {% assign zip_label = 'kondasoft.cart.shipping_calculator.zip' | t %}
+  {% assign zip_label_safe = zip_label %}
+  {% if zip_label contains 'Translation missing' %}
+    {% assign zip_label_safe = 'Zip' %}
+  {% endif %}
+  
+  {% assign button_label = 'kondasoft.cart.shipping_calculator.button_label' | t %}
+  {% assign button_label_safe = button_label %}
+  {% if button_label contains 'Translation missing' %}
+    {% assign button_label_safe = 'Calculate' %}
+  {% endif %}
+  
+  {% assign no_results = 'kondasoft.cart.shipping_calculator.no_results' | t %}
+  {% assign no_results_safe = no_results %}
+  {% if no_results contains 'Translation missing' %}
+    {% assign no_results_safe = 'No shipping rates found!' %}
+  {% endif %}
+
+  <details class="ks-cart-shipping-calc">
+    <summary onclick="ksCartDrawerFixScrollPosition(this)">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" class="ks-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle>
+      </svg>
+      <span class="summary__title">
+        {% assign shipping_title = 'kondasoft.cart.shipping_calculator.title' | t %}
+        {% if shipping_title contains 'Translation missing' %}
+          Calculate shipping
+        {% else %}
+          {{ shipping_title }}
+        {% endif %}
+        {{- 'icon-caret.svg' | inline_asset_content -}}
+      </span>
+    </summary>
+    <div class="details-inner">
+      <ks-cart-shipping-calculator
+        id="ks-shipping-calculator"
+        data-shopify-common-js="{{ 'shopify_common.js' | shopify_asset_url }}"
+        data-customer-country="{{ customer.addresses.first.country }}"
+        data-customer-province="{{ customer.addresses.first.province }}"
+        data-customer-zip="{{ customer.addresses.first.zip }}">
+        <div 
+          id="ks-shipping-calculator-alert"
+          class="ks-alert"
+          role="alert" 
+          aria-atomic="true"
+          data-text-no-results="{{ no_results_safe }}"
+          hidden>
+        </div>
+        <div class="field-wrapper">
+          <div class="select">
+            <select 
+              id="ks-shipping-calculator-country"
+              class="select__select"
+              aria-label="{{ country_label_safe }}"
+              autocomplete="country">
+              {{ all_country_option_tags }}
+            </select>
+            <span class="svg-wrapper">
+              {{- 'icon-caret.svg' | inline_asset_content -}}
+            </span>
+          </div>
+        </div>
+        <div
+          id="ks-shipping-calculator-province-wrapper" 
+          class="field-wrapper"
+          style="display: none;">
+          <label 
+            class="form__label" 
+            for="ks-shipping-calculator-province">
+            {{ province_label_safe }}
+          </label>
+          <div class="select">
+            <select 
+              id="ks-shipping-calculator-province"
+              class="select__select"
+              autocomplete="address-level1">
+            </select>
+            <span class="svg-wrapper">
+              {{- 'icon-caret.svg' | inline_asset_content -}}
+            </span>
+          </div>
+        </div>
+        <div class="field-wrapper">
+          <div class="field">
+            <input 
+              id="ks-shipping-calculator-zip" 
+              class="field__input" 
+              type="text"
+              placeholder="{{ zip_label_safe }}"
+              autocomplete="postal-code">
+            <label 
+              class="field__label" 
+              for="ks-shipping-calculator-zip">
+              {{ zip_label_safe }}
+            </label>
+          </div>
+        </div>
+        <div class="field-wrapper">
+          <button 
+            id="ks-shipping-calculator-btn" 
+            class="button button--full-width button--secondary"
+            data-text="{{ button_label_safe }}"
+            type="button">
+            <span>{{ button_label_safe }}</span>
+            {%- render 'loading-spinner' -%}
+          </button>
+        </div>
+      </ks-cart-shipping-calculator>
+    </div>
+  </details>
+{% endif %}

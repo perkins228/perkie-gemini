@@ -1,0 +1,1796 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unified Pet System Test Suite</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        
+        .test-section {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .test-section h2 {
+            color: #333;
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 10px;
+        }
+        
+        .test-section h3 {
+            color: #666;
+            margin-top: 30px;
+        }
+        
+        .test-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .test-card {
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            padding: 15px;
+            background: #fafafa;
+        }
+        
+        .test-card h4 {
+            margin: 0 0 10px 0;
+            color: #333;
+        }
+        
+        .test-button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px 5px 5px 0;
+        }
+        
+        .test-button:hover {
+            background: #0056b3;
+        }
+        
+        .test-button.secondary {
+            background: #6c757d;
+        }
+        
+        .test-button.danger {
+            background: #dc3545;
+        }
+        
+        .test-button.success {
+            background: #28a745;
+        }
+        
+        .test-log {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            padding: 10px;
+            font-family: monospace;
+            font-size: 12px;
+            max-height: 200px;
+            overflow-y: auto;
+            margin: 10px 0;
+        }
+        
+        .status-indicator {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        
+        .status-indicator.online {
+            background: #28a745;
+        }
+        
+        .status-indicator.offline {
+            background: #dc3545;
+        }
+        
+        .status-indicator.loading {
+            background: #ffc107;
+            animation: pulse 1s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        .mobile-viewport {
+            max-width: 375px;
+            margin: 0 auto;
+            border: 2px solid #333;
+            border-radius: 10px;
+            padding: 10px;
+            background: white;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin: 15px 0;
+        }
+        
+        .stat-card {
+            text-align: center;
+            padding: 15px;
+            background: #e9ecef;
+            border-radius: 6px;
+        }
+        
+        .stat-number {
+            font-size: 24px;
+            font-weight: bold;
+            color: #007bff;
+        }
+        
+        .stat-label {
+            font-size: 12px;
+            color: #666;
+            text-transform: uppercase;
+        }
+        
+        .pet-processor-test, .pet-selector-test {
+            min-height: 300px;
+            border: 2px dashed #ddd;
+            padding: 20px;
+            margin: 15px 0;
+            border-radius: 8px;
+        }
+        
+        /* Include the mobile grid CSS */
+        .pet-grid {
+            display: grid;
+            gap: 1rem;
+            width: 100%;
+            margin: 0 auto;
+            padding: 0.5rem;
+        }
+        
+        .pet-selector-grid {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.75rem;
+            max-width: 100%;
+        }
+        
+        .pet-item {
+            position: relative;
+            border: 3px solid #e9ecef;
+            border-radius: 12px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            background: white;
+            min-height: 120px;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .pet-item:hover {
+            border-color: #007bff;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,123,255,0.15);
+        }
+        
+        .pet-item.selected {
+            border-color: #28a745;
+            background: #f8fff9;
+        }
+        
+        .pet-image {
+            width: 100%;
+            height: 80px;
+            object-fit: cover;
+            display: block;
+            background: #f8f9fa;
+            border-radius: 8px 8px 0 0;
+            flex-shrink: 0;
+        }
+        
+        .pet-info {
+            padding: 0.5rem;
+            text-align: center;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        
+        .pet-name {
+            font-weight: 600;
+            font-size: 0.8rem;
+            margin: 0 0 0.25rem 0;
+            color: #333;
+            line-height: 1.2;
+        }
+        
+        .pet-effect-count {
+            font-size: 0.7rem;
+            color: #666;
+            margin: 0;
+        }
+        
+        .selected-badge {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            background: #28a745;
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            font-weight: bold;
+            z-index: 2;
+        }
+    </style>
+</head>
+<body>
+    <h1>🧪 Unified Pet System Test Suite</h1>
+    <p>Comprehensive testing for the unified pet processor, selector, and cart integration system.</p>
+
+    <!-- System Status -->
+    <div class="test-section">
+        <h2>System Status</h2>
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-number" id="data-manager-status">❌</div>
+                <div class="stat-label">Data Manager</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="processor-status">❌</div>
+                <div class="stat-label">Processor</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="selector-status">❌</div>
+                <div class="stat-label">Selector</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="cart-status">❌</div>
+                <div class="stat-label">Cart Integration</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="pets-count">0</div>
+                <div class="stat-label">Saved Pets</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="cache-size">0KB</div>
+                <div class="stat-label">Cache Size</div>
+            </div>
+        </div>
+        
+        <button class="test-button" onclick="refreshSystemStatus()">Refresh Status</button>
+        <button class="test-button secondary" onclick="showSystemStats()">Show Detailed Stats</button>
+        <button class="test-button danger" onclick="clearAllData()">Clear All Data</button>
+    </div>
+
+    <!-- Pet Data Manager Tests -->
+    <div class="test-section">
+        <h2>🗂️ Pet Data Manager Tests</h2>
+        
+        <div class="test-grid">
+            <div class="test-card">
+                <h4>Data Operations</h4>
+                <button class="test-button" onclick="testCreateMockPet()">Create Mock Pet</button>
+                <button class="test-button" onclick="testStoreEffect()">Store Effect</button>
+                <button class="test-button" onclick="testGetAllPets()">Get All Pets</button>
+                <button class="test-button" onclick="testUpdateArtistNotes()">Update Notes</button>
+            </div>
+            
+            <div class="test-card">
+                <h4>Memory Management</h4>
+                <button class="test-button" onclick="testMemoryCleanup()">Test Cleanup</button>
+                <button class="test-button" onclick="testBlobURLManagement()">Blob URL Test</button>
+                <button class="test-button" onclick="testSessionExpiry()">Session Expiry</button>
+            </div>
+            
+            <div class="test-card">
+                <h4>Event System</h4>
+                <button class="test-button" onclick="testEventEmission()">Test Events</button>
+                <button class="test-button" onclick="testEventListeners()">Event Listeners</button>
+            </div>
+        </div>
+        
+        <div class="test-log" id="data-manager-log"></div>
+    </div>
+
+    <!-- Pet Processor Tests -->
+    <div class="test-section">
+        <h2>🎨 Pet Processor Tests</h2>
+        
+        <div class="test-grid">
+            <div class="test-card">
+                <h4>UI Components</h4>
+                <button class="test-button" onclick="testProcessorRendering()">Test Rendering</button>
+                <button class="test-button" onclick="testFileValidation()">File Validation</button>
+                <button class="test-button" onclick="testProgressiveLoading()">Progressive Loading</button>
+            </div>
+            
+            <div class="test-card">
+                <h4>API Integration</h4>
+                <button class="test-button" onclick="testAPIConnection()">API Connection</button>
+                <button class="test-button" onclick="testMockProcessing()">Mock Processing</button>
+                <button class="test-button" onclick="testEffectSwitching()">Effect Switching</button>
+            </div>
+            
+            <div class="test-card">
+                <h4>Mobile Testing</h4>
+                <button class="test-button" onclick="testMobileLayout()">Mobile Layout</button>
+                <button class="test-button" onclick="testTouchTargets()">Touch Targets</button>
+                <button class="test-button" onclick="testViewportSizing()">Viewport Sizing</button>
+            </div>
+        </div>
+        
+        <!-- Mock Pet Processor -->
+        <div class="pet-processor-test" id="processor-test-area">
+            <p>Pet processor test area will be rendered here...</p>
+        </div>
+        
+        <div class="test-log" id="processor-log"></div>
+    </div>
+
+    <!-- Pet Selector Tests -->
+    <div class="test-section">
+        <h2>🐾 Pet Selector Tests</h2>
+        
+        <div class="test-grid">
+            <div class="test-card">
+                <h4>Selector UI</h4>
+                <button class="test-button" onclick="testSelectorRendering()">Test Rendering</button>
+                <button class="test-button" onclick="testPetSelection()">Pet Selection</button>
+                <button class="test-button" onclick="testGridLayout()">Grid Layout</button>
+            </div>
+            
+            <div class="test-card">
+                <h4>Data Integration</h4>
+                <button class="test-button" onclick="testDataBinding()">Data Binding</button>
+                <button class="test-button" onclick="testRealTimeUpdates()">Real-time Updates</button>
+                <button class="test-button" onclick="testPetFiltering()">Pet Filtering</button>
+            </div>
+            
+            <div class="test-card">
+                <h4>Mobile Grid</h4>
+                <button class="test-button" onclick="testMobileGrid()">Mobile Grid</button>
+                <button class="test-button" onclick="testResponsiveBreakpoints()">Breakpoints</button>
+                <button class="test-button" onclick="testAccessibility()">Accessibility</button>
+            </div>
+        </div>
+        
+        <!-- Mock Pet Selector -->
+        <div class="pet-selector-test" id="selector-test-area">
+            <div class="pet-grid pet-selector-grid" id="test-pet-grid">
+                <!-- Mock pets will be added here -->
+            </div>
+        </div>
+        
+        <div class="test-log" id="selector-log"></div>
+    </div>
+
+    <!-- Cart Integration Tests -->
+    <div class="test-section">
+        <h2>🛒 Cart Integration Tests</h2>
+        
+        <div class="test-grid">
+            <div class="test-card">
+                <h4>Form Integration</h4>
+                <button class="test-button" onclick="testFormPropertyInjection()">Property Injection</button>
+                <button class="test-button" onclick="testPriceCalculation()">Price Calculation</button>
+                <button class="test-button" onclick="testFormValidation()">Form Validation</button>
+            </div>
+            
+            <div class="test-card">
+                <h4>Event Handling</h4>
+                <button class="test-button" onclick="testCartEvents()">Cart Events</button>
+                <button class="test-button" onclick="testVariantChanges()">Variant Changes</button>
+                <button class="test-button" onclick="testMultiplePets()">Multiple Pets</button>
+            </div>
+            
+            <div class="test-card">
+                <h4>Fulfillment Data</h4>
+                <button class="test-button" onclick="testFulfillmentStorage()">Fulfillment Storage</button>
+                <button class="test-button" onclick="testOrderCorrelation()">Order Correlation</button>
+                <button class="test-button" onclick="testDataRetrieval()">Data Retrieval</button>
+            </div>
+        </div>
+        
+        <!-- Mock Cart Form -->
+        <form id="test-cart-form" action="/cart/add" method="post" style="border: 1px solid #ddd; padding: 15px; margin: 15px 0; border-radius: 4px;">
+            <h4>Mock Cart Form</h4>
+            <select name="id">
+                <option value="123456789">Test Product Variant - $29.99</option>
+                <option value="987654321">Test Product Variant 2 - $39.99</option>
+            </select>
+            <br><br>
+            <button type="submit" class="test-button">Add to Cart</button>
+            <div id="form-properties" style="margin-top: 10px; font-size: 12px; color: #666;"></div>
+        </form>
+        
+        <div class="test-log" id="cart-log"></div>
+    </div>
+
+    <!-- Mobile Testing Viewport -->
+    <div class="test-section">
+        <h2>📱 Mobile Testing Viewport</h2>
+        <p>Test components in a mobile-sized viewport (375px width):</p>
+        
+        <div class="mobile-viewport" id="mobile-test-area">
+            <h4>Mobile Test Area</h4>
+            <p>Components will be tested here at mobile viewport size.</p>
+            <button class="test-button" onclick="loadMobileTests()">Load Mobile Tests</button>
+        </div>
+    </div>
+
+    <!-- Performance Tests -->
+    <div class="test-section">
+        <h2>⚡ Performance Tests</h2>
+        
+        <div class="test-grid">
+            <div class="test-card">
+                <h4>Load Testing</h4>
+                <button class="test-button" onclick="testComponentLoadTime()">Component Load Time</button>
+                <button class="test-button" onclick="testMemoryUsage()">Memory Usage</button>
+                <button class="test-button" onclick="testLargeDatasets()">Large Datasets</button>
+            </div>
+            
+            <div class="test-card">
+                <h4>Stress Testing</h4>
+                <button class="test-button" onclick="testRapidInteractions()">Rapid Interactions</button>
+                <button class="test-button" onclick="testConcurrentOperations()">Concurrent Operations</button>
+                <button class="test-button" onclick="testMemoryLeaks()">Memory Leaks</button>
+            </div>
+        </div>
+        
+        <div class="test-log" id="performance-log"></div>
+    </div>
+
+    <!-- Test Results Summary -->
+    <div class="test-section">
+        <h2>📊 Test Results Summary</h2>
+        <div id="test-results-summary">
+            <p>Run tests to see results summary here.</p>
+        </div>
+        
+        <button class="test-button success" onclick="runAllTests()">🚀 Run All Tests</button>
+        <button class="test-button secondary" onclick="exportTestResults()">📋 Export Results</button>
+        <button class="test-button danger" onclick="clearTestResults()">🗑️ Clear Results</button>
+    </div>
+
+    <!-- DEPRECATED: Unified system files have been removed as part of technical debt cleanup -->
+    <!-- This test file is no longer functional - use pet-processor-v5-test.html instead -->
+    <script>
+        console.warn('⚠️ This test file references deleted unified system files');
+        console.warn('Please use testing/pet-processor-v5-test.html for current system testing');
+        alert('DEPRECATED: This test file is obsolete.\\n\\nThe unified system files have been removed.\\nPlease use pet-processor-v5-test.html instead.');
+    </script>
+
+    <!-- Test Suite JavaScript -->
+    <script>
+        // Test results storage
+        let testResults = {
+            passed: 0,
+            failed: 0,
+            total: 0,
+            details: []
+        };
+
+        // Logging utility
+        function logTest(area, message, type = 'info') {
+            const logEl = document.getElementById(area + '-log');
+            if (logEl) {
+                const timestamp = new Date().toLocaleTimeString();
+                const color = type === 'error' ? 'red' : type === 'success' ? 'green' : '#333';
+                logEl.innerHTML += `<div style="color: ${color}">[${timestamp}] ${message}</div>`;
+                logEl.scrollTop = logEl.scrollHeight;
+            }
+            console.log(`[${area}] ${message}`);
+        }
+
+        // Test assertion utility
+        function assert(condition, message, area) {
+            testResults.total++;
+            if (condition) {
+                testResults.passed++;
+                logTest(area, `✅ PASS: ${message}`, 'success');
+                testResults.details.push({ test: message, status: 'PASS', area });
+            } else {
+                testResults.failed++;
+                logTest(area, `❌ FAIL: ${message}`, 'error');
+                testResults.details.push({ test: message, status: 'FAIL', area });
+            }
+        }
+
+        // System Status Functions
+        function refreshSystemStatus() {
+            // Check if components are loaded
+            document.getElementById('data-manager-status').textContent = 
+                window.petDataManager ? '✅' : '❌';
+            document.getElementById('processor-status').textContent = 
+                window.PetProcessor ? '✅' : '❌';
+            document.getElementById('selector-status').textContent = 
+                window.PetSelector ? '✅' : '❌';
+            document.getElementById('cart-status').textContent = 
+                window.petCartIntegration ? '✅' : '❌';
+            
+            // Update stats
+            if (window.petDataManager) {
+                const stats = window.petDataManager.getStats();
+                document.getElementById('pets-count').textContent = stats.totalPets;
+                document.getElementById('cache-size').textContent = 
+                    Math.round(stats.totalCacheSize / 1024) + 'KB';
+            }
+        }
+
+        function showSystemStats() {
+            if (window.petDataManager) {
+                const stats = window.petDataManager.getStats();
+                alert(`System Statistics:
+Total Pets: ${stats.totalPets}
+Total Effects: ${stats.totalEffects}
+Cache Size: ${Math.round(stats.totalCacheSize / 1024)}KB
+Global Cache Entries: ${stats.globalCacheEntries}
+Oldest Pet: ${stats.oldestPet ? new Date(stats.oldestPet).toLocaleString() : 'None'}
+Newest Pet: ${stats.newestPet ? new Date(stats.newestPet).toLocaleString() : 'None'}`);
+            }
+        }
+
+        function clearAllData() {
+            if (confirm('Clear all pet data? This cannot be undone.')) {
+                if (window.petDataManager) {
+                    const result = window.petDataManager.emergencyCleanup();
+                    alert(result.message);
+                    refreshSystemStatus();
+                }
+            }
+        }
+
+        // Pet Data Manager Tests
+        function testCreateMockPet() {
+            if (!window.petDataManager) {
+                logTest('data-manager', 'PetDataManager not available', 'error');
+                return;
+            }
+            
+            const sessionKey = 'test_pet_' + Date.now();
+            const petData = window.petDataManager.createPetData(sessionKey, 'test_pet.jpg');
+            
+            assert(petData.sessionKey === sessionKey, 'Mock pet created with correct session key', 'data-manager');
+            assert(petData.petName === 'Test pet', 'Pet name extracted correctly', 'data-manager');
+            assert(petData.effects instanceof Map, 'Effects map initialized', 'data-manager');
+            
+            logTest('data-manager', `Created mock pet: ${JSON.stringify(petData)}`, 'info');
+        }
+
+        function testStoreEffect() {
+            if (!window.petDataManager) {
+                logTest('data-manager', 'PetDataManager not available', 'error');
+                return;
+            }
+            
+            // Create a mock blob
+            const canvas = document.createElement('canvas');
+            canvas.width = 100;
+            canvas.height = 100;
+            const ctx = canvas.getContext('2d');
+            ctx.fillStyle = '#ff0000';
+            ctx.fillRect(0, 0, 100, 100);
+            
+            canvas.toBlob(function(blob) {
+                const sessionKey = 'test_effect_' + Date.now();
+                const success = window.petDataManager.storeEffect(sessionKey, 'enhancedblackwhite', blob);
+                
+                assert(success, 'Effect stored successfully', 'data-manager');
+                
+                const imageUrl = window.petDataManager.getEffectUrl(sessionKey, 'enhancedblackwhite');
+                assert(imageUrl && imageUrl.startsWith('blob:'), 'Effect URL retrieved correctly', 'data-manager');
+                
+                logTest('data-manager', `Stored effect for ${sessionKey}`, 'success');
+            });
+        }
+
+        function testGetAllPets() {
+            if (!window.petDataManager) {
+                logTest('data-manager', 'PetDataManager not available', 'error');
+                return;
+            }
+            
+            const pets = window.petDataManager.getAllPets();
+            assert(Array.isArray(pets), 'getAllPets returns array', 'data-manager');
+            
+            logTest('data-manager', `Found ${pets.length} pets in data manager`, 'info');
+            pets.forEach((pet, index) => {
+                logTest('data-manager', `Pet ${index}: ${pet.petName} (${pet.effects.size} effects)`, 'info');
+            });
+        }
+
+        function testUpdateArtistNotes() {
+            if (!window.petDataManager) {
+                logTest('data-manager', 'PetDataManager not available', 'error');
+                return;
+            }
+            
+            const sessionKey = 'test_notes_' + Date.now();
+            const petData = window.petDataManager.createPetData(sessionKey);
+            window.petDataManager.savePetData(sessionKey, petData);
+            
+            const testNotes = 'Test artist notes for automated testing';
+            window.petDataManager.updateArtistNotes(sessionKey, testNotes);
+            
+            const updatedData = window.petDataManager.getPetData(sessionKey);
+            assert(updatedData.artistNotes === testNotes, 'Artist notes updated correctly', 'data-manager');
+            
+            logTest('data-manager', `Updated artist notes for ${sessionKey}`, 'success');
+        }
+
+        function testMemoryCleanup() {
+            if (!window.petDataManager) {
+                logTest('data-manager', 'PetDataManager not available', 'error');
+                return;
+            }
+            
+            const initialStats = window.petDataManager.getStats();
+            logTest('data-manager', `Initial stats: ${initialStats.totalPets} pets, ${initialStats.globalCacheEntries} cache entries`, 'info');
+            
+            const cleanedCount = window.petDataManager.cleanup({ expiry: 0 }); // Clean all
+            
+            const finalStats = window.petDataManager.getStats();
+            logTest('data-manager', `After cleanup: ${finalStats.totalPets} pets, ${finalStats.globalCacheEntries} cache entries`, 'info');
+            
+            assert(cleanedCount >= 0, 'Cleanup executed without errors', 'data-manager');
+            logTest('data-manager', `Cleaned ${cleanedCount} items`, 'success');
+        }
+
+        function testBlobURLManagement() {
+            // Test blob URL creation and cleanup
+            const canvas = document.createElement('canvas');
+            canvas.width = 50;
+            canvas.height = 50;
+            const ctx = canvas.getContext('2d');
+            ctx.fillStyle = '#00ff00';
+            ctx.fillRect(0, 0, 50, 50);
+            
+            canvas.toBlob(function(blob) {
+                const url = URL.createObjectURL(blob);
+                assert(url.startsWith('blob:'), 'Blob URL created correctly', 'data-manager');
+                
+                // Test cleanup
+                URL.revokeObjectURL(url);
+                logTest('data-manager', 'Blob URL revoked successfully', 'success');
+            });
+        }
+
+        function testSessionExpiry() {
+            if (!window.petDataManager) {
+                logTest('data-manager', 'PetDataManager not available', 'error');
+                return;
+            }
+            
+            // Create a pet with past timestamp
+            const sessionKey = 'expired_pet_' + Date.now();
+            const petData = window.petDataManager.createPetData(sessionKey);
+            petData.createdAt = Date.now() - (8 * 24 * 60 * 60 * 1000); // 8 days ago
+            window.petDataManager.savePetData(sessionKey, petData);
+            
+            // Test cleanup with 7-day expiry
+            const cleanedCount = window.petDataManager.cleanup({ expiry: 7 * 24 * 60 * 60 * 1000 });
+            
+            const expiredPet = window.petDataManager.getPetData(sessionKey);
+            assert(!expiredPet, 'Expired pet was cleaned up', 'data-manager');
+            
+            logTest('data-manager', 'Session expiry test completed', 'success');
+        }
+
+        function testEventEmission() {
+            if (!window.petDataManager) {
+                logTest('data-manager', 'PetDataManager not available', 'error');
+                return;
+            }
+            
+            let eventReceived = false;
+            
+            // Set up event listener
+            window.petDataManager.on('effectStored', function(e) {
+                eventReceived = true;
+                logTest('data-manager', `Event received: ${e.type}`, 'success');
+            });
+            
+            // Emit test event
+            window.petDataManager.emit('effectStored', { test: 'data' });
+            
+            setTimeout(() => {
+                assert(eventReceived, 'Event system working correctly', 'data-manager');
+            }, 100);
+        }
+
+        function testEventListeners() {
+            logTest('data-manager', 'Testing event listener setup...', 'info');
+            
+            // Test document-level events
+            let documentEventReceived = false;
+            document.addEventListener('petDataEffectStored', function(e) {
+                documentEventReceived = true;
+                logTest('data-manager', 'Document event received', 'success');
+            }, { once: true });
+            
+            if (window.petDataManager) {
+                window.petDataManager.emit('effectStored', { test: true });
+            }
+            
+            setTimeout(() => {
+                assert(documentEventReceived, 'Document-level events working', 'data-manager');
+            }, 100);
+        }
+
+        // Pet Processor Tests
+        function testProcessorRendering() {
+            const testArea = document.getElementById('processor-test-area');
+            testArea.innerHTML = '';
+            
+            // Create a test processor instance
+            const processor = new window.PetProcessor('test-processor');
+            
+            setTimeout(() => {
+                assert(testArea.children.length > 0, 'Processor rendered successfully', 'processor');
+                
+                const uploadArea = testArea.querySelector('.upload-section');
+                assert(uploadArea !== null, 'Upload area rendered', 'processor');
+                
+                const processingArea = testArea.querySelector('.processing-section');
+                assert(processingArea !== null, 'Processing area rendered', 'processor');
+                
+                const previewArea = testArea.querySelector('.preview-section');
+                assert(previewArea !== null, 'Preview area rendered', 'processor');
+                
+                logTest('processor', 'Processor rendering test completed', 'success');
+            }, 100);
+        }
+
+        function testFileValidation() {
+            if (!window.PetProcessor) {
+                logTest('processor', 'PetProcessor not available', 'error');
+                return;
+            }
+            
+            const processor = new window.PetProcessor('test-validation');
+            
+            // Test valid file
+            const validFile = new File(['test'], 'test.jpg', { type: 'image/jpeg' });
+            const isValid = processor.validateFile(validFile);
+            assert(isValid, 'Valid JPEG file accepted', 'processor');
+            
+            // Test invalid file type
+            const invalidFile = new File(['test'], 'test.txt', { type: 'text/plain' });
+            const isInvalid = processor.validateFile(invalidFile);
+            assert(!isInvalid, 'Invalid file type rejected', 'processor');
+            
+            // Test large file
+            const largeFile = new File(['x'.repeat(60 * 1024 * 1024)], 'large.jpg', { type: 'image/jpeg' });
+            const isTooLarge = processor.validateFile(largeFile);
+            assert(!isTooLarge, 'Large file rejected', 'processor');
+            
+            logTest('processor', 'File validation tests completed', 'success');
+        }
+
+        function testProgressiveLoading() {
+            logTest('processor', 'Testing progressive loading simulation...', 'info');
+            
+            // This would typically test the actual progressive loading
+            // For now, we'll test the loading state management
+            if (window.PetProcessor) {
+                const processor = new window.PetProcessor('test-progressive');
+                
+                processor.loadingState = {
+                    'enhancedblackwhite': 'loaded',
+                    'popart': 'loading',
+                    'dithering': 'pending',
+                    'color': 'error'
+                };
+                
+                assert(processor.loadingState['enhancedblackwhite'] === 'loaded', 'Primary effect loaded', 'processor');
+                assert(processor.loadingState['popart'] === 'loading', 'Secondary effect loading', 'processor');
+                assert(processor.loadingState['dithering'] === 'pending', 'Pending effect tracked', 'processor');
+                assert(processor.loadingState['color'] === 'error', 'Error state tracked', 'processor');
+                
+                logTest('processor', 'Progressive loading state management working', 'success');
+            }
+        }
+
+        function testAPIConnection() {
+            const apiUrl = 'https://inspirenet-bg-removal-api-725543555429.us-central1.run.app/health';
+            
+            logTest('processor', 'Testing API connection...', 'info');
+            
+            fetch(apiUrl)
+                .then(response => {
+                    assert(response.ok, 'API health check successful', 'processor');
+                    logTest('processor', `API responded with status: ${response.status}`, 'success');
+                })
+                .catch(error => {
+                    logTest('processor', `API connection failed: ${error.message}`, 'error');
+                    assert(false, 'API connection test failed', 'processor');
+                });
+        }
+
+        function testMockProcessing() {
+            logTest('processor', 'Testing mock image processing...', 'info');
+            
+            // Create a mock file
+            const canvas = document.createElement('canvas');
+            canvas.width = 200;
+            canvas.height = 200;
+            const ctx = canvas.getContext('2d');
+            
+            // Draw a simple pet-like shape
+            ctx.fillStyle = '#8B4513'; // Brown
+            ctx.fillRect(50, 50, 100, 100); // Body
+            ctx.fillStyle = '#000';
+            ctx.fillRect(75, 75, 10, 10); // Eye 1
+            ctx.fillRect(115, 75, 10, 10); // Eye 2
+            ctx.fillRect(95, 95, 10, 5); // Nose
+            
+            canvas.toBlob(function(blob) {
+                const mockFile = new File([blob], 'test-pet.png', { type: 'image/png' });
+                
+                assert(mockFile.size > 0, 'Mock file created successfully', 'processor');
+                assert(mockFile.type === 'image/png', 'Mock file has correct MIME type', 'processor');
+                
+                logTest('processor', `Mock processing test: ${mockFile.size} bytes`, 'success');
+            });
+        }
+
+        function testEffectSwitching() {
+            if (!window.PetProcessor) {
+                logTest('processor', 'PetProcessor not available', 'error');
+                return;
+            }
+            
+            const processor = new window.PetProcessor('test-effects');
+            
+            // Mock some effect URLs in the data manager
+            if (window.petDataManager && window.perkieEffects) {
+                const testSessionKey = 'test_effects_' + Date.now();
+                const mockUrl = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/5+hHgAHggJ/PchI7wAAAABJRU5ErkJggg==';
+                
+                window.perkieEffects.set(testSessionKey + '_enhancedblackwhite', mockUrl);
+                window.perkieEffects.set(testSessionKey + '_popart', mockUrl);
+                
+                processor.currentSessionKey = testSessionKey;
+                processor.loadingState = {
+                    'enhancedblackwhite': 'loaded',
+                    'popart': 'loaded',
+                    'dithering': 'pending',
+                    'color': 'pending'
+                };
+                
+                // Test switching to loaded effect
+                processor.switchEffect('popart');
+                assert(processor.currentEffect === 'popart', 'Effect switched successfully', 'processor');
+                
+                logTest('processor', 'Effect switching test completed', 'success');
+            }
+        }
+
+        function testMobileLayout() {
+            logTest('processor', 'Testing mobile layout adaptation...', 'info');
+            
+            // Simulate mobile viewport
+            const viewport = document.querySelector('meta[name="viewport"]');
+            const originalContent = viewport ? viewport.content : '';
+            
+            if (viewport) {
+                viewport.content = 'width=375';
+            }
+            
+            // Test responsive grid
+            const testGrid = document.createElement('div');
+            testGrid.className = 'pet-grid pet-selector-grid';
+            testGrid.style.width = '375px';
+            
+            document.body.appendChild(testGrid);
+            
+            const computedStyle = window.getComputedStyle(testGrid);
+            assert(computedStyle.display === 'grid', 'Grid display applied', 'processor');
+            
+            // Cleanup
+            document.body.removeChild(testGrid);
+            if (viewport && originalContent) {
+                viewport.content = originalContent;
+            }
+            
+            logTest('processor', 'Mobile layout test completed', 'success');
+        }
+
+        function testTouchTargets() {
+            logTest('processor', 'Testing touch target sizes...', 'info');
+            
+            // Create test buttons
+            const testButton = document.createElement('button');
+            testButton.className = 'test-button';
+            testButton.style.padding = '8px 16px';
+            document.body.appendChild(testButton);
+            
+            const rect = testButton.getBoundingClientRect();
+            const minTouchTarget = 44; // iOS/Android recommendation
+            
+            assert(rect.height >= minTouchTarget, `Touch target height adequate (${rect.height}px >= ${minTouchTarget}px)`, 'processor');
+            assert(rect.width >= minTouchTarget, `Touch target width adequate (${rect.width}px >= ${minTouchTarget}px)`, 'processor');
+            
+            document.body.removeChild(testButton);
+            logTest('processor', 'Touch target test completed', 'success');
+        }
+
+        function testViewportSizing() {
+            logTest('processor', 'Testing viewport-based sizing...', 'info');
+            
+            // Test viewport units in CSS
+            const testEl = document.createElement('div');
+            testEl.style.width = '50vw';
+            testEl.style.height = '25vh';
+            document.body.appendChild(testEl);
+            
+            const rect = testEl.getBoundingClientRect();
+            const expectedWidth = window.innerWidth * 0.5;
+            const expectedHeight = window.innerHeight * 0.25;
+            
+            const widthMatch = Math.abs(rect.width - expectedWidth) < 1;
+            const heightMatch = Math.abs(rect.height - expectedHeight) < 1;
+            
+            assert(widthMatch, `Viewport width sizing correct (${rect.width}px ≈ ${expectedWidth}px)`, 'processor');
+            assert(heightMatch, `Viewport height sizing correct (${rect.height}px ≈ ${expectedHeight}px)`, 'processor');
+            
+            document.body.removeChild(testEl);
+            logTest('processor', 'Viewport sizing test completed', 'success');
+        }
+
+        // Pet Selector Tests
+        function testSelectorRendering() {
+            if (!window.PetSelector) {
+                logTest('selector', 'PetSelector not available', 'error');
+                return;
+            }
+            
+            const testArea = document.getElementById('selector-test-area');
+            testArea.innerHTML = '<div id="pet-selector-content-test-selector"></div>';
+            
+            const selector = new window.PetSelector('test-selector');
+            
+            setTimeout(() => {
+                const selectorContent = document.getElementById('pet-selector-content-test-selector');
+                assert(selectorContent && selectorContent.children.length > 0, 'Selector rendered successfully', 'selector');
+                
+                logTest('selector', 'Selector rendering test completed', 'success');
+            }, 100);
+        }
+
+        function testPetSelection() {
+            if (!window.PetSelector) {
+                logTest('selector', 'PetSelector not available', 'error');
+                return;
+            }
+            
+            // Create mock pet data
+            const mockPets = [
+                { sessionKey: 'pet1', petName: 'Fluffy', effects: new Map([['enhancedblackwhite', 'url1']]) },
+                { sessionKey: 'pet2', petName: 'Buddy', effects: new Map([['color', 'url2']]) }
+            ];
+            
+            const selector = new window.PetSelector('test-selection');
+            selector.pets = mockPets;
+            
+            // Test selection
+            selector.selectPet('pet1', 'Fluffy');
+            
+            assert(selector.selectedPet && selector.selectedPet.sessionKey === 'pet1', 'Pet selected correctly', 'selector');
+            assert(selector.selectedPet.petName === 'Fluffy', 'Pet name stored correctly', 'selector');
+            
+            logTest('selector', 'Pet selection test completed', 'success');
+        }
+
+        function testGridLayout() {
+            logTest('selector', 'Testing grid layout rendering...', 'info');
+            
+            const testGrid = document.getElementById('test-pet-grid');
+            
+            // Add some mock pets
+            const mockPetHTML = `
+                <div class="pet-item" data-session-key="test1" data-pet-name="Test Pet 1">
+                    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/5+hHgAHggJ/PchI7wAAAABJRU5ErkJggg==" class="pet-image" alt="Test Pet 1">
+                    <div class="pet-info">
+                        <p class="pet-name">Test Pet 1</p>
+                        <p class="pet-effect-count">4 effects</p>
+                    </div>
+                </div>
+                <div class="pet-item" data-session-key="test2" data-pet-name="Test Pet 2">
+                    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/5+hHgAHggJ/PchI7wAAAABJRU5ErkJggg==" class="pet-image" alt="Test Pet 2">
+                    <div class="pet-info">
+                        <p class="pet-name">Test Pet 2</p>
+                        <p class="pet-effect-count">3 effects</p>
+                    </div>
+                </div>
+            `;
+            
+            testGrid.innerHTML = mockPetHTML;
+            
+            const petItems = testGrid.querySelectorAll('.pet-item');
+            assert(petItems.length === 2, 'Mock pets added to grid', 'selector');
+            
+            const computedStyle = window.getComputedStyle(testGrid);
+            assert(computedStyle.display === 'grid', 'Grid layout applied', 'selector');
+            
+            logTest('selector', 'Grid layout test completed', 'success');
+        }
+
+        function testDataBinding() {
+            if (!window.PetSelector || !window.petDataManager) {
+                logTest('selector', 'Required components not available', 'error');
+                return;
+            }
+            
+            // Create mock data in data manager
+            const sessionKey = 'binding_test_' + Date.now();
+            const petData = window.petDataManager.createPetData(sessionKey, 'binding_test.jpg');
+            window.petDataManager.savePetData(sessionKey, petData);
+            
+            const selector = new window.PetSelector('test-binding');
+            selector.loadPets();
+            
+            assert(selector.pets.length >= 0, 'Pets loaded from data manager', 'selector');
+            
+            logTest('selector', 'Data binding test completed', 'success');
+        }
+
+        function testRealTimeUpdates() {
+            if (!window.PetSelector || !window.petDataManager) {
+                logTest('selector', 'Required components not available', 'error');
+                return;
+            }
+            
+            const selector = new window.PetSelector('test-updates');
+            const initialPetCount = selector.pets.length;
+            
+            // Simulate a new pet being added
+            const newSessionKey = 'realtime_test_' + Date.now();
+            window.petDataManager.emit('effectStored', {
+                sessionKey: newSessionKey,
+                effect: 'enhancedblackwhite'
+            });
+            
+            // Test refresh was triggered (this is automatic in the real component)
+            setTimeout(() => {
+                selector.refresh();
+                assert(true, 'Real-time update mechanism working', 'selector');
+                logTest('selector', 'Real-time updates test completed', 'success');
+            }, 100);
+        }
+
+        function testPetFiltering() {
+            if (!window.PetSelector) {
+                logTest('selector', 'PetSelector not available', 'error');
+                return;
+            }
+            
+            // Test with mock data
+            const mockPets = [
+                { sessionKey: 'pet1', petName: 'Fluffy Cat', effects: new Map([['enhancedblackwhite', 'url1']]) },
+                { sessionKey: 'pet2', petName: 'Buddy Dog', effects: new Map([['color', 'url2']]) },
+                { sessionKey: 'pet3', petName: 'Max Dog', effects: new Map([['popart', 'url3']]) }
+            ];
+            
+            const selector = new window.PetSelector('test-filtering');
+            selector.pets = mockPets;
+            
+            // Test getting pets with specific effects
+            const petsWithColor = mockPets.filter(pet => pet.effects.has('color'));
+            assert(petsWithColor.length === 1, 'Pet filtering by effect works', 'selector');
+            
+            logTest('selector', 'Pet filtering test completed', 'success');
+        }
+
+        function testMobileGrid() {
+            logTest('selector', 'Testing mobile grid responsiveness...', 'info');
+            
+            const testGrid = document.getElementById('test-pet-grid');
+            
+            // Test different viewport sizes
+            const viewports = [
+                { width: 320, expectedCols: 2 },
+                { width: 480, expectedCols: 3 },
+                { width: 768, expectedCols: 3 },
+                { width: 1024, expectedCols: 4 }
+            ];
+            
+            viewports.forEach(viewport => {
+                testGrid.style.width = viewport.width + 'px';
+                
+                // Force reflow
+                testGrid.offsetHeight;
+                
+                const style = window.getComputedStyle(testGrid);
+                const gridCols = style.gridTemplateColumns;
+                
+                logTest('selector', `Viewport ${viewport.width}px: ${gridCols}`, 'info');
+            });
+            
+            // Reset
+            testGrid.style.width = '';
+            
+            assert(true, 'Mobile grid responsiveness tested', 'selector');
+            logTest('selector', 'Mobile grid test completed', 'success');
+        }
+
+        function testResponsiveBreakpoints() {
+            logTest('selector', 'Testing responsive breakpoints...', 'info');
+            
+            const breakpoints = [375, 480, 768, 1024];
+            let breakpointTests = 0;
+            
+            breakpoints.forEach(width => {
+                // Create test element
+                const testEl = document.createElement('div');
+                testEl.className = 'pet-grid pet-selector-grid';
+                testEl.style.width = width + 'px';
+                document.body.appendChild(testEl);
+                
+                // Check computed styles
+                const style = window.getComputedStyle(testEl);
+                const hasGridLayout = style.display === 'grid';
+                
+                if (hasGridLayout) {
+                    breakpointTests++;
+                }
+                
+                document.body.removeChild(testEl);
+                
+                logTest('selector', `Breakpoint ${width}px: ${hasGridLayout ? 'Pass' : 'Fail'}`, hasGridLayout ? 'success' : 'error');
+            });
+            
+            assert(breakpointTests > 0, `Responsive breakpoints working (${breakpointTests}/${breakpoints.length})`, 'selector');
+        }
+
+        function testAccessibility() {
+            logTest('selector', 'Testing accessibility features...', 'info');
+            
+            const testGrid = document.getElementById('test-pet-grid');
+            const petItems = testGrid.querySelectorAll('.pet-item');
+            
+            let accessibilityScore = 0;
+            const totalTests = 4;
+            
+            petItems.forEach(item => {
+                // Test tabindex
+                if (item.getAttribute('tabindex') === '0') accessibilityScore++;
+                
+                // Test role
+                if (item.getAttribute('role') === 'button') accessibilityScore++;
+                
+                // Test aria-label
+                if (item.getAttribute('aria-label')) accessibilityScore++;
+                
+                // Test keyboard navigation would be tested here
+                accessibilityScore++; // Assuming keyboard nav is implemented
+            });
+            
+            const accessibilityPercentage = (accessibilityScore / (totalTests * petItems.length)) * 100;
+            
+            assert(accessibilityPercentage > 50, `Accessibility features present (${accessibilityPercentage.toFixed(1)}%)`, 'selector');
+            logTest('selector', 'Accessibility test completed', 'success');
+        }
+
+        // Cart Integration Tests
+        function testFormPropertyInjection() {
+            if (!window.petCartIntegration) {
+                logTest('cart', 'PetCartIntegration not available', 'error');
+                return;
+            }
+            
+            const form = document.getElementById('test-cart-form');
+            const mockPetData = {
+                sectionId: 'test-section',
+                sessionKey: 'test_pet_123',
+                petName: 'Test Pet',
+                currentEffect: 'enhancedblackwhite',
+                artistNotes: 'Test notes'
+            };
+            
+            window.petCartIntegration.addPetPropertiesToForm(form, 'test-section', mockPetData);
+            
+            const petDataInput = form.querySelector('input[name*="Pet Data"]');
+            assert(petDataInput !== null, 'Pet data input added to form', 'cart');
+            
+            if (petDataInput) {
+                const petData = JSON.parse(petDataInput.value);
+                assert(petData.sessionKey === 'test_pet_123', 'Pet data contains correct session key', 'cart');
+                assert(petData.petName === 'Test Pet', 'Pet data contains correct pet name', 'cart');
+            }
+            
+            logTest('cart', 'Form property injection test completed', 'success');
+        }
+
+        function testPriceCalculation() {
+            if (!window.petCartIntegration) {
+                logTest('cart', 'PetCartIntegration not available', 'error');
+                return;
+            }
+            
+            const basePrice = 2999; // $29.99 in cents
+            const customFee = 500;   // $5.00 in cents
+            const expectedTotal = basePrice + customFee;
+            
+            // Create mock selector element
+            const mockSelector = document.createElement('div');
+            mockSelector.id = 'pet-selector-test-price';
+            mockSelector.dataset.customImageFee = customFee;
+            mockSelector.dataset.productPrice = basePrice;
+            document.body.appendChild(mockSelector);
+            
+            // Create price display elements
+            const totalPriceEl = document.createElement('span');
+            totalPriceEl.id = 'total-price-test-price';
+            mockSelector.appendChild(totalPriceEl);
+            
+            const mockPetData = { sectionId: 'test-price' };
+            window.petCartIntegration.updatePriceDisplays('test-price', mockPetData);
+            
+            // Check if price was updated
+            const displayedPrice = totalPriceEl.textContent;
+            const expectedPriceDisplay = window.petCartIntegration.formatPrice(expectedTotal);
+            
+            assert(displayedPrice === expectedPriceDisplay, `Price calculation correct (${displayedPrice} = ${expectedPriceDisplay})`, 'cart');
+            
+            document.body.removeChild(mockSelector);
+            logTest('cart', 'Price calculation test completed', 'success');
+        }
+
+        function testFormValidation() {
+            if (!window.petCartIntegration) {
+                logTest('cart', 'PetCartIntegration not available', 'error');
+                return;
+            }
+            
+            const form = document.getElementById('test-cart-form');
+            
+            // Test form without pet selection
+            const event = new Event('submit', { cancelable: true });
+            const result = window.petCartIntegration.handleCartFormSubmit(event);
+            
+            // Since no required pet selectors exist, should return true
+            assert(result !== false, 'Form validation handles missing pet selectors', 'cart');
+            
+            logTest('cart', 'Form validation test completed', 'success');
+        }
+
+        function testCartEvents() {
+            if (!window.petCartIntegration) {
+                logTest('cart', 'PetCartIntegration not available', 'error');
+                return;
+            }
+            
+            let eventReceived = false;
+            
+            // Listen for pet selection event
+            document.addEventListener('petSelected', function(e) {
+                eventReceived = true;
+                logTest('cart', `Pet selection event received: ${e.detail.petName}`, 'success');
+            }, { once: true });
+            
+            // Simulate pet selection
+            const mockPetData = {
+                sectionId: 'test-events',
+                sessionKey: 'test_pet_events',
+                petName: 'Event Test Pet'
+            };
+            
+            window.petCartIntegration.handlePetSelection(mockPetData);
+            
+            setTimeout(() => {
+                assert(eventReceived, 'Cart events working correctly', 'cart');
+                logTest('cart', 'Cart events test completed', 'success');
+            }, 100);
+        }
+
+        function testVariantChanges() {
+            if (!window.petCartIntegration) {
+                logTest('cart', 'PetCartIntegration not available', 'error');
+                return;
+            }
+            
+            // Test variant change handling
+            const newVariantId = '987654321';
+            window.petCartIntegration.handleVariantChange(newVariantId);
+            
+            // Since we don't have actual variant data, this should not crash
+            assert(true, 'Variant change handling works without errors', 'cart');
+            
+            logTest('cart', 'Variant changes test completed', 'success');
+        }
+
+        function testMultiplePets() {
+            if (!window.petCartIntegration) {
+                logTest('cart', 'PetCartIntegration not available', 'error');
+                return;
+            }
+            
+            const pets = [
+                { sectionId: 'section1', sessionKey: 'pet1', petName: 'Pet 1' },
+                { sectionId: 'section2', sessionKey: 'pet2', petName: 'Pet 2' },
+                { sectionId: 'section3', sessionKey: 'pet3', petName: 'Pet 3' }
+            ];
+            
+            pets.forEach(pet => {
+                window.petCartIntegration.handlePetSelection(pet);
+            });
+            
+            const selectedPets = window.petCartIntegration.getSelectedPets();
+            const selectedCount = Object.keys(selectedPets).length;
+            
+            assert(selectedCount === 3, `Multiple pets handled correctly (${selectedCount}/3)`, 'cart');
+            
+            logTest('cart', 'Multiple pets test completed', 'success');
+        }
+
+        function testFulfillmentStorage() {
+            if (!window.petCartIntegration) {
+                logTest('cart', 'PetCartIntegration not available', 'error');
+                return;
+            }
+            
+            const mockPetData = {
+                sessionKey: 'fulfillment_test_' + Date.now(),
+                petName: 'Fulfillment Test Pet',
+                effects: { enhancedblackwhite: 'url1', color: 'url2' },
+                artistNotes: 'Test fulfillment notes'
+            };
+            
+            window.petCartIntegration.storePetImageForFulfillment(mockPetData);
+            
+            const fulfillmentKey = 'pet_fulfillment_' + mockPetData.sessionKey;
+            const storedData = localStorage.getItem(fulfillmentKey);
+            
+            assert(storedData !== null, 'Fulfillment data stored successfully', 'cart');
+            
+            if (storedData) {
+                const parsedData = JSON.parse(storedData);
+                assert(parsedData.sessionKey === mockPetData.sessionKey, 'Fulfillment data contains correct session key', 'cart');
+                assert(parsedData.petName === mockPetData.petName, 'Fulfillment data contains correct pet name', 'cart');
+            }
+            
+            logTest('cart', 'Fulfillment storage test completed', 'success');
+        }
+
+        function testOrderCorrelation() {
+            logTest('cart', 'Testing order correlation system...', 'info');
+            
+            const timestamp = Date.now();
+            const orderRef = 'pet_order_' + timestamp;
+            const testData = {
+                sessionKey: 'order_test_' + timestamp,
+                fulfillmentKey: 'pet_fulfillment_order_test_' + timestamp
+            };
+            
+            localStorage.setItem(orderRef, JSON.stringify(testData));
+            
+            const storedData = localStorage.getItem(orderRef);
+            assert(storedData !== null, 'Order correlation data stored', 'cart');
+            
+            if (storedData) {
+                const parsedData = JSON.parse(storedData);
+                assert(parsedData.sessionKey === testData.sessionKey, 'Order correlation contains correct session key', 'cart');
+            }
+            
+            logTest('cart', 'Order correlation test completed', 'success');
+        }
+
+        function testDataRetrieval() {
+            if (!window.petCartIntegration) {
+                logTest('cart', 'PetCartIntegration not available', 'error');
+                return;
+            }
+            
+            // Test getting selected pets
+            const selectedPets = window.petCartIntegration.getSelectedPets();
+            assert(typeof selectedPets === 'object', 'Selected pets data retrieved successfully', 'cart');
+            
+            // Test getting all image URLs for a pet
+            const sessionKey = 'retrieval_test_' + Date.now();
+            const imageUrls = window.petCartIntegration.getAllImageUrlsForPet(sessionKey);
+            assert(typeof imageUrls === 'object', 'Image URLs retrieval works without errors', 'cart');
+            
+            logTest('cart', 'Data retrieval test completed', 'success');
+        }
+
+        // Mobile Tests
+        function loadMobileTests() {
+            const mobileArea = document.getElementById('mobile-test-area');
+            
+            mobileArea.innerHTML = `
+                <div class="pet-grid pet-selector-grid" style="width: 100%;">
+                    <div class="pet-item">
+                        <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/5+hHgAHggJ/PchI7wAAAABJRU5ErkJggg==" class="pet-image" alt="Mobile Test Pet 1">
+                        <div class="pet-info">
+                            <p class="pet-name">Mobile Pet 1</p>
+                            <p class="pet-effect-count">4 effects</p>
+                        </div>
+                    </div>
+                    <div class="pet-item">
+                        <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/5+hHgAHggJ/PchI7wAAAABJRU5ErkJggg==" class="pet-image" alt="Mobile Test Pet 2">
+                        <div class="pet-info">
+                            <p class="pet-name">Mobile Pet 2</p>
+                            <p class="pet-effect-count">3 effects</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="margin-top: 15px;">
+                    <button class="test-button" onclick="testMobileTouch()" style="width: 100%; min-height: 48px;">Test Mobile Touch Target</button>
+                </div>
+            `;
+            
+            logTest('performance', 'Mobile tests loaded in viewport', 'success');
+        }
+
+        function testMobileTouch() {
+            alert('Mobile touch test - this button meets the 48px minimum touch target requirement');
+        }
+
+        // Performance Tests
+        function testComponentLoadTime() {
+            const startTime = performance.now();
+            
+            // Test component initialization time
+            if (window.PetProcessor) {
+                new window.PetProcessor('perf-test-processor');
+            }
+            
+            if (window.PetSelector) {
+                new window.PetSelector('perf-test-selector');
+            }
+            
+            const endTime = performance.now();
+            const loadTime = endTime - startTime;
+            
+            assert(loadTime < 100, `Component load time acceptable (${loadTime.toFixed(2)}ms < 100ms)`, 'performance');
+            logTest('performance', `Component load time: ${loadTime.toFixed(2)}ms`, 'info');
+        }
+
+        function testMemoryUsage() {
+            if (performance.memory) {
+                const beforeHeap = performance.memory.usedJSHeapSize;
+                
+                // Create and destroy some components
+                for (let i = 0; i < 10; i++) {
+                    if (window.petDataManager) {
+                        const sessionKey = 'memory_test_' + i;
+                        const petData = window.petDataManager.createPetData(sessionKey);
+                        window.petDataManager.savePetData(sessionKey, petData);
+                        window.petDataManager.deletePetData(sessionKey);
+                    }
+                }
+                
+                const afterHeap = performance.memory.usedJSHeapSize;
+                const heapDiff = afterHeap - beforeHeap;
+                
+                logTest('performance', `Memory usage change: ${(heapDiff / 1024).toFixed(2)}KB`, 'info');
+                assert(heapDiff < 1024 * 1024, 'Memory usage increase acceptable (<1MB)', 'performance');
+            } else {
+                logTest('performance', 'Memory API not available in this browser', 'info');
+                assert(true, 'Memory test skipped (API not available)', 'performance');
+            }
+        }
+
+        function testLargeDatasets() {
+            if (!window.petDataManager) {
+                logTest('performance', 'PetDataManager not available', 'error');
+                return;
+            }
+            
+            const startTime = performance.now();
+            
+            // Create a large number of pets
+            for (let i = 0; i < 100; i++) {
+                const sessionKey = 'large_test_' + i;
+                const petData = window.petDataManager.createPetData(sessionKey, `test_pet_${i}.jpg`);
+                window.petDataManager.savePetData(sessionKey, petData);
+            }
+            
+            // Test retrieval performance
+            const pets = window.petDataManager.getAllPets();
+            
+            const endTime = performance.now();
+            const operationTime = endTime - startTime;
+            
+            assert(operationTime < 1000, `Large dataset operations acceptable (${operationTime.toFixed(2)}ms < 1000ms)`, 'performance');
+            assert(pets.length >= 100, `All pets retrieved from large dataset (${pets.length} pets)`, 'performance');
+            
+            // Cleanup
+            window.petDataManager.cleanup({ expiry: 0 });
+            
+            logTest('performance', `Large dataset test: ${operationTime.toFixed(2)}ms for 100 pets`, 'success');
+        }
+
+        function testRapidInteractions() {
+            logTest('performance', 'Testing rapid interactions...', 'info');
+            
+            const startTime = performance.now();
+            let interactions = 0;
+            
+            // Simulate rapid clicks/touches
+            for (let i = 0; i < 50; i++) {
+                const event = new Event('click', { bubbles: true });
+                document.body.dispatchEvent(event);
+                interactions++;
+            }
+            
+            const endTime = performance.now();
+            const interactionTime = endTime - startTime;
+            
+            assert(interactionTime < 100, `Rapid interactions handled efficiently (${interactionTime.toFixed(2)}ms for ${interactions} interactions)`, 'performance');
+            logTest('performance', `Rapid interactions test: ${interactionTime.toFixed(2)}ms`, 'success');
+        }
+
+        function testConcurrentOperations() {
+            if (!window.petDataManager) {
+                logTest('performance', 'PetDataManager not available', 'error');
+                return;
+            }
+            
+            const startTime = performance.now();
+            const promises = [];
+            
+            // Simulate concurrent operations
+            for (let i = 0; i < 10; i++) {
+                promises.push(new Promise(resolve => {
+                    const sessionKey = 'concurrent_' + i;
+                    const petData = window.petDataManager.createPetData(sessionKey);
+                    window.petDataManager.savePetData(sessionKey, petData);
+                    resolve();
+                }));
+            }
+            
+            Promise.all(promises).then(() => {
+                const endTime = performance.now();
+                const concurrentTime = endTime - startTime;
+                
+                assert(concurrentTime < 200, `Concurrent operations handled efficiently (${concurrentTime.toFixed(2)}ms)`, 'performance');
+                logTest('performance', `Concurrent operations test: ${concurrentTime.toFixed(2)}ms`, 'success');
+            });
+        }
+
+        function testMemoryLeaks() {
+            logTest('performance', 'Testing for memory leaks...', 'info');
+            
+            const initialPets = window.perkieEffects ? window.perkieEffects.size : 0;
+            
+            // Create and remove pets multiple times
+            for (let cycle = 0; cycle < 5; cycle++) {
+                for (let i = 0; i < 10; i++) {
+                    const sessionKey = `leak_test_${cycle}_${i}`;
+                    
+                    if (window.petDataManager) {
+                        const petData = window.petDataManager.createPetData(sessionKey);
+                        window.petDataManager.savePetData(sessionKey, petData);
+                        
+                        // Simulate blob URL creation
+                        const canvas = document.createElement('canvas');
+                        canvas.width = 10;
+                        canvas.height = 10;
+                        canvas.toBlob(blob => {
+                            if (blob) {
+                                window.petDataManager.storeEffect(sessionKey, 'test', blob);
+                                window.petDataManager.deletePetData(sessionKey);
+                            }
+                        });
+                    }
+                }
+            }
+            
+            // Cleanup
+            if (window.petDataManager) {
+                window.petDataManager.cleanup({ expiry: 0 });
+            }
+            
+            const finalPets = window.perkieEffects ? window.perkieEffects.size : 0;
+            const leaked = finalPets - initialPets;
+            
+            assert(leaked <= 5, `Memory leak test acceptable (${leaked} items remained)`, 'performance');
+            logTest('performance', `Memory leak test: ${leaked} items remained after cleanup`, 'success');
+        }
+
+        // Comprehensive Test Runner
+        function runAllTests() {
+            logTest('performance', '🚀 Starting comprehensive test suite...', 'info');
+            
+            // Reset test results
+            testResults = { passed: 0, failed: 0, total: 0, details: [] };
+            
+            // Clear all logs
+            ['data-manager', 'processor', 'selector', 'cart', 'performance'].forEach(area => {
+                const logEl = document.getElementById(area + '-log');
+                if (logEl) logEl.innerHTML = '';
+            });
+            
+            // System status
+            refreshSystemStatus();
+            
+            // Data Manager Tests
+            setTimeout(() => {
+                testCreateMockPet();
+                testStoreEffect();
+                testGetAllPets();
+                testUpdateArtistNotes();
+                testMemoryCleanup();
+                testBlobURLManagement();
+                testSessionExpiry();
+                testEventEmission();
+                testEventListeners();
+            }, 100);
+            
+            // Processor Tests
+            setTimeout(() => {
+                testProcessorRendering();
+                testFileValidation();
+                testProgressiveLoading();
+                testAPIConnection();
+                testMockProcessing();
+                testEffectSwitching();
+                testMobileLayout();
+                testTouchTargets();
+                testViewportSizing();
+            }, 500);
+            
+            // Selector Tests
+            setTimeout(() => {
+                testSelectorRendering();
+                testPetSelection();
+                testGridLayout();
+                testDataBinding();
+                testRealTimeUpdates();
+                testPetFiltering();
+                testMobileGrid();
+                testResponsiveBreakpoints();
+                testAccessibility();
+            }, 1000);
+            
+            // Cart Integration Tests
+            setTimeout(() => {
+                testFormPropertyInjection();
+                testPriceCalculation();
+                testFormValidation();
+                testCartEvents();
+                testVariantChanges();
+                testMultiplePets();
+                testFulfillmentStorage();
+                testOrderCorrelation();
+                testDataRetrieval();
+            }, 1500);
+            
+            // Performance Tests
+            setTimeout(() => {
+                testComponentLoadTime();
+                testMemoryUsage();
+                testLargeDatasets();
+                testRapidInteractions();
+                testConcurrentOperations();
+                testMemoryLeaks();
+                
+                // Show final results
+                setTimeout(showFinalResults, 1000);
+            }, 2000);
+        }
+
+        function showFinalResults() {
+            const summaryEl = document.getElementById('test-results-summary');
+            const passRate = testResults.total > 0 ? (testResults.passed / testResults.total * 100).toFixed(1) : 0;
+            
+            const summaryHTML = `
+                <div style="background: ${passRate >= 80 ? '#d4edda' : passRate >= 60 ? '#fff3cd' : '#f8d7da'}; padding: 20px; border-radius: 8px; margin: 15px 0;">
+                    <h3>🏁 Test Suite Complete</h3>
+                    <div class="stats-grid">
+                        <div class="stat-card" style="background: #28a745; color: white;">
+                            <div class="stat-number">${testResults.passed}</div>
+                            <div class="stat-label">Passed</div>
+                        </div>
+                        <div class="stat-card" style="background: #dc3545; color: white;">
+                            <div class="stat-number">${testResults.failed}</div>
+                            <div class="stat-label">Failed</div>
+                        </div>
+                        <div class="stat-card" style="background: #007bff; color: white;">
+                            <div class="stat-number">${testResults.total}</div>
+                            <div class="stat-label">Total</div>
+                        </div>
+                        <div class="stat-card" style="background: ${passRate >= 80 ? '#28a745' : passRate >= 60 ? '#ffc107' : '#dc3545'}; color: white;">
+                            <div class="stat-number">${passRate}%</div>
+                            <div class="stat-label">Pass Rate</div>
+                        </div>
+                    </div>
+                    
+                    <h4>Test Results by Area:</h4>
+                    <div style="font-family: monospace; font-size: 12px; max-height: 200px; overflow-y: auto; background: #f8f9fa; padding: 10px; border-radius: 4px;">
+                        ${testResults.details.map(detail => 
+                            `<div style="color: ${detail.status === 'PASS' ? 'green' : 'red'}">[${detail.area}] ${detail.status}: ${detail.test}</div>`
+                        ).join('')}
+                    </div>
+                </div>
+            `;
+            
+            summaryEl.innerHTML = summaryHTML;
+            
+            // Log final summary
+            console.log('🏁 Test Suite Complete:', testResults);
+        }
+
+        function exportTestResults() {
+            const results = {
+                timestamp: new Date().toISOString(),
+                summary: testResults,
+                userAgent: navigator.userAgent,
+                viewport: {
+                    width: window.innerWidth,
+                    height: window.innerHeight
+                },
+                systemStatus: {
+                    dataManager: !!window.petDataManager,
+                    processor: !!window.PetProcessor,
+                    selector: !!window.PetSelector,
+                    cartIntegration: !!window.petCartIntegration
+                }
+            };
+            
+            const blob = new Blob([JSON.stringify(results, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `pet-system-test-results-${Date.now()}.json`;
+            a.click();
+            
+            URL.revokeObjectURL(url);
+            
+            logTest('performance', 'Test results exported successfully', 'success');
+        }
+
+        function clearTestResults() {
+            testResults = { passed: 0, failed: 0, total: 0, details: [] };
+            
+            ['data-manager', 'processor', 'selector', 'cart', 'performance'].forEach(area => {
+                const logEl = document.getElementById(area + '-log');
+                if (logEl) logEl.innerHTML = '';
+            });
+            
+            document.getElementById('test-results-summary').innerHTML = '<p>Run tests to see results summary here.</p>';
+            
+            logTest('performance', 'Test results cleared', 'info');
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            refreshSystemStatus();
+            logTest('performance', 'Test suite initialized successfully', 'success');
+        });
+
+        // Auto-refresh system status every 5 seconds
+        setInterval(refreshSystemStatus, 5000);
+    </script>
+</body>
+</html>

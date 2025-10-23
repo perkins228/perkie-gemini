@@ -1,0 +1,36 @@
+# Backend files
+backend/
+docs/
+testing/
+tests/
+scripts/
+
+# Development files
+node_modules/
+package*.json
+.env
+*.sa-key.json
+_archive/
+_backup*/
+
+# Git files
+.git/
+.gitignore
+README.md
+CLAUDE.md
+LICENSE
+
+# IDE files
+.cursor/
+.claude/
+
+# Python files
+*.py
+*.pyc
+__pycache__/
+
+# Documentation
+*.md
+!templates/**/*.md
+!sections/**/*.md
+!snippets/**/*.md
