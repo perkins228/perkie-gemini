@@ -109,6 +109,25 @@ git push origin feature/your-feature-name
 - Use descriptive commit messages following the existing style
 - Coordinate with team before major architectural changes
 
+## 🎯 Development Philosophy
+
+**Root Cause Analysis First**: When facing issues, always:
+1. Identify the root cause, not just symptoms
+2. Consider system-wide impact before making changes
+3. Fix causes across the entire project, not just one location
+
+**Code Quality Standards**:
+- Maximum 1600 lines per file
+- Modular, testable, clean code with docstrings
+- Match existing patterns and style
+- Consider edge cases before implementation
+
+**Think Bigger**: Design, don't patch. Consider:
+- Maintainability and scalability
+- User experience, not just functionality
+- Frontend-backend interactions
+- Natural user behavior and failure scenarios
+
 ## 📁 Key Files & Directories
 
 ### Frontend Files
@@ -159,15 +178,6 @@ The project completed Phase 1 with enhanced black & white processing:
 - Emergency cleanup method: `window.emergencyCleanupPetData()`
 - Automatic session restoration on page reload
 - Progressive loading state persistence
-
-### Testing Approach
-- **PRIMARY METHOD**: Use Playwright MCP with Shopify staging URL
-  - Current staging: `https://9wy9fqzd0344b2sw-2930573424.shopifypreview.com/`
-  - If expired, ASK USER for new URL before using local tests
-  - See `.claude/TESTING_STRATEGY.md` for detailed testing procedures
-- **SECONDARY**: Local HTML test files only when staging unavailable
-- Python tests in `backend/inspirenet-api/tests/` for API testing
-- **NO Shopify CLI** - All deployments happen via GitHub push to staging
 
 ### Deployment Notes
 - API uses Google Cloud Run with GPU support
