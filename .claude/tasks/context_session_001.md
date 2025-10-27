@@ -99,4 +99,6 @@
 - All files follow naming convention: `context_session_YYYY-MM-DD_description.md`
 - Only active session tracked in git, archives properly excluded
 
+**Commit**: [4d4d5c8](../../commit/4d4d5c8) - Docs: Context session cleanup and strategy
+
 **Next Steps**: Monitor session size, archive weekly or at 150KB threshold
