@@ -16,8 +16,9 @@ export class APIClient {
   async removeBackground(file) {
     const formData = new FormData();
     formData.append('file', file);
-    // Request all effects from API with JSON response for instant switching
-    formData.append('effects', 'color,enhancedblackwhite,optimized_popart,dithering');
+    // Request InSPyReNet effects from API with JSON response for instant switching
+    // Modern and Classic styles are handled separately via Gemini API
+    formData.append('effects', 'color,enhancedblackwhite');
     formData.append('session_id', 'perkie_' + Date.now());
     // Note: return_all_effects must be URL query parameter, not form data
 

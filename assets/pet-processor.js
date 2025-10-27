@@ -14,7 +14,7 @@ class ComparisonManager {
     this.comparisonEffect = null;
     this.longPressTimer = null;
     this.swipeStartX = null;
-    this.effectOrder = ['enhancedblackwhite', 'popart', 'dithering', 'color'];
+    this.effectOrder = ['enhancedblackwhite', 'modern', 'classic', 'color'];
     this.currentComparisonIndex = 0;
     
     this.initializeComparison();
@@ -322,13 +322,13 @@ class PetProcessor {
                   <span class="effect-emoji">⚫⚪</span>
                   <span class="effect-name">B&W</span>
                 </button>
-                <button class="effect-btn" data-effect="popart">
-                  <span class="effect-emoji">🎨</span>
-                  <span class="effect-name">Pop Art</span>
+                <button class="effect-btn" data-effect="modern">
+                  <span class="effect-emoji">🖌️</span>
+                  <span class="effect-name">Modern</span>
                 </button>
-                <button class="effect-btn" data-effect="dithering">
-                  <span class="effect-emoji">📰</span>
-                  <span class="effect-name">Halftone</span>
+                <button class="effect-btn" data-effect="classic">
+                  <span class="effect-emoji">🎨</span>
+                  <span class="effect-name">Classic</span>
                 </button>
                 <button class="effect-btn" data-effect="color">
                   <span class="effect-emoji">🌈</span>
@@ -567,7 +567,7 @@ class PetProcessor {
     
     const formData = new FormData();
     formData.append('file', fixedFile);
-    formData.append('effects', 'enhancedblackwhite,popart,dithering,color');
+    formData.append('effects', 'enhancedblackwhite,color');
     
     // Detect API warmth state BEFORE showing any timer
     const warmthTracker = new APIWarmthTracker();
@@ -605,7 +605,7 @@ class PetProcessor {
     this.updateProgressWithTimer(10, initialMessage, timeRemaining);
     
     // Add return_all_effects=true to get JSON response with all effects
-    const responsePromise = fetch(`${this.apiUrl}/api/v2/process-with-effects?return_all_effects=true&effects=enhancedblackwhite,popart,dithering,color`, {
+    const responsePromise = fetch(`${this.apiUrl}/api/v2/process-with-effects?return_all_effects=true&effects=enhancedblackwhite,color`, {
       method: 'POST',
       body: formData
     });

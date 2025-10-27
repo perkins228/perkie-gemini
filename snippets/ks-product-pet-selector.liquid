@@ -1256,7 +1256,7 @@
           // Note: PetStorage.forEachEffect passes (value, key) just like Map
           PetStorage.forEachEffect(function(value, key) {
             // Extract sessionKey and effect from compound key
-            var match = key.match(/^(.+?)_(enhancedblackwhite|popart|dithering|color|metadata)$/);
+            var match = key.match(/^(.+?)_(enhancedblackwhite|modern|classic|color|metadata)$/);
             if (match) {
               // Pass value, key, sessionKey, effect to match Map behavior
               callback(value, key, match[1], match[2]);
@@ -1267,7 +1267,7 @@
         } else if (window.perkieEffects) {
           // Use Map implementation
           window.perkieEffects.forEach(function(value, key) {
-            var match = key.match(/^(.+?)_(enhancedblackwhite|popart|dithering|color|metadata)$/);
+            var match = key.match(/^(.+?)_(enhancedblackwhite|modern|classic|color|metadata)$/);
             if (match) {
               callback(value, key, match[1], match[2]);
             } else {
@@ -2497,7 +2497,7 @@
                       effectType = effectType.replace('_thumb', '');
                     }
                     effectType = effectType.split('_')[0];
-                    if (['enhancedblackwhite', 'popart', 'dithering', 'color'].includes(effectType)) {
+                    if (['enhancedblackwhite', 'modern', 'classic', 'color'].includes(effectType)) {
                       const data = localStorage.getItem(key);
                       // Handle both direct data URLs and backup format with JSON
                       let dataUrl = data;
@@ -2522,7 +2522,7 @@
                 
                 // Also check if thumbnails exist in window.perkieEffects (restored from thumbnails backup)
                 if (!foundAnyEffect) {
-                  ['enhancedblackwhite', 'popart', 'dithering', 'color'].forEach(effectType => {
+                  ['enhancedblackwhite', 'modern', 'classic', 'color'].forEach(effectType => {
                     const effectKey = sessionKey + '_' + effectType;
                     const effectData = getPetEffect(effectKey);
                     if (effectData && effectData.startsWith('data:')) {
@@ -3257,11 +3257,11 @@
           // Set processedImage and originalImage from effects
           // Note: enhancedblackwhite is the actual key, not just blackwhite
           petData.originalImage = petData.effects.original || petData.effects.enhancedblackwhite || '';
-          petData.processedImage = petData.effects.enhancedblackwhite || petData.effects.popart || petData.effects.dithering || petData.effects['8bit'] || petData.effects.original || '';
-          petData.effect = petData.effects.enhancedblackwhite ? 'enhancedblackwhite' : 
-                          petData.effects.popart ? 'popart' : 
-                          petData.effects.dithering ? 'dithering' : 
-                          petData.effects['8bit'] ? '8bit' : 'original';
+          petData.processedImage = petData.effects.enhancedblackwhite || petData.effects.modern || petData.effects.classic || petData.effects.color || petData.effects.original || '';
+          petData.effect = petData.effects.enhancedblackwhite ? 'enhancedblackwhite' :
+                          petData.effects.modern ? 'modern' :
+                          petData.effects.classic ? 'classic' :
+                          petData.effects.color ? 'color' : 'original';
           
           selectedPetsData.push(petData);
           
