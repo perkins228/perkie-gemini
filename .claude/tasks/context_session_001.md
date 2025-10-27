@@ -147,7 +147,7 @@
 - Measure confidence score distribution
 - Monitor conversion impact
 
-**Commit**: [pending] - Feat: Enhanced geometric auto-crop with alpha density analysis (90-95% target)
+**Commit**: [62c1716](../../commit/62c1716) - Feat: Enhanced geometric auto-crop with alpha density analysis (90-95% target)
 
 ---
 
