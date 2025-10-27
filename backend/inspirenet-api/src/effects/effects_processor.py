@@ -13,9 +13,6 @@ import logging
 
 from .base_effect import BaseEffect
 from .enhanced_blackwhite_effect import EnhancedBlackWhiteEffect
-from .dithering_effect import DitheringEffect
-from .optimized_popart_effect import OptimizedPopArtEffect
-from .pet_optimized_eightbit_effect import PetOptimizedEightBitEffect
 
 logger = logging.getLogger(__name__)
 
@@ -24,12 +21,7 @@ class EffectsProcessor:
     
     SUPPORTED_EFFECTS = {
         'color': 'Original color with background removed',
-        'enhancedblackwhite': 'Enhanced B&W with 60% visual improvement and research-informed processing',
-        'dithering': 'Floyd-Steinberg dithering with spaced dots - Canvas algorithm port',
-        'popart': 'Optimized pop art with 10x+ performance improvement and ITU-R BT.709 processing',
-        'retro8bit': 'Pet-optimized 8-bit with enhanced color science, 8x8 chunky blocks, and 7x speedup',
-        'watercolor': '4-stage watercolor with bleeding and texture (TODO)',
-        'mosaic': 'Adaptive mosaic with variable tile sizes (TODO)'
+        'enhancedblackwhite': 'Enhanced B&W with 60% visual improvement and research-informed processing'
     }
     
     def __init__(self, gpu_enabled: bool = True):
@@ -45,23 +37,10 @@ class EffectsProcessor:
         try:
             # Color effect (no processing needed)
             self.effects['color'] = None
-            
+
             # Enhanced Black & White effect (research-informed improvements)
             self.effects['enhancedblackwhite'] = EnhancedBlackWhiteEffect(self.gpu_enabled)
-            
-            # Floyd-Steinberg Dithering effect (Canvas algorithm port)
-            self.effects['dithering'] = DitheringEffect(self.gpu_enabled)
-            
-            # Optimized Pop Art effect (10x+ performance improvement)
-            self.effects['popart'] = OptimizedPopArtEffect(self.gpu_enabled)
-            
-            # Pet-Optimized 8-bit Retro effect (7x speedup + enhanced color science)
-            self.effects['retro8bit'] = PetOptimizedEightBitEffect(self.gpu_enabled)
-            
-            # TODO: Initialize remaining effects as they're implemented
-            # self.effects['watercolor'] = WatercolorEffect(self.gpu_enabled)
-            # self.effects['mosaic'] = MosaicEffect(self.gpu_enabled)
-            
+
             logger.info("Optimized effects initialized successfully")
         except Exception as e:
             logger.error(f"Failed to initialize effects: {e}")
