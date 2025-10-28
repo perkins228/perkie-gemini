@@ -1,0 +1,336 @@
+{%- comment -%}
+  Effects Processor V2 Section
+  Type: ks-effects-processor-v2
+
+  Migration from Pet Processor V5 to Effects V2 modular architecture.
+  Features:
+  - ES6 module bundling (webpack)
+  - Dual API support (InSPyReNet + Gemini)
+  - Storage integration (GCS uploads, localStorage)
+  - Sharing integration (Web Share API, clipboard)
+  - Modern/Classic artistic styles via Gemini API
+{%- endcomment -%}
+
+{%- comment -%} CSS - Will be created in separate files {%- endcomment -%}
+{{ 'effects-v2.css' | asset_url | stylesheet_tag }}
+{{ 'effects-v2-mobile.css' | asset_url | stylesheet_tag }}
+
+<section id="ks-effects-processor-{{ section.id }}"
+         class="ks-effects-processor-section color-{{ section.settings.color_scheme }}"
+         data-section-type="ks-effects-processor-v2"
+         data-section-id="{{ section.id }}">
+  <a id="effects-processor" style="position: absolute; top: -80px;"></a>
+
+  <div class="page-width">
+    {% if section.settings.heading != blank %}
+      <div class="section-header">
+        <h2 class="section-heading">{{ section.settings.heading }}</h2>
+        {% if section.settings.subheading != blank %}
+          <p class="section-subheading">{{ section.settings.subheading }}</p>
+        {% endif %}
+      </div>
+    {% endif %}
+
+    {%- comment -%}
+    Dedicated container for Effects V2 JavaScript
+    UI will be dynamically rendered here
+    {%- endcomment -%}
+    <div id="effects-processor-content-{{ section.id }}"
+         class="effects-processor-content"
+         data-api-url="{{ section.settings.api_url | default: 'https://inspirenet-bg-removal-api-gemini-753651513695.us-central1.run.app' }}"
+         data-gemini-url="{{ section.settings.gemini_api_url | default: 'https://gemini-artistic-api-3km6z2qpyq-uc.a.run.app' }}">
+      <!-- Effects V2 UI will be inserted here by JavaScript -->
+      <div class="effects-loading">
+        <div class="spinner"></div>
+        <p>Loading image processor...</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+{%- comment -%} Effects V2 Bundle - Webpack bundled ES6 modules {%- endcomment -%}
+<script src="{{ 'effects-v2-bundle.js' | asset_url }}" defer></script>
+
+{%- comment -%} Effects V2 Loader - Initializes the processor {%- endcomment -%}
+<script src="{{ 'effects-v2-loader.js' | asset_url }}" defer></script>
+
+{% schema %}
+{
+  "name": "Effects Processor V2",
+  "tag": "section",
+  "class": "section",
+  "limit": 1,
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  },
+  "settings": [
+    {
+      "type": "header",
+      "content": "Content Settings"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Transform Your Pet Photos"
+    },
+    {
+      "type": "textarea",
+      "id": "subheading",
+      "label": "Subheading",
+      "default": "Upload your pet's photo and apply beautiful effects - Original, B&W, Modern, or Classic styles"
+    },
+    {
+      "type": "header",
+      "content": "API Configuration"
+    },
+    {
+      "type": "text",
+      "id": "api_url",
+      "label": "InSPyReNet API URL",
+      "default": "https://inspirenet-bg-removal-api-gemini-753651513695.us-central1.run.app",
+      "info": "API for background removal and color/B&W effects"
+    },
+    {
+      "type": "text",
+      "id": "gemini_api_url",
+      "label": "Gemini API URL",
+      "default": "https://gemini-artistic-api-3km6z2qpyq-uc.a.run.app",
+      "info": "API for Modern/Classic artistic styles"
+    },
+    {
+      "type": "header",
+      "content": "Feature Toggles"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_modern_style",
+      "label": "Enable Modern Style (Ink Wash)",
+      "default": true,
+      "info": "Gemini API - Ink wash artistic effect"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_classic_style",
+      "label": "Enable Classic Style (Van Gogh)",
+      "default": true,
+      "info": "Gemini API - Van Gogh post-impressionism effect"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_sharing",
+      "label": "Enable Social Sharing",
+      "default": true,
+      "info": "Allow users to share their processed images"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_product_integration",
+      "label": "Enable Product Integration",
+      "default": true,
+      "info": "Allow adding processed images directly to products"
+    },
+    {
+      "type": "header",
+      "content": "Session Settings"
+    },
+    {
+      "type": "text",
+      "id": "cart_success_message",
+      "label": "Cart Success Message",
+      "default": "Your custom pet image has been saved!",
+      "info": "Message shown when image is successfully saved to session"
+    },
+    {
+      "type": "range",
+      "id": "session_expiry_days",
+      "label": "Image Session Expiry (Days)",
+      "min": 1,
+      "max": 30,
+      "step": 1,
+      "default": 7,
+      "info": "How long customer images are stored in localStorage"
+    },
+    {
+      "type": "range",
+      "id": "max_pets_per_product",
+      "label": "Maximum Pets per Product",
+      "min": 1,
+      "max": 10,
+      "step": 1,
+      "default": 3,
+      "info": "Maximum number of pet images per product"
+    },
+    {
+      "type": "header",
+      "content": "Rate Limiting (Gemini API)"
+    },
+    {
+      "type": "range",
+      "id": "gemini_rate_limit",
+      "label": "Requests per Day (Modern/Classic)",
+      "min": 1,
+      "max": 20,
+      "step": 1,
+      "default": 5,
+      "info": "Limit Gemini API usage per user per day"
+    },
+    {
+      "type": "header",
+      "content": "Design Settings"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "Color scheme",
+      "default": "scheme-1"
+    },
+    {
+      "type": "header",
+      "content": "Typography Settings"
+    },
+    {
+      "type": "range",
+      "id": "heading_size",
+      "label": "Heading Size",
+      "min": 16,
+      "max": 60,
+      "step": 2,
+      "unit": "px",
+      "default": 34,
+      "info": "Desktop heading size (75% on mobile)"
+    },
+    {
+      "type": "range",
+      "id": "subheading_size",
+      "label": "Subheading Size",
+      "min": 12,
+      "max": 28,
+      "step": 1,
+      "unit": "px",
+      "default": 18,
+      "info": "Desktop subheading size (75% on mobile)"
+    },
+    {
+      "type": "header",
+      "content": "Section Padding"
+    },
+    {
+      "type": "range",
+      "id": "pt",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "Padding top",
+      "default": 36
+    },
+    {
+      "type": "range",
+      "id": "pb",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "Padding bottom",
+      "default": 36
+    }
+  ],
+  "presets": [
+    {
+      "name": "Effects Processor V2",
+      "category": "Custom"
+    }
+  ]
+}
+{% endschema %}
+
+<style>
+  #ks-effects-processor-{{ section.id }} {
+    padding-top: {{ section.settings.pt | times: 0.75 | round: 0 }}px;
+    padding-bottom: {{ section.settings.pb | times: 0.75 | round: 0 }}px;
+  }
+
+  @media screen and (min-width: 750px) {
+    #ks-effects-processor-{{ section.id }} {
+      padding-top: {{ section.settings.pt }}px;
+      padding-bottom: {{ section.settings.pb }}px;
+    }
+  }
+
+  .section-header {
+    text-align: center;
+    margin-bottom: 3rem;
+  }
+
+  .section-heading {
+    font-size: {{ section.settings.heading_size | times: 0.75 | round: 0 }}px;
+    font-weight: 700;
+    color: rgb(var(--color-foreground));
+    margin: 0 0 1rem;
+    line-height: 1.2;
+  }
+
+  .section-subheading {
+    font-size: {{ section.settings.subheading_size | times: 0.75 | round: 0 }}px;
+    color: rgba(var(--color-foreground), 0.8);
+    margin: 0;
+    max-width: 700px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .effects-processor-content {
+    width: 100%;
+    min-height: 400px;
+  }
+
+  /* Loading state */
+  .effects-loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 4rem 2rem;
+    gap: 1rem;
+  }
+
+  .effects-loading .spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid rgba(var(--color-foreground), 0.1);
+    border-top-color: rgb(var(--color-foreground));
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+
+  .effects-loading p {
+    color: rgba(var(--color-foreground), 0.6);
+    font-size: 14px;
+    margin: 0;
+  }
+
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+
+  @media screen and (min-width: 750px) {
+    .section-heading {
+      font-size: {{ section.settings.heading_size }}px;
+    }
+
+    .section-subheading {
+      font-size: {{ section.settings.subheading_size }}px;
+    }
+  }
+
+  @media screen and (max-width: 750px) {
+    .section-header {
+      margin-bottom: 2rem;
+    }
+
+    .effects-processor-content {
+      min-height: 300px;
+    }
+  }
+</style>
