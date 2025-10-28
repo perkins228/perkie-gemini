@@ -118,7 +118,7 @@ export class GeminiArtisticClient {
     formData.append('style', geminiStyle);
 
     try {
-      const result = await this.request('/generate-artistic', {
+      const result = await this.request('/api/v1/generate', {
         method: 'POST',
         body: formData,
         timeout: 60000 // 60 seconds for Gemini processing

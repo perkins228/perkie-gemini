@@ -140,13 +140,13 @@
         <div class="effects-selector">
           <h4>Choose Your Style</h4>
           <div class="effect-buttons" id="effect-buttons-${sectionId}">
-            <button class="effect-btn" data-effect="blackwhite">
+            <button class="effect-btn active" data-effect="blackwhite">
               <span class="effect-icon">⚫</span>
               <span class="effect-name">B&W</span>
             </button>
-            <button class="effect-btn active" data-effect="color">
+            <button class="effect-btn" data-effect="color">
               <span class="effect-icon">🎨</span>
-              <span class="effect-name">Original</span>
+              <span class="effect-name">Color</span>
             </button>
             <button class="effect-btn" data-effect="modern">
               <span class="effect-icon">🖌️</span>
@@ -419,7 +419,7 @@
       if (storageManager) {
         await storageManager.save(sessionKey, {
           name: file.name.replace(/\.[^/.]+$/, ''), // Remove extension for pet name
-          currentEffect: 'color', // Default selection
+          currentEffect: 'blackwhite', // Default selection (B&W)
           gcsUrls: gcsUrls, // All effect URLs (color, blackwhite, modern: null, classic: null)
           artistNote: '', // Empty initially, user can add via UI
           timestamp: Date.now()
@@ -433,7 +433,7 @@
         showResult(container, sectionId, {
           sessionKey,
           effects,
-          currentEffect: 'color'
+          currentEffect: 'blackwhite'
         });
       }, 300);
 
