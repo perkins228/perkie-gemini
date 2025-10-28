@@ -49,9 +49,14 @@ class IntegratedProcessor:
         """Generate normalized hash from image content, ignoring metadata"""
         try:
             # Open image and extract core pixel data
-            from PIL import Image
+            from PIL import Image, ImageOps
             image = Image.open(BytesIO(image_data))
-            
+
+            # Apply EXIF orientation BEFORE hashing to ensure rotated images get consistent hashes
+            oriented_image = ImageOps.exif_transpose(image)
+            if oriented_image:
+                image = oriented_image
+
             # Remove EXIF and other metadata by converting to standard format
             if image.mode in ('RGBA', 'LA'):
                 # Preserve transparency
