@@ -459,8 +459,8 @@
       const formData = new FormData();
       const filename = `${sessionKey}_${effectName}.jpg`;
       formData.append('file', blob, filename);
-      formData.append('session_key', sessionKey);
-      formData.append('effect_name', effectName);
+      formData.append('session_id', sessionKey); // Backend expects session_id
+      formData.append('image_type', `processed_${effectName}`); // Backend expects image_type with processed_ prefix
 
       const uploadResponse = await fetch(`${apiUrl}/store-image`, {
         method: 'POST',

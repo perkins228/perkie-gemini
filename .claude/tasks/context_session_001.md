@@ -2186,3 +2186,209 @@ Access blocked by CORS policy: origin 'https://perkieprints.com'
 **Session Context**: .claude/tasks/context_session_001.md
 
 ---
+
+### 2025-10-28 - Backend Critical Issues Fix Implementation Plan
+**Completed by**: Infrastructure Reliability Engineer
+**Task**: Create comprehensive fix plan for 3 critical backend issues blocking Effects V2 in production
+**Status**: ✅ PLAN CREATED
+
+**Critical Issues Identified**:
+1. **Gemini API CORS Error** (CRITICAL) - Blocking Modern/Classic effects completely
+2. **GCS Upload 422 Error** (HIGH) - Breaking cart integration
+3. **Image Orientation Loss** (MEDIUM) - EXIF metadata not preserved
+
+**Root Cause Analysis**:
+
+**Issue #1: Gemini CORS Not Configured**
+- **Location**: `backend/gemini-artistic-api/src/main.py` lines 39-55
+- **Problem**: Missing `https://perkieprints.com` in allowed_origins
+- **Fix**: Add production domains to CORS middleware
+- **Time**: 30 minutes including deployment
+
+**Issue #2: GCS Upload Field Name Mismatch**
+- **Location**: `backend/inspirenet-api/src/customer_image_endpoints.py`
+- **Problem**: Frontend sends `session_key`, backend expects `session_id`
+- **Problem**: Frontend sends `effect_name`, backend expects `image_type`
+- **Fix Option A**: Update frontend field names (RECOMMENDED)
+- **Fix Option B**: Update backend to accept both names
+- **Time**: 45 minutes including testing
+
+**Issue #3: EXIF Orientation Handling**
+- **Location**: `backend/inspirenet-api/src/integrated_processor.py` line 162
+- **Problem**: `ImageOps.exif_transpose()` applied but may be lost during processing
+- **Fix**: Ensure EXIF correction persists through entire pipeline
+- **Time**: 1 hour including testing
+
+**Implementation Priority**:
+1. **Phase 1 (Today)**: Fix Gemini CORS (15 mins) - CRITICAL blocker
+2. **Phase 2 (Today)**: Fix GCS field names (30 mins) - HIGH priority
+3. **Phase 3 (Tomorrow)**: Fix EXIF orientation (45 mins) - MEDIUM priority
+
+**Deployment Commands**:
+```bash
+# Gemini API
+cd backend/gemini-artistic-api
+gcloud run deploy gemini-artistic-api --source . --project perkieprints-nanobanana --region us-central1
+
+# InSPyReNet API
+cd backend/inspirenet-api
+./scripts/deploy-to-nanobanana.sh
+```
+
+**Verification Tests**:
+- CORS: `curl -X OPTIONS <URL> -H "Origin: https://perkieprints.com"`
+- GCS: Test upload with correct field names
+- EXIF: Test with portrait/landscape images
+
+**Documentation Created**:
+- [.claude/doc/backend-critical-issues-fix-plan.md](.claude/doc/backend-critical-issues-fix-plan.md) - Complete implementation plan with step-by-step instructions
+
+**Key Decisions**:
+- Prioritize CORS fix first (blocks all Modern/Classic functionality)
+- Fix frontend field names rather than backend (cleaner API contract)
+- EXIF fix can wait until tomorrow (UX issue but not blocking)
+
+**Next Actions**:
+- [ ] Apply Gemini CORS fix and deploy
+- [ ] Fix GCS field name mismatch
+- [ ] Implement EXIF orientation preservation
+- [ ] Run full integration tests
+- [ ] Monitor production error rates
+
+**Session Context**: .claude/tasks/context_session_001.md
+
+---
+
+### 2025-10-28 - Effects V2 Production Issues: Frontend Fixed, Backend Coordination
+**Completed by**: Claude Code + Infrastructure Reliability Engineer
+**Task**: Fix 7 user-reported issues in Effects V2 after production deployment
+**Status**: 3/7 FIXED (Frontend), 4/7 PENDING (Backend)
+
+**User Testing Report**: Multiple critical issues after deployment to perkieprints.com
+
+## Issues Fixed (Frontend) ✅
+
+### 1. "Original" Button Renamed to "Color"
+- Changed button label for clarity
+- "Color" indicates color with background removed
+- File: assets/effects-v2-loader.js line 149
+
+### 2. B&W Default Selection
+- B&W now active by default (was Color)
+- User sees B&W image first after upload
+- Updated in 3 locations: button class, showResult, localStorage
+- Files: assets/effects-v2-loader.js lines 143, 422, 436
+
+### 3. Gemini API Endpoint Corrected
+- Changed from `/generate-artistic` (404) → `/api/v1/generate`
+- Matches documented endpoint in CLAUDE.md
+- File: assets/gemini-artistic-client.js line 121
+- **Note**: Will work once CORS configured on backend
+
+**Commit**: [1387b99](../../commit/1387b99) - Fix: Gemini endpoint, B&W default, rename Original to Color
+
+## Issues Pending (Backend) ⏳
+
+### 4. Gemini API CORS Error (CRITICAL)
+**Console Error**:
+```
+Access to fetch at 'https://gemini-artistic-api-3km6z2qpyq-uc.a.run.app/api/v1/generate' 
+from origin 'https://perkieprints.com' has been blocked by CORS policy
+```
+
+**Root Cause**: Gemini API backend not configured to allow perkieprints.com origin
+
+**Fix Required** (Backend Team):
+- Add CORS middleware to FastAPI app
+- Allow origins: ["https://perkieprints.com", "https://perkieprints-staging.myshopify.com"]
+- Methods: POST, OPTIONS
+- Headers: Content-Type, Accept
+- Location: backend/gemini-artistic-api/
+
+**Priority**: CRITICAL (blocks Modern/Classic effects entirely)
+**ETA**: 15-30 minutes
+
+### 5. GCS Upload 422 Error (HIGH)
+**Console Error**:
+```
+POST https://inspirenet-bg-removal-api-gemini-753651513695.us-central1.run.app/store-image 
+422 (Unprocessable Content)
+```
+
+**Root Cause**: /store-image endpoint validation error
+
+**Investigation Required** (Backend Team):
+- Check if /store-image endpoint exists on staging API
+- Verify expected request format (FormData fields)
+- Review API logs for validation error details
+- Compare with production API implementation
+
+**Possible Causes**:
+- Endpoint missing on staging deployment
+- Field name mismatches (session_key, effect_name)
+- Wrong content-type expected
+
+**Priority**: HIGH (blocks cart integration, but display works)
+**ETA**: 30-60 minutes
+
+### 6. Image Orientation Rotated 90 Degrees (MEDIUM)
+**User Report**: "The image orientation does not match the original uploaded image, rotated 90 degrees"
+
+**Root Cause**: EXIF orientation metadata lost during InSPyReNet processing
+
+**Fix Required** (Backend Team):
+```python
+from PIL import Image, ImageOps
+
+# Add to InSPyReNet processing pipeline:
+img = Image.open(uploaded_file)
+img = ImageOps.exif_transpose(img)  # Auto-rotate based on EXIF
+# Then continue with background removal
+```
+
+**Location**: backend/inspirenet-api/src/integrated_processor.py
+**Priority**: MEDIUM (impacts UX but not blocking)
+**ETA**: 1-2 hours
+
+### 7. Progress Bar Shimmer Animation Not Visible (LOW)
+**User Report**: "Progress bar continues not to have any animation"
+
+**Implemented**: CSS shimmer animation with ::after pseudo-element
+**Status**: Need to verify if visible after hard refresh
+
+**Possible Causes**:
+- Browser cache (needs Ctrl+Shift+R)
+- CSS not loaded
+- Animation too subtle
+
+**Next Step**: Test with hard refresh before investigating further
+**Priority**: LOW (cosmetic issue)
+
+## Infrastructure Engineer Coordination
+
+**Documentation Created**:
+- [.claude/doc/backend-critical-issues-fix-plan.md](.claude/doc/backend-critical-issues-fix-plan.md) - Comprehensive backend implementation plan
+
+**Implementation Plan Includes**:
+1. **Gemini CORS Fix** - Detailed FastAPI middleware code
+2. **GCS Upload Debug** - Investigation steps and likely fixes
+3. **EXIF Orientation Fix** - Code changes for InSPyReNet
+4. **Testing Procedures** - Verification curl commands
+5. **Deployment Steps** - Exact commands for Cloud Run
+
+**Priority Order**:
+1. CRITICAL: Gemini CORS (15-30 min) - Blocks Modern/Classic completely
+2. HIGH: GCS Upload (30-60 min) - Blocks cart integration
+3. MEDIUM: EXIF Orientation (1-2 hours) - UX impact
+4. LOW: Progress animation - Test hard refresh first
+
+**Next Steps**:
+1. Backend team reviews implementation plan
+2. Deploy Gemini CORS fix
+3. Debug GCS upload endpoint
+4. Add EXIF orientation handling
+5. Re-test all functionality on perkieprints.com
+
+**Session Context**: .claude/tasks/context_session_001.md
+
+---
