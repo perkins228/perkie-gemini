@@ -140,13 +140,13 @@
         <div class="effects-selector">
           <h4>Choose Your Style</h4>
           <div class="effect-buttons" id="effect-buttons-${sectionId}">
-            <button class="effect-btn active" data-effect="color">
-              <span class="effect-icon">🎨</span>
-              <span class="effect-name">Original</span>
-            </button>
             <button class="effect-btn" data-effect="blackwhite">
               <span class="effect-icon">⚫</span>
               <span class="effect-name">B&W</span>
+            </button>
+            <button class="effect-btn active" data-effect="color">
+              <span class="effect-icon">🎨</span>
+              <span class="effect-name">Original</span>
             </button>
             <button class="effect-btn" data-effect="modern">
               <span class="effect-icon">🖌️</span>
