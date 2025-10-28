@@ -269,25 +269,130 @@
   async function handleFileUpload(file, container, processor, sectionId, config) {
     console.log('📤 File selected:', file.name, file.type, file.size);
 
+    // Validate file
+    if (!file.type.startsWith('image/')) {
+      showError(container, sectionId, 'Please select an image file');
+      return;
+    }
+
+    if (file.size > 50 * 1024 * 1024) { // 50MB limit
+      showError(container, sectionId, 'Image too large. Maximum size is 50MB');
+      return;
+    }
+
     // Show processing view
     showProcessing(container, sectionId);
 
-    // TODO: Implement actual processing with Effects V2
-    // This is a placeholder - will be completed in Phase 4
-    updateProcessingMessage(container, sectionId, 'Processing your pet photo...', 0);
+    try {
+      // Step 1: Call InSPyReNet API for background removal + color/B&W effects
+      updateProcessingMessage(container, sectionId, 'Uploading image...', 5);
 
-    setTimeout(() => {
-      updateProcessingMessage(container, sectionId, 'Removing background...', 50);
-    }, 1000);
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('effects', 'color,enhancedblackwhite');
+      formData.append('session_id', `perkie_${Date.now()}`);
 
-    setTimeout(() => {
-      updateProcessingMessage(container, sectionId, 'Applying effects...', 75);
-    }, 2000);
+      updateProcessingMessage(container, sectionId, 'Removing background...', 15);
 
-    setTimeout(() => {
-      // Placeholder: Show result
-      showResult(container, sectionId, file);
-    }, 3000);
+      const apiResponse = await fetch(`${config.apiUrl}/api/v2/process-with-effects?return_all_effects=true`, {
+        method: 'POST',
+        body: formData
+      });
+
+      if (!apiResponse.ok) {
+        throw new Error(`API error: ${apiResponse.status}`);
+      }
+
+      updateProcessingMessage(container, sectionId, 'Processing effects...', 50);
+
+      const data = await apiResponse.json();
+
+      // Step 2: Convert InSPyReNet effects from base64 to URLs
+      const effects = {};
+
+      if (data.effects) {
+        for (const [effectName, base64Data] of Object.entries(data.effects)) {
+          const dataUrl = `data:image/png;base64,${base64Data}`;
+          effects[effectName] = dataUrl;
+        }
+      }
+
+      updateProcessingMessage(container, sectionId, 'Preparing Modern & Classic styles...', 75);
+
+      // Step 3: Initialize Modern/Classic as placeholders (generated on-demand)
+      effects.modern = null;
+      effects.classic = null;
+
+      // Step 4: Generate session ID for storage
+      const sessionKey = `pet_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+
+      // Step 5: Upload to GCS (background task)
+      const { storageManager } = window.EffectsV2;
+      if (storageManager && effects.color) {
+        uploadToStorage(effects.color, sessionKey, file.name, config.apiUrl).catch(err => {
+          console.warn('GCS upload failed (non-blocking):', err);
+        });
+      }
+
+      // Step 6: Save to localStorage
+      if (storageManager) {
+        await storageManager.save(sessionKey, {
+          name: file.name.replace(/\.[^/.]+$/, ''), // Remove extension
+          filename: file.name,
+          thumbnail: effects.color, // Use color as thumbnail
+          effect: 'color', // Default selection
+          effects: effects,
+          timestamp: Date.now()
+        });
+      }
+
+      updateProcessingMessage(container, sectionId, 'Ready!', 100);
+
+      // Step 7: Show result with effects
+      setTimeout(() => {
+        showResult(container, sectionId, {
+          sessionKey,
+          effects,
+          currentEffect: 'color'
+        });
+      }, 300);
+
+    } catch (error) {
+      console.error('❌ Processing failed:', error);
+      showError(container, sectionId, error.message || 'Processing failed. Please try again.');
+    }
+  }
+
+  /**
+   * Upload image to GCS storage (background task)
+   * @param {string} dataUrl - Image data URL
+   * @param {string} sessionKey - Session key
+   * @param {string} filename - Original filename
+   * @param {string} apiUrl - API base URL
+   */
+  async function uploadToStorage(dataUrl, sessionKey, filename, apiUrl) {
+    try {
+      const response = await fetch(dataUrl);
+      const blob = await response.blob();
+
+      const formData = new FormData();
+      formData.append('file', blob, filename);
+      formData.append('session_key', sessionKey);
+
+      const uploadResponse = await fetch(`${apiUrl}/store-image`, {
+        method: 'POST',
+        body: formData
+      });
+
+      if (uploadResponse.ok) {
+        const result = await uploadResponse.json();
+        console.log('✅ Uploaded to GCS:', result.url);
+        return result.url;
+      }
+    } catch (error) {
+      console.warn('GCS upload error:', error);
+    }
+    return null;
   }
 
   /**
@@ -317,23 +422,207 @@
   }
 
   /**
-   * Show result view (placeholder)
+   * Show result view with effects
    * @param {HTMLElement} container - Container element
    * @param {string} sectionId - Section ID
-   * @param {File} file - Original file
+   * @param {Object} data - Result data {sessionKey, effects, currentEffect}
    */
-  function showResult(container, sectionId, file) {
+  function showResult(container, sectionId, data) {
     container.querySelector('.effects-upload-area').hidden = true;
     container.querySelector(`#processing-${sectionId}`).hidden = true;
     container.querySelector(`#result-${sectionId}`).hidden = false;
 
-    // Placeholder: Show uploaded image
-    const reader = new FileReader();
-    reader.onload = (e) => {
+    // Store data on container for effect switching
+    container.dataset.sessionKey = data.sessionKey;
+    container.dataset.currentEffect = data.currentEffect;
+    container.dataset.effects = JSON.stringify(data.effects);
+
+    // Display initial effect (color)
+    const img = container.querySelector(`#result-image-${sectionId}`);
+    if (img && data.effects[data.currentEffect]) {
+      img.src = data.effects[data.currentEffect];
+    }
+
+    // Attach effect button listeners
+    const effectButtons = container.querySelectorAll(`#effect-buttons-${sectionId} .effect-btn`);
+    effectButtons.forEach(button => {
+      // Remove existing listeners
+      const newButton = button.cloneNode(true);
+      button.parentNode.replaceChild(newButton, button);
+
+      newButton.addEventListener('click', () => {
+        handleEffectSwitch(container, sectionId, newButton.dataset.effect);
+      });
+
+      // Set initial active state
+      if (newButton.dataset.effect === data.currentEffect) {
+        newButton.classList.add('active');
+      } else {
+        newButton.classList.remove('active');
+      }
+    });
+  }
+
+  /**
+   * Handle effect switching
+   * @param {HTMLElement} container - Container element
+   * @param {string} sectionId - Section ID
+   * @param {string} effectName - Effect to switch to
+   */
+  async function handleEffectSwitch(container, sectionId, effectName) {
+    const effects = JSON.parse(container.dataset.effects || '{}');
+    const currentEffect = container.dataset.currentEffect;
+
+    if (effectName === currentEffect) return; // Already selected
+
+    console.log(`🔄 Switching effect: ${currentEffect} → ${effectName}`);
+
+    // Check if effect needs to be generated (Modern/Classic via Gemini)
+    if (!effects[effectName] && (effectName === 'modern' || effectName === 'classic')) {
+      await generateGeminiEffect(container, sectionId, effectName, effects);
+      return;
+    }
+
+    // Switch to existing effect
+    if (effects[effectName]) {
       const img = container.querySelector(`#result-image-${sectionId}`);
-      if (img) img.src = e.target.result;
-    };
-    reader.readAsDataURL(file);
+      if (img) {
+        img.src = effects[effectName];
+        container.dataset.currentEffect = effectName;
+
+        // Update button states
+        const buttons = container.querySelectorAll(`#effect-buttons-${sectionId} .effect-btn`);
+        buttons.forEach(btn => {
+          if (btn.dataset.effect === effectName) {
+            btn.classList.add('active');
+          } else {
+            btn.classList.remove('active');
+          }
+        });
+
+        console.log(`✅ Switched to ${effectName}`);
+      }
+    }
+  }
+
+  /**
+   * Generate Gemini effect on-demand
+   * @param {HTMLElement} container - Container element
+   * @param {string} sectionId - Section ID
+   * @param {string} effectName - 'modern' or 'classic'
+   * @param {Object} effects - Effects object
+   */
+  async function generateGeminiEffect(container, sectionId, effectName, effects) {
+    try {
+      // Show processing state
+      const button = container.querySelector(`#effect-buttons-${sectionId} .effect-btn[data-effect="${effectName}"]`);
+      if (button) {
+        button.disabled = true;
+        button.innerHTML = `<span class="effect-icon">⏳</span><span class="effect-name">Loading...</span>`;
+      }
+
+      // Get color effect as input (background already removed)
+      const colorEffect = effects.color || effects.enhancedblackwhite;
+      if (!colorEffect) {
+        throw new Error('No base image available');
+      }
+
+      // Convert data URL to blob
+      const response = await fetch(colorEffect);
+      const blob = await response.blob();
+
+      // Call Gemini API
+      const { geminiClient } = window.EffectsV2;
+      const styledBlob = await geminiClient.applyStyle(blob, effectName);
+
+      // Convert to data URL
+      const objectUrl = URL.createObjectURL(styledBlob);
+
+      // Update effects object
+      effects[effectName] = objectUrl;
+      container.dataset.effects = JSON.stringify(effects);
+
+      // Switch to the new effect
+      const img = container.querySelector(`#result-image-${sectionId}`);
+      if (img) {
+        img.src = objectUrl;
+        container.dataset.currentEffect = effectName;
+      }
+
+      // Restore button
+      if (button) {
+        const icon = effectName === 'modern' ? '🖌️' : '🎭';
+        const name = effectName === 'modern' ? 'Modern' : 'Classic';
+        button.disabled = false;
+        button.innerHTML = `<span class="effect-icon">${icon}</span><span class="effect-name">${name}</span>`;
+        button.classList.add('active');
+      }
+
+      // Update other button states
+      const buttons = container.querySelectorAll(`#effect-buttons-${sectionId} .effect-btn`);
+      buttons.forEach(btn => {
+        if (btn.dataset.effect !== effectName) {
+          btn.classList.remove('active');
+        }
+      });
+
+      console.log(`✅ Generated ${effectName} effect`);
+
+    } catch (error) {
+      console.error(`❌ Failed to generate ${effectName}:`, error);
+
+      // Restore button
+      const button = container.querySelector(`#effect-buttons-${sectionId} .effect-btn[data-effect="${effectName}"]`);
+      if (button) {
+        const icon = effectName === 'modern' ? '🖌️' : '🎭';
+        const name = effectName === 'modern' ? 'Modern' : 'Classic';
+        button.disabled = false;
+        button.innerHTML = `<span class="effect-icon">${icon}</span><span class="effect-name">${name}</span>`;
+      }
+
+      // Show error
+      showToast(container, error.message || `Failed to generate ${effectName} effect. Please try again.`);
+    }
+  }
+
+  /**
+   * Show error message
+   * @param {HTMLElement} container - Container element
+   * @param {string} sectionId - Section ID
+   * @param {string} message - Error message
+   */
+  function showError(container, sectionId, message) {
+    container.querySelector('.effects-upload-area').hidden = false;
+    container.querySelector(`#processing-${sectionId}`).hidden = true;
+    container.querySelector(`#result-${sectionId}`).hidden = true;
+
+    showToast(container, message);
+  }
+
+  /**
+   * Show toast notification
+   * @param {HTMLElement} container - Container element
+   * @param {string} message - Message text
+   */
+  function showToast(container, message) {
+    const toast = document.createElement('div');
+    toast.className = 'effects-toast';
+    toast.textContent = message;
+    toast.style.cssText = 'position:fixed;bottom:20px;left:50%;transform:translateX(-50%);' +
+                          'background:rgba(0,0,0,0.8);color:white;padding:12px 24px;' +
+                          'border-radius:4px;z-index:9999;font-size:14px;max-width:90%;text-align:center;';
+
+    document.body.appendChild(toast);
+
+    setTimeout(() => {
+      toast.style.transition = 'opacity 0.3s';
+      toast.style.opacity = '0';
+      setTimeout(() => {
+        if (toast.parentNode) {
+          document.body.removeChild(toast);
+        }
+      }, 300);
+    }, 4000);
   }
 
   /**
@@ -344,11 +633,15 @@
   function handleShare(container, sectionId) {
     const { sharingManager } = window.EffectsV2;
     const img = container.querySelector(`#result-image-${sectionId}`);
+    const currentEffect = container.dataset.currentEffect || 'color';
 
-    if (sharingManager && img) {
-      sharingManager.share(img, {
+    if (sharingManager && img && img.src) {
+      sharingManager.share(img.src, {
         title: 'Check out my pet!',
-        text: 'Created with PerkiePrints.com'
+        text: `Created with PerkiePrints.com - ${currentEffect} style`
+      }).catch(err => {
+        console.error('Share failed:', err);
+        showToast(container, 'Sharing failed. Please try again.');
       });
     }
   }
