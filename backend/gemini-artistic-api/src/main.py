@@ -35,12 +35,14 @@ app = FastAPI(
     version="1.0.0"
 )
 
-# CORS middleware - configured for Shopify testsite + local testing
+# CORS middleware - configured for production + staging + local testing
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
-        "https://perkieprints-test.myshopify.com",
-        "https://testsite.perkieprints.com",
+        "https://perkieprints.com",  # Production store
+        "https://perkieprints-staging.myshopify.com",  # Staging store
+        "https://perkieprints-test.myshopify.com",  # Test store
+        "https://testsite.perkieprints.com",  # Test site
         "http://localhost:3000",  # For local development
         "http://127.0.0.1:3000",
         "http://localhost:8000",  # For local web server testing
@@ -50,7 +52,7 @@ app.add_middleware(
         "null"  # Allow file:// protocol for local HTML testing
     ],
     allow_credentials=True,
-    allow_methods=["GET", "POST"],
+    allow_methods=["GET", "POST", "OPTIONS"],
     allow_headers=["*"],
 )
 
