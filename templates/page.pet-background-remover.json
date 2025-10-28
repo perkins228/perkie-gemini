@@ -19,6 +19,7 @@
     },
     "ks_pet_processor_v5_gTVPB9": {
       "type": "ks-pet-processor-v5",
+      "disabled": true,
       "name": "Pet Photo Processor v5",
       "settings": {
         "heading": "Preview Your Perkie Print",
@@ -31,6 +32,29 @@
         "heading_size": 34,
         "subheading_size": 18,
         "pt": 16,
+        "pb": 4
+      }
+    },
+    "ks_effects_processor_v2_GewFJL": {
+      "type": "ks-effects-processor-v2",
+      "name": "Effects Processor V2",
+      "settings": {
+        "heading": "Preview Your Perkie Print",
+        "subheading": "Don’t worry—this is just a mockup! You can leave a note for our artist to make sure your Perkie Print is a true work of art.",
+        "api_url": "https://inspirenet-bg-removal-api-gemini-753651513695.us-central1.run.app",
+        "gemini_api_url": "https://gemini-artistic-api-3km6z2qpyq-uc.a.run.app",
+        "enable_modern_style": true,
+        "enable_classic_style": true,
+        "enable_sharing": true,
+        "enable_product_integration": true,
+        "cart_success_message": "Your custom pet image has been saved!",
+        "session_expiry_days": 7,
+        "max_pets_per_product": 3,
+        "gemini_rate_limit": 5,
+        "color_scheme": "scheme-f318d737-2be2-4346-8605-b2fbd6208608",
+        "heading_size": 34,
+        "subheading_size": 18,
+        "pt": 4,
         "pb": 4
       }
     },
@@ -242,6 +266,7 @@
   "order": [
     "main",
     "ks_pet_processor_v5_gTVPB9",
+    "ks_effects_processor_v2_GewFJL",
     "how_it_works",
     "multicolumn_embKFy",
     "collapsible_content_6TRteB",
