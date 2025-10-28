@@ -323,7 +323,7 @@ cp .claude/tasks/context_session_template.md \
 - See `.claude/tasks/README.md` for detailed lifecycle documentation
 
 ## Sub-agents
-You have access to 13 sub-agents:
+You have access to 14 sub-agents:
 - code-quality-reviewer: all recently written code HAS TO be reviewed by this agent.
 - ai-product-manager-ecommerce: all task related to AI HAVE TO consult this agent.
 - growth-engineer-marktech: all task related to marketing HAVE TO consult this agent.

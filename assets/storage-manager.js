@@ -75,12 +75,15 @@ export class StorageManager {
    * @returns {Promise<boolean>} Success status
    */
   async save(petId, data) {
+    // Declare storageData outside try block so it's accessible in retry catch block
+    let storageData;
+
     try {
       // Compress thumbnail before storage (200px max, 60% quality)
       const compressedThumbnail = data.thumbnail ?
         await this.compressThumbnail(data.thumbnail, 200, 0.6) : '';
 
-      const storageData = {
+      storageData = {
         petId,
         name: data.name || 'Pet',
         filename: data.filename || '',

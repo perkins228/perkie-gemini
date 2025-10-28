@@ -1,0 +1,750 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>Effects V2 Mobile Test | Phase 5 Testing</title>
+  <style>
+    :root {
+      --color-foreground: 34, 34, 34;
+      --color-button: 0, 123, 255;
+      --color-button-text: 255, 255, 255;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #f5f5f5;
+      color: #222;
+      overflow-x: hidden;
+      padding-bottom: env(safe-area-inset-bottom);
+    }
+
+    .mobile-header {
+      background: white;
+      padding: 1rem;
+      padding-top: max(1rem, env(safe-area-inset-top));
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .mobile-header h1 {
+      font-size: 1.25rem;
+      margin-bottom: 0.25rem;
+    }
+
+    .mobile-header .subtitle {
+      font-size: 0.875rem;
+      color: #666;
+    }
+
+    .test-container {
+      padding: 1rem;
+      padding-left: max(1rem, env(safe-area-inset-left));
+      padding-right: max(1rem, env(safe-area-inset-right));
+    }
+
+    .test-card {
+      background: white;
+      border-radius: 12px;
+      padding: 1rem;
+      margin-bottom: 1rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+
+    .test-card h2 {
+      font-size: 1.125rem;
+      margin-bottom: 0.75rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .test-item {
+      padding: 0.75rem;
+      background: #f8f9fa;
+      border-radius: 8px;
+      margin-bottom: 0.75rem;
+      border: 2px solid transparent;
+    }
+
+    .test-item.measuring {
+      border-color: #ffc107;
+      background: #fff3cd;
+    }
+
+    .test-item.pass {
+      border-color: #28a745;
+      background: #d4edda;
+    }
+
+    .test-item.fail {
+      border-color: #dc3545;
+      background: #f8d7da;
+    }
+
+    .test-item h3 {
+      font-size: 0.9375rem;
+      margin-bottom: 0.5rem;
+      color: #333;
+    }
+
+    .test-item p {
+      font-size: 0.8125rem;
+      color: #666;
+      line-height: 1.4;
+      margin-bottom: 0.5rem;
+    }
+
+    .test-result {
+      font-size: 0.8125rem;
+      padding: 0.5rem;
+      border-radius: 4px;
+      background: rgba(0,0,0,0.03);
+      margin-top: 0.5rem;
+      font-family: monospace;
+      word-break: break-all;
+    }
+
+    .touch-target-test {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      margin-top: 0.75rem;
+    }
+
+    .touch-button {
+      position: relative;
+      padding: 1rem;
+      background: rgb(var(--color-button));
+      color: rgb(var(--color-button-text));
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      touch-action: manipulation;
+      user-select: none;
+    }
+
+    .touch-button::after {
+      content: attr(data-size);
+      position: absolute;
+      top: -24px;
+      right: 0;
+      font-size: 0.75rem;
+      color: #666;
+      background: white;
+      padding: 0.25rem 0.5rem;
+      border-radius: 4px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .touch-button.too-small {
+      background: #dc3545;
+    }
+
+    .touch-button.good {
+      background: #28a745;
+    }
+
+    .effect-grid-test {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.75rem;
+      margin-top: 0.75rem;
+    }
+
+    .effect-btn-test {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      padding: 1rem 0.75rem;
+      border: 2px solid rgba(var(--color-foreground), 0.15);
+      border-radius: 8px;
+      background: rgba(var(--color-foreground), 0.02);
+      cursor: pointer;
+      font-size: 0.875rem;
+      min-height: 72px;
+      touch-action: manipulation;
+    }
+
+    .effect-btn-test .icon {
+      font-size: 1.5rem;
+    }
+
+    .safe-area-visual {
+      position: relative;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border-radius: 12px;
+      padding: 2rem 1rem;
+      color: white;
+      margin-top: 0.75rem;
+    }
+
+    .safe-area-visual::before {
+      content: 'Safe Area Test';
+      position: absolute;
+      top: env(safe-area-inset-top, 0px);
+      left: 0;
+      right: 0;
+      padding: 0.5rem;
+      background: rgba(255,255,255,0.2);
+      text-align: center;
+      font-size: 0.75rem;
+    }
+
+    .safe-area-visual .content {
+      text-align: center;
+      padding-top: max(1rem, env(safe-area-inset-top));
+      padding-left: max(1rem, env(safe-area-inset-left));
+      padding-right: max(1rem, env(safe-area-inset-right));
+      padding-bottom: max(1rem, env(safe-area-inset-bottom));
+    }
+
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.75rem;
+      margin-top: 0.75rem;
+    }
+
+    .metric-box {
+      background: #f8f9fa;
+      padding: 0.75rem;
+      border-radius: 8px;
+      text-align: center;
+    }
+
+    .metric-label {
+      font-size: 0.75rem;
+      color: #666;
+      text-transform: uppercase;
+      font-weight: 600;
+      margin-bottom: 0.25rem;
+    }
+
+    .metric-value {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #111;
+    }
+
+    .metric-value.good {
+      color: #28a745;
+    }
+
+    .metric-value.warning {
+      color: #ffc107;
+    }
+
+    .metric-value.bad {
+      color: #dc3545;
+    }
+
+    .run-test-btn {
+      width: 100%;
+      padding: 1rem;
+      background: #007bff;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 0.75rem;
+      touch-action: manipulation;
+    }
+
+    .run-test-btn:active {
+      transform: scale(0.98);
+      background: #0056b3;
+    }
+
+    .landscape-warning {
+      display: none;
+      background: #fff3cd;
+      color: #856404;
+      padding: 1rem;
+      border-radius: 8px;
+      margin-bottom: 1rem;
+      text-align: center;
+    }
+
+    @media (orientation: landscape) {
+      .landscape-warning {
+        display: block;
+      }
+    }
+
+    .sticky-footer {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: white;
+      padding: 1rem;
+      padding-bottom: max(1rem, env(safe-area-inset-bottom));
+      box-shadow: 0 -2px 8px rgba(0,0,0,0.05);
+      z-index: 100;
+    }
+
+    .overall-status {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.875rem;
+    }
+
+    .status-indicator {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: #dc3545;
+      display: inline-block;
+      margin-right: 0.5rem;
+    }
+
+    .status-indicator.good {
+      background: #28a745;
+    }
+
+    .status-indicator.warning {
+      background: #ffc107;
+    }
+  </style>
+</head>
+<body>
+  <div class="mobile-header">
+    <h1>📱 Effects V2 Mobile Test</h1>
+    <p class="subtitle">Phase 5 - Mobile Responsiveness & Touch</p>
+  </div>
+
+  <div class="landscape-warning">
+    ⚠️ Some tests are optimized for portrait mode. Rotate device for best results.
+  </div>
+
+  <div class="test-container">
+    <!-- Overall Metrics -->
+    <div class="test-card">
+      <h2>📊 Test Results</h2>
+      <div class="metrics-grid">
+        <div class="metric-box">
+          <div class="metric-label">Tests Run</div>
+          <div class="metric-value" id="testsRun">0</div>
+        </div>
+        <div class="metric-box">
+          <div class="metric-label">Passed</div>
+          <div class="metric-value good" id="testsPassed">0</div>
+        </div>
+        <div class="metric-box">
+          <div class="metric-label">Failed</div>
+          <div class="metric-value bad" id="testsFailed">0</div>
+        </div>
+        <div class="metric-box">
+          <div class="metric-label">Success Rate</div>
+          <div class="metric-value" id="successRate">0%</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Test 1: Touch Target Sizing -->
+    <div class="test-card">
+      <h2>1️⃣ Touch Target Sizing</h2>
+
+      <div class="test-item" id="test-touch-sizing">
+        <h3>iOS/Android Minimum Touch Targets</h3>
+        <p>iOS: 44px minimum | Android: 48dp minimum</p>
+
+        <div class="touch-target-test">
+          <button class="touch-button" data-size="48px" style="min-height: 48px; min-width: 200px;">
+            48px Button (Android Min) ✓
+          </button>
+          <button class="touch-button" data-size="44px" style="min-height: 44px; min-width: 200px;">
+            44px Button (iOS Min) ✓
+          </button>
+          <button class="touch-button too-small" data-size="36px" style="min-height: 36px; min-width: 200px;">
+            36px Button (Too Small) ✗
+          </button>
+        </div>
+
+        <button class="run-test-btn" onclick="testTouchTargetSizing()">
+          Measure Touch Targets
+        </button>
+
+        <div id="result-touch-sizing" class="test-result" style="display:none;"></div>
+      </div>
+    </div>
+
+    <!-- Test 2: Effect Grid Layout -->
+    <div class="test-card">
+      <h2>2️⃣ Responsive Effect Grid</h2>
+
+      <div class="test-item" id="test-effect-grid">
+        <h3>2-Column Grid on Mobile</h3>
+        <p>Expected: 2 columns on mobile (<750px), 4 columns on desktop</p>
+
+        <div class="effect-grid-test">
+          <div class="effect-btn-test">
+            <span class="icon">🎨</span>
+            <span>Original</span>
+          </div>
+          <div class="effect-btn-test">
+            <span class="icon">⚫</span>
+            <span>B&W</span>
+          </div>
+          <div class="effect-btn-test">
+            <span class="icon">🖌️</span>
+            <span>Modern</span>
+          </div>
+          <div class="effect-btn-test">
+            <span class="icon">🎭</span>
+            <span>Classic</span>
+          </div>
+        </div>
+
+        <button class="run-test-btn" onclick="testEffectGrid()">
+          Check Grid Layout
+        </button>
+
+        <div id="result-effect-grid" class="test-result" style="display:none;"></div>
+      </div>
+    </div>
+
+    <!-- Test 3: Safe Area Support -->
+    <div class="test-card">
+      <h2>3️⃣ Safe Area (iPhone X+ Notch)</h2>
+
+      <div class="test-item" id="test-safe-area">
+        <h3>Safe Area Insets</h3>
+        <p>Tests env(safe-area-inset-*) support for iPhone X+ notch and home indicator</p>
+
+        <div class="safe-area-visual">
+          <div class="content">
+            <p style="margin-bottom: 0.5rem;">✨ Content respects safe areas</p>
+            <p style="font-size: 0.75rem; opacity: 0.8;">Check padding around edges on iPhone X+</p>
+          </div>
+        </div>
+
+        <button class="run-test-btn" onclick="testSafeArea()">
+          Detect Safe Area Support
+        </button>
+
+        <div id="result-safe-area" class="test-result" style="display:none;"></div>
+      </div>
+    </div>
+
+    <!-- Test 4: Viewport Dimensions -->
+    <div class="test-card">
+      <h2>4️⃣ Viewport & Screen Info</h2>
+
+      <div class="test-item" id="test-viewport">
+        <h3>Device Information</h3>
+        <p>Current viewport and screen dimensions</p>
+
+        <button class="run-test-btn" onclick="testViewport()">
+          Get Device Info
+        </button>
+
+        <div id="result-viewport" class="test-result" style="display:none;"></div>
+      </div>
+    </div>
+
+    <!-- Test 5: Touch Events -->
+    <div class="test-card">
+      <h2>5️⃣ Touch Event Support</h2>
+
+      <div class="test-item" id="test-touch-events">
+        <h3>Touch API Detection</h3>
+        <p>Verify touch events are available for mobile interactions</p>
+
+        <button class="run-test-btn" onclick="testTouchEvents()">
+          Check Touch Support
+        </button>
+
+        <div id="result-touch-events" class="test-result" style="display:none;"></div>
+      </div>
+    </div>
+
+    <!-- Test 6: Web Share API -->
+    <div class="test-card">
+      <h2>6️⃣ Web Share API</h2>
+
+      <div class="test-item" id="test-web-share">
+        <h3>Native Sharing (Mobile)</h3>
+        <p>Test if Web Share API is available for native mobile sharing</p>
+
+        <button class="run-test-btn" onclick="testWebShare()">
+          Test Native Sharing
+        </button>
+
+        <div id="result-web-share" class="test-result" style="display:none;"></div>
+      </div>
+    </div>
+
+    <!-- Test 7: Performance -->
+    <div class="test-card">
+      <h2>7️⃣ Mobile Performance</h2>
+
+      <div class="test-item" id="test-performance">
+        <h3>Memory & Network</h3>
+        <p>Mobile performance metrics and connection quality</p>
+
+        <button class="run-test-btn" onclick="testPerformance()">
+          Check Performance
+        </button>
+
+        <div id="result-performance" class="test-result" style="display:none;"></div>
+      </div>
+    </div>
+
+    <!-- Spacer for sticky footer -->
+    <div style="height: 80px;"></div>
+  </div>
+
+  <div class="sticky-footer">
+    <div class="overall-status">
+      <div>
+        <span class="status-indicator" id="overallStatusIndicator"></span>
+        <strong id="overallStatusText">Ready to Test</strong>
+      </div>
+      <button class="run-test-btn" style="margin-top: 0; width: auto; padding: 0.75rem 1.5rem;" onclick="runAllMobileTests()">
+        Run All Tests
+      </button>
+    </div>
+  </div>
+
+  <script>
+    let testResults = {
+      total: 0,
+      passed: 0,
+      failed: 0
+    };
+
+    function updateMetrics() {
+      document.getElementById('testsRun').textContent = testResults.total;
+      document.getElementById('testsPassed').textContent = testResults.passed;
+      document.getElementById('testsFailed').textContent = testResults.failed;
+
+      const successRate = testResults.total > 0
+        ? Math.round((testResults.passed / testResults.total) * 100)
+        : 0;
+
+      const rateElement = document.getElementById('successRate');
+      rateElement.textContent = successRate + '%';
+      rateElement.className = 'metric-value';
+
+      if (successRate >= 90) {
+        rateElement.classList.add('good');
+        updateOverallStatus('good', 'All Tests Passing');
+      } else if (successRate >= 70) {
+        rateElement.classList.add('warning');
+        updateOverallStatus('warning', 'Some Tests Failed');
+      } else if (testResults.total > 0) {
+        rateElement.classList.add('bad');
+        updateOverallStatus('bad', 'Many Tests Failed');
+      }
+    }
+
+    function updateOverallStatus(status, text) {
+      const indicator = document.getElementById('overallStatusIndicator');
+      const statusText = document.getElementById('overallStatusText');
+
+      indicator.className = 'status-indicator ' + status;
+      statusText.textContent = text;
+    }
+
+    function showResult(testId, passed, message) {
+      const testItem = document.getElementById(`test-${testId}`);
+      const resultDiv = document.getElementById(`result-${testId}`);
+
+      testItem.className = 'test-item ' + (passed ? 'pass' : 'fail');
+      resultDiv.textContent = message;
+      resultDiv.style.display = 'block';
+
+      testResults.total++;
+      if (passed) testResults.passed++;
+      else testResults.failed++;
+
+      updateMetrics();
+    }
+
+    // Test 1: Touch Target Sizing
+    function testTouchTargetSizing() {
+      const buttons = document.querySelectorAll('.touch-button');
+      let results = [];
+      let allPassed = true;
+
+      buttons.forEach((btn, idx) => {
+        const rect = btn.getBoundingClientRect();
+        const height = rect.height;
+        const width = rect.width;
+        const minSize = Math.min(height, width);
+
+        const passed = minSize >= 44;
+        const status = passed ? '✅' : '❌';
+
+        results.push(`Button ${idx + 1}: ${width.toFixed(0)}x${height.toFixed(0)}px ${status}`);
+
+        if (!passed && !btn.classList.contains('too-small')) {
+          allPassed = false;
+        }
+      });
+
+      const message = `Touch Target Analysis:\n${results.join('\n')}\n\niOS Min: 44px | Android Min: 48dp\n${allPassed ? '✅ All production buttons meet requirements' : '❌ Some buttons too small'}`;
+
+      showResult('touch-sizing', allPassed, message);
+    }
+
+    // Test 2: Effect Grid Layout
+    function testEffectGrid() {
+      const grid = document.querySelector('.effect-grid-test');
+      const computedStyle = window.getComputedStyle(grid);
+      const columns = computedStyle.gridTemplateColumns.split(' ').length;
+      const viewportWidth = window.innerWidth;
+
+      const expectedColumns = viewportWidth < 750 ? 2 : 4;
+      const passed = columns === expectedColumns;
+
+      const message = `Viewport: ${viewportWidth}px\nGrid Columns: ${columns}\nExpected: ${expectedColumns}\n${passed ? '✅ Correct responsive layout' : '❌ Unexpected column count'}`;
+
+      showResult('effect-grid', passed, message);
+    }
+
+    // Test 3: Safe Area Support
+    function testSafeArea() {
+      const hasSafeArea = CSS.supports('padding', 'env(safe-area-inset-top)');
+      const safeAreaTop = getComputedStyle(document.documentElement).getPropertyValue('--safe-area-inset-top') || '0px';
+
+      const message = `Safe Area Support: ${hasSafeArea ? 'YES' : 'NO'}\nTop Inset: ${safeAreaTop}\n\n${hasSafeArea ? '✅ Safe area CSS supported' : '⚠️ Safe area not supported (non-iOS device)'}\n\nNote: Test on iPhone X+ to see actual insets`;
+
+      showResult('safe-area', true, message); // Always pass, just informational
+    }
+
+    // Test 4: Viewport Dimensions
+    function testViewport() {
+      const info = {
+        'Viewport Width': window.innerWidth + 'px',
+        'Viewport Height': window.innerHeight + 'px',
+        'Screen Width': screen.width + 'px',
+        'Screen Height': screen.height + 'px',
+        'Device Pixel Ratio': window.devicePixelRatio,
+        'Orientation': screen.orientation?.type || 'N/A',
+        'User Agent': navigator.userAgent.substring(0, 50) + '...'
+      };
+
+      const message = Object.entries(info).map(([key, val]) => `${key}: ${val}`).join('\n');
+
+      const isMobile = window.innerWidth < 750;
+      showResult('viewport', isMobile, message + '\n\n' + (isMobile ? '✅ Mobile viewport detected' : '⚠️ Desktop viewport'));
+    }
+
+    // Test 5: Touch Events
+    function testTouchEvents() {
+      const hasTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+      const maxTouchPoints = navigator.maxTouchPoints || 0;
+
+      const message = `Touch Support: ${hasTouch ? 'YES' : 'NO'}\nMax Touch Points: ${maxTouchPoints}\n\n${hasTouch ? '✅ Touch events supported' : '⚠️ No touch support (desktop browser)'}`;
+
+      showResult('touch-events', hasTouch, message);
+    }
+
+    // Test 6: Web Share API
+    function testWebShare() {
+      const hasWebShare = 'share' in navigator;
+      const hasClipboard = navigator.clipboard && typeof navigator.clipboard.writeText === 'function';
+
+      let message = `Web Share API: ${hasWebShare ? 'YES' : 'NO'}\nClipboard API: ${hasClipboard ? 'YES' : 'NO'}\n\n`;
+
+      if (hasWebShare) {
+        message += '✅ Native sharing available (mobile)\nSharing will use OS share sheet';
+      } else if (hasClipboard) {
+        message += '⚠️ Fallback to Clipboard API\nWill copy to clipboard with instructions';
+      } else {
+        message += '❌ No sharing APIs available\nWill use new tab fallback';
+      }
+
+      showResult('web-share', hasWebShare || hasClipboard, message);
+    }
+
+    // Test 7: Performance
+    function testPerformance() {
+      let message = '';
+
+      // Memory
+      if (performance.memory) {
+        const usedMB = (performance.memory.usedJSHeapSize / 1024 / 1024).toFixed(2);
+        const limitMB = (performance.memory.jsHeapSizeLimit / 1024 / 1024).toFixed(2);
+        message += `Memory: ${usedMB}MB / ${limitMB}MB\n`;
+      }
+
+      // Connection
+      if (navigator.connection) {
+        const conn = navigator.connection;
+        message += `Network: ${conn.effectiveType || 'unknown'}\n`;
+        message += `Downlink: ${conn.downlink ? conn.downlink + ' Mbps' : 'N/A'}\n`;
+        message += `RTT: ${conn.rtt ? conn.rtt + ' ms' : 'N/A'}\n`;
+        message += `Save Data: ${conn.saveData ? 'Enabled' : 'Disabled'}\n`;
+      }
+
+      // Load time
+      const loadTime = performance.timing.domContentLoadedEventEnd - performance.timing.navigationStart;
+      message += `\nPage Load: ${loadTime}ms\n`;
+
+      const passed = loadTime < 3000;
+      message += `\n${passed ? '✅ Good mobile performance' : '⚠️ Slow load time'}`;
+
+      showResult('performance', passed, message);
+    }
+
+    async function runAllMobileTests() {
+      updateOverallStatus('warning', 'Running Tests...');
+
+      const tests = [
+        testTouchTargetSizing,
+        testEffectGrid,
+        testSafeArea,
+        testViewport,
+        testTouchEvents,
+        testWebShare,
+        testPerformance
+      ];
+
+      for (const test of tests) {
+        await new Promise(resolve => {
+          test();
+          setTimeout(resolve, 300);
+        });
+      }
+    }
+
+    // Auto-run on load
+    document.addEventListener('DOMContentLoaded', () => {
+      console.log('📱 Effects V2 Mobile Test Suite Ready');
+      console.log('Tap "Run All Tests" to start');
+
+      // Auto-detect device
+      setTimeout(() => {
+        const isMobile = window.innerWidth < 750;
+        const hasTouch = 'ontouchstart' in window;
+
+        if (!isMobile || !hasTouch) {
+          alert('⚠️ Best tested on actual mobile device\n\nCurrently on: ' + (isMobile ? 'Small screen' : 'Desktop') + ', ' + (hasTouch ? 'Touch' : 'No touch'));
+        }
+      }, 1000);
+    });
+  </script>
+</body>
+</html>

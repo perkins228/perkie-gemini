@@ -201,7 +201,8 @@
 
     // Upload button click
     if (uploadButton) {
-      uploadButton.addEventListener('click', () => {
+      uploadButton.addEventListener('click', (e) => {
+        e.stopPropagation(); // Prevent dropzone from also triggering
         fileInput.click();
       });
     }
@@ -218,7 +219,8 @@
     // Dropzone click
     if (dropzone) {
       dropzone.addEventListener('click', (e) => {
-        if (e.target === dropzone || e.target.closest('.upload-dropzone')) {
+        // Only trigger if clicking dropzone directly, not on button or other elements
+        if (e.target === dropzone || (e.target.closest('.upload-dropzone') && !e.target.closest('.upload-button'))) {
           fileInput.click();
         }
       });

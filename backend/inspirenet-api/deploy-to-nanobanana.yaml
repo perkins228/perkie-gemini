@@ -1,0 +1,174 @@
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: inspirenet-bg-removal-api-gemini
+  annotations:
+    run.googleapis.com/ingress: all
+    run.googleapis.com/description: "Gemini Project InSPyReNet API - Style consolidation (B&W + Color only)"
+spec:
+  template:
+    metadata:
+      annotations:
+        # Execution environment
+        run.googleapis.com/execution-environment: gen2
+
+        # Scaling configuration - STAGING: Lower limits for cost control
+        autoscaling.knative.dev/minScale: "0"
+        autoscaling.knative.dev/maxScale: "2"
+        autoscaling.knative.dev/maxConcurrency: "1"
+
+        # Performance optimizations
+        run.googleapis.com/startup-cpu-boost: "true"
+        run.googleapis.com/cpu-throttling: "false"
+
+        # Health check configuration
+        run.googleapis.com/health-check-path: "/health"
+        run.googleapis.com/health-check-interval: "30s"
+        run.googleapis.com/health-check-timeout: "10s"
+        run.googleapis.com/health-check-failure-threshold: "3"
+
+        # Startup probe configuration - Extended timeout for GPU model loading
+        run.googleapis.com/startup-probe-path: "/health"
+        run.googleapis.com/startup-probe-initial-delay: "120s"
+        run.googleapis.com/startup-probe-timeout: "60s"
+        run.googleapis.com/startup-probe-period: "60s"
+        run.googleapis.com/startup-probe-failure-threshold: "15"
+
+        # Timeout configuration - Extended for GPU model loading
+        run.googleapis.com/timeout: "600s"
+
+        # Memory configuration
+        run.googleapis.com/memory: "32Gi"
+
+        # GPU configuration
+        run.googleapis.com/gpu-zonal-redundancy-disabled: "true"
+
+    spec:
+      containers:
+      - image: us-central1-docker.pkg.dev/gen-lang-client-0601138686/inspirenet-api/inspirenet-bg-removal-api:style-consolidation
+        ports:
+        - containerPort: 8080
+          name: http1
+        resources:
+          limits:
+            cpu: '8'
+            memory: '32Gi'
+            nvidia.com/gpu: '1'
+          requests:
+            cpu: '4'
+            memory: '32Gi'
+            nvidia.com/gpu: '1'
+        env:
+        # Environment identification
+        - name: DEPLOYMENT_ENV
+          value: "staging"
+
+        # Model configuration
+        - name: MODEL_PATH
+          value: "/app/models/inspirenet.pth"
+        - name: TARGET_SIZE
+          value: "1024"
+        - name: INSPIRENET_MODE
+          value: "base"
+        - name: INSPIRENET_RESIZE
+          value: "dynamic"
+        - name: MODEL_LOAD_TIMEOUT
+          value: "120"
+
+        # Storage configuration - NEW PROJECT BUCKETS
+        - name: STORAGE_BUCKET
+          value: "perkieprints-nanobanana-cache"
+        - name: CUSTOMER_STORAGE_BUCKET
+          value: "perkieprints-nanobanana-customer-images"
+        - name: GCS_BUCKET_NAME
+          value: "perkieprints-nanobanana-cache"
+        - name: CACHE_TTL
+          value: "86400"
+
+        # Performance configuration
+        - name: MIN_INSTANCES
+          value: "0"
+        - name: MAX_CONCURRENT_REQUESTS
+          value: "1"
+        - name: MAX_PARALLEL_EFFECTS
+          value: "2"
+
+        # Feature toggles (staging settings)
+        - name: ENABLE_OPTIMIZATIONS
+          value: "true"
+        - name: ENABLE_WARMUP
+          value: "false"
+        - name: ENABLE_MEMORY_MONITORING
+          value: "true"
+        - name: ENABLE_GPU_OPTIMIZATIONS
+          value: "true"
+
+        # Memory thresholds
+        - name: MEMORY_THRESHOLD_CPU
+          value: "0.75"
+        - name: MEMORY_THRESHOLD_GPU
+          value: "0.80"
+        - name: MEMORY_CLEANUP_INTERVAL
+          value: "30"
+
+        # System configuration - NEW PROJECT
+        - name: GOOGLE_CLOUD_PROJECT
+          value: "gen-lang-client-0601138686"
+        - name: LOG_LEVEL
+          value: "debug"
+
+        # Resource limits
+        - name: MAX_IMAGE_SIZE_MB
+          value: "30"
+        - name: MOBILE_MAX_SIZE
+          value: "1280"
+        - name: EFFECTS_BATCH_SIZE
+          value: "2"
+
+        # PyTorch and CUDA configuration
+        - name: OMP_NUM_THREADS
+          value: "2"
+        - name: MKL_NUM_THREADS
+          value: "2"
+        - name: NUMEXPR_NUM_THREADS
+          value: "2"
+        - name: CUDA_VISIBLE_DEVICES
+          value: "0"
+        - name: NVIDIA_VISIBLE_DEVICES
+          value: "0"
+        - name: PYTORCH_CUDA_ALLOC_CONF
+          value: "max_split_size_mb:64,expandable_segments:True,garbage_collection_threshold:0.8"
+
+        # Cold start optimizations
+        - name: PYTHONOPTIMIZE
+          value: "2"
+        - name: PYTHONDONTWRITEBYTECODE
+          value: "1"
+        - name: TORCH_CACHE_DIR
+          value: "/app/models/torch_cache"
+        - name: TRANSFORMERS_CACHE
+          value: "/app/models/transformers_cache"
+        - name: CUDA_LAUNCH_BLOCKING
+          value: "0"
+
+        # Model loading strategy
+        - name: MODEL_PRELOAD_STRATEGY
+          value: "lazy"
+        - name: TORCH_JIT_COMPILATION
+          value: "false"
+        - name: CUDNN_BENCHMARK
+          value: "false"
+        - name: WARMUP_REQUESTS_ENABLED
+          value: "true"
+
+        # Memory optimization
+        - name: TORCH_SHARING_STRATEGY
+          value: "file_descriptor"
+        - name: MALLOC_MMAP_THRESHOLD_
+          value: "32768"
+
+        # Progressive loading
+        - name: ENABLE_PROGRESSIVE_LOADING
+          value: "true"
+        - name: BACKGROUND_MODEL_OPTIMIZATION
+          value: "true"

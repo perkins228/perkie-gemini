@@ -1,0 +1,77 @@
+# Cloud Build configuration for InSPyReNet API - Gemini Project Deployment
+# Builds and deploys to gen-lang-client-0601138686
+
+steps:
+  # Step 1: Build the Docker image
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'build'
+      - '-f'
+      - 'Dockerfile'
+      - '-t'
+      - 'us-central1-docker.pkg.dev/$PROJECT_ID/inspirenet-api/inspirenet-bg-removal-api:style-consolidation'
+      - '-t'
+      - 'us-central1-docker.pkg.dev/$PROJECT_ID/inspirenet-api/inspirenet-bg-removal-api:latest'
+      - '--build-arg'
+      - 'BUILDKIT_INLINE_CACHE=1'
+      - '--platform'
+      - 'linux/amd64'
+      - '.'
+    timeout: '1200s'  # 20 minutes for build
+
+  # Step 2: Push both tags to registry
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'push'
+      - 'us-central1-docker.pkg.dev/$PROJECT_ID/inspirenet-api/inspirenet-bg-removal-api:style-consolidation'
+
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'push'
+      - 'us-central1-docker.pkg.dev/$PROJECT_ID/inspirenet-api/inspirenet-bg-removal-api:latest'
+
+  # Step 3: Deploy to Cloud Run
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: gcloud
+    args:
+      - 'run'
+      - 'services'
+      - 'replace'
+      - 'deploy-to-nanobanana.yaml'
+      - '--region=us-central1'
+    timeout: '600s'  # 10 minutes for deployment
+
+  # Step 4: Wait for deployment to be ready
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: gcloud
+    args:
+      - 'run'
+      - 'services'
+      - 'wait'
+      - 'inspirenet-bg-removal-api-gemini'
+      - '--region=us-central1'
+    timeout: '300s'
+
+options:
+  # Use high-CPU machine for faster builds
+  machineType: 'E2_HIGHCPU_32'  # Even more memory for PyTorch build
+
+  # Enable build logs
+  logging: CLOUD_LOGGING_ONLY
+
+  # Disk size
+  diskSizeGb: 100
+
+# Images to be pushed to registry
+images:
+  - 'us-central1-docker.pkg.dev/$PROJECT_ID/inspirenet-api/inspirenet-bg-removal-api:style-consolidation'
+  - 'us-central1-docker.pkg.dev/$PROJECT_ID/inspirenet-api/inspirenet-bg-removal-api:latest'
+
+# Tags for build tracking
+tags:
+  - 'inspirenet-api'
+  - 'style-consolidation'
+  - 'gemini-project'
+
+# Overall build timeout
+timeout: '2400s'  # 40 minutes total
