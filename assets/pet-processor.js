@@ -240,7 +240,18 @@ class PetProcessor {
     
     this.container = document.getElementById(`pet-processor-content-${sectionId}`);
     
-    this.apiUrl = 'https://inspirenet-bg-removal-api-725543555429.us-central1.run.app';
+    // ============================================================
+    // API URL CONFIGURATION - STAGING
+    // ============================================================
+    // STAGING: Style consolidation testing (gen-lang-client-0601138686)
+    // - Handles: color, enhancedblackwhite only
+    // - Modern/Classic handled by Gemini API (separate integration needed)
+    // - GPU enabled with CUDA support
+    this.apiUrl = 'https://inspirenet-bg-removal-api-gemini-753651513695.us-central1.run.app';
+
+    // PRODUCTION (switch back if staging has issues):
+    // this.apiUrl = 'https://inspirenet-bg-removal-api-725543555429.us-central1.run.app';
+    // ============================================================
     this.currentPet = null;
     this.isProcessing = false;
     this.selectedEffect = 'enhancedblackwhite';
@@ -1422,7 +1433,11 @@ class PetProcessor {
       }
 
       // Upload to existing /store-image endpoint
-      const apiUrl = 'https://inspirenet-bg-removal-api-725543555429.us-central1.run.app/store-image';
+      // STAGING: Match main API URL configuration
+      const apiUrl = 'https://inspirenet-bg-removal-api-gemini-753651513695.us-central1.run.app/store-image';
+
+      // PRODUCTION (switch back if staging has issues):
+      // const apiUrl = 'https://inspirenet-bg-removal-api-725543555429.us-central1.run.app/store-image';
       const uploadResponse = await fetch(apiUrl, {
         method: 'POST',
         body: formData
