@@ -5,6 +5,9 @@ perkieprints-sa-key.json
 # Dependencies
 node_modules/
 
+# Webpack build artifacts (bundle is tracked, source map is not)
+assets/effects-v2-bundle.js.map
+
 # Temporary log files (from Cloud Run debugging)
 logs_*.json
 temp_logs*.json
