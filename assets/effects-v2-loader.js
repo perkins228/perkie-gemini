@@ -159,6 +159,23 @@
           </div>
         </div>
 
+        <div class="artist-notes-section">
+          <label for="artist-note-${sectionId}">
+            <strong>Artist Notes</strong> (Optional)
+            <span style="color: rgba(var(--color-foreground), 0.6); font-size: 0.875rem;">
+              Add custom instructions for your print
+            </span>
+          </label>
+          <textarea
+            id="artist-note-${sectionId}"
+            class="artist-note-input"
+            placeholder="e.g., Make the background lighter, adjust colors to match my living room..."
+            maxlength="500"
+            rows="3"
+          ></textarea>
+          <div class="character-count" id="char-count-${sectionId}">0/500</div>
+        </div>
+
         <div class="effects-actions">
           <button class="action-btn share-btn" id="share-btn-${sectionId}">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -258,6 +275,32 @@
         handleReset(container, sectionId);
       });
     }
+
+    // Artist note textarea (attach after result is shown)
+    const artistNoteTextarea = container.querySelector(`#artist-note-${sectionId}`);
+    const charCount = container.querySelector(`#char-count-${sectionId}`);
+
+    if (artistNoteTextarea) {
+      artistNoteTextarea.addEventListener('input', (e) => {
+        const length = e.target.value.length;
+        if (charCount) {
+          charCount.textContent = `${length}/500`;
+        }
+
+        // Save to localStorage
+        const sessionKey = container.dataset.sessionKey;
+        const { storageManager } = window.EffectsV2;
+
+        if (storageManager && sessionKey) {
+          const petData = storageManager.get(sessionKey);
+          if (petData) {
+            petData.artistNote = e.target.value;
+            storageManager.save(sessionKey, petData);
+            console.log('💾 Artist note saved');
+          }
+        }
+      });
+    }
   }
 
   /**
@@ -291,7 +334,7 @@
 
       const formData = new FormData();
       formData.append('file', file);
-      formData.append('effects', 'color,enhancedblackwhite');
+      formData.append('effects', 'color,blackwhite');
       formData.append('session_id', `perkie_${Date.now()}`);
 
       updateProcessingMessage(container, sectionId, 'Removing background...', 15);
@@ -328,22 +371,51 @@
       // Step 4: Generate session ID for storage
       const sessionKey = `pet_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
-      // Step 5: Upload to GCS (background task)
+      // Step 5: Upload ALL effects to GCS in parallel
       const { storageManager } = window.EffectsV2;
-      if (storageManager && effects.color) {
-        uploadToStorage(effects.color, sessionKey, file.name, config.apiUrl).catch(err => {
-          console.warn('GCS upload failed (non-blocking):', err);
-        });
+      const gcsUrls = {
+        color: null,
+        blackwhite: null,
+        modern: null,
+        classic: null
+      };
+
+      if (storageManager) {
+        try {
+          // Upload Color and B&W in parallel
+          updateProcessingMessage(container, sectionId, 'Uploading to cloud... (1/2)', 75);
+
+          const uploadPromises = [];
+          if (effects.color) {
+            uploadPromises.push(
+              uploadToStorage(effects.color, sessionKey, 'color', config.apiUrl)
+                .then(url => { gcsUrls.color = url; })
+            );
+          }
+          if (effects.blackwhite) {
+            uploadPromises.push(
+              uploadToStorage(effects.blackwhite, sessionKey, 'blackwhite', config.apiUrl)
+                .then(url => { gcsUrls.blackwhite = url; })
+            );
+          }
+
+          await Promise.all(uploadPromises);
+          updateProcessingMessage(container, sectionId, 'Uploading to cloud... (2/2)', 90);
+          console.log('✅ GCS URLs obtained:', gcsUrls);
+
+        } catch (err) {
+          console.warn('⚠️ Some GCS uploads failed, continuing with partial URLs:', err);
+        }
       }
 
-      // Step 6: Save to localStorage
+      // Step 6: Save to localStorage with all GCS URLs
+      updateProcessingMessage(container, sectionId, 'Saving...', 95);
       if (storageManager) {
         await storageManager.save(sessionKey, {
-          name: file.name.replace(/\.[^/.]+$/, ''), // Remove extension
-          filename: file.name,
-          thumbnail: effects.color, // Use color as thumbnail (will be compressed to ~42KB)
-          effect: 'color', // Default selection
-          // effects object removed - not needed in localStorage (already in container.dataset.effects)
+          name: file.name.replace(/\.[^/.]+$/, ''), // Remove extension for pet name
+          currentEffect: 'color', // Default selection
+          gcsUrls: gcsUrls, // All effect URLs (color, blackwhite, modern: null, classic: null)
+          artistNote: '', // Empty initially, user can add via UI
           timestamp: Date.now()
         });
       }
@@ -354,6 +426,7 @@
       setTimeout(() => {
         showResult(container, sectionId, {
           sessionKey,
+          gcsUrl, // Pass GCS URL to result view
           effects,
           currentEffect: 'color'
         });
@@ -366,20 +439,23 @@
   }
 
   /**
-   * Upload image to GCS storage (background task)
+   * Upload image to GCS storage
    * @param {string} dataUrl - Image data URL
    * @param {string} sessionKey - Session key
-   * @param {string} filename - Original filename
+   * @param {string} effectName - Effect name (color, blackwhite, modern, classic)
    * @param {string} apiUrl - API base URL
+   * @returns {Promise<string|null>} GCS URL or null
    */
-  async function uploadToStorage(dataUrl, sessionKey, filename, apiUrl) {
+  async function uploadToStorage(dataUrl, sessionKey, effectName, apiUrl) {
     try {
       const response = await fetch(dataUrl);
       const blob = await response.blob();
 
       const formData = new FormData();
+      const filename = `${sessionKey}_${effectName}.jpg`;
       formData.append('file', blob, filename);
       formData.append('session_key', sessionKey);
+      formData.append('effect_name', effectName);
 
       const uploadResponse = await fetch(`${apiUrl}/store-image`, {
         method: 'POST',
@@ -524,7 +600,7 @@
       }
 
       // Get color effect as input (background already removed)
-      const colorEffect = effects.color || effects.enhancedblackwhite;
+      const colorEffect = effects.color || effects.blackwhite;
       if (!colorEffect) {
         throw new Error('No base image available');
       }
@@ -537,17 +613,45 @@
       const { geminiClient } = window.EffectsV2;
       const styledBlob = await geminiClient.applyStyle(blob, effectName);
 
-      // Convert to data URL
-      const objectUrl = URL.createObjectURL(styledBlob);
+      // Convert to data URL for display and storage
+      const reader = new FileReader();
+      const dataUrl = await new Promise((resolve, reject) => {
+        reader.onloadend = () => resolve(reader.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(styledBlob);
+      });
 
       // Update effects object
-      effects[effectName] = objectUrl;
+      effects[effectName] = dataUrl;
       container.dataset.effects = JSON.stringify(effects);
+
+      // Upload to GCS
+      const sessionKey = container.dataset.sessionKey;
+      const config = JSON.parse(container.closest('[data-api-url]').dataset.apiUrl || '{}');
+      let gcsUrl = null;
+
+      const { storageManager } = window.EffectsV2;
+      if (storageManager && sessionKey) {
+        try {
+          gcsUrl = await uploadToStorage(dataUrl, sessionKey, effectName, config.apiUrl);
+          console.log(`✅ ${effectName} uploaded to GCS:`, gcsUrl);
+
+          // Update localStorage with new GCS URL
+          const petData = storageManager.get(sessionKey);
+          if (petData) {
+            petData.gcsUrls[effectName] = gcsUrl;
+            await storageManager.save(sessionKey, petData);
+            console.log(`✅ Updated localStorage with ${effectName} URL`);
+          }
+        } catch (uploadErr) {
+          console.warn(`⚠️ Failed to upload ${effectName} to GCS:`, uploadErr);
+        }
+      }
 
       // Switch to the new effect
       const img = container.querySelector(`#result-image-${sectionId}`);
       if (img) {
-        img.src = objectUrl;
+        img.src = dataUrl;
         container.dataset.currentEffect = effectName;
       }
 

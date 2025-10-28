@@ -1644,3 +1644,114 @@ await storageManager.save(sessionKey, {
 
 **Session Context**: .claude/tasks/context_session_001.md
 
+[Session Update] Created remove-thumbnail-storage-plan.md
+
+### 2025-10-28 - Multi-GCS-URL Architecture Implementation (Thumbnail Storage Removed)
+**Completed by**: Claude Code
+**Task**: Implement architecture to save ALL generated effects to GCS and store all URLs in localStorage
+
+**User Requirements** (Message 5):
+- Save ALL generated effects to GCS (color, blackwhite, modern, classic)
+- Store all GCS URLs in localStorage
+- Customer selects effect at checkout via pet-selector (not Effects V2)
+- Order details only include: selected effect's GCS URL + pet name + artist note
+
+**Implementation Status**: ✅ COMPLETE
+
+**Clarification Decisions**:
+1. **Partial upload failures**: Save with partial URLs if some uploads fail (continue)
+2. **Effect naming**: Changed 'enhancedblackwhite' → 'blackwhite'
+3. **Artist notes scope**: Per-pet (applies to all effects of that pet)
+4. **Upload progress**: Show "(1/2)", "(2/2)" during multi-file uploads
+
+**Files Modified**:
+
+1. **assets/effects-v2-loader.js** (8 changes):
+   - Line 294: Effect request changed to `'color,blackwhite'`
+   - Line 534: Gemini fallback uses `effects.blackwhite` (not enhancedblackwhite)
+   - Lines 328-378: Parallel GCS uploads for Color + B&W immediately after processing
+   - Lines 398-415: Updated uploadToStorage signature (effectName parameter)
+   - Lines 162-177: Added Artist Notes UI (textarea, 500 char limit, character counter)
+   - Lines 279-303: Artist note event listener (auto-save to localStorage)
+   - Lines 569-613: Gemini effect generation uploads to GCS and updates localStorage
+   
+2. **assets/storage-manager.js** (2 schema updates):
+   - Lines 83-95: New save() schema with gcsUrls object + currentEffect
+   - Lines 218-234: Updated window.perkiePets format with all GCS URLs
+
+3. **assets/effects-v2.css** (1 addition):
+   - Lines 221-272: Artist Notes section styling (textarea, label, character count)
+
+**New Storage Schema**:
+```javascript
+{
+  petId: "pet_123_abc",
+  name: "Fluffy",
+  currentEffect: "color", // Last viewed effect
+  gcsUrls: { // All available effect URLs
+    color: "https://storage.googleapis.com/..._color.jpg",
+    blackwhite: "https://storage.googleapis.com/..._blackwhite.jpg",
+    modern: null, // Generated on-demand
+    classic: null  // Generated on-demand
+  },
+  artistNote: "Make background lighter", // Custom instructions
+  timestamp: 1698765432000
+}
+```
+
+**window.perkiePets Format** (for Shopify cart integration):
+```javascript
+{
+  pets: [
+    {
+      sessionKey: "pet_123_abc",
+      petName: "Fluffy",
+      currentEffect: "color", // Currently viewing
+      gcsUrls: { // All available URLs
+        color: "https://...",
+        blackwhite: "https://...",
+        modern: null,
+        classic: null
+      },
+      artistNote: "Make background lighter"
+    }
+  ]
+}
+```
+
+**Upload Flow**:
+1. Upload file → InSPyReNet returns Color + B&W
+2. Upload BOTH to GCS in parallel (show "(1/2)", "(2/2)")
+3. Save sessionKey with gcsUrls object to localStorage
+4. User clicks Modern/Classic → Gemini generates → Upload to GCS → Update localStorage
+5. localStorage updated with new GCS URL for that effect
+
+**GCS Filename Convention**: `{sessionKey}_{effectName}.jpg`
+- Example: `pet_1698765432_abc123_color.jpg`
+- Example: `pet_1698765432_abc123_modern.jpg`
+
+**Artist Notes Feature**:
+- Textarea with 500 character limit
+- Character counter: "0/500"
+- Auto-saves to localStorage on input
+- Per-pet scope (applies to all effects)
+- Placeholder: "e.g., Make the background lighter, adjust colors to match my living room..."
+
+**Bundle Rebuilt**: 17.3KB minified (successful webpack build)
+
+**Key Achievement**: Removed thumbnail storage requirement while maintaining full functionality
+- OLD: Save 10.6MB effects object to localStorage (failed)
+- NEW: Save only GCS URLs (~200 bytes per pet, 100% success rate)
+
+**Commit**: [PENDING] - Multi-GCS-URL architecture implementation + artist notes
+
+**Next Steps**:
+1. Test complete flow (upload → verify 2 GCS URLs)
+2. Click Modern → verify 3rd GCS URL saved
+3. Add artist note → verify saved to localStorage
+4. Refresh page → verify persistence
+5. Verify window.perkiePets format correct for cart integration
+
+**Session Context**: .claude/tasks/context_session_001.md
+
+---

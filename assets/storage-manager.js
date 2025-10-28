@@ -69,9 +69,9 @@ export class StorageManager {
   }
 
   /**
-   * Save pet data to localStorage with compression
+   * Save pet data to localStorage (multi-GCS-URL schema)
    * @param {string} petId - Unique pet identifier
-   * @param {Object} data - Pet data (name, thumbnail, gcsUrl, effect, etc.)
+   * @param {Object} data - Pet data (name, gcsUrls, currentEffect, artistNote)
    * @returns {Promise<boolean>} Success status
    */
   async save(petId, data) {
@@ -79,20 +79,18 @@ export class StorageManager {
     let storageData;
 
     try {
-      // Compress thumbnail before storage (200px max, 60% quality)
-      const compressedThumbnail = data.thumbnail ?
-        await this.compressThumbnail(data.thumbnail, 200, 0.6) : '';
-
+      // Multi-GCS-URL storage schema (all generated effects)
       storageData = {
         petId,
         name: data.name || 'Pet',
-        filename: data.filename || '',
-        thumbnail: compressedThumbnail,
-        gcsUrl: data.gcsUrl || '',
-        originalUrl: data.originalUrl || '',
-        artistNote: data.artistNote || '',
-        effect: data.effect || 'original',
-        effects: data.effects || {}, // Store all effect URLs
+        currentEffect: data.currentEffect || 'color', // Last viewed effect
+        gcsUrls: data.gcsUrls || { // All effect URLs
+          color: null,
+          blackwhite: null,
+          modern: null,
+          classic: null
+        },
+        artistNote: data.artistNote || '', // Custom instructions (per-pet, applies to all effects)
         timestamp: Date.now()
       };
 
@@ -214,16 +212,23 @@ export class StorageManager {
   /**
    * Update global window.perkiePets for Shopify cart integration
    * CRITICAL: This is what Shopify reads when adding to cart
+   *
+   * Format: All GCS URLs available, customer will select one via pet-selector
    */
   updateGlobalPets() {
     const allPets = this.getAll();
     window.perkiePets = {
       pets: Object.values(allPets).map(pet => ({
         sessionKey: pet.petId,
-        gcsUrl: pet.gcsUrl,
-        effect: pet.effect,
-        thumbnail: pet.thumbnail,
-        name: pet.name
+        petName: pet.name,
+        currentEffect: pet.currentEffect || 'color', // Currently viewing
+        gcsUrls: pet.gcsUrls || { // All available effect URLs
+          color: null,
+          blackwhite: null,
+          modern: null,
+          classic: null
+        },
+        artistNote: pet.artistNote || '' // Custom instructions
       }))
     };
   }
