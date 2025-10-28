@@ -6,7 +6,19 @@
 
 export class APIClient {
   constructor() {
-    this.baseUrl = 'https://inspirenet-bg-removal-api-725543555429.us-central1.run.app';
+    // ============================================================
+    // API URL CONFIGURATION
+    // ============================================================
+    // STAGING: Style consolidation testing (gen-lang-client-0601138686)
+    // - Handles: color, enhancedblackwhite only
+    // - Removed: popart, halftone, 8bit effects
+    // - GPU enabled with CUDA support
+    this.baseUrl = 'https://inspirenet-bg-removal-api-gemini-753651513695.us-central1.run.app';
+
+    // PRODUCTION (switch back if staging has issues):
+    // this.baseUrl = 'https://inspirenet-bg-removal-api-725543555429.us-central1.run.app';
+    // ============================================================
+
     this.cache = new Map();
     this.pending = new Map();
     this.maxRetries = 2;
