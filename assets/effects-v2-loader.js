@@ -341,9 +341,9 @@
         await storageManager.save(sessionKey, {
           name: file.name.replace(/\.[^/.]+$/, ''), // Remove extension
           filename: file.name,
-          thumbnail: effects.color, // Use color as thumbnail
+          thumbnail: effects.color, // Use color as thumbnail (will be compressed to ~42KB)
           effect: 'color', // Default selection
-          effects: effects,
+          // effects object removed - not needed in localStorage (already in container.dataset.effects)
           timestamp: Date.now()
         });
       }
