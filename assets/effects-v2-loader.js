@@ -426,7 +426,6 @@
       setTimeout(() => {
         showResult(container, sectionId, {
           sessionKey,
-          gcsUrl, // Pass GCS URL to result view
           effects,
           currentEffect: 'color'
         });
