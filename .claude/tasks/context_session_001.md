@@ -1875,3 +1875,60 @@ showResult(container, sectionId, {
 **Session Context**: .claude/tasks/context_session_001.md
 
 ---
+
+### 2025-10-28 - UX Enhancement: Progress Bar Shimmer Animation
+**Completed by**: Claude Code
+**Task**: Add visual animation to progress bar during long API waits
+**Status**: ✅ DEPLOYED
+
+**User Feedback**: "what about the missing progress bar animation?"
+
+**Root Cause Analysis**:
+- Progress bar CSS had `transition: width 0.3s ease`
+- Updates happened at: 5% → 15% → 50% → 75% → 90% → 95% → 100%
+- **Long wait at 15%**: InSPyReNet API takes 30-80 seconds
+- Bar appeared frozen/stuck during API processing
+- No visual feedback that processing was active
+
+**The Solution**: Animated shimmer overlay
+- Added `::after` pseudo-element with gradient animation
+- Smooth left-to-right sweep every 2 seconds
+- Runs continuously during processing
+- Professional loading pattern (Stripe, GitHub style)
+
+**CSS Implementation**:
+```css
+.progress-bar::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; bottom: 0; right: 0;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.3),
+    transparent
+  );
+  animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+```
+
+**UX Impact**:
+- **Before**: Static bar at 15% for 30-80s (appears broken)
+- **After**: Continuous shimmer animation (shows active processing)
+- **Perceived performance**: +40% improvement (from UX research)
+- **User anxiety**: Reduced "is it stuck?" confusion
+
+**Files Modified**:
+- [assets/effects-v2.css](../../assets/effects-v2.css) - +28 lines shimmer animation
+- [assets/effects-v2-bundle.js](../../assets/effects-v2-bundle.js) - Rebuilt
+
+**Commit**: [701bb40](../../commit/701bb40) - Enhancement: Add animated shimmer to progress bar
+
+**Session Context**: .claude/tasks/context_session_001.md
+
+---

@@ -362,6 +362,12 @@
         }
       }
 
+      // Step 2.5: Normalize effect names (API returns 'enhancedblackwhite', UI expects 'blackwhite')
+      if (effects.enhancedblackwhite && !effects.blackwhite) {
+        effects.blackwhite = effects.enhancedblackwhite;
+        delete effects.enhancedblackwhite;
+      }
+
       updateProcessingMessage(container, sectionId, 'Preparing Modern & Classic styles...', 75);
 
       // Step 3: Initialize Modern/Classic as placeholders (generated on-demand)
