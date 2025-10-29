@@ -2392,3 +2392,201 @@ img = ImageOps.exif_transpose(img)  # Auto-rotate based on EXIF
 **Session Context**: .claude/tasks/context_session_001.md
 
 ---
+
+---
+
+### 2025-10-29 - Effects V2 Production Failures: Root Cause Analysis Complete
+**Completed by**: Debug Specialist
+**Task**: Analyze 7 production failures after Effects V2 deployment, identify root causes
+**Status**: ANALYSIS COMPLETE - 4 root causes identified with implementation plan
+
+**User Report**: Multiple critical failures on perkieprints.com:
+1. ✅ FIXED: "Original" renamed to "Color" 
+2. ✅ FIXED: B&W default selection
+3. ✅ FIXED: Gemini endpoint corrected
+4. ❌ CRITICAL: Gemini 500 error + CORS blocked
+5. ❌ HIGH: Color GCS URL null (only B&W uploaded)
+6. ❌ MEDIUM: Image rotation not corrected
+7. ❌ LOW: Progress bar animation not visible
+
+## Root Causes Identified
+
+### Root Cause #1: Gemini API Contract Mismatch (CRITICAL)
+**Problem**: Frontend sends FormData with binary blob, Backend expects JSON with base64
+**Impact**: Modern/Classic effects completely non-functional
+
+**Technical Details**:
+- **Backend Expects** (FastAPI Pydantic):
+  ```python
+  class GenerateRequest(BaseModel):
+      image_data: str  # Base64 encoded string
+      style: ArtisticStyle
+  ```
+- **Frontend Sends** (FormData):
+  ```javascript
+  formData.append('image', imageBlob, 'pet.png');  // Binary blob
+  ```
+- **Error Flow**: Pydantic validation fails → 422/500 error
+- **CORS Working**: Verified with curl, headers present
+- **500 Error Root**: Request format mismatch, not CORS
+
+**Fix Required** (assets/gemini-artistic-client.js):
+```javascript
+// Convert blob to base64 data URL
+const base64Data = await blobToBase64(imageBlob);
+
+// Send JSON instead of FormData
+const result = await this.request('/api/v1/generate', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    image_data: base64Data,
+    style: geminiStyle,
+    session_id: `perkie_${Date.now()}`
+  })
+});
+```
+
+**Time**: 1-2 hours
+
+---
+
+### Root Cause #2: Color Effect Name Not Normalized (HIGH)
+**Problem**: InSPyReNet API returns `originalcolor`, frontend expects `color`
+**Impact**: Color button non-functional, GCS upload skipped, cart broken
+
+**Technical Details**:
+- **Code Check**: `if (effects.color)` → false (undefined)
+- **Upload Skipped**: Upload promise never added to array
+- **GCS URL Null**: `gcsUrls.color = null` (never set)
+- **B&W Works**: Has normalization `enhancedblackwhite` → `blackwhite`
+- **Color Missing**: No normalization for color variants
+
+**Console Evidence**:
+```javascript
+✅ GCS URLs obtained: {
+  color: null,  // ❌ Upload never attempted
+  blackwhite: 'https://storage.googleapis.com/.../processed_blackwhite.jpg'
+}
+```
+
+**Fix Required** (assets/effects-v2-loader.js lines 365-375):
+```javascript
+// Add color effect normalization
+if (!effects.color) {
+  const colorVariants = [
+    'originalcolor',
+    'color_with_background_removed',
+    'original',
+    'color_original'
+  ];
+  
+  for (const variant of colorVariants) {
+    if (effects[variant]) {
+      effects.color = effects[variant];
+      delete effects[variant];
+      break;
+    }
+  }
+}
+
+console.log('🎨 Effects after normalization:', Object.keys(effects));
+```
+
+**Time**: 30 minutes
+
+---
+
+### Root Cause #3: EXIF Orientation Status Unknown (MEDIUM)
+**Problem**: Portrait images rotated 90 degrees after processing
+**Impact**: Poor UX, user confusion
+
+**Technical Details**:
+- **Recent Deployment**: EXIF fix deployed Oct 28 (Build: 20187bb1)
+- **Deployment Status**: UNKNOWN (permission denied to check)
+- **Possible Causes**:
+  1. Deployment still in progress / failed
+  2. EXIF transpose applied but lost during processing
+  3. Code deployed but not active revision
+
+**Investigation Required**:
+```bash
+# Check build status
+gcloud builds describe 20187bb1-63ba-4ce5-b76d-819ee7d9f8a3
+
+# Check active revision
+gcloud run services describe inspirenet-bg-removal-api-gemini \
+  --region=us-central1 \
+  --format='value(status.latestReadyRevisionName)'
+
+# Test with portrait image
+curl -X POST <API_URL>/api/v2/process-with-effects \
+  -F "file=@portrait.jpg" -F "effects=color" -o output.jpg
+```
+
+**If Deployment Failed**: Re-deploy with `./scripts/deploy-to-nanobanana.sh`
+
+**Time**: 1 hour (including verification)
+
+---
+
+### Root Cause #4: Progress Bar CSS Cache / Visibility (LOW)
+**Problem**: Shimmer animation not visible to user
+**Impact**: Cosmetic only, no functional impact
+
+**Technical Details**:
+- **Code Deployed**: CSS animation in effects-v2-loader.js
+- **Possible Causes**:
+  1. Browser cache (needs hard refresh)
+  2. CSS specificity conflict
+  3. Animation too subtle (white on light background)
+  4. Browser compatibility issue
+
+**Verification Steps**:
+1. Hard refresh: Ctrl+Shift+R
+2. DevTools → Elements → Inspect `.ev2-progress-bar::after`
+3. Check if `animation: ev2-shimmer 1.5s infinite` applied
+
+**Time**: 15 minutes
+
+---
+
+## Implementation Plan Created
+
+**Documentation**: [.claude/doc/effects-v2-production-failures-root-cause-analysis.md](.claude/doc/effects-v2-production-failures-root-cause-analysis.md)
+
+**Priority Phases**:
+1. **Phase 1 (CRITICAL)**: Gemini request format + color normalization (1.5-2.5 hours)
+2. **Phase 2 (HIGH)**: EXIF orientation verification (1 hour)
+3. **Phase 3 (LOW)**: Progress bar animation (15 minutes)
+
+**Deployment Sequence**:
+1. Frontend fixes → Push to staging → Auto-deploy Shopify (~2 mins)
+2. Backend fix (if needed) → Deploy InSPyReNet API (~5 mins)
+3. Verification tests → Full upload flow on perkieprints.com
+
+**Success Criteria**:
+- ✅ Modern/Classic buttons generate artistic images (no 500 error)
+- ✅ Color button displays color image
+- ✅ GCS URLs complete: `{ color: 'https://...', blackwhite: 'https://...' }`
+- ✅ Portrait images display upright (not rotated)
+- ✅ Progress bar shows shimmer animation
+
+**Estimated Total Time**: 4-5 hours (Phases 1-2)
+
+**Key Technical Findings**:
+1. **CORS is NOT the problem** - Verified working with curl
+2. **API contract mismatch** - FormData vs JSON (root cause #1)
+3. **Effect name inconsistency** - No color normalization (root cause #2)
+4. **Deployment unclear** - Cannot verify EXIF fix status (root cause #3)
+5. **Testing gaps** - Issues found in production, not caught in testing
+
+**Next Actions**:
+- [ ] Implement Phase 1 fixes (Gemini + color normalization)
+- [ ] Deploy to staging → Test → Deploy to production
+- [ ] Verify EXIF deployment status (Phase 2)
+- [ ] Run full integration tests
+- [ ] Add deployment verification checklist
+
+**Session Context**: .claude/tasks/context_session_001.md
+

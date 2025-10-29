@@ -334,7 +334,7 @@
 
       const formData = new FormData();
       formData.append('file', file);
-      formData.append('effects', 'color,blackwhite');
+      formData.append('effects', 'color,enhancedblackwhite'); // API expects enhancedblackwhite, we normalize to blackwhite later
       formData.append('session_id', `perkie_${Date.now()}`);
 
       updateProcessingMessage(container, sectionId, 'Removing background...', 15);
