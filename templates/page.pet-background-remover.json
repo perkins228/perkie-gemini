@@ -42,7 +42,7 @@
         "heading": "Preview Your Perkie Print",
         "subheading": "Don’t worry—this is just a mockup! You can leave a note for our artist to make sure your Perkie Print is a true work of art.",
         "api_url": "https://inspirenet-bg-removal-api-gemini-753651513695.us-central1.run.app",
-        "gemini_api_url": "https://gemini-artistic-api-3km6z2qpyq-uc.a.run.app",
+        "gemini_api_url": "https://gemini-artistic-api-753651513695.us-central1.run.app",
         "enable_modern_style": true,
         "enable_classic_style": true,
         "enable_sharing": true,
