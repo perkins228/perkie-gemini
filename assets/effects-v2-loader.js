@@ -693,7 +693,24 @@
 
       // Call Gemini API
       const { geminiClient } = window.EffectsV2;
-      const styledBlob = await geminiClient.applyStyle(blob, effectName);
+      const styledResponse = await geminiClient.applyStyle(blob, effectName);
+
+      // CRITICAL: Validate response type and convert to Blob if needed
+      let styledBlob;
+      if (styledResponse instanceof Blob) {
+        styledBlob = styledResponse;
+      } else if (typeof styledResponse === 'string') {
+        // Response is data URL or base64, convert to Blob
+        const response = await fetch(styledResponse);
+        styledBlob = await response.blob();
+      } else {
+        throw new Error(`Invalid response from Gemini API: ${typeof styledResponse}`);
+      }
+
+      // Validate blob before FileReader
+      if (!styledBlob || !(styledBlob instanceof Blob)) {
+        throw new Error('Failed to get valid Blob from Gemini API');
+      }
 
       // Convert to data URL for display and storage
       const reader = new FileReader();
