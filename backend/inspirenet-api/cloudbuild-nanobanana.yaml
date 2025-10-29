@@ -41,16 +41,8 @@ steps:
       - '--region=us-central1'
     timeout: '600s'  # 10 minutes for deployment
 
-  # Step 4: Wait for deployment to be ready
-  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
-    entrypoint: gcloud
-    args:
-      - 'run'
-      - 'services'
-      - 'wait'
-      - 'inspirenet-bg-removal-api-gemini'
-      - '--region=us-central1'
-    timeout: '300s'
+  # Note: Removed Step 4 'gcloud run services wait' - command doesn't exist in current SDK
+  # Step 3 'services replace' already waits for deployment to complete
 
 options:
   # Use high-CPU machine for faster builds
