@@ -1,10 +1,12 @@
 """FastAPI application for Gemini Artistic API"""
-from fastapi import FastAPI, HTTPException, Request
+from fastapi import FastAPI, HTTPException, Request, File, Form, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from typing import Optional
 import logging
 import time
 import asyncio
+import base64
 from datetime import datetime
 
 from src.config import settings
@@ -94,7 +96,13 @@ async def check_quota(
 
 
 @app.post("/api/v1/generate", response_model=GenerateResponse)
-async def generate_artistic_style(request: Request, req: GenerateRequest):
+async def generate_artistic_style(
+    request: Request,
+    image: UploadFile = File(..., description="Image file to process"),
+    style: str = Form(..., description="Artistic style: ink_wash or van_gogh_post_impressionism"),
+    customer_id: Optional[str] = Form(None, description="Customer ID for rate limiting"),
+    session_id: Optional[str] = Form(None, description="Session ID for anonymous users")
+):
     """
     Generate artistic style with headshot framing
 
@@ -108,11 +116,25 @@ async def generate_artistic_style(request: Request, req: GenerateRequest):
     7. Consume quota (only after successful generation)
     """
     try:
+        # 0. Read uploaded file and convert to base64 (FormData → base64)
+        image_bytes = await image.read()
+        image_data = base64.b64encode(image_bytes).decode('utf-8')
+        image_data = f"data:image/png;base64,{image_data}"  # Add data URL prefix
+
+        # Validate style parameter
+        try:
+            style_enum = ArtisticStyle(style)
+        except ValueError:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Invalid style: {style}. Must be 'ink_wash' or 'van_gogh_post_impressionism'"
+            )
+
         # 1. Extract identifiers for rate limiting
         client_ip = request.client.host
         identifiers = {
-            "customer_id": req.customer_id,
-            "session_id": req.session_id,
+            "customer_id": customer_id,
+            "session_id": session_id,
             "ip_address": client_ip
         }
 
@@ -126,27 +148,27 @@ async def generate_artistic_style(request: Request, req: GenerateRequest):
 
         # 3. Store original image (returns hash for deduplication)
         original_url, original_hash = await storage_manager.store_original_image(
-            image_data=req.image_data,
-            customer_id=req.customer_id,
-            session_id=req.session_id
+            image_data=image_data,
+            customer_id=customer_id,
+            session_id=session_id
         )
 
         # 4. Check cache - already generated this image + style?
         cached_url = await storage_manager.get_cached_generation(
             image_hash=original_hash,
-            style=req.style.value,
-            customer_id=req.customer_id,
-            session_id=req.session_id
+            style=style_enum.value,
+            customer_id=customer_id,
+            session_id=session_id
         )
 
         if cached_url:
             # Cache hit! Return instantly without consuming quota
-            logger.info(f"Cache hit for {original_hash}_{req.style.value}")
+            logger.info(f"Cache hit for {original_hash}_{style_enum.value}")
             return GenerateResponse(
                 success=True,
                 image_url=cached_url,
                 original_url=original_url,
-                style=req.style.value,
+                style=style_enum.value,
                 cache_hit=True,
                 quota_remaining=quota_before.remaining,
                 quota_limit=quota_before.limit,
@@ -156,30 +178,30 @@ async def generate_artistic_style(request: Request, req: GenerateRequest):
         # 5. Cache miss - generate with Gemini
         start_time = time.time()
         generated_image, processing_time = await gemini_client.generate_artistic_style(
-            image_data=req.image_data,
-            style=req.style
+            image_data=image_data,
+            style=style_enum
         )
 
         # 6. Store generated image
         generated_url = await storage_manager.store_generated_image(
             image_data=generated_image,
             original_hash=original_hash,
-            style=req.style.value,
-            customer_id=req.customer_id,
-            session_id=req.session_id
+            style=style_enum.value,
+            customer_id=customer_id,
+            session_id=session_id
         )
 
         # 7. Consume quota AFTER successful generation
         quota_after = await rate_limiter.consume_quota(
             **identifiers,
-            style=req.style.value
+            style=style_enum.value
         )
 
         return GenerateResponse(
             success=True,
             image_url=generated_url,
             original_url=original_url,
-            style=req.style.value,
+            style=style_enum.value,
             cache_hit=False,
             quota_remaining=quota_after.remaining,
             quota_limit=quota_after.limit,
