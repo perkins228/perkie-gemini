@@ -387,15 +387,39 @@
       updateProcessingMessage(container, sectionId, 'Processing effects...', 50);
 
       const data = await apiResponse.json();
+      console.log('🔍 DEBUG: API Response Structure:', {
+        success: data.success,
+        effectKeys: data.effects ? Object.keys(data.effects) : 'NO EFFECTS KEY',
+        effectsSummary: data.effects ? Object.fromEntries(
+          Object.entries(data.effects).map(([k, v]) => [k, v ? `${typeof v} (${String(v).substring(0, 50)}...)` : 'NULL'])
+        ) : 'NO EFFECTS',
+        backgroundRemoved: !!data.background_removed,
+        error: data.error
+      });
 
       // Step 2: Convert InSPyReNet effects from base64 to URLs
       const effects = {};
 
       if (data.effects) {
         for (const [effectName, base64Data] of Object.entries(data.effects)) {
-          const dataUrl = `data:image/png;base64,${base64Data}`;
-          effects[effectName] = dataUrl;
+          console.log(`🔍 DEBUG: Processing effect '${effectName}':`, {
+            hasData: !!base64Data,
+            dataType: typeof base64Data,
+            dataLength: base64Data ? base64Data.length : 0,
+            firstChars: base64Data ? base64Data.substring(0, 50) : 'NULL'
+          });
+
+          if (base64Data && typeof base64Data === 'string') {
+            const dataUrl = `data:image/png;base64,${base64Data}`;
+            effects[effectName] = dataUrl;
+            console.log(`✅ Effect '${effectName}' converted to data URL (${dataUrl.length} chars)`);
+          } else {
+            effects[effectName] = null;
+            console.warn(`❌ Effect '${effectName}' is NULL or invalid type: ${typeof base64Data}`);
+          }
         }
+      } else {
+        console.error('❌ API response missing effects key!', data);
       }
 
       // Step 2.5: Normalize effect names (API returns 'enhancedblackwhite', UI expects 'blackwhite')
