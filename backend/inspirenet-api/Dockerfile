@@ -40,6 +40,10 @@ RUN pip install --no-cache-dir torch torchvision --index-url https://download.py
 # Install all remaining dependencies from requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt
 
+# Cache bust to force rebuild of source code layers
+ARG CACHEBUST=1
+RUN echo "Cache bust: ${CACHEBUST}"
+
 # Copy application code
 COPY src/ ./src/
 

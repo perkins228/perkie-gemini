@@ -2,27 +2,32 @@
 # Builds and deploys to gen-lang-client-0601138686
 
 steps:
-  # Step 1: Build the Docker image (NO CACHE - forces fresh build)
+  # Step 1: Build the Docker image (NO CACHE - forces fresh build with CACHEBUST)
   - name: 'gcr.io/cloud-builders/docker'
     args:
       - 'build'
       - '-f'
       - 'Dockerfile'
       - '-t'
-      - 'us-central1-docker.pkg.dev/$PROJECT_ID/inspirenet-api/inspirenet-bg-removal-api:color-fix-v2'
+      - 'us-central1-docker.pkg.dev/$PROJECT_ID/inspirenet-api/inspirenet-bg-removal-api:color-fix-v3'
       - '-t'
       - 'us-central1-docker.pkg.dev/$PROJECT_ID/inspirenet-api/inspirenet-bg-removal-api:latest'
       - '--no-cache'
+      - '--pull'
+      - '--build-arg'
+      - 'CACHEBUST=$$TIMESTAMP'
       - '--platform'
       - 'linux/amd64'
       - '.'
     timeout: '1800s'  # 30 minutes for clean build
+    env:
+      - 'TIMESTAMP=$(date +%s)'
 
   # Step 2: Push both tags to registry
   - name: 'gcr.io/cloud-builders/docker'
     args:
       - 'push'
-      - 'us-central1-docker.pkg.dev/$PROJECT_ID/inspirenet-api/inspirenet-bg-removal-api:color-fix-v2'
+      - 'us-central1-docker.pkg.dev/$PROJECT_ID/inspirenet-api/inspirenet-bg-removal-api:color-fix-v3'
 
   - name: 'gcr.io/cloud-builders/docker'
     args:
@@ -55,13 +60,13 @@ options:
 
 # Images to be pushed to registry
 images:
-  - 'us-central1-docker.pkg.dev/$PROJECT_ID/inspirenet-api/inspirenet-bg-removal-api:color-fix-v2'
+  - 'us-central1-docker.pkg.dev/$PROJECT_ID/inspirenet-api/inspirenet-bg-removal-api:color-fix-v3'
   - 'us-central1-docker.pkg.dev/$PROJECT_ID/inspirenet-api/inspirenet-bg-removal-api:latest'
 
 # Tags for build tracking
 tags:
   - 'inspirenet-api'
-  - 'color-fix-v2'
+  - 'color-fix-v3'
   - 'gemini-project'
 
 # Overall build timeout
