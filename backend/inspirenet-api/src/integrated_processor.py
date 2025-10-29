@@ -253,11 +253,20 @@ class IntegratedProcessor:
             try:
                 effect_params_for_effect = effect_params.get(effect_name, {})
                 logger.info(f"Processing effect '{effect_name}' with params: {effect_params_for_effect}")
-                
+
+                # CRITICAL DEBUG: Log input image details BEFORE processing
+                logger.info(f"🔍 DEBUG BEFORE '{effect_name}': bg_removed_cv shape={bg_removed_cv.shape}, dtype={bg_removed_cv.dtype}, contiguous={bg_removed_cv.flags['C_CONTIGUOUS']}")
+
                 effect_result = self.effects_processor.process_single_effect(
                     bg_removed_cv, effect_name, **effect_params_for_effect
                 )
-                
+
+                # CRITICAL DEBUG: Log result details AFTER processing
+                if effect_result is None:
+                    logger.error(f"🔍 DEBUG AFTER '{effect_name}': result is None! Check effects_processor logs for exception.")
+                else:
+                    logger.info(f"🔍 DEBUG AFTER '{effect_name}': result shape={effect_result.shape}, dtype={effect_result.dtype}, contiguous={effect_result.flags['C_CONTIGUOUS']}")
+
                 # Validate effect result
                 if effect_result is None:
                     logger.error(f"Effect '{effect_name}' returned None - processing failed")
