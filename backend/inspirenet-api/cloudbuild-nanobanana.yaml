@@ -2,32 +2,28 @@
 # Builds and deploys to gen-lang-client-0601138686
 
 steps:
-  # Step 1: Build the Docker image (NO CACHE - forces fresh build with CACHEBUST)
+  # Step 1: Build the Docker image
   - name: 'gcr.io/cloud-builders/docker'
     args:
       - 'build'
       - '-f'
       - 'Dockerfile'
       - '-t'
-      - 'us-central1-docker.pkg.dev/$PROJECT_ID/inspirenet-api/inspirenet-bg-removal-api:color-fix-v3'
+      - 'us-central1-docker.pkg.dev/$PROJECT_ID/inspirenet-api/inspirenet-bg-removal-api:style-consolidation'
       - '-t'
       - 'us-central1-docker.pkg.dev/$PROJECT_ID/inspirenet-api/inspirenet-bg-removal-api:latest'
-      - '--no-cache'
-      - '--pull'
       - '--build-arg'
-      - 'CACHEBUST=$$TIMESTAMP'
+      - 'BUILDKIT_INLINE_CACHE=1'
       - '--platform'
       - 'linux/amd64'
       - '.'
-    timeout: '1800s'  # 30 minutes for clean build
-    env:
-      - 'TIMESTAMP=$(date +%s)'
+    timeout: '1200s'  # 20 minutes for build
 
   # Step 2: Push both tags to registry
   - name: 'gcr.io/cloud-builders/docker'
     args:
       - 'push'
-      - 'us-central1-docker.pkg.dev/$PROJECT_ID/inspirenet-api/inspirenet-bg-removal-api:color-fix-v3'
+      - 'us-central1-docker.pkg.dev/$PROJECT_ID/inspirenet-api/inspirenet-bg-removal-api:style-consolidation'
 
   - name: 'gcr.io/cloud-builders/docker'
     args:
@@ -45,8 +41,16 @@ steps:
       - '--region=us-central1'
     timeout: '600s'  # 10 minutes for deployment
 
-  # Note: Removed Step 4 'gcloud run services wait' - command doesn't exist in current SDK
-  # Step 3 'services replace' already waits for deployment to complete
+  # Step 4: Wait for deployment to be ready
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: gcloud
+    args:
+      - 'run'
+      - 'services'
+      - 'wait'
+      - 'inspirenet-bg-removal-api-gemini'
+      - '--region=us-central1'
+    timeout: '300s'
 
 options:
   # Use high-CPU machine for faster builds
@@ -60,13 +64,13 @@ options:
 
 # Images to be pushed to registry
 images:
-  - 'us-central1-docker.pkg.dev/$PROJECT_ID/inspirenet-api/inspirenet-bg-removal-api:color-fix-v3'
+  - 'us-central1-docker.pkg.dev/$PROJECT_ID/inspirenet-api/inspirenet-bg-removal-api:style-consolidation'
   - 'us-central1-docker.pkg.dev/$PROJECT_ID/inspirenet-api/inspirenet-bg-removal-api:latest'
 
 # Tags for build tracking
 tags:
   - 'inspirenet-api'
-  - 'color-fix-v3'
+  - 'style-consolidation'
   - 'gemini-project'
 
 # Overall build timeout

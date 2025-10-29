@@ -122,14 +122,8 @@ class EffectsProcessor:
             
             if effect_name == 'color':
                 # Color effect - return original (no processing)
-                # Use np.ascontiguousarray to ensure proper memory layout for cv2.cvtColor
-                try:
-                    result = np.ascontiguousarray(image, dtype=image.dtype)
-                    logger.debug(f"Color effect completed - returned C-contiguous copy of original image (shape={result.shape}, dtype={result.dtype})")
-                except Exception as color_err:
-                    logger.error(f"Color effect np.ascontiguousarray FAILED: {type(color_err).__name__}: {color_err}")
-                    logger.error(f"  Input image: shape={getattr(image, 'shape', 'NO SHAPE')}, dtype={getattr(image, 'dtype', 'NO DTYPE')}, type={type(image)}")
-                    raise
+                result = image.copy()
+                logger.debug(f"Color effect completed - returned copy of original image")
             else:
                 effect_instance = self.effects.get(effect_name)
                 if not effect_instance:

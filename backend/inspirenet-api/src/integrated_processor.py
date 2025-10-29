@@ -215,17 +215,11 @@ class IntegratedProcessor:
         if bg_removed_array.shape[2] == 4:  # RGBA
             # Convert to BGR + alpha for OpenCV compatibility
             bgr_image = cv2.cvtColor(bg_removed_array[:, :, :3], cv2.COLOR_RGB2BGR)
-            # CRITICAL FIX: Make each component contiguous BEFORE dstack
-            # This prevents non-contiguous memory issues that cause Color effect to fail
-            bgr_image = np.ascontiguousarray(bgr_image)
             alpha_channel = bg_removed_array[:, :, 3]
-            alpha_channel = np.ascontiguousarray(alpha_channel)
-            # Reconstruct BGRA from contiguous components
+            # Reconstruct BGRA
             bg_removed_cv = np.dstack([bgr_image, alpha_channel])
-            logger.info(f"🔧 BGRA reconstruction: shape={bg_removed_cv.shape}, contiguous={bg_removed_cv.flags['C_CONTIGUOUS']}")
         else:  # RGB
             bg_removed_cv = cv2.cvtColor(bg_removed_array, cv2.COLOR_RGB2BGR)
-            bg_removed_cv = np.ascontiguousarray(bg_removed_cv)
         
         # Process each effect
         for i, effect_name in enumerate(effects):
@@ -257,20 +251,11 @@ class IntegratedProcessor:
             try:
                 effect_params_for_effect = effect_params.get(effect_name, {})
                 logger.info(f"Processing effect '{effect_name}' with params: {effect_params_for_effect}")
-
-                # CRITICAL DEBUG: Log input image details BEFORE processing
-                logger.info(f"🔍 DEBUG BEFORE '{effect_name}': bg_removed_cv shape={bg_removed_cv.shape}, dtype={bg_removed_cv.dtype}, contiguous={bg_removed_cv.flags['C_CONTIGUOUS']}")
-
+                
                 effect_result = self.effects_processor.process_single_effect(
                     bg_removed_cv, effect_name, **effect_params_for_effect
                 )
-
-                # CRITICAL DEBUG: Log result details AFTER processing
-                if effect_result is None:
-                    logger.error(f"🔍 DEBUG AFTER '{effect_name}': result is None! Check effects_processor logs for exception.")
-                else:
-                    logger.info(f"🔍 DEBUG AFTER '{effect_name}': result shape={effect_result.shape}, dtype={effect_result.dtype}, contiguous={effect_result.flags['C_CONTIGUOUS']}")
-
+                
                 # Validate effect result
                 if effect_result is None:
                     logger.error(f"Effect '{effect_name}' returned None - processing failed")
@@ -435,26 +420,16 @@ class IntegratedProcessor:
         bg_removed_array = np.array(bg_removed_image)
         if bg_removed_array.shape[2] == 4:  # RGBA
             bgr_image = cv2.cvtColor(bg_removed_array[:, :, :3], cv2.COLOR_RGB2BGR)
-            # CRITICAL FIX: Make each component contiguous BEFORE dstack
-            bgr_image = np.ascontiguousarray(bgr_image)
             alpha_channel = bg_removed_array[:, :, 3]
-            alpha_channel = np.ascontiguousarray(alpha_channel)
-            # Reconstruct BGRA from contiguous components
             bg_removed_cv = np.dstack([bgr_image, alpha_channel])
         else:  # RGB
             bg_removed_cv = cv2.cvtColor(bg_removed_array, cv2.COLOR_RGB2BGR)
-            bg_removed_cv = np.ascontiguousarray(bg_removed_cv)
         
         # Apply effect
         effect_result = self.effects_processor.process_single_effect(
             bg_removed_cv, effect_name, **effect_params
         )
-
-        # CRITICAL: Check if effect processing failed
-        if effect_result is None:
-            logger.error(f"Effect '{effect_name}' processing returned None")
-            raise ValueError(f"Effect '{effect_name}' processing failed - returned None")
-
+        
         # Convert result to bytes - PRESERVE ALPHA CHANNEL
         if effect_result.shape[2] == 4:  # BGRA format
             # Convert BGRA to RGBA for PIL
