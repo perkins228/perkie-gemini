@@ -19,10 +19,21 @@ This is the Perkie Prints Shopify theme repository - a custom e-commerce platfor
 - **Progressive Loading**: ES5-compatible implementation with fallback support
 
 ### Backend (AI API)
+
+**⚠️ CRITICAL: NEVER DEPLOY TO perkieprints-processing PROJECT**
+This repository ONLY deploys to **gen-lang-client-0601138686** (staging/testing environment).
+- ❌ **NEVER touch**: perkieprints-processing (production - managed separately)
+- ✅ **ONLY deploy to**: gen-lang-client-0601138686 (project number: 753651513695)
+- Production URL `https://inspirenet-bg-removal-api-725543555429.us-central1.run.app` is OFF-LIMITS
+
+**Development/Testing API (THIS REPO)**:
+- **Project**: gen-lang-client-0601138686 (project number: 753651513695)
 - **Service**: InSPyReNet Background Removal API in `backend/inspirenet-api/`
+- **URL**: `https://inspirenet-bg-removal-api-gemini-753651513695.us-central1.run.app`
 - **Technology**: FastAPI + PyTorch + InSPyReNet model
 - **Deployment**: Google Cloud Run with NVIDIA L4 GPU
 - **Performance**: 11s first request, 3s subsequent (with caching)
+- **Deploy Script**: `./scripts/deploy-to-nanobanana.sh` (ONLY touches gen-lang-client-0601138686)
 
 ## 🔧 Development & Deployment
 

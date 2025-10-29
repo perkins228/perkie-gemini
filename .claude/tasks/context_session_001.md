@@ -4,9 +4,31 @@
 
 ---
 
+## ⚠️ CRITICAL RULE: PROJECT SCOPE
+
+**THIS REPOSITORY ONLY WORKS IN**: `gen-lang-client-0601138686` (project number: 753651513695)
+
+**NEVER TOUCH**:
+- ❌ perkieprints-processing project
+- ❌ URL: https://inspirenet-bg-removal-api-725543555429.us-central1.run.app
+- ❌ Any service named just "inspirenet-bg-removal-api" (without "-gemini" suffix)
+
+**ONLY DEPLOY TO**:
+- ✅ gen-lang-client-0601138686 project
+- ✅ URL: https://inspirenet-bg-removal-api-gemini-753651513695.us-central1.run.app
+- ✅ Service: inspirenet-bg-removal-api-gemini (note the "-gemini" suffix)
+- ✅ Script: ./scripts/deploy-to-nanobanana.sh
+
+**Rollback Incident (2025-10-29 20:00 UTC)**:
+- Accidental deployment to perkieprints-processing at 18:58 UTC (revision 00100-ndr)
+- Successfully rolled back to revision 00114-das (Oct 20) at 20:00 UTC
+- Production service restored to working state
+
+---
+
 ## System Architecture
 
-### Production APIs (gen-lang-client-0601138686 / Project 753651513695)
+### Development/Testing APIs (gen-lang-client-0601138686 / Project 753651513695)
 
 **InSPyReNet API** - Background Removal + B&W Effect
 - URL: `https://inspirenet-bg-removal-api-gemini-753651513695.us-central1.run.app`
