@@ -3,7 +3,7 @@ from google.cloud import storage
 import base64
 import hashlib
 import logging
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Optional, Tuple
 from src.config import settings
 
@@ -85,7 +85,7 @@ class StorageManager:
         blob.metadata = {
             'customer_id': customer_id or 'anonymous',
             'session_id': session_id or 'none',
-            'upload_date': datetime.utcnow().isoformat(),
+            'upload_date': datetime.now(timezone.utc).isoformat(),
             'content_type': 'image/jpeg'
         }
 
@@ -134,7 +134,7 @@ class StorageManager:
             'session_id': session_id or 'none',
             'style': style,
             'original_hash': original_hash,
-            'generated_date': datetime.utcnow().isoformat(),
+            'generated_date': datetime.now(timezone.utc).isoformat(),
             'content_type': 'image/jpeg'
         }
 

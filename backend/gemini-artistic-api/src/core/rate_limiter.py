@@ -1,6 +1,6 @@
 """Firestore-based rate limiting with atomic transactions"""
 from google.cloud import firestore
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 import logging
 from typing import Optional
 from src.config import settings
@@ -19,8 +19,8 @@ class RateLimiter:
         logger.info("Initialized Firestore rate limiter")
 
     def _get_reset_date(self) -> datetime:
-        """Get tomorrow at midnight UTC"""
-        tomorrow = datetime.utcnow() + timedelta(days=1)
+        """Get tomorrow at midnight UTC - timezone aware"""
+        tomorrow = datetime.now(timezone.utc) + timedelta(days=1)
         return tomorrow.replace(hour=0, minute=0, second=0, microsecond=0)
 
     async def check_rate_limit(

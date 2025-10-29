@@ -7,7 +7,7 @@ import logging
 import time
 import asyncio
 import base64
-from datetime import datetime
+from datetime import datetime, timezone
 
 from src.config import settings
 from src.models.schemas import (
@@ -65,7 +65,7 @@ async def health_check():
     return {
         "status": "healthy",
         "model": settings.gemini_model,
-        "timestamp": datetime.utcnow().isoformat()
+        "timestamp": datetime.now(timezone.utc).isoformat()
     }
 
 
