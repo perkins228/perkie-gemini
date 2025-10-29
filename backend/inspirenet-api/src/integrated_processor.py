@@ -218,6 +218,8 @@ class IntegratedProcessor:
             alpha_channel = bg_removed_array[:, :, 3]
             # Reconstruct BGRA
             bg_removed_cv = np.dstack([bgr_image, alpha_channel])
+            # CRITICAL: Ensure contiguous memory layout after dstack for cv2.cvtColor
+            bg_removed_cv = np.ascontiguousarray(bg_removed_cv)
         else:  # RGB
             bg_removed_cv = cv2.cvtColor(bg_removed_array, cv2.COLOR_RGB2BGR)
         
@@ -422,6 +424,8 @@ class IntegratedProcessor:
             bgr_image = cv2.cvtColor(bg_removed_array[:, :, :3], cv2.COLOR_RGB2BGR)
             alpha_channel = bg_removed_array[:, :, 3]
             bg_removed_cv = np.dstack([bgr_image, alpha_channel])
+            # CRITICAL: Ensure contiguous memory layout after dstack for cv2.cvtColor
+            bg_removed_cv = np.ascontiguousarray(bg_removed_cv)
         else:  # RGB
             bg_removed_cv = cv2.cvtColor(bg_removed_array, cv2.COLOR_RGB2BGR)
         
