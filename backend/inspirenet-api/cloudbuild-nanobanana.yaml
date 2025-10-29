@@ -2,28 +2,27 @@
 # Builds and deploys to gen-lang-client-0601138686
 
 steps:
-  # Step 1: Build the Docker image
+  # Step 1: Build the Docker image (NO CACHE - forces fresh build)
   - name: 'gcr.io/cloud-builders/docker'
     args:
       - 'build'
       - '-f'
       - 'Dockerfile'
       - '-t'
-      - 'us-central1-docker.pkg.dev/$PROJECT_ID/inspirenet-api/inspirenet-bg-removal-api:style-consolidation'
+      - 'us-central1-docker.pkg.dev/$PROJECT_ID/inspirenet-api/inspirenet-bg-removal-api:color-fix-v2'
       - '-t'
       - 'us-central1-docker.pkg.dev/$PROJECT_ID/inspirenet-api/inspirenet-bg-removal-api:latest'
-      - '--build-arg'
-      - 'BUILDKIT_INLINE_CACHE=1'
+      - '--no-cache'
       - '--platform'
       - 'linux/amd64'
       - '.'
-    timeout: '1200s'  # 20 minutes for build
+    timeout: '1800s'  # 30 minutes for clean build
 
   # Step 2: Push both tags to registry
   - name: 'gcr.io/cloud-builders/docker'
     args:
       - 'push'
-      - 'us-central1-docker.pkg.dev/$PROJECT_ID/inspirenet-api/inspirenet-bg-removal-api:style-consolidation'
+      - 'us-central1-docker.pkg.dev/$PROJECT_ID/inspirenet-api/inspirenet-bg-removal-api:color-fix-v2'
 
   - name: 'gcr.io/cloud-builders/docker'
     args:

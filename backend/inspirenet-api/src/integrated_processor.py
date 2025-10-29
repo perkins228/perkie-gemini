@@ -215,13 +215,17 @@ class IntegratedProcessor:
         if bg_removed_array.shape[2] == 4:  # RGBA
             # Convert to BGR + alpha for OpenCV compatibility
             bgr_image = cv2.cvtColor(bg_removed_array[:, :, :3], cv2.COLOR_RGB2BGR)
+            # CRITICAL FIX: Make each component contiguous BEFORE dstack
+            # This prevents non-contiguous memory issues that cause Color effect to fail
+            bgr_image = np.ascontiguousarray(bgr_image)
             alpha_channel = bg_removed_array[:, :, 3]
-            # Reconstruct BGRA
+            alpha_channel = np.ascontiguousarray(alpha_channel)
+            # Reconstruct BGRA from contiguous components
             bg_removed_cv = np.dstack([bgr_image, alpha_channel])
-            # CRITICAL: Ensure contiguous memory layout after dstack for cv2.cvtColor
-            bg_removed_cv = np.ascontiguousarray(bg_removed_cv)
+            logger.info(f"🔧 BGRA reconstruction: shape={bg_removed_cv.shape}, contiguous={bg_removed_cv.flags['C_CONTIGUOUS']}")
         else:  # RGB
             bg_removed_cv = cv2.cvtColor(bg_removed_array, cv2.COLOR_RGB2BGR)
+            bg_removed_cv = np.ascontiguousarray(bg_removed_cv)
         
         # Process each effect
         for i, effect_name in enumerate(effects):
@@ -431,12 +435,15 @@ class IntegratedProcessor:
         bg_removed_array = np.array(bg_removed_image)
         if bg_removed_array.shape[2] == 4:  # RGBA
             bgr_image = cv2.cvtColor(bg_removed_array[:, :, :3], cv2.COLOR_RGB2BGR)
+            # CRITICAL FIX: Make each component contiguous BEFORE dstack
+            bgr_image = np.ascontiguousarray(bgr_image)
             alpha_channel = bg_removed_array[:, :, 3]
+            alpha_channel = np.ascontiguousarray(alpha_channel)
+            # Reconstruct BGRA from contiguous components
             bg_removed_cv = np.dstack([bgr_image, alpha_channel])
-            # CRITICAL: Ensure contiguous memory layout after dstack for cv2.cvtColor
-            bg_removed_cv = np.ascontiguousarray(bg_removed_cv)
         else:  # RGB
             bg_removed_cv = cv2.cvtColor(bg_removed_array, cv2.COLOR_RGB2BGR)
+            bg_removed_cv = np.ascontiguousarray(bg_removed_cv)
         
         # Apply effect
         effect_result = self.effects_processor.process_single_effect(
