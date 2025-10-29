@@ -55,13 +55,13 @@ options:
 
 # Images to be pushed to registry
 images:
-  - 'us-central1-docker.pkg.dev/$PROJECT_ID/inspirenet-api/inspirenet-bg-removal-api:style-consolidation'
+  - 'us-central1-docker.pkg.dev/$PROJECT_ID/inspirenet-api/inspirenet-bg-removal-api:color-fix-v2'
   - 'us-central1-docker.pkg.dev/$PROJECT_ID/inspirenet-api/inspirenet-bg-removal-api:latest'
 
 # Tags for build tracking
 tags:
   - 'inspirenet-api'
-  - 'style-consolidation'
+  - 'color-fix-v2'
   - 'gemini-project'
 
 # Overall build timeout

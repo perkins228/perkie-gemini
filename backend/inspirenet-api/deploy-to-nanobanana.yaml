@@ -45,7 +45,7 @@ spec:
 
     spec:
       containers:
-      - image: us-central1-docker.pkg.dev/gen-lang-client-0601138686/inspirenet-api/inspirenet-bg-removal-api:style-consolidation
+      - image: us-central1-docker.pkg.dev/gen-lang-client-0601138686/inspirenet-api/inspirenet-bg-removal-api:color-fix-v2
         ports:
         - containerPort: 8080
           name: http1
