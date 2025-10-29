@@ -433,7 +433,12 @@ class IntegratedProcessor:
         effect_result = self.effects_processor.process_single_effect(
             bg_removed_cv, effect_name, **effect_params
         )
-        
+
+        # CRITICAL: Check if effect processing failed
+        if effect_result is None:
+            logger.error(f"Effect '{effect_name}' processing returned None")
+            raise ValueError(f"Effect '{effect_name}' processing failed - returned None")
+
         # Convert result to bytes - PRESERVE ALPHA CHANNEL
         if effect_result.shape[2] == 4:  # BGRA format
             # Convert BGRA to RGBA for PIL
