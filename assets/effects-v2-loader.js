@@ -703,8 +703,16 @@
         // Response is data URL or base64, convert to Blob
         const response = await fetch(styledResponse);
         styledBlob = await response.blob();
+      } else if (typeof styledResponse === 'object' && styledResponse.image_url) {
+        // Response is JSON with image_url (Gemini API format)
+        console.log(`✅ Gemini API returned JSON with image_url: ${styledResponse.image_url}`);
+        const response = await fetch(styledResponse.image_url);
+        if (!response.ok) {
+          throw new Error(`Failed to fetch image from ${styledResponse.image_url}: ${response.status}`);
+        }
+        styledBlob = await response.blob();
       } else {
-        throw new Error(`Invalid response from Gemini API: ${typeof styledResponse}`);
+        throw new Error(`Invalid response from Gemini API: ${typeof styledResponse}, keys: ${Object.keys(styledResponse || {}).join(',')}`);
       }
 
       // Validate blob before FileReader
