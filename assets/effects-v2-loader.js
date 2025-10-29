@@ -304,6 +304,38 @@
   }
 
   /**
+   * Fix image rotation based on EXIF data (V5 pattern)
+   * Browsers handle EXIF automatically when drawing to canvas
+   * @param {File} file - Image file
+   * @returns {Promise<File>} Fixed file with EXIF rotation applied
+   */
+  async function fixImageRotation(file) {
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          const ctx = canvas.getContext('2d');
+
+          // Set proper dimensions
+          canvas.width = img.width;
+          canvas.height = img.height;
+
+          // Draw image (browser handles EXIF automatically)
+          ctx.drawImage(img, 0, 0);
+
+          canvas.toBlob((blob) => {
+            resolve(new File([blob], file.name, { type: 'image/jpeg' }));
+          }, 'image/jpeg', 0.9);
+        };
+        img.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  /**
    * Handle file upload
    * @param {File} file - Selected file
    * @param {HTMLElement} container - Container element
@@ -329,11 +361,15 @@
     showProcessing(container, sectionId);
 
     try {
+      // Fix EXIF rotation before upload (V5 pattern)
+      console.log('🔄 Fixing image orientation...');
+      const fixedFile = await fixImageRotation(file);
+
       // Step 1: Call InSPyReNet API for background removal + color/B&W effects
       updateProcessingMessage(container, sectionId, 'Uploading image...', 5);
 
       const formData = new FormData();
-      formData.append('file', file);
+      formData.append('file', fixedFile); // Use fixed file
       formData.append('effects', 'color,enhancedblackwhite'); // API expects enhancedblackwhite, we normalize to blackwhite later
       formData.append('session_id', `perkie_${Date.now()}`);
 
@@ -391,23 +427,38 @@
           // Upload Color and B&W in parallel
           updateProcessingMessage(container, sectionId, 'Uploading to cloud... (1/2)', 75);
 
+          // Log data URLs for debugging (V5 pattern)
+          console.log('📤 Starting GCS uploads...');
+          console.log('  Color effect data URL:', effects.color ?
+            `${effects.color.substring(0, 50)}... (${effects.color.length} chars)` :
+            'null');
+          console.log('  B&W effect data URL:', effects.blackwhite ?
+            `${effects.blackwhite.substring(0, 50)}... (${effects.blackwhite.length} chars)` :
+            'null');
+
           const uploadPromises = [];
           if (effects.color) {
             uploadPromises.push(
               uploadToStorage(effects.color, sessionKey, 'color', config.apiUrl)
-                .then(url => { gcsUrls.color = url; })
+                .then(url => {
+                  gcsUrls.color = url;
+                  console.log(`  Color upload result:`, url ? 'SUCCESS' : 'FAILED');
+                })
             );
           }
           if (effects.blackwhite) {
             uploadPromises.push(
               uploadToStorage(effects.blackwhite, sessionKey, 'blackwhite', config.apiUrl)
-                .then(url => { gcsUrls.blackwhite = url; })
+                .then(url => {
+                  gcsUrls.blackwhite = url;
+                  console.log(`  B&W upload result:`, url ? 'SUCCESS' : 'FAILED');
+                })
             );
           }
 
           await Promise.all(uploadPromises);
           updateProcessingMessage(container, sectionId, 'Uploading to cloud... (2/2)', 90);
-          console.log('✅ GCS URLs obtained:', gcsUrls);
+          console.log('✅ GCS uploads complete:', gcsUrls);
 
         } catch (err) {
           console.warn('⚠️ Some GCS uploads failed, continuing with partial URLs:', err);
@@ -445,6 +496,7 @@
 
   /**
    * Upload image to GCS storage
+   * Enhanced with V5 error logging pattern for better debugging
    * @param {string} dataUrl - Image data URL
    * @param {string} sessionKey - Session key
    * @param {string} effectName - Effect name (color, blackwhite, modern, classic)
@@ -453,8 +505,22 @@
    */
   async function uploadToStorage(dataUrl, sessionKey, effectName, apiUrl) {
     try {
+      // Validate data URL format (V5 pattern)
+      if (!dataUrl || !dataUrl.startsWith('data:image/')) {
+        console.error(`❌ Invalid data URL for ${effectName}:`, dataUrl?.substring(0, 100));
+        return null;
+      }
+
       const response = await fetch(dataUrl);
       const blob = await response.blob();
+
+      // Validate blob (V5 pattern)
+      if (!blob || blob.size === 0) {
+        console.error(`❌ Empty blob for ${effectName}`);
+        return null;
+      }
+
+      console.log(`📤 Uploading ${effectName} to GCS (${Math.round(blob.size / 1024)}KB)...`);
 
       const formData = new FormData();
       const filename = `${sessionKey}_${effectName}.jpg`;
@@ -467,15 +533,26 @@
         body: formData
       });
 
-      if (uploadResponse.ok) {
-        const result = await uploadResponse.json();
-        console.log('✅ Uploaded to GCS:', result.url);
+      if (!uploadResponse.ok) {
+        // READ ERROR TEXT (V5 pattern) - This is the critical fix!
+        const errorText = await uploadResponse.text();
+        console.error(`❌ GCS upload failed for ${effectName} (${uploadResponse.status}):`, errorText);
+        return null;
+      }
+
+      const result = await uploadResponse.json();
+
+      if (result.success && result.url) {
+        console.log(`✅ Uploaded ${effectName} to GCS:`, result.url);
         return result.url;
+      } else {
+        console.error(`❌ GCS upload failed for ${effectName} - no URL in response:`, result);
+        return null;
       }
     } catch (error) {
-      console.warn('GCS upload error:', error);
+      console.error(`❌ GCS upload error for ${effectName}:`, error);
+      return null;
     }
-    return null;
   }
 
   /**
