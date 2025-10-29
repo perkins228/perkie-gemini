@@ -40,6 +40,10 @@ RUN pip install --no-cache-dir torch torchvision --index-url https://download.py
 # Install all remaining dependencies from requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt
 
+# Cache bust using Cloud Build ID - forces rebuild when source changes
+ARG CACHEBUST=default
+RUN echo "Build ID: ${CACHEBUST}"
+
 # Copy application code
 COPY src/ ./src/
 

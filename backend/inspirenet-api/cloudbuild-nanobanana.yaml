@@ -2,28 +2,30 @@
 # Builds and deploys to gen-lang-client-0601138686
 
 steps:
-  # Step 1: Build the Docker image
+  # Step 1: Build the Docker image with BUILD_ID cache busting
   - name: 'gcr.io/cloud-builders/docker'
     args:
       - 'build'
       - '-f'
       - 'Dockerfile'
       - '-t'
-      - 'us-central1-docker.pkg.dev/$PROJECT_ID/inspirenet-api/inspirenet-bg-removal-api:style-consolidation'
+      - 'us-central1-docker.pkg.dev/$PROJECT_ID/inspirenet-api/inspirenet-bg-removal-api:production-ready'
       - '-t'
       - 'us-central1-docker.pkg.dev/$PROJECT_ID/inspirenet-api/inspirenet-bg-removal-api:latest'
+      - '--no-cache'
+      - '--pull'
       - '--build-arg'
-      - 'BUILDKIT_INLINE_CACHE=1'
+      - 'CACHEBUST=$BUILD_ID'
       - '--platform'
       - 'linux/amd64'
       - '.'
-    timeout: '1200s'  # 20 minutes for build
+    timeout: '1800s'  # 30 minutes for clean build
 
   # Step 2: Push both tags to registry
   - name: 'gcr.io/cloud-builders/docker'
     args:
       - 'push'
-      - 'us-central1-docker.pkg.dev/$PROJECT_ID/inspirenet-api/inspirenet-bg-removal-api:style-consolidation'
+      - 'us-central1-docker.pkg.dev/$PROJECT_ID/inspirenet-api/inspirenet-bg-removal-api:production-ready'
 
   - name: 'gcr.io/cloud-builders/docker'
     args:
@@ -64,13 +66,13 @@ options:
 
 # Images to be pushed to registry
 images:
-  - 'us-central1-docker.pkg.dev/$PROJECT_ID/inspirenet-api/inspirenet-bg-removal-api:style-consolidation'
+  - 'us-central1-docker.pkg.dev/$PROJECT_ID/inspirenet-api/inspirenet-bg-removal-api:production-ready'
   - 'us-central1-docker.pkg.dev/$PROJECT_ID/inspirenet-api/inspirenet-bg-removal-api:latest'
 
 # Tags for build tracking
 tags:
   - 'inspirenet-api'
-  - 'style-consolidation'
+  - 'production-ready'
   - 'gemini-project'
 
 # Overall build timeout
