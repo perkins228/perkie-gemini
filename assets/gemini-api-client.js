@@ -11,7 +11,7 @@
  * - Session-based customer ID for quota tracking
  */
 
-export class GeminiAPIClient {
+class GeminiAPIClient {
   constructor() {
     this.baseUrl = 'https://gemini-artistic-api-753651513695.us-central1.run.app';
     this.cache = new Map();
@@ -466,7 +466,5 @@ export class GeminiAPIClient {
   }
 }
 
-// Export for use in other modules
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { GeminiAPIClient };
-}
+// Export to global scope for Shopify
+window.GeminiAPIClient = GeminiAPIClient;

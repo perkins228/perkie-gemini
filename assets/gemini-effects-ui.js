@@ -10,7 +10,7 @@
  * 4 (Exhausted): 0 remaining - Disabled buttons with helpful message
  */
 
-export class GeminiEffectsUI {
+class GeminiEffectsUI {
   constructor(geminiClient) {
     this.geminiClient = geminiClient;
     this.container = null;
@@ -490,7 +490,5 @@ style.textContent = `
 `;
 document.head.appendChild(style);
 
-// Export for use in other modules
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { GeminiEffectsUI };
-}
+// Export to global scope for Shopify
+window.GeminiEffectsUI = GeminiEffectsUI;

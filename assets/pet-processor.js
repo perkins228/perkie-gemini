@@ -4,9 +4,8 @@
  * Version: 1.0.2 - Gemini Artistic API Integration
  */
 
-// Import Gemini modules for AI artistic effects
-import { GeminiAPIClient } from './gemini-api-client.js';
-import { GeminiEffectsUI } from './gemini-effects-ui.js';
+// Gemini modules loaded via global scope (gemini-api-client.js, gemini-effects-ui.js)
+// Available as: window.GeminiAPIClient, window.GeminiEffectsUI
 
 // Comparison Manager for Effect Gallery
 // Moved before PetProcessor to fix initialization error

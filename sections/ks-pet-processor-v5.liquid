@@ -36,8 +36,12 @@
 {% comment %} Simple Storage System {% endcomment %}
 <script src="{{ 'pet-storage.js' | asset_url }}" defer></script>
 
-{% comment %} Mobile-First Pet Processor (ES6+) {% endcomment %}
-<script src="{{ 'pet-processor.js' | asset_url }}" defer></script>
+{% comment %} Gemini AI Effects Integration - Load before pet processor {% endcomment %}
+<script src="{{ 'gemini-api-client.js' | asset_url }}"></script>
+<script src="{{ 'gemini-effects-ui.js' | asset_url }}"></script>
+
+{% comment %} Mobile-First Pet Processor (ES6+) - Loads after Gemini modules {% endcomment %}
+<script src="{{ 'pet-processor.js' | asset_url }}"></script>
 
 {% comment %} Simple Social Sharing (2KB vs 38KB) - Client-side only {% endcomment %}
 <script src="{{ 'pet-social-sharing-simple.js' | asset_url }}" defer></script>
