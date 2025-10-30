@@ -4,9 +4,22 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## 🎯 Project Overview
 
-This is the Perkie Prints Shopify theme repository - a custom e-commerce platform where 70% of orders come from mobile, featuring FREE AI-powered pet background removal and image processing capabilities as a conversion tool. The project combines a Shopify Dawn-based theme with KondaSoft components and a production-ready Python API service. This is a totally NEW build and has NOT been deployed to actual customers. All of our testing is being done in a staging enviroment so no actual customer data exist.
+This is the **Perkie Prints Testing Repository** - a NEW experimental build created from our production site foundation to test new features and implementations. This is a **brand new repository** with only a **main branch**. This is NOT our production repository.
 
-**Business Model**: Pet background removal is a FREE service to drive product sales, not a revenue source itself. Focus on conversion optimization.
+**IMPORTANT**: This is a **testing environment** for experimenting with:
+- New Gemini Artistic API integration (gemini-2.5-flash-image)
+- New features and architectural changes
+- Safe experimentation without affecting production
+
+The platform is a custom e-commerce site where 70% of orders come from mobile, featuring FREE AI-powered pet background removal and artistic image generation as conversion tools.
+
+**Business Model**: Pet background removal and artistic effects are FREE services to drive product sales, not revenue sources. Focus on conversion optimization.
+
+**Repository Status**:
+- **Single Branch**: Only `main` branch exists (no staging branch)
+- **Deployment**: Commits to `main` automatically deploy to Shopify test environment
+- **Off-Limits**: Never modify the production `perkieprints-processing` Google Cloud project
+- **Off-Limits**: Never modify the production `inspirenet-bg-removal-api` service
 
 ## 🏗️ Architecture
 
@@ -18,11 +31,57 @@ This is the Perkie Prints Shopify theme repository - a custom e-commerce platfor
 - **Session Management**: Enhanced localStorage with emergency cleanup methods
 - **Progressive Loading**: ES5-compatible implementation with fallback support
 
-### Backend (AI API)
-- **Service**: InSPyReNet Background Removal API in `backend/inspirenet-api/`
+### Backend (AI APIs)
+
+#### Production Background Removal (OFF-LIMITS)
+- **Service**: InSPyReNet Background Removal API
+- **Status**: ⛔ **DO NOT MODIFY** - Production service serving live customers
+- **Project**: perkieprints-processing (OFF-LIMITS)
 - **Technology**: FastAPI + PyTorch + InSPyReNet model
 - **Deployment**: Google Cloud Run with NVIDIA L4 GPU
-- **Performance**: 11s first request, 3s subsequent (with caching)
+
+#### Experimental Gemini Artistic API (THIS REPO)
+- **Service**: Gemini Artistic API for pet portrait generation
+- **Status**: ✅ **ACTIVE DEVELOPMENT** - Safe to modify in this repo
+- **Location**: `backend/gemini-artistic-api/` (if implemented)
+- **Technology**: FastAPI + Google Gemini 2.5 Flash Image
+- **Model**: gemini-2.5-flash-image (NOT 2.0, NOT standard 2.5)
+- **Project**: perkieprints-nanobanana (gen-lang-client-0601138686)
+- **Region**: us-central1
+- **Storage**: perkieprints-processing-cache bucket
+- **See**: [GEMINI_ARTISTIC_API_BUILD_GUIDE.md](GEMINI_ARTISTIC_API_BUILD_GUIDE.md) for implementation details
+
+## 🚀 Quick Start
+
+New to this repository? Here are the essential commands:
+
+### Testing Locally
+```bash
+# Test theme changes - ALWAYS use Playwright MCP with Shopify test URL
+# Ask user for current test URL if unknown (URLs expire periodically)
+
+# Test Python API locally (if working on Gemini API)
+cd backend/gemini-artistic-api
+python -m venv venv
+source venv/bin/activate  # Windows: venv\Scripts\activate
+pip install -r requirements.txt
+python src/main.py
+```
+
+### Deploy to Shopify Test Environment
+```bash
+# Simple deployment - commits to main auto-deploy to Shopify
+git add .
+git commit -m "Your descriptive commit message"
+git push origin main
+
+# Changes appear on test URL within ~1-2 minutes
+# NO Shopify CLI commands needed
+```
+
+### Access Test Environment
+- **Ask user for current test URL** - URLs expire and need refreshing
+- Use Playwright MCP to test all changes before committing
 
 ## 🔧 Development & Deployment
 
@@ -33,81 +92,118 @@ This is the Perkie Prints Shopify theme repository - a custom e-commerce platfor
 # All theme changes are deployed automatically via GitHub
 git add .
 git commit -m "Your descriptive commit message"
-git push origin staging
+git push origin main  # NOTE: main branch, not staging
 
-# The GitHub integration automatically deploys to Shopify staging
+# The GitHub integration automatically deploys to Shopify test environment
 # No need for Shopify CLI commands
 ```
 
 **Deployment Flow:**
 1. Make changes locally
-2. Test using Playwright MCP with staging URL
-3. Commit and push to `staging` branch
-4. GitHub automatically deploys to Shopify staging environment
-5. Changes appear on staging URL within ~1-2 minutes
+2. Test using Playwright MCP with test URL (ask user if unknown)
+3. Commit and push to `main` branch
+4. GitHub automatically deploys to Shopify test environment
+5. Changes appear on test URL within ~1-2 minutes
 
-### API Development (InSPyReNet)
+### Gemini Artistic API Development
 ```bash
-cd backend/inspirenet-api
+# Navigate to Gemini API directory
+cd backend/gemini-artistic-api
 
 # Install dependencies
 pip install -r requirements.txt
 
-# Run locally (CPU mode)
+# Set up environment variables
+cp .env.example .env
+# Edit .env with proper values
+
+# Run locally for testing
 python src/main.py
 
-# Run tests
-python tests/test_processing.py
-
 # Deploy to Cloud Run
-./scripts/deploy-model-fix.sh
+./scripts/deploy-gemini-artistic.sh
 ```
 
-### Testing
-```bash
-# API integration tests
-cd backend/inspirenet-api/tests
-python test_processing.py
-python test_mobile_processing.py
+**Google Cloud Configuration for Gemini API:**
+- **Project**: perkieprints-nanobanana
+- **Project ID**: gen-lang-client-0601138686
+- **Project Number**: 753651513695
+- **API Key**: AIzaSyAP6X8DdL1kPlah25du8s_YzipwOnYd_7I
+- **Model**: gemini-2.5-flash-image (NOT 2.0, NOT standard 2.5)
+- **Region**: us-central1
+- **Storage Bucket**: perkieprints-processing-cache
 
+### ⛔ OFF-LIMITS: Production InSPyReNet API
+**DO NOT modify the production background removal API:**
+```bash
+# ⛔ NEVER touch these:
+# - backend/inspirenet-api/ (if it exists in this repo)
+# - perkieprints-processing Google Cloud project
+# - inspirenet-bg-removal-api Cloud Run service
+```
+
+### Testing Strategy
+```bash
+# PRIMARY: Always use Playwright MCP with Shopify test URL
+# - Ask user for current test URL if unknown (URLs expire)
+# - Test all changes in real Shopify environment before committing
+
+# SECONDARY: Local HTML test files (when test URL unavailable)
 # Frontend tests - open in browser
 testing/pet-processor-v5-test.html
 testing/progressive-loading-test.html
 testing/unified-pet-system-test.html
+
+# Python API tests (for Gemini API)
+cd backend/gemini-artistic-api/tests
+python test_generation.py
 ```
+
+**Testing Priority:**
+1. **First**: Use Playwright MCP with Shopify test URL
+2. **If test URL unavailable**: Ask user for fresh URL
+3. **Last resort**: Use local HTML test files
 
 ## 🔄 Git Workflow
 
-This project uses a **staging branch approach**:
+This is a **testing repository** with a simplified workflow:
 
 ### Branch Structure
-- **main**: Production-ready code, deployed to live store
-- **staging**: Development branch, used for testing and integration
-- **feature branches**: Created from staging for specific features
+- **main**: Only branch - commits auto-deploy to Shopify test environment
+- **No staging branch** - This entire repo is for testing
+- **Feature branches**: Optional, can create from main for organization
 
-### Workflow
+### Simple Workflow
 ```bash
-# Create feature branch from staging
-git checkout staging
-git pull origin staging
-git checkout -b feature/your-feature-name
+# Make changes directly on main (this is a test repo)
+git add .
+git commit -m "Your descriptive commit message"
+git push origin main
 
+# Changes auto-deploy to Shopify test environment within ~1-2 minutes
+```
+
+### Feature Branch Workflow (Optional)
+```bash
+# If you want to organize work with feature branches
+git checkout -b feature/your-feature-name
 # Work on feature, commit changes
 git add .
 git commit -m "Your commit message"
-
-# Push feature branch and create PR to staging
 git push origin feature/your-feature-name
 
-# After review, merge to staging for testing
-# Once tested, create PR from staging to main
+# Merge to main when ready
+git checkout main
+git merge feature/your-feature-name
+git push origin main
 ```
 
 ### Important Notes
-- Always create feature branches from `staging`
-- Test thoroughly in staging before merging to main
-- Use descriptive commit messages following the existing style
-- Coordinate with team before major architectural changes
+- This is a **test repository** - no production concerns
+- Commits to `main` deploy automatically to test environment
+- Use descriptive commit messages following existing style
+- **Never modify** the production `perkieprints-processing` project
+- **Never modify** the production `inspirenet-bg-removal-api` service
 
 ## 📁 Key Files & Directories
 
@@ -118,12 +214,18 @@ git push origin feature/your-feature-name
 - `snippets/ks-product-pet-selector.liquid` - Pet selection UI component
 - `templates/page.pet-background-remover.json` - Background remover page template
 
-### API Files
-- `backend/inspirenet-api/src/main.py` - API entry point
-- `backend/inspirenet-api/src/effects/` - Image effect processors
-- `backend/inspirenet-api/src/api_v2_endpoints.py` - V2 API endpoints
-- `backend/inspirenet-api/deploy-production-clean.yaml` - Cloud Run configuration
-- `backend/inspirenet-api/scripts/deploy-model-fix.sh` - Deployment script
+### Backend API Files
+
+#### Gemini Artistic API (Active Development)
+- `backend/gemini-artistic-api/src/main.py` - API entry point (if implemented)
+- `backend/gemini-artistic-api/src/core/gemini_client.py` - Gemini API client
+- `backend/gemini-artistic-api/src/core/rate_limiter.py` - Firestore rate limiting
+- `backend/gemini-artistic-api/src/core/storage_manager.py` - Cloud Storage manager
+- `backend/gemini-artistic-api/src/models/schemas.py` - Pydantic models
+- `GEMINI_ARTISTIC_API_BUILD_GUIDE.md` - Complete implementation guide
+
+#### Production InSPyReNet API (OFF-LIMITS)
+- ⛔ `backend/inspirenet-api/` - DO NOT MODIFY (production service)
 
 ### Configuration
 - `config/settings_schema.json` - Theme settings
@@ -131,13 +233,33 @@ git push origin feature/your-feature-name
 
 ## 🚀 API Endpoints
 
-Production URL: `https://inspirenet-bg-removal-api-725543555429.us-central1.run.app`
+### Production InSPyReNet API (OFF-LIMITS)
+⛔ **DO NOT MODIFY** - Production service
+```
+URL: https://inspirenet-bg-removal-api-725543555429.us-central1.run.app
 
-- `POST /remove-background` - Remove background from image
-- `POST /api/v2/process` - Process image with effects (blackwhite, popart, dithering, 8bit)
-- `POST /api/v2/process-with-effects` - Enhanced processing with multiple effects and progressive loading
-- `GET /health` - Health check
-- `GET /model-info` - Model information
+Endpoints:
+- POST /remove-background - Remove background from image
+- POST /api/v2/process - Process image with effects
+- POST /api/v2/process-with-effects - Enhanced processing
+- GET /health - Health check
+- GET /model-info - Model information
+```
+
+### Gemini Artistic API (Active Development)
+✅ Safe to develop and modify
+```
+Project: perkieprints-nanobanana (gen-lang-client-0601138686)
+Model: gemini-2.5-flash-image
+
+Endpoints (planned):
+- POST /api/v1/generate - Generate single artistic style
+- POST /api/v1/batch-generate - Generate all styles at once
+- GET /api/v1/quota - Check rate limit quota
+- GET /health - Health check
+
+See GEMINI_ARTISTIC_API_BUILD_GUIDE.md for full implementation
+```
 
 ## 💡 Implementation Status
 
@@ -161,22 +283,28 @@ The project completed Phase 1 with enhanced black & white processing:
 - Progressive loading state persistence
 
 ### Testing Approach
-- **PRIMARY METHOD**: Use Playwright MCP with Shopify staging URL
-  - Current staging: `https://9wy9fqzd0344b2sw-2930573424.shopifypreview.com/`
-  - If expired, ASK USER for new URL before using local tests
+- **PRIMARY METHOD**: Use Playwright MCP with Shopify test URL
+  - **IMPORTANT**: Always ASK USER for current test URL (URLs expire frequently)
+  - Never assume or use cached URLs
   - See `.claude/TESTING_STRATEGY.md` for detailed testing procedures
-- **SECONDARY**: Local HTML test files only when staging unavailable
-- Python tests in `backend/inspirenet-api/tests/` for API testing
-- **NO Shopify CLI** - All deployments happen via GitHub push to staging
+- **SECONDARY**: Local HTML test files only when test URL unavailable
+- Python tests in `backend/gemini-artistic-api/tests/` for Gemini API testing
+- **NO Shopify CLI** - All deployments happen via GitHub push to main
 
 ### Deployment Notes
-- API uses Google Cloud Run with GPU support
-- Automatic scaling 0-10 instances
-- Cloud Storage caching with 24-hour TTL
-- Monitor costs - GPU instances are expensive (~$65/1000 images)
-- **CRITICAL: NEVER set min-instances > 0** - We must keep costs down. Cold starts are acceptable.
-- Min-instances must always remain at 0 to avoid $65-100/day in idle GPU costs
-- Use frontend warming and caching strategies instead of keeping instances alive
+
+#### Gemini Artistic API (This Repo)
+- Uses Google Cloud Run (CPU only, no GPU needed)
+- Automatic scaling 0-5 instances
+- Firestore for rate limiting
+- Cloud Storage for image caching with SHA256 deduplication
+- **ALWAYS set min-instances: 0** - Scale to zero when not in use
+- See [GEMINI_ARTISTIC_API_BUILD_GUIDE.md](GEMINI_ARTISTIC_API_BUILD_GUIDE.md) for details
+
+#### Production InSPyReNet API (OFF-LIMITS)
+- ⛔ DO NOT MODIFY deployment settings
+- Uses NVIDIA L4 GPU on Cloud Run
+- Production service - any changes affect live customers
 
 ## 📋 Known Issues (Non-Critical)
 
@@ -215,15 +343,26 @@ The project completed Phase 1 with enhanced black & white processing:
    - Solution: Ensure touch event handlers are properly registered
    - Test on actual devices, not just browser dev tools
 
-## 🔒 Security Considerations
+## 🔒 Security & Best Practices
 
-- Never commit Google Cloud service account keys
-- API has no authentication - add for production use
+### Security Considerations
+- Never commit Google Cloud service account keys or API keys
+- Gemini API key is stored in code for testing purposes (test environment only)
 - Validate all file uploads (max 50MB, image formats only)
-- Use environment variables for sensitive configuration
-- Please remember to always coordinate with all appropriate agents to plan, code, and review your solution before implementing
-- Always remember to avoid overengineering, our solution should be as elegant as it is simple.
-- Always remember to do a root cause analysis when faced with a problem. Focus on correcting the root causes rather than just the symptoms
+- Use environment variables for sensitive configuration in production
+
+### Development Philosophy
+- **Coordinate with agents**: Always consult appropriate sub-agents to plan, code, and review solutions
+- **Avoid overengineering**: Solutions should be elegant and simple
+- **Root cause analysis**: When facing problems, fix root causes, not just symptoms
+- **Test thoroughly**: Use Playwright MCP with real Shopify test URL before committing
+
+### Critical Reminders
+- ⛔ **NEVER** modify the production `perkieprints-processing` Google Cloud project
+- ⛔ **NEVER** modify the production `inspirenet-bg-removal-api` service
+- ✅ **ALWAYS** ask user for current test URL (URLs expire)
+- ✅ **ALWAYS** commit to `main` branch (no staging branch in this repo)
+- ✅ **ALWAYS** set `min-instances: 0` for Cloud Run services
 
 ## 🧪 Testing Files Reference
 
