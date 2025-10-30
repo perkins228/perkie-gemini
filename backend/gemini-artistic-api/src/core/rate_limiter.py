@@ -9,6 +9,26 @@ from src.models.schemas import QuotaStatus
 logger = logging.getLogger(__name__)
 
 
+def calculate_warning_level(remaining: int, limit: int) -> int:
+    """
+    Calculate warning level based on remaining quota
+
+    Levels:
+    - 1 (Silent): 6-4 remaining - minimal badge indicator
+    - 2 (Reminder): 3 remaining - show toast notification
+    - 3 (Warning): 1-2 remaining - show prominent warning banner
+    - 4 (Exhausted): 0 remaining - disable buttons, show alternatives
+    """
+    if remaining == 0:
+        return 4
+    elif remaining <= 2:
+        return 3
+    elif remaining == 3:
+        return 2
+    else:
+        return 1
+
+
 class RateLimiter:
     """Three-tier rate limiting using Firestore with atomic transactions"""
 
@@ -55,7 +75,8 @@ class RateLimiter:
                 allowed=True,
                 remaining=limit,
                 limit=limit,
-                reset_time=self._get_reset_date().isoformat()
+                reset_time=self._get_reset_date().isoformat(),
+                warning_level=calculate_warning_level(limit, limit)
             )
 
         data = doc.to_dict()
@@ -68,7 +89,8 @@ class RateLimiter:
                 allowed=True,
                 remaining=limit,
                 limit=limit,
-                reset_time=self._get_reset_date().isoformat()
+                reset_time=self._get_reset_date().isoformat(),
+                warning_level=calculate_warning_level(limit, limit)
             )
 
         # Check if under limit
@@ -79,7 +101,8 @@ class RateLimiter:
             allowed=allowed,
             remaining=remaining,
             limit=limit,
-            reset_time=reset_date.isoformat()
+            reset_time=reset_date.isoformat(),
+            warning_level=calculate_warning_level(remaining, limit)
         )
 
     async def consume_quota(
@@ -122,7 +145,8 @@ class RateLimiter:
                     allowed=True,
                     remaining=limit - 1,
                     limit=limit,
-                    reset_time=self._get_reset_date().isoformat()
+                    reset_time=self._get_reset_date().isoformat(),
+                    warning_level=calculate_warning_level(limit - 1, limit)
                 )
 
             data = snapshot.to_dict()
@@ -141,7 +165,8 @@ class RateLimiter:
                     allowed=True,
                     remaining=limit - 1,
                     limit=limit,
-                    reset_time=self._get_reset_date().isoformat()
+                    reset_time=self._get_reset_date().isoformat(),
+                    warning_level=calculate_warning_level(limit - 1, limit)
                 )
 
             # Increment count
@@ -152,11 +177,13 @@ class RateLimiter:
                 'style': style
             })
 
+            remaining = max(0, limit - new_count)
             return QuotaStatus(
                 allowed=True,
-                remaining=max(0, limit - new_count),
+                remaining=remaining,
                 limit=limit,
-                reset_time=reset_date.isoformat()
+                reset_time=reset_date.isoformat(),
+                warning_level=calculate_warning_level(remaining, limit)
             )
 
         # Execute transaction

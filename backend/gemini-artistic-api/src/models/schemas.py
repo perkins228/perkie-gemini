@@ -28,6 +28,7 @@ class GenerateResponse(BaseModel):
     quota_remaining: int
     quota_limit: int
     processing_time_ms: int
+    warning_level: int = Field(1, description="Warning level: 1=silent, 2=reminder, 3=warning, 4=exhausted")
 
 
 class QuotaStatus(BaseModel):
@@ -36,6 +37,7 @@ class QuotaStatus(BaseModel):
     remaining: int
     limit: int
     reset_time: str
+    warning_level: int = Field(1, description="Warning level: 1=silent, 2=reminder, 3=warning, 4=exhausted")
 
 
 class BatchGenerateRequest(BaseModel):
@@ -61,3 +63,4 @@ class BatchGenerateResponse(BaseModel):
     quota_remaining: int
     quota_limit: int
     total_processing_time_ms: int
+    warning_level: int = Field(1, description="Warning level: 1=silent, 2=reminder, 3=warning, 4=exhausted")

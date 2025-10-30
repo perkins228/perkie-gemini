@@ -147,7 +147,8 @@ async def generate_artistic_style(request: Request, req: GenerateRequest):
                 cache_hit=True,
                 quota_remaining=quota_before.remaining,
                 quota_limit=quota_before.limit,
-                processing_time_ms=0
+                processing_time_ms=0,
+                warning_level=quota_before.warning_level
             )
 
         # 4. Generate with Gemini
@@ -180,7 +181,8 @@ async def generate_artistic_style(request: Request, req: GenerateRequest):
             cache_hit=False,
             quota_remaining=quota_after.remaining,
             quota_limit=quota_after.limit,
-            processing_time_ms=int(processing_time * 1000)
+            processing_time_ms=int(processing_time * 1000),
+            warning_level=quota_after.warning_level
         )
 
     except HTTPException:
@@ -296,7 +298,8 @@ async def batch_generate_styles(request: Request, req: BatchGenerateRequest):
             results=results,
             quota_remaining=quota_after.remaining,
             quota_limit=quota_after.limit,
-            total_processing_time_ms=int(total_time * 1000)
+            total_processing_time_ms=int(total_time * 1000),
+            warning_level=quota_after.warning_level
         )
 
     except HTTPException:

@@ -17,9 +17,9 @@ class Settings(BaseSettings):
     gemini_top_p: float = 0.9
     gemini_top_k: int = 40
 
-    # Rate Limiting (matching production philosophy)
-    rate_limit_daily: int = 5      # Customer/IP daily limit
-    rate_limit_burst: int = 3      # Session daily limit
+    # Rate Limiting - Gemini effects only (B&W and Color unlimited)
+    rate_limit_daily: int = 6      # Customer/IP daily limit for Gemini artistic effects
+    rate_limit_burst: int = 6      # Session daily limit (kept same for consistency)
 
     # Storage Configuration
     storage_bucket: str = "perkieprints-processing-cache"
