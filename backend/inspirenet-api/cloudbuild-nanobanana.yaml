@@ -9,7 +9,7 @@ steps:
       - '-f'
       - 'Dockerfile'
       - '-t'
-      - 'us-central1-docker.pkg.dev/$PROJECT_ID/inspirenet-api/inspirenet-bg-removal-api:production-ready'
+      - 'us-central1-docker.pkg.dev/$PROJECT_ID/inspirenet-api/inspirenet-bg-removal-api:final-fix-20251029-201239'
       - '-t'
       - 'us-central1-docker.pkg.dev/$PROJECT_ID/inspirenet-api/inspirenet-bg-removal-api:latest'
       - '--no-cache'
@@ -25,7 +25,7 @@ steps:
   - name: 'gcr.io/cloud-builders/docker'
     args:
       - 'push'
-      - 'us-central1-docker.pkg.dev/$PROJECT_ID/inspirenet-api/inspirenet-bg-removal-api:production-ready'
+      - 'us-central1-docker.pkg.dev/$PROJECT_ID/inspirenet-api/inspirenet-bg-removal-api:final-fix-20251029-201239'
 
   - name: 'gcr.io/cloud-builders/docker'
     args:
@@ -58,13 +58,13 @@ options:
 
 # Images to be pushed to registry
 images:
-  - 'us-central1-docker.pkg.dev/$PROJECT_ID/inspirenet-api/inspirenet-bg-removal-api:production-ready'
+  - 'us-central1-docker.pkg.dev/$PROJECT_ID/inspirenet-api/inspirenet-bg-removal-api:final-fix-20251029-201239'
   - 'us-central1-docker.pkg.dev/$PROJECT_ID/inspirenet-api/inspirenet-bg-removal-api:latest'
 
 # Tags for build tracking
 tags:
   - 'inspirenet-api'
-  - 'production-ready'
+  - 'final-fix-20251029-201239'
   - 'gemini-project'
 
 # Overall build timeout
