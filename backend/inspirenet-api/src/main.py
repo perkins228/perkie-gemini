@@ -28,7 +28,7 @@ from simple_storage_api import register_storage_endpoints
 
 # Configure logging
 logging.basicConfig(
-    level=logging.DEBUG,
+    level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
@@ -68,7 +68,6 @@ if os.getenv("DEV_MODE") == "true":
         "http://localhost:8000",
         "http://127.0.0.1:3000",
         "http://127.0.0.1:8000",
-        "null",  # Allow file:// protocol for local HTML testing
     ])
 
 # ============================================================================

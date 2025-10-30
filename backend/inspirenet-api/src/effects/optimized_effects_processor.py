@@ -16,6 +16,9 @@ from functools import partial
 
 from .base_effect import BaseEffect
 from .enhanced_blackwhite_effect import EnhancedBlackWhiteEffect
+from .dithering_effect import DitheringEffect
+from .optimized_popart_effect import OptimizedPopArtEffect
+from .pet_optimized_eightbit_effect import PetOptimizedEightBitEffect
 
 logger = logging.getLogger(__name__)
 
@@ -24,7 +27,12 @@ class OptimizedEffectsProcessor:
     
     SUPPORTED_EFFECTS = {
         'color': 'Original color with background removed',
-        'enhancedblackwhite': 'Enhanced B&W with 60% visual improvement and research-informed processing'
+        'enhancedblackwhite': 'Enhanced B&W with 60% visual improvement and research-informed processing',
+        'dithering': 'Floyd-Steinberg dithering with spaced dots - Canvas algorithm port',
+        'popart': 'Optimized pop art with 10x+ performance improvement and ITU-R BT.709 processing',
+        'retro8bit': 'Pet-optimized 8-bit with enhanced color science, 8x8 chunky blocks, and 7x speedup',
+        'watercolor': '4-stage watercolor with bleeding and texture (TODO)',
+        'mosaic': 'Adaptive mosaic with variable tile sizes (TODO)'
     }
     
     def __init__(
@@ -55,7 +63,16 @@ class OptimizedEffectsProcessor:
             
             # Enhanced Black & White effect
             self.effects['enhancedblackwhite'] = EnhancedBlackWhiteEffect(self.gpu_enabled)
-
+            
+            # Floyd-Steinberg Dithering effect
+            self.effects['dithering'] = DitheringEffect(self.gpu_enabled)
+            
+            # Optimized Pop Art effect
+            self.effects['popart'] = OptimizedPopArtEffect(self.gpu_enabled)
+            
+            # Pet-Optimized 8-bit Retro effect
+            self.effects['retro8bit'] = PetOptimizedEightBitEffect(self.gpu_enabled)
+            
             logger.info("Optimized effects initialized successfully")
         except Exception as e:
             logger.error(f"Failed to initialize effects: {e}")
