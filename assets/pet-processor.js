@@ -1,8 +1,12 @@
 /**
  * Pet Processor - Mobile-First ES6+ Implementation
  * Replaces 2,343 lines of ES5 with 600 lines of modern JavaScript
- * Version: 1.0.1 - Force resync
+ * Version: 1.0.2 - Gemini Artistic API Integration
  */
+
+// Import Gemini modules for AI artistic effects
+import { GeminiAPIClient } from './gemini-api-client.js';
+import { GeminiEffectsUI } from './gemini-effects-ui.js';
 
 // Comparison Manager for Effect Gallery
 // Moved before PetProcessor to fix initialization error
@@ -14,7 +18,7 @@ class ComparisonManager {
     this.comparisonEffect = null;
     this.longPressTimer = null;
     this.swipeStartX = null;
-    this.effectOrder = ['enhancedblackwhite', 'popart', 'dithering', 'color'];
+    this.effectOrder = ['enhancedblackwhite', 'color', 'modern', 'classic'];
     this.currentComparisonIndex = 0;
     
     this.initializeComparison();
@@ -248,7 +252,12 @@ class PetProcessor {
     // Initialize new features
     this.comparisonManager = null;
     this.sharing = null;
-    
+
+    // Initialize Gemini integration
+    this.geminiClient = null;
+    this.geminiUI = null;
+    this.geminiEnabled = false;
+
     // Initialize
     this.init();
   }
@@ -274,10 +283,45 @@ class PetProcessor {
     if (typeof ComparisonManager !== 'undefined') {
       this.comparisonManager = new ComparisonManager(this);
     }
-    
+
     // Initialize social sharing
     if (typeof PetSocialSharing !== 'undefined') {
       this.sharing = new PetSocialSharing(this);
+    }
+
+    // Initialize Gemini AI effects
+    this.initializeGemini();
+  }
+
+  initializeGemini() {
+    try {
+      // Check if Gemini modules are available
+      if (typeof GeminiAPIClient === 'undefined' || typeof GeminiEffectsUI === 'undefined') {
+        console.log('🎨 Gemini modules not loaded - AI effects disabled');
+        return;
+      }
+
+      // Initialize Gemini client
+      this.geminiClient = new GeminiAPIClient();
+      this.geminiEnabled = this.geminiClient.enabled;
+
+      if (this.geminiEnabled) {
+        console.log('🎨 Gemini AI effects enabled - Modern and Classic styles available');
+
+        // Initialize UI after container is rendered
+        setTimeout(() => {
+          this.geminiUI = new GeminiEffectsUI(this.geminiClient);
+          this.geminiUI.initialize(this.container);
+
+          // Start midnight quota reset checker
+          this.geminiUI.checkQuotaReset();
+        }, 100);
+      } else {
+        console.log('🎨 Gemini AI effects disabled by feature flag');
+      }
+    } catch (error) {
+      console.error('🎨 Failed to initialize Gemini:', error);
+      this.geminiEnabled = false;
     }
   }
   
@@ -322,17 +366,17 @@ class PetProcessor {
                   <span class="effect-emoji">⚫⚪</span>
                   <span class="effect-name">B&W</span>
                 </button>
-                <button class="effect-btn" data-effect="popart">
-                  <span class="effect-emoji">🎨</span>
-                  <span class="effect-name">Pop Art</span>
-                </button>
-                <button class="effect-btn" data-effect="dithering">
-                  <span class="effect-emoji">📰</span>
-                  <span class="effect-name">Halftone</span>
-                </button>
                 <button class="effect-btn" data-effect="color">
                   <span class="effect-emoji">🌈</span>
                   <span class="effect-name">Color</span>
+                </button>
+                <button class="effect-btn effect-btn--ai" data-effect="modern">
+                  <span class="effect-emoji">🖌️</span>
+                  <span class="effect-name">Modern</span>
+                </button>
+                <button class="effect-btn effect-btn--ai" data-effect="classic">
+                  <span class="effect-emoji">🎨</span>
+                  <span class="effect-name">Classic</span>
                 </button>
               </div>
             </div>
@@ -496,6 +540,9 @@ class PetProcessor {
       // Show result
       this.showResult(result);
 
+      // Update button states (Modern/Classic will be disabled/loading initially)
+      this.updateEffectButtonStates();
+
     } catch (error) {
       this.showError('Processing failed. Please try again.');
       console.error('Processing error:', error);
@@ -567,7 +614,7 @@ class PetProcessor {
     
     const formData = new FormData();
     formData.append('file', fixedFile);
-    formData.append('effects', 'enhancedblackwhite,popart,dithering,color');
+    formData.append('effects', 'enhancedblackwhite,color');
     
     // Detect API warmth state BEFORE showing any timer
     const warmthTracker = new APIWarmthTracker();
@@ -605,7 +652,7 @@ class PetProcessor {
     this.updateProgressWithTimer(10, initialMessage, timeRemaining);
     
     // Add return_all_effects=true to get JSON response with all effects
-    const responsePromise = fetch(`${this.apiUrl}/api/v2/process-with-effects?return_all_effects=true&effects=enhancedblackwhite,popart,dithering,color`, {
+    const responsePromise = fetch(`${this.apiUrl}/api/v2/process-with-effects?return_all_effects=true&effects=enhancedblackwhite,color`, {
       method: 'POST',
       body: formData
     });
@@ -639,7 +686,80 @@ class PetProcessor {
         dataUrl: dataUrl
       };
     }
-    
+
+    // Generate Gemini AI effects (Modern + Classic) if enabled
+    if (this.geminiEnabled && this.geminiClient) {
+      try {
+        // Update progress for AI generation
+        this.updateProgressWithTimer(85, '✨ Generating AI artistic styles...', null);
+
+        // Get background-removed image for Gemini
+        const processedImage = data.processed_image || effectsData.color || effectsData.enhancedblackwhite;
+
+        if (processedImage) {
+          // Convert to data URL if needed
+          const imageDataUrl = processedImage.startsWith('data:')
+            ? processedImage
+            : `data:image/png;base64,${processedImage}`;
+
+          // Batch generate both Modern and Classic styles
+          const geminiResults = await this.geminiClient.batchGenerate(imageDataUrl, {
+            sessionId: this.getSessionId()
+          });
+
+          // Add Gemini effects to effects object
+          effects.modern = {
+            gcsUrl: geminiResults.modern.url,
+            dataUrl: null, // Gemini effects use Cloud Storage URLs
+            cacheHit: geminiResults.modern.cacheHit,
+            processingTime: geminiResults.modern.processingTime
+          };
+
+          effects.classic = {
+            gcsUrl: geminiResults.classic.url,
+            dataUrl: null, // Gemini effects use Cloud Storage URLs
+            cacheHit: geminiResults.classic.cacheHit,
+            processingTime: geminiResults.classic.processingTime
+          };
+
+          // Store quota information
+          if (geminiResults.quota) {
+            this.geminiQuota = geminiResults.quota;
+
+            // Update UI with new quota state
+            if (this.geminiUI) {
+              this.geminiUI.updateUI();
+            }
+          }
+
+          console.log('🎨 Gemini AI effects generated:', {
+            modern: geminiResults.modern.cacheHit ? 'cached' : 'generated',
+            classic: geminiResults.classic.cacheHit ? 'cached' : 'generated',
+            quota: geminiResults.quota
+          });
+
+          // Update button states - Modern and Classic should now be enabled
+          this.updateEffectButtonStates();
+        }
+      } catch (error) {
+        console.error('🎨 Gemini generation failed (graceful degradation):', error);
+
+        // Graceful degradation - don't fail the whole process
+        // Users still have B&W and Color effects
+        if (error.quotaExhausted) {
+          console.log('🎨 Gemini quota exhausted - only B&W and Color available');
+
+          // Update UI to show quota exhausted state
+          if (this.geminiUI) {
+            this.geminiUI.updateUI();
+          }
+
+          // Update button states - Modern and Classic should be disabled due to quota
+          this.updateEffectButtonStates();
+        }
+      }
+    }
+
     // Final progress
     this.updateProgressWithTimer(100, '🎉 Your Perkie Print preview is ready!', 'Complete!');
     this.processingComplete = true;
@@ -708,34 +828,103 @@ class PetProcessor {
   
   switchEffect(button) {
     if (!button || !this.currentPet) return;
-    
+
     const effect = button.dataset.effect;
     const effectData = this.currentPet.effects[effect];
-    
-    if (!effectData) return;
-    
+
+    if (!effectData) {
+      // Check if this is a Gemini effect that's unavailable due to quota
+      if ((effect === 'modern' || effect === 'classic') && this.geminiEnabled) {
+        // Show quota exhausted message
+        if (this.geminiUI) {
+          this.geminiUI.showWarning(4, 0); // Level 4 = exhausted
+        }
+      }
+      return;
+    }
+
     // Update UI
     this.container.querySelectorAll('.effect-btn').forEach(btn => {
       btn.classList.remove('active');
     });
     button.classList.add('active');
-    
-    // Update image
+
+    // Update image - handle both data URLs (InSPyReNet) and Cloud Storage URLs (Gemini)
     const img = this.container.querySelector('.pet-image');
     if (img) {
-      img.src = effectData.dataUrl;
+      if (effect === 'modern' || effect === 'classic') {
+        // Gemini effects use Cloud Storage URLs
+        img.src = effectData.gcsUrl;
+      } else {
+        // InSPyReNet effects use data URLs
+        img.src = effectData.dataUrl;
+      }
     }
-    
+
     // Update current selection
     this.currentPet.selectedEffect = effect;
     this.selectedEffect = effect;
-    
+
     // Show share button after effect selection
     if (this.sharing) {
       this.sharing.showShareButton();
     }
   }
-  
+
+  /**
+   * Update effect button states based on availability
+   * - Disable Modern/Classic if not loaded yet or quota exhausted
+   * - Show loading indicator for Gemini effects being generated
+   */
+  updateEffectButtonStates() {
+    if (!this.currentPet) return;
+
+    const buttons = this.container.querySelectorAll('.effect-btn');
+    buttons.forEach(btn => {
+      const effect = btn.dataset.effect;
+
+      // Always enable B&W and Color (unlimited)
+      if (effect === 'enhancedblackwhite' || effect === 'color') {
+        btn.disabled = false;
+        btn.classList.remove('effect-btn--loading', 'effect-btn--disabled');
+        return;
+      }
+
+      // Handle Gemini effects (Modern and Classic)
+      if (effect === 'modern' || effect === 'classic') {
+        const effectData = this.currentPet.effects[effect];
+
+        if (!effectData) {
+          // Not loaded yet - check if we're still loading or quota exhausted
+          if (this.geminiEnabled && this.geminiClient) {
+            const quotaExhausted = this.geminiClient.isQuotaExhausted();
+
+            if (quotaExhausted) {
+              // Quota exhausted - disable button
+              btn.disabled = true;
+              btn.classList.add('effect-btn--disabled');
+              btn.classList.remove('effect-btn--loading');
+            } else {
+              // Still loading - show loading indicator
+              btn.disabled = true;
+              btn.classList.add('effect-btn--loading');
+              btn.classList.remove('effect-btn--disabled');
+            }
+          } else {
+            // Gemini disabled - disable button
+            btn.disabled = true;
+            btn.classList.add('effect-btn--disabled');
+            btn.classList.remove('effect-btn--loading');
+          }
+        } else {
+          // Effect loaded - enable button
+          btn.disabled = false;
+          btn.classList.remove('effect-btn--loading', 'effect-btn--disabled');
+        }
+      }
+    });
+  }
+
   showProcessing() {
     this.hideAllViews();
     const view = this.container.querySelector('.processing-view');
@@ -951,8 +1140,8 @@ class PetProcessor {
     const selectedEffect = this.currentPet.selectedEffect || 'enhancedblackwhite';
     const effectData = this.currentPet.effects[selectedEffect];
 
-    // Check if effect data exists
-    if (!effectData || !effectData.dataUrl) {
+    // Check if effect data exists (handle both InSPyReNet dataUrl and Gemini gcsUrl)
+    if (!effectData || (!effectData.dataUrl && !effectData.gcsUrl)) {
       console.error('❌ Effect data not found for:', selectedEffect);
       console.log('Available effects:', Object.keys(this.currentPet.effects));
       return false;
@@ -1000,7 +1189,7 @@ class PetProcessor {
       artistNote: artistNote,
       filename: this.currentPet.filename,
       effect: selectedEffect,
-      thumbnail: effectData.dataUrl,  // Compressed thumbnail for display
+      thumbnail: effectData.dataUrl || effectData.gcsUrl,  // Thumbnail (dataUrl for InSPyReNet, gcsUrl for Gemini)
       gcsUrl: gcsUrl,                 // Full-resolution processed image URL
       originalUrl: originalUrl         // Full-resolution original image URL
     };

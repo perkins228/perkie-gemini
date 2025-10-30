@@ -775,6 +775,54 @@
   font-size: 0.8em;
 }
 
+/* Gemini AI Effect Button Styles */
+.effect-btn--ai {
+  position: relative;
+}
+
+.effect-btn--ai::before {
+  content: '✨';
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  font-size: 0.7em;
+  opacity: 0.6;
+}
+
+.effect-btn--loading {
+  opacity: 0.7;
+  cursor: wait;
+  pointer-events: none;
+}
+
+.effect-btn--loading .effect-emoji {
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+.effect-btn--disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  pointer-events: none;
+  filter: grayscale(100%);
+}
+
+.effect-btn--disabled::after {
+  content: '🔒';
+  position: absolute;
+  bottom: 4px;
+  right: 4px;
+  font-size: 0.8em;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
 /* Pet Name Capture Styles (Mobile-First) */
 
 
