@@ -1,0 +1,141 @@
+{%- comment -%}
+  Mobile Cart Quick View
+  Renders cart items for the bottom sheet
+  
+  Usage:
+  {% render 'cart-mobile-quick-view' %}
+{%- endcomment -%}
+
+{%- if cart.item_count > 0 -%}
+  <div class="cart-items">
+    {%- for item in cart.items -%}
+      <div class="cart-item" data-line-item="{{ forloop.index }}">
+        <div class="cart-item-image">
+          {%- if item.image -%}
+            <img src="{{ item.image | image_url: width: 160 }}"
+                 alt="{{ item.product.title | escape }}"
+                 loading="lazy"
+                 width="80"
+                 height="80">
+          {%- endif -%}
+        </div>
+        
+        <div class="cart-item-details">
+          <h3 class="cart-item-title">
+            <a href="{{ item.url }}">{{ item.product.title | escape }}</a>
+          </h3>
+          
+          {%- unless item.product.has_only_default_variant -%}
+            <p class="cart-item-variant">
+              {%- for option in item.variant.options -%}
+                {{ option }}{% unless forloop.last %}, {% endunless %}
+              {%- endfor -%}
+            </p>
+          {%- endunless -%}
+          
+          {%- if item.properties != empty -%}
+            {%- for property in item.properties -%}
+              {%- unless property.last == blank -%}
+                <p class="cart-item-property">
+                  {{ property.first }}: {{ property.last }}
+                </p>
+              {%- endunless -%}
+            {%- endfor -%}
+          {%- endif -%}
+          
+          <div class="cart-item-price">
+            {%- if item.original_price != item.final_price -%}
+              <s class="cart-item-original-price">{{ item.original_price | money }}</s>
+            {%- endif -%}
+            {{ item.final_price | money }}
+          </div>
+          
+          <div class="cart-item-quantity">
+            <button type="button" 
+                    class="quantity-button" 
+                    data-cart-action="update" 
+                    data-quantity="{{ item.quantity | minus: 1 }}"
+                    aria-label="{{ 'products.product.quantity.decrease' | t }}">
+              <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                <path d="M2 6H10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+            </button>
+            
+            <input type="number" 
+                   name="quantity" 
+                   value="{{ item.quantity }}" 
+                   min="0" 
+                   aria-label="{{ 'products.product.quantity.input_label' | t }}"
+                   data-cart-action="update"
+                   data-line-item="{{ forloop.index }}">
+            
+            <button type="button" 
+                    class="quantity-button" 
+                    data-cart-action="update" 
+                    data-quantity="{{ item.quantity | plus: 1 }}"
+                    aria-label="{{ 'products.product.quantity.increase' | t }}">
+              <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                <path d="M6 2V10M2 6H10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+            </button>
+            
+            <button type="button" 
+                    class="cart-item-remove" 
+                    data-cart-action="remove"
+                    aria-label="{{ 'sections.cart.remove_title' | t }}">
+              {{ 'sections.cart.remove' | t }}
+            </button>
+          </div>
+        </div>
+      </div>
+    {%- endfor -%}
+  </div>
+  
+  <div class="cart-summary">
+    <div class="cart-total">
+      <span class="cart-total-label">{{ 'sections.cart.subtotal' | t }}</span>
+      <span class="cart-total-price">{{ cart.total_price | money }}</span>
+    </div>
+    
+    {%- if cart.cart_level_discount_applications.size > 0 -%}
+      <ul class="cart-discounts">
+        {%- for discount in cart.cart_level_discount_applications -%}
+          <li class="cart-discount">
+            {{ discount.title }}
+            (-{{ discount.total_allocated_amount | money }})
+          </li>
+        {%- endfor -%}
+      </ul>
+    {%- endif -%}
+    
+    <a href="{{ routes.cart_url }}" class="cart-checkout-button">
+      {{ 'sections.cart.checkout' | t }}
+    </a>
+    
+    <p class="cart-taxes-shipping">
+      {%- if cart.taxes_included and shop.shipping_policy.body != blank -%}
+        {{ 'sections.cart.taxes_included_and_shipping_policy_html' | t: link: shop.shipping_policy.url }}
+      {%- elsif cart.taxes_included -%}
+        {{ 'sections.cart.taxes_included_but_shipping_at_checkout' | t }}
+      {%- elsif shop.shipping_policy.body != blank -%}
+        {{ 'sections.cart.taxes_and_shipping_policy_at_checkout_html' | t: link: shop.shipping_policy.url }}
+      {%- else -%}
+        {{ 'sections.cart.taxes_and_shipping_at_checkout' | t }}
+      {%- endif -%}
+    </p>
+  </div>
+{%- else -%}
+  <div class="empty-state">
+    <div class="empty-state-icon">
+      <svg width="64" height="64" viewBox="0 0 64 64" fill="none">
+        <path d="M20 24h24l2 24H18l2-24z" stroke="currentColor" stroke-width="2"/>
+        <path d="M28 24v-4a4 4 0 018 0v4" stroke="currentColor" stroke-width="2"/>
+      </svg>
+    </div>
+    <h3>{{ 'general.cart.empty_title' | t }}</h3>
+    <p>{{ 'general.cart.empty_description' | t }}</p>
+    <a href="{{ routes.all_products_collection_url }}" class="button button--primary">
+      {{ 'general.cart.continue_shopping' | t }}
+    </a>
+  </div>
+{%- endif -%}

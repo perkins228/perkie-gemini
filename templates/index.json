@@ -1,0 +1,556 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "sections": {
+    "ks_lookbook_k78e9w": {
+      "type": "ks-lookbook",
+      "disabled": true,
+      "name": "KS - Lookbook",
+      "settings": {
+        "color_scheme": "",
+        "page_width": "",
+        "title": "Look Book",
+        "heading_size": "h1",
+        "description": "<p>An optional description for this section</p>",
+        "description_size": "fs-md",
+        "img_mobile_ratio": "adapt",
+        "img_desktop": "shopify://shop_images/unisex-tee_maker--copy1-ezgif.com-optimize.gif",
+        "img_desktop_ratio": "adapt",
+        "point_color": "#121212",
+        "point_diameter": 1,
+        "pt": 36,
+        "pb": 36
+      }
+    },
+    "1761192777a0c80cce": {
+      "type": "_blocks",
+      "blocks": {
+        "ai_gen_block_737c662_7jHAAh": {
+          "type": "ai_gen_block_737c662",
+          "disabled": true,
+          "settings": {
+            "aspect_ratio": "16/9",
+            "max_width": 1200,
+            "border_radius": 0,
+            "initial_position": 50,
+            "divider_width": 3,
+            "divider_color": "#ffffff",
+            "handle_size": 50,
+            "handle_color": "#ffffff",
+            "handle_icon_color": "#000000",
+            "show_labels": true,
+            "before_label": "Before",
+            "after_label": "After",
+            "label_font_size": 14,
+            "label_bg_color": "#000000",
+            "label_text_color": "#ffffff",
+            "label_border_radius": 4,
+            "label_position_horizontal": 20,
+            "label_position_vertical": 20
+          },
+          "blocks": {}
+        }
+      },
+      "block_order": [
+        "ai_gen_block_737c662_7jHAAh"
+      ],
+      "settings": {}
+    },
+    "image_banner_GfEN9b": {
+      "type": "image-banner",
+      "blocks": {
+        "heading_4KXhgC": {
+          "type": "heading",
+          "settings": {
+            "heading": "Turn a Photo into a Keepsake",
+            "heading_size": "h0"
+          }
+        },
+        "text_pimcgB": {
+          "type": "text",
+          "settings": {
+            "text": "Hand-illustrated pet portraits, framed prints, and products that celebrate the love you share.",
+            "text_style": "body"
+          }
+        },
+        "buttons_KKgG7L": {
+          "type": "buttons",
+          "settings": {
+            "button_label_1": "Shop Now",
+            "button_link_1": "shopify://collections/personalized-pet-products-gifts",
+            "button_style_secondary_1": false,
+            "button_label_2": "Free Preview",
+            "button_link_2": "shopify://pages/custom-image-processing",
+            "button_style_secondary_2": false
+          }
+        }
+      },
+      "block_order": [
+        "heading_4KXhgC",
+        "text_pimcgB",
+        "buttons_KKgG7L"
+      ],
+      "name": "t:sections.image-banner.presets.name",
+      "settings": {
+        "image": "shopify://shop_images/Homepage.png",
+        "image_overlay_opacity": 0,
+        "image_height": "adapt",
+        "image_behavior": "none",
+        "desktop_content_position": "bottom-center",
+        "desktop_content_alignment": "center",
+        "show_text_box": false,
+        "color_scheme": "scheme-f318d737-2be2-4346-8605-b2fbd6208608",
+        "stack_images_on_mobile": true,
+        "mobile_content_alignment": "center",
+        "show_text_below": true
+      }
+    },
+    "ks_marquee_d9Eyaf": {
+      "type": "ks-marquee",
+      "blocks": {
+        "text_JPKLEr": {
+          "type": "text",
+          "disabled": true,
+          "settings": {
+            "text": "BOGO 50% OFF with code:BOGOPERK",
+            "url": ""
+          }
+        }
+      },
+      "block_order": [
+        "text_JPKLEr"
+      ],
+      "name": "KS - Marquee",
+      "settings": {
+        "color_scheme": "scheme-bbe9ca6b-0116-4f9e-8bc7-ac1f3a240349",
+        "font_size": "fs-lg",
+        "font_size_desktop": "fs-desktop-md",
+        "text_transform": "",
+        "letter_spacing": 2,
+        "img_opacity": 1,
+        "list_label": "Promotional list",
+        "marquee_duration": 18,
+        "marquee_direction": "left",
+        "separator_icon": "heart",
+        "separator_icon_size": 18,
+        "separator_icon_stroke_width": 1.5,
+        "gap": 4,
+        "pt": 4,
+        "pb": 4
+      }
+    },
+    "ks_simple_collections_GrfLhc": {
+      "type": "ks-simple-collections",
+      "blocks": {
+        "collection_bAgHcW": {
+          "type": "collection",
+          "settings": {
+            "collection": "personalized-pet-portraits",
+            "img": "shopify://shop_images/natural_frameratio_939c3670-cc59-4472-9f7a-8a945087c4ed.webp",
+            "title": "Portraits"
+          }
+        },
+        "collection_ybQGrr": {
+          "type": "collection",
+          "settings": {
+            "collection": "personalized-pet-apparel-accessories",
+            "img": "shopify://shop_images/white_t_1.webp",
+            "title": "Apparel & Accessories"
+          }
+        },
+        "collection_kFBiHa": {
+          "type": "collection",
+          "settings": {
+            "collection": "personalized-home-decor",
+            "img": "shopify://shop_images/coffee_mug-removebg-preview_1.png",
+            "title": "Home"
+          }
+        },
+        "collection_hbRgpp": {
+          "type": "collection",
+          "settings": {
+            "collection": "personalized-kids-baby",
+            "img": "shopify://shop_images/Onesie_b8ff476f-8874-47aa-92e7-6535b1269938.png",
+            "title": "Kids"
+          }
+        },
+        "collection_zgAPDe": {
+          "type": "collection",
+          "settings": {
+            "collection": "perkie-originals",
+            "img": "shopify://shop_images/readymade-removebg-preview_2.webp",
+            "title": "Perkie Originals"
+          }
+        }
+      },
+      "block_order": [
+        "collection_bAgHcW",
+        "collection_ybQGrr",
+        "collection_kFBiHa",
+        "collection_hbRgpp",
+        "collection_zgAPDe"
+      ],
+      "name": "KS - Simple collections",
+      "settings": {
+        "color_scheme": "scheme-f318d737-2be2-4346-8605-b2fbd6208608",
+        "title": "Featured Collections",
+        "heading_size": "h2",
+        "description": "",
+        "description_size": "fs-md",
+        "label": "Featured collections",
+        "item_img_size": 130,
+        "item_show_title": true,
+        "item_title_font_size": "fs-sm",
+        "item_title_truncate": true,
+        "item_show_product_count": false,
+        "pt": 20,
+        "pb": 20
+      }
+    },
+    "ks_image_compare_FEc4MF": {
+      "type": "ks-image-compare",
+      "settings": {
+        "color_scheme": "scheme-f318d737-2be2-4346-8605-b2fbd6208608",
+        "page_width": "",
+        "show_only_img": false,
+        "img_alignment": "right",
+        "mobile_before_img": "shopify://shop_images/anna_before_desktop.webp",
+        "mobile_after_img": "shopify://shop_images/anna_after_desktop.webp",
+        "desktop_before_img": "shopify://shop_images/anna_before_desktop.webp",
+        "desktop_after_img": "shopify://shop_images/anna_after_desktop.webp",
+        "icv_controls_color": "#ffffff",
+        "icv_controls_circle": false,
+        "icv_smoothing": true,
+        "icv_hover_start": false,
+        "icv_vertical_mode": false,
+        "icv_starting_point": 50,
+        "icv_show_labels": true,
+        "icv_label_before": "Before",
+        "icv_label_after": "After",
+        "icv_labels_font_size": 0.5,
+        "icv_labels_position": "top",
+        "text_align_mobile": "text-center",
+        "text_align_desktop": "text-tablet-center",
+        "subtitle": "",
+        "subtitle_font_size": "fs-xs",
+        "title": "We Transform Your Photos Into Art",
+        "title_font_size": "h2",
+        "description": "<p>We convert your everyday photos into studio quality images without the hassle or cost of professional photography </p>",
+        "description_font_size": "fs-lg",
+        "btn_primary_text": "Free Preview",
+        "btn_primary_style": "button--primary",
+        "btn_primary_url": "shopify://pages/custom-image-processing",
+        "btn_secondary_text": "",
+        "btn_secondary_style": "button--secondary",
+        "btn_secondary_url": "",
+        "pt": 20,
+        "pb": 20
+      }
+    },
+    "collapsible_content_mUfHFe": {
+      "type": "collapsible-content",
+      "blocks": {
+        "collapsible_row_8hzNN9": {
+          "type": "collapsible_row",
+          "settings": {
+            "heading": "Upload Your Image",
+            "icon": "paw_print",
+            "row_content": "<p>Upload your pet’s photo to our <a href=\"/pages/custom-image-processing\" title=\"Custom Image Processing\">Image Processor </a>— it’s just a preview! Leave a note for the artist with any preferences, and check our <a href=\"/pages/choosing-an-existing-photo\" title=\"How to Choose Your Photo\">How to Choose Your Photo</a> guide for tips to get the best Perkie Print.<br/><br/></p>",
+            "page": ""
+          }
+        },
+        "collapsible_row_EMdEzY": {
+          "type": "collapsible_row",
+          "settings": {
+            "heading": "Select Your Product",
+            "icon": "shirt",
+            "row_content": "<p>Choose your favorite product(s) to personalize with your pet's image and name.</p>",
+            "page": ""
+          }
+        },
+        "collapsible_row_HrK6An": {
+          "type": "collapsible_row",
+          "settings": {
+            "heading": "Approve Your Artwork",
+            "icon": "check_mark",
+            "row_content": "<p>Within 24 hours of placing your order, we’ll send you an email to start the photo selection process. Our artist will then work their magic, and in just 1-2 days you’ll get a preview of your custom Perkie Print in your inbox for your approval.</p>",
+            "page": ""
+          }
+        },
+        "collapsible_row_YApjC7": {
+          "type": "collapsible_row",
+          "settings": {
+            "heading": "We Create & Ship",
+            "icon": "truck",
+            "row_content": "<p>Once you give us the go-ahead, we’ll handcraft your Perkie Print and ship it out ASAP so you can start enjoying it or surprise someone special.</p>",
+            "page": ""
+          }
+        }
+      },
+      "block_order": [
+        "collapsible_row_8hzNN9",
+        "collapsible_row_EMdEzY",
+        "collapsible_row_HrK6An",
+        "collapsible_row_YApjC7"
+      ],
+      "settings": {
+        "caption": "",
+        "heading": "How it works",
+        "heading_size": "h1",
+        "heading_alignment": "center",
+        "layout": "none",
+        "container_color_scheme": "scheme-f318d737-2be2-4346-8605-b2fbd6208608",
+        "color_scheme": "scheme-f318d737-2be2-4346-8605-b2fbd6208608",
+        "open_first_collapsible_row": true,
+        "image_ratio": "adapt",
+        "desktop_layout": "image_second",
+        "padding_top": 20,
+        "padding_bottom": 24
+      }
+    },
+    "featured_collection_Jxhrxe": {
+      "type": "featured-collection",
+      "settings": {
+        "collection": "bestsellers",
+        "products_to_show": 10,
+        "title": "",
+        "heading_size": "h1",
+        "description": "",
+        "show_description": false,
+        "description_style": "body",
+        "columns_desktop": 4,
+        "enable_desktop_slider": true,
+        "full_width": false,
+        "show_view_all": true,
+        "view_all_style": "link",
+        "color_scheme": "scheme-f318d737-2be2-4346-8605-b2fbd6208608",
+        "image_ratio": "square",
+        "image_shape": "default",
+        "show_secondary_image": true,
+        "show_vendor": false,
+        "show_rating": true,
+        "quick_add": "none",
+        "columns_mobile": "2",
+        "swipe_on_mobile": true,
+        "padding_top": 20,
+        "padding_bottom": 20
+      }
+    },
+    "ks_parallax_media_VzVbNE": {
+      "type": "ks-parallax-media",
+      "name": "KS - Parallax media",
+      "settings": {
+        "video_mobile": "shopify://files/videos/Brand Video_7e001be6-09d2-421d-8ca6-c5788c7fc467.mp4",
+        "video_desktop": "shopify://files/videos/Brand Video_7e001be6-09d2-421d-8ca6-c5788c7fc467.mp4",
+        "media_mobile_height": 400,
+        "media_desktop_height": 650,
+        "media_adapt": true,
+        "overlay_color": "#000000",
+        "overlay_opacity": 0,
+        "overlay_blur": 0,
+        "overlay_top_bottom_border": false,
+        "parallax_orientation": "down",
+        "parallax_scale": 1,
+        "color_scheme": "scheme-f318d737-2be2-4346-8605-b2fbd6208608",
+        "caption_max_width": "900",
+        "subtitle": "",
+        "subtitle_font_size": "fs-sm",
+        "title": "",
+        "title_font_size": "h1",
+        "description": "",
+        "description_font_size": "fs-lg",
+        "btn_primary_text": "",
+        "btn_primary_style": "button--primary",
+        "btn_primary_url": "",
+        "btn_secondary_text": "",
+        "btn_secondary_style": "button--secondary",
+        "btn_secondary_url": "",
+        "pt": 0,
+        "pb": 0
+      }
+    },
+    "featured_product_amzyGg": {
+      "type": "featured-product",
+      "blocks": {
+        "text_4dXyWQ": {
+          "type": "text",
+          "settings": {
+            "text": "{{ section.settings.product.vendor }}",
+            "text_style": "uppercase"
+          }
+        },
+        "title_BY4BXM": {
+          "type": "title",
+          "settings": {
+            "heading_size": "h2"
+          }
+        },
+        "price_JUXTjR": {
+          "type": "price",
+          "settings": {}
+        },
+        "variant_picker_QiQhH7": {
+          "type": "variant_picker",
+          "settings": {
+            "picker_type": "button",
+            "swatch_shape": "circle"
+          }
+        },
+        "quantity_selector_FGBYNB": {
+          "type": "quantity_selector",
+          "settings": {}
+        },
+        "buy_buttons_MUJwH8": {
+          "type": "buy_buttons",
+          "settings": {
+            "show_dynamic_checkout": false,
+            "show_gift_card_recipient": true
+          }
+        },
+        "share_agzPLd": {
+          "type": "share",
+          "settings": {
+            "share_label": "Share"
+          }
+        }
+      },
+      "block_order": [
+        "text_4dXyWQ",
+        "title_BY4BXM",
+        "price_JUXTjR",
+        "variant_picker_QiQhH7",
+        "quantity_selector_FGBYNB",
+        "buy_buttons_MUJwH8",
+        "share_agzPLd"
+      ],
+      "disabled": true,
+      "settings": {
+        "product": "personalized-pet-portrait-in-black-frame",
+        "color_scheme": "scheme-f318d737-2be2-4346-8605-b2fbd6208608",
+        "secondary_background": false,
+        "media_size": "small",
+        "constrain_to_viewport": true,
+        "media_fit": "contain",
+        "media_position": "left",
+        "image_zoom": "lightbox",
+        "hide_variants": true,
+        "enable_video_looping": false,
+        "padding_top": 12,
+        "padding_bottom": 12
+      }
+    },
+    "ks_testimonials_XBY9Fx": {
+      "type": "ks-testimonials",
+      "blocks": {
+        "slide_ANbW8t": {
+          "type": "slide",
+          "settings": {
+            "title": "Love our Perkie Prints",
+            "description": "<p>\"We’ve gotten Perkie Prints for all of our past 3 dogs. Just ordered #4 of our 5 month old puppy to add to our wall. Will get a nice big one when our pup is full grown. Love them!\"</p>",
+            "author": "Merry M",
+            "author_subtitle": "Verified Customer",
+            "product": ""
+          }
+        },
+        "slide_h4F9Mk": {
+          "type": "slide",
+          "settings": {
+            "title": "Every dog mom needs one...",
+            "description": "<p>\"This is my second pillow<br/>The first was for my dog who passed away and then I just got a another dog so I have one of each on my couch and they look amazing\"</p>",
+            "author": "Janai B",
+            "author_subtitle": "Verified Customer",
+            "product": ""
+          }
+        },
+        "slide_WjhPrf": {
+          "type": "slide",
+          "settings": {
+            "title": "Makes shopping easy!",
+            "description": "<p>\"I gave a Perkie Print for Christmas!! It was such a huge hit!! Thank you for helping me with my Christmas shopping!! A beautiful Perkie Print is the BEST gift idea for all occasions!\"</p>",
+            "author": "Victoria S",
+            "author_subtitle": "Verified Customer",
+            "product": ""
+          }
+        },
+        "slide_xkn8X9": {
+          "type": "slide",
+          "settings": {
+            "title": "Would Give More Stars",
+            "description": "<p>\"If I could give more than 5 stars I would! The artwork turned out so good and the artist who made the print was so kind and easy to work with 10/10!\"</p>",
+            "author": "Jennifer A.",
+            "author_subtitle": "Verified Customer",
+            "product": ""
+          }
+        },
+        "slide_JWnLin": {
+          "type": "slide",
+          "settings": {
+            "title": "She Loved It!",
+            "description": "<p>\"Ordered this for a client and she loved it so much we're ordering more! Great communication with the team on the design and it came so much faster than expected.\"</p>",
+            "author": "Jack P.",
+            "author_subtitle": "Verified Customer",
+            "product": ""
+          }
+        },
+        "slide_XtVxbp": {
+          "type": "slide",
+          "settings": {
+            "title": "Highly recommend",
+            "description": "<p></p><p>\"Loved the mug I ordered for our sick pup. The quality was amazing and will be such a nicer reminder of our sweet boy.\"</p><p></p>",
+            "author": "Alexa P",
+            "author_subtitle": "Verified Customer",
+            "product": ""
+          }
+        }
+      },
+      "block_order": [
+        "slide_ANbW8t",
+        "slide_h4F9Mk",
+        "slide_WjhPrf",
+        "slide_xkn8X9",
+        "slide_JWnLin",
+        "slide_XtVxbp"
+      ],
+      "name": "KS - Testimonials",
+      "settings": {
+        "color_scheme": "scheme-f318d737-2be2-4346-8605-b2fbd6208608",
+        "title": "",
+        "heading_size": "h2",
+        "testimonial_show_stars": true,
+        "stars_color_scheme": "#121212",
+        "testimonial_title_font_size": "fs-lg",
+        "testimonial_description_font_size": "fs-md",
+        "testimonial_product_show_price": true,
+        "testimonial_product_img_size": 60,
+        "card_color_scheme": "scheme-0d2d3905-9794-42ac-a4c7-5701425dd018",
+        "card_text_alignment": "left",
+        "card_border_thickness": 0,
+        "card_border_opacity": 0,
+        "card_corner_radius": 0,
+        "columns_desktop": 4,
+        "pt": 8,
+        "pb": 0
+      }
+    }
+  },
+  "order": [
+    "ks_lookbook_k78e9w",
+    "1761192777a0c80cce",
+    "image_banner_GfEN9b",
+    "ks_marquee_d9Eyaf",
+    "ks_simple_collections_GrfLhc",
+    "ks_image_compare_FEc4MF",
+    "collapsible_content_mUfHFe",
+    "featured_collection_Jxhrxe",
+    "ks_parallax_media_VzVbNE",
+    "featured_product_amzyGg",
+    "ks_testimonials_XBY9Fx"
+  ]
+}

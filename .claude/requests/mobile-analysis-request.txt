@@ -1,0 +1,22 @@
+MOBILE COMMERCE ARCHITECT REQUEST
+
+Context: .claude/tasks/context_session_1736096953.md
+UX Analysis: .claude/doc/return-to-product-ux-analysis.md
+
+Question: Mobile-specific impact of return-to-product-page functionality
+
+Key Stats:
+- 70% of orders are mobile
+- Current flow forces mobile users to navigate collections after processing
+- Processing takes 30-60s (cold start awareness needed)
+
+Analysis Needed:
+1. Mobile abandonment risk at navigation step (quantify)
+2. Touch interaction analysis (tap count reduction)
+3. Mobile back button behavior expectations
+4. App switching/session restoration implications
+5. Mobile-specific conversion lift estimate
+6. Implementation risks for mobile browsers (iOS Safari, Android Chrome)
+
+Deliverable: Append mobile-specific findings to session context with recommendation
+

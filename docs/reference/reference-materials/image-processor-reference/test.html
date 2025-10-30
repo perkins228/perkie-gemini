@@ -1,0 +1,3151 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>T-Shirt Preview with Cropping (Retina Support)</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .image-container {
+            display: flex;
+            gap: 20px;
+            align-items: flex-start;
+        }
+        .image-box {
+            flex: 1;
+            border: 1px solid #ccc;
+            padding: 10px;
+            border-radius: 4px;
+        }
+        .image-box img {
+            max-width: 100%;
+            height: auto;
+        }
+        .controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .loading {
+            display: none;
+            color: #666;
+        }
+        .error {
+            color: red;
+            display: none;
+        }
+        #tshirtPreview {
+            border: 1px solid #ccc;
+            background: #f8f8f8;
+            display: block;
+            margin: 20px auto;
+            width: 600px;
+            height: 700px;
+        }
+        .preview-controls {
+            text-align: center;
+            margin: 20px 0;
+        }
+        #cropContainer {
+            text-align: center;
+            margin: 20px 0;
+            display: none;
+        }
+        #cropCanvas {
+            border: 1px solid #888;
+            background: #fff;
+            display: block;
+            margin: 0 auto 10px auto;
+            cursor: crosshair;
+            width: 400px;
+            height: 400px;
+        }
+        #cropBtn {
+            margin-top: 10px;
+            padding: 8px 20px;
+            background: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        #cropBtn:hover {
+            background: #0056b3;
+        }
+        .crop-shape-toggle {
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+        .crop-shape-toggle label {
+            margin: 0 10px;
+            cursor: pointer;
+        }
+        .rotation-controls, .zoom-controls {
+            text-align: center;
+            margin: 10px 0 10px 0;
+        }
+        .rotation-controls label, .zoom-controls label {
+            margin-right: 10px;
+        }
+        .rotation-controls input[type=range], .zoom-controls input[type=range] {
+            width: 200px;
+            vertical-align: middle;
+        }
+        .rotation-value, .zoom-value {
+            display: inline-block;
+            width: 40px;
+            text-align: left;
+            margin-left: 10px;
+        }
+        .spinner {
+            margin: 20px auto;
+            border: 6px solid #f3f3f3;
+            border-top: 6px solid #007bff;
+            border-radius: 50%;
+            width: 48px;
+            height: 48px;
+            animation: spin 1s linear infinite;
+            display: block;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>T-Shirt Preview</h1>
+        
+        <div class="preview-controls">
+            <input type="file" id="userImageInput" accept="image/*">
+            <select id="effectSelect">
+                <option value="blackwhite">Black & White</option>
+                <option value="dithering">Floyd-Steinberg Dithering</option>
+                <option value="watercolor">Watercolor</option>
+                <option value="mosaic">Mosaic</option>
+                <option value="popart">Pop Art</option>
+                <option value="8bit">8-Bit Retro</option>
+            </select>
+            <button id="processBtn">Process & Preview</button>
+            <span style="margin-left:20px; color:#888;">Tip: Hold Shift and drag up/down to scale (on t-shirt preview)</span>
+        </div>
+        <div id="spinner" class="spinner" style="display:none;"></div>
+
+
+
+        <div id="cropContainer">
+            <div class="rotation-controls">
+                <label for="cropRotationSlider">Rotate:</label>
+                <input type="range" id="cropRotationSlider" min="-180" max="180" value="0">
+                <span class="rotation-value" id="cropRotationValue">0°</span>
+            </div>
+            <div class="zoom-controls">
+                <label for="cropZoomSlider">Zoom:</label>
+                <input type="range" id="cropZoomSlider" min="0.2" max="3" step="0.01" value="1">
+                <span class="zoom-value" id="cropZoomValue">1.00×</span>
+            </div>
+            
+            <div class="crop-options" style="margin: 15px 0; text-align: center;">
+                <label style="margin-right: 15px;">
+                    <input type="checkbox" id="enableCropSelection"> Enable Crop Selection
+                </label>
+            </div>
+            
+            <div id="cropShapeContainer" class="crop-shape-toggle" style="display: none;">
+                <label><input type="radio" name="cropShape" value="square" checked> Square</label>
+                <label><input type="radio" name="cropShape" value="circle"> Circle</label>
+            </div>
+
+            <canvas id="cropCanvas"></canvas><br>
+            <button id="cropBtn">Continue to Preview</button>
+        </div>
+
+        <canvas id="tshirtPreview"></canvas>
+        <div id="resetContainer" style="text-align:center; margin-top:10px; display:none;">
+            <button id="resetBtn">Reset</button>
+            <button id="refreshCanvasBtn" style="margin-left: 10px; background-color: #28a745;">Refresh Canvas</button>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Debug mode flag - set to false for production
+            const DEBUG_MODE = window.location.search.includes('debug=true');
+            
+            // =============================================================================
+            // DIAGNOSTIC SYSTEM - Help troubleshoot canvas and network issues
+            // =============================================================================
+            
+            function runDiagnostics() {
+                // Only log diagnostics in debug mode
+                if (DEBUG_MODE) {
+                    console.log('🔍 Running diagnostic checks...');
+                }
+                
+                const diagnostics = {
+                    timestamp: new Date().toISOString(),
+                    browser: {
+                        userAgent: navigator.userAgent,
+                        platform: navigator.platform,
+                        language: navigator.language,
+                        cookieEnabled: navigator.cookieEnabled,
+                        onLine: navigator.onLine
+                    },
+                    display: {
+                        devicePixelRatio: window.devicePixelRatio || 1,
+                        screenWidth: screen.width,
+                        screenHeight: screen.height,
+                        windowWidth: window.innerWidth,
+                        windowHeight: window.innerHeight
+                    },
+                    canvas: {
+                        support: !!document.createElement('canvas').getContext,
+                        webgl: !!document.createElement('canvas').getContext('webgl'),
+                        webgl2: !!document.createElement('canvas').getContext('webgl2')
+                    },
+                    network: navigator.connection ? {
+                        effectiveType: navigator.connection.effectiveType,
+                        downlink: navigator.connection.downlink,
+                        rtt: navigator.connection.rtt,
+                        saveData: navigator.connection.saveData
+                    } : 'Not available',
+                    elements: {
+                        tshirtPreview: !!document.getElementById('tshirtPreview'),
+                        cropCanvas: !!document.getElementById('cropCanvas'),
+                        processBtn: !!document.getElementById('processBtn'),
+                        userImageInput: !!document.getElementById('userImageInput')
+                    }
+                };
+                
+                if (DEBUG_MODE) {
+                    console.log('📊 Diagnostic Results:', diagnostics);
+                }
+                
+                // Check for common issues
+                const issues = [];
+                if (diagnostics.display.devicePixelRatio > 3) {
+                    issues.push('High device pixel ratio detected - may cause canvas memory issues');
+                }
+                if (!diagnostics.canvas.support) {
+                    issues.push('Canvas not supported in this browser');
+                }
+                if (!diagnostics.browser.onLine) {
+                    issues.push('Browser reports offline status');
+                }
+                if (!diagnostics.elements.tshirtPreview || !diagnostics.elements.cropCanvas) {
+                    issues.push('Canvas elements missing from DOM');
+                }
+                
+                if (issues.length > 0) {
+                    console.warn('⚠️ Potential issues found:', issues);
+                } else if (DEBUG_MODE) {
+                    console.log('✅ No obvious issues detected');
+                }
+                
+                return diagnostics;
+            }
+            
+            // Run diagnostics on page load only in debug mode
+            const diagnostics = DEBUG_MODE ? runDiagnostics() : null;
+            
+            // Make diagnostics available globally for debugging
+            if (DEBUG_MODE) {
+                window.runDiagnostics = runDiagnostics;
+            }
+            
+            // =============================================================================
+            // EFFECT CONTAINER SYSTEM - Isolated effect implementations
+            // =============================================================================
+            
+            const EffectContainer = {
+                // Effect registry for clean organization
+                effects: {},
+                
+                // Register a new effect
+                register(name, effectFunction, config = {}) {
+                    this.effects[name] = {
+                        fn: effectFunction,
+                        config: {
+                            requiresBackend: config.requiresBackend || false,
+                            description: config.description || name,
+                            ...config
+                        }
+                    };
+                },
+                
+                // Execute an effect safely with performance timing
+                async execute(name, img) {
+                    if (!this.effects[name]) {
+                        throw new Error(`Effect '${name}' not found`);
+                    }
+                    
+                    try {
+                        const startTime = performance.now();
+                        if (DEBUG_MODE) console.log(`🎨 Starting ${name} effect (${img.width}×${img.height} pixels)...`);
+                        
+                        const result = await this.effects[name].fn(img);
+                        
+                        const endTime = performance.now();
+                        const processingTime = endTime - startTime;
+                        const totalPixels = img.width * img.height;
+                        const pixelsPerSecond = Math.round(totalPixels / (processingTime / 1000));
+                        
+                        // Log performance metrics only in debug mode
+                        if (DEBUG_MODE) {
+                            console.log(`⚡ ${name} completed in ${processingTime.toFixed(2)}ms`);
+                            console.log(`📊 ${name} performance: ${pixelsPerSecond.toLocaleString()} pixels/second`);
+                        }
+                        
+                        return result;
+                    } catch (error) {
+                        console.error(`Error executing effect '${name}':`, error);
+                        throw error;
+                    }
+                },
+                
+                // Get effect configuration
+                getConfig(name) {
+                    return this.effects[name]?.config || null;
+                },
+                
+                // List all available effects
+                list() {
+                    return Object.keys(this.effects);
+                }
+            };
+
+            // BLACK & WHITE EFFECT
+            
+            EffectContainer.register('blackwhite', async function(img) {
+                const canvas = document.createElement('canvas');
+                canvas.width = img.width;
+                canvas.height = img.height;
+                const ctx = canvas.getContext('2d');
+                
+                ctx.drawImage(img, 0, 0);
+                const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                const data = imageData.data;
+                
+                // Professional B&W conversion with multiple enhancement techniques
+                
+                // 1. Analyze image characteristics for adaptive processing
+                function analyzeImageCharacteristics(data, width, height) {
+                    let totalLuminance = 0;
+                    let contrastSum = 0;
+                    let skinTonePixels = 0;
+                    let highDetailAreas = 0;
+                    let validPixels = 0;
+                    
+                    // Sample every 4th pixel for efficiency while maintaining accuracy
+                    for (let y = 0; y < height; y += 2) {
+                        for (let x = 0; x < width; x += 2) {
+                            const idx = (y * width + x) * 4;
+                            const alpha = data[idx + 3];
+                            
+                            if (alpha === 0) continue; // Skip transparent pixels
+                            
+                            const r = data[idx];
+                            const g = data[idx + 1];
+                            const b = data[idx + 2];
+                            
+                            // Calculate luminance
+                            const lum = 0.299 * r + 0.587 * g + 0.114 * b;
+                            totalLuminance += lum;
+                            
+                            // Detect skin tones (expanded range for better detection)
+                            const isSkinTone = (r > g && r > b && r - g < 60 && r - b < 80 && 
+                                              r > 95 && g > 40 && b > 20 && Math.abs(r - g) < 70);
+                            if (isSkinTone) skinTonePixels++;
+                            
+                            // Calculate local contrast for detail detection
+                            if (x > 0 && y > 0 && x < width - 2 && y < height - 2) {
+                                const neighbors = [
+                                    0.299 * data[((y-2) * width + (x-2)) * 4] + 0.587 * data[((y-2) * width + (x-2)) * 4 + 1] + 0.114 * data[((y-2) * width + (x-2)) * 4 + 2],
+                                    0.299 * data[((y-2) * width + (x+2)) * 4] + 0.587 * data[((y-2) * width + (x+2)) * 4 + 1] + 0.114 * data[((y-2) * width + (x+2)) * 4 + 2],
+                                    0.299 * data[((y+2) * width + (x-2)) * 4] + 0.587 * data[((y+2) * width + (x-2)) * 4 + 1] + 0.114 * data[((y+2) * width + (x-2)) * 4 + 2],
+                                    0.299 * data[((y+2) * width + (x+2)) * 4] + 0.587 * data[((y+2) * width + (x+2)) * 4 + 1] + 0.114 * data[((y+2) * width + (x+2)) * 4 + 2]
+                                ];
+                                
+                                const localContrast = Math.max(...neighbors) - Math.min(...neighbors);
+                                contrastSum += localContrast;
+                                
+                                if (localContrast > 40) highDetailAreas++;
+                            }
+                            
+                            validPixels++;
+                        }
+                    }
+                    
+                    const avgLuminance = totalLuminance / validPixels;
+                    const avgContrast = contrastSum / validPixels;
+                    const skinToneRatio = skinTonePixels / validPixels;
+                    const detailRatio = highDetailAreas / validPixels;
+                    
+                    return {
+                        avgLuminance,
+                        avgContrast,
+                        skinToneRatio,
+                        detailRatio,
+                        isPortrait: skinToneRatio > 0.05, // More than 5% skin tones suggests portrait
+                        isHighDetail: detailRatio > 0.15, // More than 15% high-detail areas
+                        isLowContrast: avgContrast < 30,
+                        isDark: avgLuminance < 100,
+                        isBright: avgLuminance > 180
+                    };
+                }
+                
+                // 2. Professional channel mixing based on image type
+                function getOptimalChannelWeights(characteristics) {
+                    if (characteristics.isPortrait) {
+                        // Portrait-optimized: enhance skin tones, softer contrast
+                        return {
+                            red: 0.4,    // Higher red for skin tone preservation
+                            green: 0.5,  // Moderate green for natural skin
+                            blue: 0.1,   // Lower blue for warmer feel
+                            contrast: 1.15,
+                            gamma: 1.1
+                        };
+                    } else if (characteristics.isHighDetail) {
+                        // Detail-optimized: enhance edges and textures
+                        return {
+                            red: 0.25,
+                            green: 0.65,  // Higher green for detail preservation
+                            blue: 0.1,
+                            contrast: 1.25,
+                            gamma: 0.95
+                        };
+                    } else {
+                        // Landscape/General: balanced, slightly punchy
+                        return {
+                            red: 0.3,
+                            green: 0.59,
+                            blue: 0.11,   // Classic weights with slight adjustment
+                            contrast: 1.2,
+                            gamma: 1.0
+                        };
+                    }
+                }
+                
+                // 3. Advanced tone mapping with local adaptation
+                function createToneCurve(characteristics) {
+                    const curve = new Array(256);
+                    
+                    for (let i = 0; i < 256; i++) {
+                        let adjusted = i;
+                        
+                        // Adaptive gamma correction
+                        const weights = getOptimalChannelWeights(characteristics);
+                        adjusted = Math.pow(adjusted / 255, 1 / weights.gamma) * 255;
+                        
+                        // Shadow/highlight recovery
+                        if (characteristics.isDark) {
+                            // Lift shadows for dark images
+                            if (adjusted < 80) {
+                                adjusted = adjusted + (80 - adjusted) * 0.3;
+                            }
+                        }
+                        
+                        if (characteristics.isBright) {
+                            // Recover highlights for bright images
+                            if (adjusted > 200) {
+                                adjusted = adjusted - (adjusted - 200) * 0.2;
+                            }
+                        }
+                        
+                        // Adaptive contrast enhancement
+                        if (characteristics.isLowContrast) {
+                            // S-curve for low contrast images
+                            const normalized = adjusted / 255;
+                            const enhanced = 0.5 + Math.sin((normalized - 0.5) * Math.PI) * 0.4;
+                            adjusted = enhanced * 255;
+                        }
+                        
+                        curve[i] = Math.max(0, Math.min(255, adjusted));
+                    }
+                    
+                    return curve;
+                }
+                
+                // 4. Edge-preserving smoothing for noise reduction
+                function edgePreservingSmooth(data, width, height) {
+                    const smoothed = new Uint8ClampedArray(data.length);
+                    smoothed.set(data); // Copy original data
+                    
+                    const threshold = 25; // Edge detection threshold
+                    
+                    for (let y = 1; y < height - 1; y++) {
+                        for (let x = 1; x < width - 1; x++) {
+                            const idx = (y * width + x) * 4;
+                            
+                            if (data[idx + 3] === 0) continue; // Skip transparent
+                            
+                            // Calculate if this is an edge pixel
+                            const center = 0.299 * data[idx] + 0.587 * data[idx + 1] + 0.114 * data[idx + 2];
+                            const neighbors = [
+                                0.299 * data[((y-1) * width + (x-1)) * 4] + 0.587 * data[((y-1) * width + (x-1)) * 4 + 1] + 0.114 * data[((y-1) * width + (x-1)) * 4 + 2],
+                                0.299 * data[((y-1) * width + x) * 4] + 0.587 * data[((y-1) * width + x) * 4 + 1] + 0.114 * data[((y-1) * width + x) * 4 + 2],
+                                0.299 * data[((y-1) * width + (x+1)) * 4] + 0.587 * data[((y-1) * width + (x+1)) * 4 + 1] + 0.114 * data[((y-1) * width + (x+1)) * 4 + 2],
+                                0.299 * data[(y * width + (x-1)) * 4] + 0.587 * data[(y * width + (x-1)) * 4 + 1] + 0.114 * data[(y * width + (x-1)) * 4 + 2],
+                                0.299 * data[(y * width + (x+1)) * 4] + 0.587 * data[(y * width + (x+1)) * 4 + 1] + 0.114 * data[(y * width + (x+1)) * 4 + 2],
+                                0.299 * data[((y+1) * width + (x-1)) * 4] + 0.587 * data[((y+1) * width + (x-1)) * 4 + 1] + 0.114 * data[((y+1) * width + (x-1)) * 4 + 2],
+                                0.299 * data[((y+1) * width + x) * 4] + 0.587 * data[((y+1) * width + x) * 4 + 1] + 0.114 * data[((y+1) * width + x) * 4 + 2],
+                                0.299 * data[((y+1) * width + (x+1)) * 4] + 0.587 * data[((y+1) * width + (x+1)) * 4 + 1] + 0.114 * data[((y+1) * width + (x+1)) * 4 + 2]
+                            ];
+                            
+                            const maxDiff = Math.max(...neighbors.map(n => Math.abs(center - n)));
+                            
+                            // Only smooth non-edge pixels to preserve details
+                            if (maxDiff < threshold) {
+                                // Apply gentle gaussian-like smoothing
+                                let totalWeight = 0;
+                                let weightedR = 0, weightedG = 0, weightedB = 0;
+                                
+                                for (let dy = -1; dy <= 1; dy++) {
+                                    for (let dx = -1; dx <= 1; dx++) {
+                                        const nIdx = ((y + dy) * width + (x + dx)) * 4;
+                                        const weight = (dx === 0 && dy === 0) ? 4 : 1; // Center pixel gets higher weight
+                                        
+                                        weightedR += data[nIdx] * weight;
+                                        weightedG += data[nIdx + 1] * weight;
+                                        weightedB += data[nIdx + 2] * weight;
+                                        totalWeight += weight;
+                                    }
+                                }
+                                
+                                smoothed[idx] = weightedR / totalWeight;
+                                smoothed[idx + 1] = weightedG / totalWeight;
+                                smoothed[idx + 2] = weightedB / totalWeight;
+                            }
+                        }
+                    }
+                    
+                    return smoothed;
+                }
+                
+                // Execute the enhanced B&W conversion
+                const characteristics = analyzeImageCharacteristics(data, canvas.width, canvas.height);
+                const weights = getOptimalChannelWeights(characteristics);
+                const toneCurve = createToneCurve(characteristics);
+                
+                // Apply edge-preserving smoothing if needed (for noisy images)
+                let processedData = data;
+                if (characteristics.avgContrast > 60) { // High contrast might indicate noise
+                    processedData = edgePreservingSmooth(data, canvas.width, canvas.height);
+                }
+                
+                // Main conversion with optimized processing
+                for (let i = 0; i < processedData.length; i += 4) {
+                    // Skip transparent pixels for efficiency
+                    if (processedData[i + 3] === 0) continue;
+                    
+                    const r = processedData[i];
+                    const g = processedData[i + 1];
+                    const b = processedData[i + 2];
+                    
+                    // Professional channel mixing
+                    let gray = weights.red * r + weights.green * g + weights.blue * b;
+                    
+                    // Apply tone curve for optimal contrast and brightness
+                    gray = toneCurve[Math.round(Math.max(0, Math.min(255, gray)))];
+                    
+                    // Apply contrast enhancement
+                    gray = ((gray - 128) * weights.contrast) + 128;
+                    
+                    // Final clamping
+                    gray = Math.max(0, Math.min(255, gray));
+                    
+                    // Set RGB channels to the same value
+                    data[i] = gray;
+                    data[i + 1] = gray;
+                    data[i + 2] = gray;
+                    // Alpha remains unchanged
+                }
+                
+                ctx.putImageData(imageData, 0, 0);
+                
+                return new Promise(resolve => {
+                    const resultImg = new Image();
+                    resultImg.onload = () => resolve(resultImg);
+                    resultImg.src = canvas.toDataURL();
+                });
+            }, {
+                requiresBackend: false,
+                description: 'Professional B&W conversion with adaptive processing and quality enhancement'
+            });
+
+            // FLOYD-STEINBERG DITHERING EFFECT
+            
+            EffectContainer.register('dithering', async function(img) {
+                // Removed console.log for performance
+                
+                const canvas = document.createElement('canvas');
+                canvas.width = img.width;
+                canvas.height = img.height;
+                const ctx = canvas.getContext('2d');
+                
+                // Draw original image to get pixel data
+                ctx.drawImage(img, 0, 0);
+                const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                const data = imageData.data;
+                
+                // Apply Floyd-Steinberg dithering with pixel spacing
+                const ditheredData = applySpacedDithering(data, canvas.width, canvas.height);
+                
+                // Apply the dithered data to canvas
+                const outputImageData = ctx.createImageData(canvas.width, canvas.height);
+                outputImageData.data.set(ditheredData);
+                ctx.putImageData(outputImageData, 0, 0);
+                
+                return new Promise(resolve => {
+                    const resultImg = new Image();
+                    resultImg.onload = () => resolve(resultImg);
+                    resultImg.src = canvas.toDataURL();
+                });
+                
+                function applySpacedDithering(data, width, height) {
+                    // Pixel spacing configuration
+                    const PIXEL_SPACING = 2; // Space between dither dots (1-5 range)
+                    const DOT_SIZE = 2; // Size of each dot (1-3 range)
+                    
+                    // Create working copy of the data for error diffusion
+                    const workingData = new Float32Array(width * height);
+                    const output = new Uint8ClampedArray(width * height * 4);
+                    
+                    // Convert to grayscale with gamma correction and edge enhancement
+                    for (let i = 0; i < data.length; i += 4) {
+                        const alpha = data[i + 3];
+                        if (alpha === 0) {
+                            // Transparent pixels - treat as white for processing
+                            workingData[i / 4] = 255;
+                        } else {
+                            // Convert to grayscale using luminance formula
+                            let gray = 0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2];
+                            
+                            // Apply gamma correction for better perceptual uniformity
+                            gray = Math.pow(gray / 255, 0.45) * 255;
+                            
+                            workingData[i / 4] = gray;
+                        }
+                    }
+                    
+                    // Apply subtle edge enhancement to improve detail retention
+                    const enhancedData = new Float32Array(width * height);
+                    for (let y = 1; y < height - 1; y++) {
+                        for (let x = 1; x < width - 1; x++) {
+                            const idx = y * width + x;
+                            const center = workingData[idx];
+                            
+                            // Simple unsharp mask kernel
+                            const neighbors = 
+                                workingData[(y-1) * width + (x-1)] + workingData[(y-1) * width + x] + workingData[(y-1) * width + (x+1)] +
+                                workingData[y * width + (x-1)] + workingData[y * width + (x+1)] +
+                                workingData[(y+1) * width + (x-1)] + workingData[(y+1) * width + x] + workingData[(y+1) * width + (x+1)];
+                            
+                            const avgNeighbors = neighbors / 8;
+                            const enhancement = (center - avgNeighbors) * 0.3; // Subtle enhancement
+                            
+                            enhancedData[idx] = Math.max(0, Math.min(255, center + enhancement));
+                        }
+                    }
+                    
+                    // Copy edge pixels without enhancement
+                    for (let y = 0; y < height; y++) {
+                        for (let x = 0; x < width; x++) {
+                            const idx = y * width + x;
+                            if (x === 0 || x === width - 1 || y === 0 || y === height - 1) {
+                                enhancedData[idx] = workingData[idx];
+                            }
+                        }
+                    }
+                    
+                    // Use enhanced data for dithering
+                    workingData.set(enhancedData);
+                    
+                    // Initialize output with white background
+                    for (let i = 0; i < output.length; i += 4) {
+                        const originalAlpha = data[i + 3];
+                        if (originalAlpha === 0) {
+                            // Keep transparent
+                            output[i] = 0;
+                            output[i + 1] = 0;
+                            output[i + 2] = 0;
+                            output[i + 3] = 0;
+                        } else {
+                            // Set to white background by default
+                            output[i] = 255;
+                            output[i + 1] = 255;
+                            output[i + 2] = 255;
+                            output[i + 3] = originalAlpha;
+                        }
+                    }
+                    
+                    // Apply spaced Floyd-Steinberg dithering algorithm
+                    for (let y = 0; y < height; y += PIXEL_SPACING) {
+                        for (let x = 0; x < width; x += PIXEL_SPACING) {
+                            const idx = y * width + x;
+                            const pixelIdx = idx * 4;
+                            
+                            // Skip if original pixel was transparent
+                            const originalAlpha = data[pixelIdx + 3];
+                            if (originalAlpha === 0) continue;
+                            
+                            // Get current pixel value
+                            const oldPixel = workingData[idx];
+                            
+                            // Calculate adaptive threshold
+                            let threshold = 128;
+                            
+                            // Optimized adaptive thresholding - smaller kernel for speed
+                            if (x > 2 && x < width - 3 && y > 2 && y < height - 3) {
+                                let localSum = 0;
+                                let count = 0;
+                                
+                                // Smaller, optimized sampling pattern
+                                const samples = [
+                                    [-2, -2], [0, -2], [2, -2],
+                                    [-2,  0], [0,  0], [2,  0],
+                                    [-2,  2], [0,  2], [2,  2]
+                                ];
+                                
+                                for (const [dx, dy] of samples) {
+                                    const neighborIdx = (y + dy) * width + (x + dx);
+                                    localSum += workingData[neighborIdx];
+                                    count++;
+                                }
+                                
+                                const localAvg = localSum / count;
+                                threshold = localAvg * 0.7 + 128 * 0.3;
+                            }
+                            
+                            // Quantize to black or white using adaptive threshold
+                            const newPixel = oldPixel < threshold ? 0 : 255;
+                            
+                            // Calculate quantization error
+                            const error = oldPixel - newPixel;
+                            
+                            // Draw dot if it should be black
+                            if (newPixel === 0) {
+                                // Draw a dot of specified size
+                                for (let dy = 0; dy < DOT_SIZE && y + dy < height; dy++) {
+                                    for (let dx = 0; dx < DOT_SIZE && x + dx < width; dx++) {
+                                        const dotIdx = (y + dy) * width + (x + dx);
+                                        const dotPixelIdx = dotIdx * 4;
+                                        
+                                        if (data[dotPixelIdx + 3] > 0) { // Only if not transparent
+                                            output[dotPixelIdx] = 0;     // R
+                                            output[dotPixelIdx + 1] = 0; // G
+                                            output[dotPixelIdx + 2] = 0; // B
+                                            output[dotPixelIdx + 3] = data[dotPixelIdx + 3]; // Preserve alpha
+                                        }
+                                    }
+                                }
+                            }
+                            
+                            // Distribute error to neighboring sample points using Floyd-Steinberg weights
+                            const errorScale = PIXEL_SPACING; // Scale error distribution for spacing
+                            
+                            // Right sample point gets 7/16 of error
+                            const rightX = x + PIXEL_SPACING;
+                            if (rightX < width) {
+                                const rightIdx = y * width + rightX;
+                                workingData[rightIdx] += error * (7/16);
+                            }
+                            
+                            // Bottom-left sample point gets 3/16 of error
+                            const bottomY = y + PIXEL_SPACING;
+                            const bottomLeftX = x - PIXEL_SPACING;
+                            if (bottomLeftX >= 0 && bottomY < height) {
+                                const bottomLeftIdx = bottomY * width + bottomLeftX;
+                                workingData[bottomLeftIdx] += error * (3/16);
+                            }
+                            
+                            // Bottom sample point gets 5/16 of error
+                            if (bottomY < height) {
+                                const bottomIdx = bottomY * width + x;
+                                workingData[bottomIdx] += error * (5/16);
+                            }
+                            
+                            // Bottom-right sample point gets 1/16 of error
+                            const bottomRightX = x + PIXEL_SPACING;
+                            if (bottomRightX < width && bottomY < height) {
+                                const bottomRightIdx = bottomY * width + bottomRightX;
+                                workingData[bottomRightIdx] += error * (1/16);
+                            }
+                        }
+                    }
+                    
+                    return output;
+                }
+            }, {
+                requiresBackend: false,
+                description: 'Spaced Floyd-Steinberg dithering with dotted pattern effect for artistic black and white conversion'
+            });
+
+            // WATERCOLOR EFFECT
+            
+            EffectContainer.register('watercolor', async function(img) {
+                
+                const canvas = document.createElement('canvas');
+                canvas.width = img.width;
+                canvas.height = img.height;
+                const ctx = canvas.getContext('2d');
+                
+                // Draw original image to get pixel data
+                ctx.drawImage(img, 0, 0);
+                const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                const data = imageData.data;
+                
+                // Create watercolor effect
+                const watercolorData = createWatercolorEffect(data, canvas.width, canvas.height);
+                
+                // Apply the watercolor data to canvas
+                const outputImageData = ctx.createImageData(canvas.width, canvas.height);
+                outputImageData.data.set(watercolorData);
+                ctx.putImageData(outputImageData, 0, 0);
+                
+                return new Promise(resolve => {
+                    const resultImg = new Image();
+                    resultImg.onload = () => resolve(resultImg);
+                    resultImg.src = canvas.toDataURL();
+                });
+                
+                function createWatercolorEffect(data, width, height) {
+                    // Step 1: Create edge map for paint flow guidance (on original data)
+                    const edgeMap = computeWatercolorEdges(data, width, height);
+                    
+                    // Step 2: Apply color bleeding and wet-on-wet effects (on original full-color data)
+                    const bleedData = applyColorBleeding(data, edgeMap, width, height);
+                    
+                    // Step 3: Color quantization and palette reduction (after bleeding)
+                    const quantizedData = quantizeColors(bleedData, width, height);
+                    
+                    // Step 4: Add paper texture and watercolor characteristics
+                    const finalData = addWatercolorTexture(quantizedData, data, width, height);
+                    
+                    return finalData;
+                }
+                
+                function quantizeColors(data, width, height) {
+                    const output = new Uint8ClampedArray(data.length);
+                    
+                    for (let i = 0; i < data.length; i += 4) {
+                        const alpha = data[i + 3];
+                        
+                        if (alpha === 0) {
+                            // Keep transparent
+                            output[i] = 0;
+                            output[i + 1] = 0;
+                            output[i + 2] = 0;
+                            output[i + 3] = 0;
+                        } else {
+                            // Quantize colors to create watercolor-like color regions
+                            const r = data[i];
+                            const g = data[i + 1];
+                            const b = data[i + 2];
+                            
+                            // More subtle color quantization (8 levels per channel instead of 6)
+                            const levels = 8;
+                            const step = 255 / (levels - 1);
+                            
+                            const quantR = Math.round(r / step) * step;
+                            const quantG = Math.round(g / step) * step;
+                            const quantB = Math.round(b / step) * step;
+                            
+                            // Much more subtle saturation enhancement
+                            const enhancedColors = enhanceSaturation(quantR, quantG, quantB, 1.05);
+                            
+                            output[i] = enhancedColors.r;
+                            output[i + 1] = enhancedColors.g;
+                            output[i + 2] = enhancedColors.b;
+                            output[i + 3] = alpha;
+                        }
+                    }
+                    
+                    return output;
+                }
+                
+                function enhanceSaturation(r, g, b, factor) {
+                    // Much simpler approach - just blend towards more vibrant colors
+                    // without complex color space conversions that can introduce artifacts
+                    
+                    // Calculate luminance
+                    const lum = 0.299 * r + 0.587 * g + 0.114 * b;
+                    
+                    // Only enhance colors that aren't too close to grayscale
+                    const colorfulness = Math.max(Math.abs(r - lum), Math.abs(g - lum), Math.abs(b - lum));
+                    
+                    if (colorfulness < 10) {
+                        // Too close to grayscale, don't enhance
+                        return { r: Math.round(r), g: Math.round(g), b: Math.round(b) };
+                    }
+                    
+                    // Subtle enhancement by moving colors away from luminance
+                    const enhanceFactor = Math.min(factor, 1.1); // Cap enhancement
+                    
+                    let newR = lum + (r - lum) * enhanceFactor;
+                    let newG = lum + (g - lum) * enhanceFactor;
+                    let newB = lum + (b - lum) * enhanceFactor;
+                    
+                    // Clamp to valid range
+                    newR = Math.max(0, Math.min(255, newR));
+                    newG = Math.max(0, Math.min(255, newG));
+                    newB = Math.max(0, Math.min(255, newB));
+                    
+                    return {
+                        r: Math.round(newR),
+                        g: Math.round(newG),
+                        b: Math.round(newB)
+                    };
+                }
+                
+                function computeWatercolorEdges(data, width, height) {
+                    const edgeMap = new Float32Array(width * height);
+                    
+                    for (let y = 1; y < height - 1; y++) {
+                        for (let x = 1; x < width - 1; x++) {
+                            const idx = y * width + x;
+                            const pixelIdx = idx * 4;
+                            
+                            if (data[pixelIdx + 3] === 0) continue; // Skip transparent
+                            
+                            // Calculate color gradient magnitude
+                            const centerR = data[pixelIdx];
+                            const centerG = data[pixelIdx + 1];
+                            const centerB = data[pixelIdx + 2];
+                            
+                            let maxGradient = 0;
+                            
+                            // Check 8 neighbors
+                            for (let dy = -1; dy <= 1; dy++) {
+                                for (let dx = -1; dx <= 1; dx++) {
+                                    if (dx === 0 && dy === 0) continue;
+                                    
+                                    const neighborIdx = ((y + dy) * width + (x + dx)) * 4;
+                                    const neighborR = data[neighborIdx];
+                                    const neighborG = data[neighborIdx + 1];
+                                    const neighborB = data[neighborIdx + 2];
+                                    
+                                    // Color distance
+                                    // Optimized color distance (no sqrt needed for threshold comparison)
+                                    const dr = centerR - neighborR;
+                                    const dg = centerG - neighborG;
+                                    const db = centerB - neighborB;
+                                    const colorDistSquared = dr * dr + dg * dg + db * db;
+                                    
+                                    maxGradient = Math.max(maxGradient, Math.sqrt(colorDistSquared));
+                                }
+                            }
+                            
+                            edgeMap[idx] = maxGradient;
+                        }
+                    }
+                    
+                    return edgeMap;
+                }
+                
+                function applyColorBleeding(data, edgeMap, width, height) {
+                    const output = new Uint8ClampedArray(data.length);
+                    output.set(data); // Start with original
+                    
+                    // Reduced passes for better performance
+                    for (let pass = 0; pass < 2; pass++) {
+                        const tempData = new Uint8ClampedArray(output.length);
+                        tempData.set(output);
+                        
+                        for (let y = 8; y < height - 8; y++) {
+                            for (let x = 8; x < width - 8; x++) {
+                                const idx = y * width + x;
+                                const pixelIdx = idx * 4;
+                                
+                                if (output[pixelIdx + 3] === 0) continue; // Skip transparent
+                                
+                                const edge = edgeMap[idx];
+                                
+                                // More bleeding in low-edge areas with organic patterns
+                                if (edge < 60) {
+                                    let totalR = 0, totalG = 0, totalB = 0, totalWeight = 0;
+                                    
+                                    // Optimized watercolor sampling pattern (8-pixel radius for speed)
+                                    const samples = [
+                                        // Strong directional bias - gravity effect
+                                        {dx: 0, dy: 1, weight: 2.5}, {dx: 0, dy: 2, weight: 2.1}, 
+                                        {dx: 0, dy: 3, weight: 1.8}, {dx: 0, dy: 4, weight: 1.5}, 
+                                        {dx: 0, dy: 5, weight: 1.2}, {dx: 0, dy: 6, weight: 0.9},
+                                        {dx: 0, dy: 7, weight: 0.7}, {dx: 0, dy: 8, weight: 0.5},
+                                        
+                                        // Diagonal downward flow
+                                        {dx: -1, dy: 1, weight: 2.2}, {dx: 1, dy: 1, weight: 2.2},
+                                        {dx: -2, dy: 2, weight: 1.9}, {dx: 2, dy: 2, weight: 1.9},
+                                        {dx: -3, dy: 3, weight: 1.6}, {dx: 3, dy: 3, weight: 1.6},
+                                        {dx: -4, dy: 4, weight: 1.3}, {dx: 4, dy: 4, weight: 1.3},
+                                        {dx: -5, dy: 5, weight: 1.0}, {dx: 5, dy: 5, weight: 1.0},
+                                        {dx: -6, dy: 6, weight: 0.8}, {dx: 6, dy: 6, weight: 0.8},
+                                        
+                                        // Horizontal spreading
+                                        {dx: -1, dy: 0, weight: 1.4}, {dx: 1, dy: 0, weight: 1.4},
+                                        {dx: -2, dy: 0, weight: 1.2}, {dx: 2, dy: 0, weight: 1.2},
+                                        {dx: -3, dy: 0, weight: 1.0}, {dx: 3, dy: 0, weight: 1.0},
+                                        {dx: -4, dy: 0, weight: 0.8}, {dx: 4, dy: 0, weight: 0.8},
+                                        {dx: -5, dy: 0, weight: 0.6}, {dx: 5, dy: 0, weight: 0.6},
+                                        {dx: -6, dy: 0, weight: 0.5}, {dx: 6, dy: 0, weight: 0.5},
+                                        {dx: -7, dy: 0, weight: 0.4}, {dx: 7, dy: 0, weight: 0.4},
+                                        {dx: -8, dy: 0, weight: 0.3}, {dx: 8, dy: 0, weight: 0.3},
+                                        
+                                        // Upward (minimal influence)
+                                        {dx: 0, dy: -1, weight: 0.8}, {dx: -1, dy: -1, weight: 0.7}, {dx: 1, dy: -1, weight: 0.7},
+                                        {dx: 0, dy: -2, weight: 0.6}, {dx: -2, dy: -2, weight: 0.5}, {dx: 2, dy: -2, weight: 0.5},
+                                        {dx: 0, dy: -3, weight: 0.4}, {dx: -3, dy: -3, weight: 0.3}, {dx: 3, dy: -3, weight: 0.3}
+                                    ];
+                                    
+                                    for (const sample of samples) {
+                                        const sampleX = x + sample.dx;
+                                        const sampleY = y + sample.dy;
+                                        
+                                        if (sampleX >= 0 && sampleX < width && sampleY >= 0 && sampleY < height) {
+                                            const neighborIdx = (sampleY * width + sampleX) * 4;
+                                            if (output[neighborIdx + 3] === 0) continue;
+                                            
+                                            // Add organic randomness to weight
+                                            const organicFactor = 0.8 + Math.random() * 0.4; // 0.8 to 1.2
+                                            const finalWeight = sample.weight * organicFactor;
+                                            
+                                            totalR += output[neighborIdx] * finalWeight;
+                                            totalG += output[neighborIdx + 1] * finalWeight;
+                                            totalB += output[neighborIdx + 2] * finalWeight;
+                                            totalWeight += finalWeight;
+                                        }
+                                    }
+                                    
+                                    if (totalWeight > 0) {
+                                        const avgR = totalR / totalWeight;
+                                        const avgG = totalG / totalWeight;
+                                        const avgB = totalB / totalWeight;
+                                        
+                                        // Strong bleeding with organic variation
+                                        let blendFactor = 0.3 * (1 - edge / 80);
+                                        
+                                        // Add organic bleeding intensity variation
+                                        const organicIntensity = 0.8 + Math.sin(x * 0.1) * 0.3 + Math.cos(y * 0.08) * 0.2;
+                                        blendFactor *= organicIntensity;
+                                        
+                                        // Much stronger bleeding on later passes (accumulative effect)
+                                        blendFactor *= (1 + pass * 0.15);
+                                        
+                                        tempData[pixelIdx] = Math.round(output[pixelIdx] * (1 - blendFactor) + avgR * blendFactor);
+                                        tempData[pixelIdx + 1] = Math.round(output[pixelIdx + 1] * (1 - blendFactor) + avgG * blendFactor);
+                                        tempData[pixelIdx + 2] = Math.round(output[pixelIdx + 2] * (1 - blendFactor) + avgB * blendFactor);
+                                    }
+                                }
+                            }
+                        }
+                        
+                        output.set(tempData);
+                    }
+                    
+                    // Additional pass for directional drips and runs
+                    applyDirectionalDrips(output, edgeMap, width, height);
+                    
+                    return output;
+                }
+                
+                function applyDirectionalDrips(data, edgeMap, width, height) {
+                    const tempData = new Uint8ClampedArray(data.length);
+                    tempData.set(data);
+                    
+                    // Create vertical drips and runs
+                    for (let x = 18; x < width - 18; x++) {
+                        for (let y = 18; y < height - 35; y++) {
+                            const idx = y * width + x;
+                            const pixelIdx = idx * 4;
+                            
+                            if (data[pixelIdx + 3] === 0) continue;
+                            
+                            const edge = edgeMap[idx];
+                            
+                            // Create drips in areas with low edges and sufficient color intensity
+                            if (edge < 30) {
+                                const colorIntensity = Math.max(
+                                    Math.abs(data[pixelIdx] - 128),
+                                    Math.abs(data[pixelIdx + 1] - 128),
+                                    Math.abs(data[pixelIdx + 2] - 128)
+                                );
+                                
+                                if (colorIntensity > 25 && Math.random() < 0.22) {
+                                    // Create an extra large vertical drip
+                                    const dripLength = 15 + Math.floor(Math.random() * 35);
+                                    const dripIntensity = 0.6 + Math.random() * 0.7;
+                                    
+                                    for (let dy = 1; dy <= dripLength && y + dy < height - 1; dy++) {
+                                        const dripIdx = ((y + dy) * width + x) * 4;
+                                        if (data[dripIdx + 3] === 0) break;
+                                        
+                                        // Fade drip intensity with distance
+                                        const fadeFactor = Math.exp(-dy * 0.25) * dripIntensity;
+                                        
+                                        // Extra large horizontal variation for organic look
+                                        const xOffset = Math.floor((Math.random() - 0.5) * 15);
+                                        const finalX = Math.max(0, Math.min(width - 1, x + xOffset));
+                                        const finalDripIdx = ((y + dy) * width + finalX) * 4;
+                                        
+                                        if (data[finalDripIdx + 3] > 0) {
+                                            tempData[finalDripIdx] = Math.round(data[finalDripIdx] * (1 - fadeFactor) + data[pixelIdx] * fadeFactor);
+                                            tempData[finalDripIdx + 1] = Math.round(data[finalDripIdx + 1] * (1 - fadeFactor) + data[pixelIdx + 1] * fadeFactor);
+                                            tempData[finalDripIdx + 2] = Math.round(data[finalDripIdx + 2] * (1 - fadeFactor) + data[pixelIdx + 2] * fadeFactor);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    
+                    data.set(tempData);
+                }
+                
+                function addWatercolorTexture(data, originalData, width, height) {
+                    const output = new Uint8ClampedArray(data.length);
+                    
+                    for (let i = 0; i < data.length; i += 4) {
+                        const originalAlpha = originalData[i + 3];
+                        
+                        if (originalAlpha === 0) {
+                            // Keep transparent
+                            output[i] = 0;
+                            output[i + 1] = 0;
+                            output[i + 2] = 0;
+                            output[i + 3] = 0;
+                        } else {
+                            const x = (i / 4) % width;
+                            const y = Math.floor((i / 4) / width);
+                            
+                            // Enhanced paper texture with multiple layers
+                            const paperGrain1 = (Math.random() - 0.5) * 15; // Base grain
+                            const paperGrain2 = (Math.sin(x * 0.3) * Math.cos(y * 0.25)) * 8; // Structured texture
+                            const paperGrain3 = (Math.sin(x * 0.05) * Math.sin(y * 0.07)) * 12; // Large texture patterns
+                            
+                            // Organic watercolor irregularities with multiple frequencies
+                            const irregularity1 = (Math.sin(x * 0.08) + Math.cos(y * 0.09)) * 6;
+                            const irregularity2 = (Math.sin(x * 0.15) * Math.cos(y * 0.12)) * 4;
+                            const irregularity3 = (Math.sin(x * 0.03) + Math.cos(y * 0.04)) * 8;
+                            
+                            // Color variation with organic patterns
+                            const colorVariation1 = (Math.random() - 0.5) * 12;
+                            const colorVariation2 = (Math.sin(x * 0.2) * Math.cos(y * 0.18)) * 6;
+                            
+                            // Fiber-like texture patterns
+                            const fiberTexture = Math.sin(x * 0.4 + y * 0.1) * Math.cos(y * 0.3 + x * 0.05) * 5;
+                            
+                            // Combine all texture elements
+                            const totalTexture = paperGrain1 + paperGrain2 + paperGrain3 + 
+                                               irregularity1 + irregularity2 + irregularity3 + 
+                                               colorVariation1 + colorVariation2 + fiberTexture;
+                            
+                            // Apply texture with varying intensity based on color lightness
+                            const lightness = (data[i] + data[i + 1] + data[i + 2]) / 3;
+                            const textureIntensity = 0.3 + (lightness / 255) * 0.7; // More texture in lighter areas
+                            
+                            let r = data[i] + totalTexture * textureIntensity;
+                            let g = data[i + 1] + totalTexture * textureIntensity;
+                            let b = data[i + 2] + totalTexture * textureIntensity;
+                            
+                            // Add subtle color channel variations for more realistic paper
+                            r += (Math.random() - 0.5) * 8;
+                            g += (Math.random() - 0.5) * 6;
+                            b += (Math.random() - 0.5) * 7;
+                            
+                            // Clamp values
+                            r = Math.max(0, Math.min(255, r));
+                            g = Math.max(0, Math.min(255, g));
+                            b = Math.max(0, Math.min(255, b));
+                            
+                            // Slightly reduce opacity for watercolor transparency effect
+                            const watercolorAlpha = Math.round(originalAlpha * 0.96);
+                            
+                            output[i] = r;
+                            output[i + 1] = g;
+                            output[i + 2] = b;
+                            output[i + 3] = watercolorAlpha;
+                        }
+                    }
+                    
+                    return output;
+                }
+            }, {
+                requiresBackend: false,
+                description: 'Watercolor painting effect with color bleeding, wet-on-wet techniques, and organic textures'
+            });
+
+            // MOSAIC EFFECT
+            
+            EffectContainer.register('mosaic', async function(img) {
+                const canvas = document.createElement('canvas');
+                canvas.width = img.width;
+                canvas.height = img.height;
+                const ctx = canvas.getContext('2d');
+                
+                // Draw original image to get pixel data
+                ctx.drawImage(img, 0, 0);
+                const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                const data = imageData.data;
+                
+                // Create mosaic effect
+                const mosaicData = createMosaicEffect(data, canvas.width, canvas.height);
+                
+                // Apply the mosaic data to canvas
+                const outputImageData = ctx.createImageData(canvas.width, canvas.height);
+                outputImageData.data.set(mosaicData);
+                ctx.putImageData(outputImageData, 0, 0);
+                
+                return new Promise(resolve => {
+                    const resultImg = new Image();
+                    resultImg.onload = () => resolve(resultImg);
+                    resultImg.src = canvas.toDataURL();
+                });
+                
+                function createMosaicEffect(data, width, height) {
+                    // Mosaic configuration with variable tile sizes - increased detail
+                    const MIN_TILE_SIZE = 3; // Smallest tiles for details (reduced from 4)
+                    const MAX_TILE_SIZE = 8; // Largest tiles for smooth areas (reduced from 12)
+                    const TILE_SPACING = 1; // Spacing between tiles (0-3 range)
+                    const COLOR_REDUCTION = 6; // Color levels per channel (4-8 range)
+                    const EDGE_THRESHOLD = 30; // Sensitivity for edge detection
+                    
+                    const output = new Uint8ClampedArray(data.length);
+                    
+                    // Initialize with background color (light gray)
+                    for (let i = 0; i < output.length; i += 4) {
+                        const originalAlpha = data[i + 3];
+                        if (originalAlpha === 0) {
+                            // Keep transparent
+                            output[i] = 0;
+                            output[i + 1] = 0;
+                            output[i + 2] = 0;
+                            output[i + 3] = 0;
+                        } else {
+                            // Set to light gray background
+                            output[i] = 240;
+                            output[i + 1] = 240;
+                            output[i + 2] = 240;
+                            output[i + 3] = originalAlpha;
+                        }
+                    }
+                    
+                    // First pass: Create edge map for adaptive tile sizing (optimized)
+                    const edgeMap = createOptimizedEdgeMap(data, width, height, EDGE_THRESHOLD);
+                    
+                    // Second pass: Create variable-size tiles
+                    const processedPixels = new Set(); // Track which pixels have been processed
+                    
+                    for (let tileY = 0; tileY < height; tileY += MIN_TILE_SIZE) {
+                        for (let tileX = 0; tileX < width; tileX += MIN_TILE_SIZE) {
+                            // Skip if this area has already been processed by a larger tile
+                            const checkKey = `${tileX},${tileY}`;
+                            if (processedPixels.has(checkKey)) continue;
+                            
+                            // Determine optimal tile size for this area
+                            const optimalTileSize = calculateOptimalTileSize(
+                                edgeMap, tileX, tileY, width, height, 
+                                MIN_TILE_SIZE, MAX_TILE_SIZE
+                            );
+                            
+                            // Calculate average color for this tile
+                            let totalR = 0, totalG = 0, totalB = 0, totalA = 0;
+                            let validPixels = 0;
+                            
+                            // Sample pixels within the tile
+                            for (let y = tileY; y < Math.min(tileY + optimalTileSize, height); y++) {
+                                for (let x = tileX; x < Math.min(tileX + optimalTileSize, width); x++) {
+                                    const idx = (y * width + x) * 4;
+                                    const alpha = data[idx + 3];
+                                    
+                                    if (alpha > 0) {
+                                        totalR += data[idx];
+                                        totalG += data[idx + 1];
+                                        totalB += data[idx + 2];
+                                        totalA += alpha;
+                                        validPixels++;
+                                    }
+                                    
+                                    // Mark this pixel as processed
+                                    processedPixels.add(`${x},${y}`);
+                                }
+                            }
+                            
+                            if (validPixels === 0) continue;
+                            
+                            // Calculate average color
+                            let avgR = totalR / validPixels;
+                            let avgG = totalG / validPixels;
+                            let avgB = totalB / validPixels;
+                            let avgA = totalA / validPixels;
+                            
+                            // Quantize colors for mosaic effect (optional - can be disabled for exact colors)
+                            const step = 255 / (COLOR_REDUCTION - 1);
+                            avgR = Math.round(avgR / step) * step;
+                            avgG = Math.round(avgG / step) * step;
+                            avgB = Math.round(avgB / step) * step;
+                            
+                            // Fill the tile with tonal variations of the averaged color
+                            for (let y = tileY; y < Math.min(tileY + optimalTileSize, height); y++) {
+                                for (let x = tileX; x < Math.min(tileX + optimalTileSize, width); x++) {
+                                    const idx = (y * width + x) * 4;
+                                    
+                                    // Only fill non-transparent pixels
+                                    if (data[idx + 3] > 0) {
+                                        // Create dimensional shading within the tile using position-based gradients
+                                        const tileRelativeX = (x - tileX) / optimalTileSize;
+                                        const tileRelativeY = (y - tileY) / optimalTileSize;
+                                        
+                                        // Create subtle lighting effect (top-left lighter, bottom-right darker)
+                                        const lightingFactor = 1.0 + (0.05 * (1 - tileRelativeX - tileRelativeY) * 0.5);
+                                        
+                                        // Use only lighting factor (no random variation)
+                                        const finalFactor = lightingFactor;
+                                        
+                                        // Apply the shading to maintain color relationships
+                                        let shadedR = avgR * finalFactor;
+                                        let shadedG = avgG * finalFactor;
+                                        let shadedB = avgB * finalFactor;
+                                        
+                                        // Clamp values to valid range
+                                        output[idx] = Math.max(0, Math.min(255, shadedR));
+                                        output[idx + 1] = Math.max(0, Math.min(255, shadedG));
+                                        output[idx + 2] = Math.max(0, Math.min(255, shadedB));
+                                        output[idx + 3] = avgA;
+                                    }
+                                }
+                            }
+                            
+                            // Add subtle border effect to tiles
+                            addTileBorder(output, width, height, tileX, tileY, optimalTileSize, avgR, avgG, avgB, avgA);
+                        }
+                    }
+                    
+                    return output;
+                }
+                
+
+                
+                function calculateOptimalTileSize(edgeMap, startX, startY, width, height, minSize, maxSize) {
+                    // Sample area around the starting position to determine complexity
+                    const sampleSize = Math.min(maxSize, Math.min(width - startX, height - startY));
+                    let totalEdgeStrength = 0;
+                    let sampleCount = 0;
+                    
+                    // Sample a representative area
+                    for (let y = startY; y < Math.min(startY + sampleSize, height); y++) {
+                        for (let x = startX; x < Math.min(startX + sampleSize, width); x++) {
+                            const idx = y * width + x;
+                            totalEdgeStrength += edgeMap[idx];
+                            sampleCount++;
+                        }
+                    }
+                    
+                    if (sampleCount === 0) return minSize;
+                    
+                    const avgEdgeStrength = totalEdgeStrength / sampleCount;
+                    
+                    // Map edge strength to tile size (higher edges = smaller tiles)
+                    // Strong edges (high detail) -> small tiles
+                    // Weak edges (smooth areas) -> large tiles
+                    const edgeRatio = Math.min(avgEdgeStrength / 100, 1); // Normalize to 0-1
+                    const sizeRange = maxSize - minSize;
+                    
+                    // Inverse relationship: high edge strength = small tiles
+                    const tileSize = Math.round(maxSize - (edgeRatio * sizeRange));
+                    
+                    return Math.max(minSize, Math.min(maxSize, tileSize));
+                }
+                
+                function addTileBorder(output, width, height, tileX, tileY, tileSize, r, g, b, a) {
+                    const borderDarkness = 0.85; // Make border slightly darker
+                    const borderR = r * borderDarkness;
+                    const borderG = g * borderDarkness;
+                    const borderB = b * borderDarkness;
+                    
+                    // Draw subtle borders on bottom and right edges of tile
+                    for (let x = tileX; x < Math.min(tileX + tileSize, width); x++) {
+                        // Bottom border
+                        if (tileY + tileSize - 1 < height) {
+                            const idx = ((tileY + tileSize - 1) * width + x) * 4;
+                            if (output[idx + 3] > 0) {
+                                output[idx] = borderR;
+                                output[idx + 1] = borderG;
+                                output[idx + 2] = borderB;
+                            }
+                        }
+                    }
+                    
+                    for (let y = tileY; y < Math.min(tileY + tileSize, height); y++) {
+                        // Right border
+                        if (tileX + tileSize - 1 < width) {
+                            const idx = (y * width + (tileX + tileSize - 1)) * 4;
+                            if (output[idx + 3] > 0) {
+                                output[idx] = borderR;
+                                output[idx + 1] = borderG;
+                                output[idx + 2] = borderB;
+                            }
+                        }
+                    }
+                }
+            }, {
+                requiresBackend: false,
+                description: 'Advanced mosaic effect with adaptive tile sizing - smaller tiles for details, larger for smooth areas'
+            });
+
+            // POP ART EFFECT
+            
+            EffectContainer.register('popart', async function(img) {
+                const canvas = document.createElement('canvas');
+                canvas.width = img.width;
+                canvas.height = img.height;
+                const ctx = canvas.getContext('2d');
+                
+                // Draw original image to get pixel data
+                ctx.drawImage(img, 0, 0);
+                const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                const data = imageData.data;
+                
+                // Create pop art effect
+                const popArtData = createPopArtEffect(data, canvas.width, canvas.height);
+                
+                // Apply the pop art data to canvas
+                const outputImageData = ctx.createImageData(canvas.width, canvas.height);
+                outputImageData.data.set(popArtData);
+                ctx.putImageData(outputImageData, 0, 0);
+                
+                return new Promise(resolve => {
+                    const resultImg = new Image();
+                    resultImg.onload = () => resolve(resultImg);
+                    resultImg.src = canvas.toDataURL();
+                });
+                
+                function createPopArtEffect(data, width, height) {
+                    // Pop Art configuration - More aggressive for Warhol style
+                    const COLOR_LEVELS = 3; // Fewer levels for more dramatic posterization
+                    const CONTRAST_BOOST = 2.5; // Much higher contrast
+                    const SATURATION_BOOST = 2.0; // Maximum saturation boost
+                    const EDGE_ENHANCEMENT = 0.5; // Stronger edge definition
+                    
+                    const output = new Uint8ClampedArray(data.length);
+                    
+                    // Keep transparent areas transparent
+                    
+                    // First pass: Apply contrast and saturation boost
+                    const enhancedData = new Uint8ClampedArray(data.length);
+                    
+                    for (let i = 0; i < data.length; i += 4) {
+                        const alpha = data[i + 3];
+                        
+                        if (alpha === 0) {
+                            // Keep transparent
+                            enhancedData[i] = 0;
+                            enhancedData[i + 1] = 0;
+                            enhancedData[i + 2] = 0;
+                            enhancedData[i + 3] = 0;
+                        } else {
+                            let r = data[i];
+                            let g = data[i + 1];
+                            let b = data[i + 2];
+                            
+                            // Optimized contrast boost (reduced calculations)
+                            const contrastR = (r - 128) * CONTRAST_BOOST + 128;
+                            const contrastG = (g - 128) * CONTRAST_BOOST + 128;
+                            const contrastB = (b - 128) * CONTRAST_BOOST + 128;
+                            r = contrastR < 0 ? 0 : contrastR > 255 ? 255 : contrastR;
+                            g = contrastG < 0 ? 0 : contrastG > 255 ? 255 : contrastG;
+                            b = contrastB < 0 ? 0 : contrastB > 255 ? 255 : contrastB;
+                            
+                            // Optimized saturation boost (pre-calculate luminance coefficients)
+                            const lum = 0.299 * r + 0.587 * g + 0.114 * b;
+                            const satR = lum + (r - lum) * SATURATION_BOOST;
+                            const satG = lum + (g - lum) * SATURATION_BOOST;
+                            const satB = lum + (b - lum) * SATURATION_BOOST;
+                            r = satR < 0 ? 0 : satR > 255 ? 255 : satR;
+                            g = satG < 0 ? 0 : satG > 255 ? 255 : satG;
+                            b = satB < 0 ? 0 : satB > 255 ? 255 : satB;
+                            
+                            enhancedData[i] = r;
+                            enhancedData[i + 1] = g;
+                            enhancedData[i + 2] = b;
+                            enhancedData[i + 3] = alpha;
+                        }
+                    }
+                    
+                    // Skip edge enhancement for performance - posterization provides enough definition
+                    // const edgeEnhancedData = applyEdgeEnhancement(enhancedData, width, height, EDGE_ENHANCEMENT);
+                    
+                    // Combined pass: Color posterization (using enhanced data directly)
+                    for (let i = 0; i < enhancedData.length; i += 4) {
+                        const alpha = enhancedData[i + 3];
+                        
+                        if (alpha === 0) {
+                            // Keep transparent
+                            output[i] = 0;
+                            output[i + 1] = 0;
+                            output[i + 2] = 0;
+                            output[i + 3] = 0;
+                        } else {
+                            let r = enhancedData[i];
+                            let g = enhancedData[i + 1];
+                            let b = enhancedData[i + 2];
+                            
+                            // Posterize colors to limited palette
+                            const step = 255 / (COLOR_LEVELS - 1);
+                            r = Math.round(r / step) * step;
+                            g = Math.round(g / step) * step;
+                            b = Math.round(b / step) * step;
+                            
+                            // Apply pop art color mapping for extra punch
+                            const popColors = applyPopArtColorMapping(r, g, b);
+                            
+                            output[i] = popColors.r;
+                            output[i + 1] = popColors.g;
+                            output[i + 2] = popColors.b;
+                            output[i + 3] = alpha;
+                        }
+                    }
+                    
+                    return output;
+                }
+                
+                function applyEdgeEnhancement(data, width, height, strength) {
+                    const output = new Uint8ClampedArray(data.length);
+                    output.set(data); // Start with original
+                    
+                    // Edge enhancement kernel (unsharp mask)
+                    const kernel = [
+                        [ 0, -1,  0],
+                        [-1,  5, -1],
+                        [ 0, -1,  0]
+                    ];
+                    
+                    for (let y = 1; y < height - 1; y++) {
+                        for (let x = 1; x < width - 1; x++) {
+                            const idx = (y * width + x) * 4;
+                            
+                            if (data[idx + 3] === 0) continue; // Skip transparent
+                            
+                            for (let channel = 0; channel < 3; channel++) { // R, G, B
+                                let sum = 0;
+                                
+                                // Apply convolution kernel
+                                for (let ky = -1; ky <= 1; ky++) {
+                                    for (let kx = -1; kx <= 1; kx++) {
+                                        const pixelIdx = ((y + ky) * width + (x + kx)) * 4;
+                                        sum += data[pixelIdx + channel] * kernel[ky + 1][kx + 1];
+                                    }
+                                }
+                                
+                                // Blend enhanced with original
+                                const original = data[idx + channel];
+                                const enhanced = Math.max(0, Math.min(255, sum));
+                                output[idx + channel] = original + (enhanced - original) * strength;
+                            }
+                        }
+                    }
+                    
+                    return output;
+                }
+                
+                function applyPopArtColorMapping(r, g, b) {
+                    // Full 9-color pop art palette (8 colors + black) with optimized luminance calculation
+                    // Using ITU-R BT.709 standard for more accurate perceptual luminance
+                    const luminance = 0.2126 * r + 0.7152 * g + 0.0722 * b;
+                    
+                    // Define the full vibrant palette (8 colors + black)
+                    const popColors = [
+                        [255, 20, 147],   // Hot Pink/Magenta
+                        [0, 255, 127],    // Spring Green  
+                        [255, 165, 0],    // Orange
+                        [138, 43, 226],   // Blue Violet
+                        [255, 255, 0],    // Yellow
+                        [0, 191, 255],    // Deep Sky Blue
+                        [255, 69, 0],     // Red Orange
+                        [50, 205, 50],    // Lime Green
+                    ];
+                    
+                    // Preserve very dark areas as black for definition
+                    if (luminance < 40) {
+                        return { r: 0, g: 0, b: 0 };
+                    }
+                    
+                    // Optimized 8-range distribution for better color balance
+                    let targetColor;
+                    
+                    // Pet-optimized ranges: favor blues, pinks, and greens
+                    const ranges = [
+                        { max: 70, color: popColors[3] },   // Blue Violet for darkest areas (shadows, dark fur)
+                        { max: 100, color: popColors[5] },   // Deep Sky Blue for dark areas (dark markings)
+                        { max: 130, color: popColors[0] },  // Hot Pink for dark-mid areas (noses, tongues)
+                        { max: 160, color: popColors[7] },  // Lime Green for mid-dark areas (collars, toys)
+                        { max: 190, color: popColors[1] },  // Spring Green for mid areas (eyes, backgrounds)
+                        { max: 210, color: popColors[7] },  // Deep Sky Blue for mid-bright areas (fur highlights)
+                        { max: 240, color: popColors[0] },  // Hot Pink for bright areas (light fur, highlights)
+                        { max: 255, color: popColors[5] }   // Lime Green for brightest areas (white fur, reflections)
+                    ];
+                    
+                    // Optimized range lookup with binary search concept
+                    let blendFactor = 0;
+                    
+                    // Fast range detection using optimized conditionals
+                    if (luminance <= 70) {
+                        targetColor = popColors[3]; // Blue Violet
+                    } else if (luminance <= 100) {
+                        targetColor = popColors[5]; // Deep Sky Blue
+                    } else if (luminance <= 130) {
+                        targetColor = popColors[0]; // Hot Pink
+                    } else if (luminance <= 160) {
+                        targetColor = popColors[7]; // Lime Green
+                    } else if (luminance <= 190) {
+                        targetColor = popColors[1]; // Spring Green
+                    } else if (luminance <= 210) {
+                        targetColor = popColors[7]; // Lime Green (repeated)
+                    } else if (luminance <= 240) {
+                        targetColor = popColors[0]; // Hot Pink (repeated)
+                    } else {
+                        targetColor = popColors[5]; // Deep Sky Blue (repeated)
+                    }
+                    
+                    // Optional: Add slight hue-based variation to prevent complete monotony
+                    // Only apply if we're in the middle of a range (not in transition zones)
+                    if (blendFactor === 0) {
+                        const maxChannel = Math.max(r, g, b);
+                        const colorfulness = maxChannel - Math.min(r, g, b);
+                        
+                        // Only override for highly saturated colors to maintain luminance-based structure
+                        if (colorfulness > 60) {
+                            if (r === maxChannel && r > g + 30 && r > b + 30) {
+                                // Very red areas -> prefer red-orange or hot pink
+                                const redOptions = [popColors[0], popColors[6]]; // Hot Pink, Red Orange
+                                targetColor = redOptions[Math.floor((r + g + b) % 2)];
+                            } else if (g === maxChannel && g > r + 30 && g > b + 30) {
+                                // Very green areas -> prefer green options
+                                const greenOptions = [popColors[1], popColors[7]]; // Spring Green, Lime Green
+                                targetColor = greenOptions[Math.floor((r + g + b) % 2)];
+                            } else if (b === maxChannel && b > r + 30 && b > g + 30) {
+                                // Very blue areas -> prefer blue options
+                                const blueOptions = [popColors[3], popColors[5]]; // Blue Violet, Deep Sky Blue
+                                targetColor = blueOptions[Math.floor((r + g + b) % 2)];
+                            }
+                        }
+                    }
+                    
+                    return {
+                        r: targetColor[0],
+                        g: targetColor[1], 
+                        b: targetColor[2]
+                    };
+                }
+            }, {
+                requiresBackend: false,
+                description: 'Bold pop art effect with high contrast, vibrant colors, and posterization in Andy Warhol style'
+            });
+
+            // 8-BIT RETRO EFFECT
+            
+            EffectContainer.register('8bit', async function(img) {
+                const canvas = document.createElement('canvas');
+                canvas.width = img.width;
+                canvas.height = img.height;
+                const ctx = canvas.getContext('2d');
+                
+                ctx.drawImage(img, 0, 0);
+                const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                const data = imageData.data;
+                
+                // Pet-optimized 8-bit color palette with better browns and skin tones
+                const palette8bit = [
+                    [0, 0, 0],        // Black
+                    [32, 32, 32],     // Very Dark Gray
+                    [64, 64, 64],     // Dark Gray
+                    [96, 96, 96],     // Medium Gray
+                    [128, 128, 128],  // Gray
+                    [192, 192, 192],  // Light Gray
+                    [255, 255, 255],  // White
+                    [64, 32, 16],     // Very Dark Brown
+                    [96, 48, 24],     // Dark Brown
+                    [128, 64, 32],    // Medium Brown
+                    [160, 96, 48],    // Brown
+                    [192, 128, 64],   // Light Brown
+                    [224, 160, 96],   // Tan
+                    [255, 192, 128],  // Light Tan
+                    [255, 224, 192],  // Cream
+                    [128, 0, 0],      // Dark Red
+                    [192, 0, 0],      // Red
+                    [255, 64, 64],    // Light Red
+                    [255, 128, 0],    // Orange
+                    [255, 192, 0],    // Gold
+                    [255, 255, 0],    // Yellow
+                    [0, 64, 0],       // Dark Green
+                    [0, 128, 0],      // Green
+                    [0, 192, 0],      // Light Green
+                    [0, 0, 128],      // Dark Blue
+                    [0, 0, 192],      // Blue
+                    [64, 128, 255],   // Light Blue
+                    [128, 0, 128],    // Purple
+                    [192, 0, 192],    // Magenta
+                    [255, 0, 255],    // Pink
+                    [255, 128, 192],  // Light Pink
+                    [128, 64, 0]      // Dark Gold
+                ];
+                
+                // Enhanced color quantization function for better pet colors
+                function quantizeColor(r, g, b) {
+                    let bestMatch = 0;
+                    let minDistance = Infinity;
+                    
+                    // Convert to HSV for better color matching
+                    const max = Math.max(r, g, b);
+                    const min = Math.min(r, g, b);
+                    const delta = max - min;
+                    
+                    let h = 0;
+                    if (delta !== 0) {
+                        if (max === r) h = ((g - b) / delta) % 6;
+                        else if (max === g) h = (b - r) / delta + 2;
+                        else h = (r - g) / delta + 4;
+                    }
+                    h = Math.round(h * 60);
+                    if (h < 0) h += 360;
+                    
+                    const s = max === 0 ? 0 : delta / max;
+                    const v = max / 255;
+                    
+                    // Enhanced color matching with HSV and RGB components
+                    for (let i = 0; i < palette8bit.length; i++) {
+                        const [pr, pg, pb] = palette8bit[i];
+                        
+                        // Calculate both RGB and perceptual distance
+                        const dr = r - pr;
+                        const dg = g - pg; 
+                        const db = b - pb;
+                        
+                        // Weighted RGB distance (emphasize luminance)
+                        const rgbDistance = (dr * dr * 0.2) + (dg * dg * 0.7) + (db * db * 0.1);
+                        
+                        // Calculate palette color HSV
+                        const pMax = Math.max(pr, pg, pb);
+                        const pMin = Math.min(pr, pg, pb);
+                        const pDelta = pMax - pMin;
+                        
+                        let pH = 0;
+                        if (pDelta !== 0) {
+                            if (pMax === pr) pH = ((pg - pb) / pDelta) % 6;
+                            else if (pMax === pg) pH = (pb - pr) / pDelta + 2;
+                            else pH = (pr - pg) / pDelta + 4;
+                        }
+                        pH = Math.round(pH * 60);
+                        if (pH < 0) pH += 360;
+                        
+                        const pS = pMax === 0 ? 0 : pDelta / pMax;
+                        const pV = pMax / 255;
+                        
+                        // HSV distance (especially important for browns/oranges)
+                        const hDiff = Math.min(Math.abs(h - pH), 360 - Math.abs(h - pH));
+                        const sDiff = Math.abs(s - pS);
+                        const vDiff = Math.abs(v - pV);
+                        
+                        const hsvDistance = (hDiff * hDiff * 0.3) + (sDiff * sDiff * 0.3) + (vDiff * vDiff * 0.4);
+                        
+                        // Combined distance with preference for RGB in low saturation areas (optimized)
+                        const combinedDistance = s < 0.3 ? rgbDistance : (rgbDistance * 0.6 + hsvDistance * 0.4);
+                        
+                        if (combinedDistance < minDistance) {
+                            minDistance = combinedDistance;
+                            bestMatch = i;
+                        }
+                    }
+                    
+                    return palette8bit[bestMatch];
+                }
+                
+                // Apply 8-bit quantization with dramatic pixelation
+                const PIXELATION_FACTOR = 6; // Increased for more dramatic chunky pixel effect
+                
+                if (PIXELATION_FACTOR > 1) {
+                    // Enhanced pixelated 8-bit effect with edge detection
+                    
+                    // First pass: detect edges for feature preservation (optimized)
+                    const edgeMapFloat = createOptimizedEdgeMap(data, canvas.width, canvas.height, 40);
+                    const edgeMap = new Array(canvas.width * canvas.height);
+                    
+                    // Convert float edge map to boolean for 8-bit processing
+                    for (let i = 0; i < edgeMapFloat.length; i++) {
+                        edgeMap[i] = edgeMapFloat[i] > 0;
+                    }
+                    
+                    // Second pass: apply pixelation with edge preservation
+                    for (let y = 0; y < canvas.height; y += PIXELATION_FACTOR) {
+                        for (let x = 0; x < canvas.width; x += PIXELATION_FACTOR) {
+                            // Check if this block contains important edges
+                            let hasEdge = false;
+                            for (let py = y; py < Math.min(y + PIXELATION_FACTOR, canvas.height) && !hasEdge; py++) {
+                                for (let px = x; px < Math.min(x + PIXELATION_FACTOR, canvas.width) && !hasEdge; px++) {
+                                    if (edgeMap[py * canvas.width + px]) {
+                                        hasEdge = true;
+                                    }
+                                }
+                            }
+                            
+                            if (hasEdge) {
+                                // For edge blocks, use smaller pixelation (2x2) to preserve detail
+                                const smallFactor = Math.max(2, Math.floor(PIXELATION_FACTOR / 2));
+                                for (let sy = y; sy < Math.min(y + PIXELATION_FACTOR, canvas.height); sy += smallFactor) {
+                                    for (let sx = x; sx < Math.min(x + PIXELATION_FACTOR, canvas.width); sx += smallFactor) {
+                                        const centerX = Math.min(sx + Math.floor(smallFactor / 2), canvas.width - 1);
+                                        const centerY = Math.min(sy + Math.floor(smallFactor / 2), canvas.height - 1);
+                                        const centerIdx = (centerY * canvas.width + centerX) * 4;
+                                        
+                                        const r = data[centerIdx];
+                                        const g = data[centerIdx + 1];
+                                        const b = data[centerIdx + 2];
+                                        const a = data[centerIdx + 3];
+                                        
+                                        if (a === 0) continue;
+                                        
+                                        const [qr, qg, qb] = quantizeColor(r, g, b);
+                                        
+                                        for (let py = sy; py < Math.min(sy + smallFactor, canvas.height); py++) {
+                                            for (let px = sx; px < Math.min(sx + smallFactor, canvas.width); px++) {
+                                                const idx = (py * canvas.width + px) * 4;
+                                                data[idx] = qr;
+                                                data[idx + 1] = qg;
+                                                data[idx + 2] = qb;
+                                            }
+                                        }
+                                    }
+                                }
+                            } else {
+                                // For non-edge blocks, use full pixelation
+                                const centerX = Math.min(x + Math.floor(PIXELATION_FACTOR / 2), canvas.width - 1);
+                                const centerY = Math.min(y + Math.floor(PIXELATION_FACTOR / 2), canvas.height - 1);
+                                const centerIdx = (centerY * canvas.width + centerX) * 4;
+                                
+                                const r = data[centerIdx];
+                                const g = data[centerIdx + 1];
+                                const b = data[centerIdx + 2];
+                                const a = data[centerIdx + 3];
+                                
+                                if (a === 0) continue;
+                                
+                                const [qr, qg, qb] = quantizeColor(r, g, b);
+                                
+                                for (let py = y; py < Math.min(y + PIXELATION_FACTOR, canvas.height); py++) {
+                                    for (let px = x; px < Math.min(x + PIXELATION_FACTOR, canvas.width); px++) {
+                                        const idx = (py * canvas.width + px) * 4;
+                                        data[idx] = qr;
+                                        data[idx + 1] = qg;
+                                        data[idx + 2] = qb;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                } else {
+                    // Non-pixelated 8-bit color reduction
+                    for (let i = 0; i < data.length; i += 4) {
+                        const r = data[i];
+                        const g = data[i + 1];
+                        const b = data[i + 2];
+                        const a = data[i + 3];
+                        
+                        // Skip transparent pixels
+                        if (a === 0) continue;
+                        
+                        // Quantize the color
+                        const [qr, qg, qb] = quantizeColor(r, g, b);
+                        
+                        data[i] = qr;
+                        data[i + 1] = qg;
+                        data[i + 2] = qb;
+                        // Keep original alpha
+                    }
+                }
+                
+                // Apply the processed data back to canvas
+                ctx.putImageData(imageData, 0, 0);
+                
+                // Convert to image and return
+                return new Promise(resolve => {
+                    const resultImg = new Image();
+                    resultImg.onload = () => resolve(resultImg);
+                    resultImg.src = canvas.toDataURL();
+                });
+            }, {
+                requiresBackend: false,
+                description: 'Retro 8-bit video game effect with classic color palette and optional pixelation'
+            });
+            
+            // =============================================================================
+            // SHARED UTILITY FUNCTIONS - Optimized common operations
+            // =============================================================================
+            
+            // Optimized edge detection utility (shared by multiple effects)
+            function createOptimizedEdgeMap(data, width, height, threshold = 30) {
+                const edgeMap = new Float32Array(width * height);
+                const thresholdSquared = threshold * threshold; // Avoid sqrt in comparisons
+                
+                for (let y = 1; y < height - 1; y++) {
+                    for (let x = 1; x < width - 1; x++) {
+                        const idx = y * width + x;
+                        const pixelIdx = idx * 4;
+                        
+                        if (data[pixelIdx + 3] === 0) continue; // Skip transparent
+                        
+                        const centerR = data[pixelIdx];
+                        const centerG = data[pixelIdx + 1];
+                        const centerB = data[pixelIdx + 2];
+                        
+                        let maxGradientSquared = 0;
+                        
+                        // Check only 4 neighbors for speed (not 8)
+                        const neighbors = [[0, -1], [1, 0], [0, 1], [-1, 0]];
+                        
+                        for (const [dx, dy] of neighbors) {
+                            const nx = x + dx;
+                            const ny = y + dy;
+                            
+                            if (nx >= 0 && nx < width && ny >= 0 && ny < height) {
+                                const neighborIdx = (ny * width + nx) * 4;
+                                const dr = centerR - data[neighborIdx];
+                                const dg = centerG - data[neighborIdx + 1];
+                                const db = centerB - data[neighborIdx + 2];
+                                
+                                // Use squared distance to avoid sqrt
+                                const colorDistSquared = dr * dr + dg * dg + db * db;
+                                maxGradientSquared = Math.max(maxGradientSquared, colorDistSquared);
+                            }
+                        }
+                        
+                        edgeMap[idx] = maxGradientSquared > thresholdSquared ? Math.sqrt(maxGradientSquared) : 0;
+                    }
+                }
+                
+                return edgeMap;
+            }
+            
+            // Fast color distance calculation (no sqrt needed for comparisons)
+            function fastColorDistanceSquared(r1, g1, b1, r2, g2, b2) {
+                const dr = r1 - r2;
+                const dg = g1 - g2;
+                const db = b1 - b2;
+                return dr * dr + dg * dg + db * db;
+            }
+            
+            // UTILITY FUNCTIONS
+            
+            // Retina setup function with improved error handling
+            function setupRetinaCanvas(canvas, cssWidth, cssHeight) {
+                try {
+                    // Add safety check for canvas element
+                    if (!canvas) {
+                        console.error('❌ Canvas element not found');
+                        return null;
+                    }
+                    
+                    // Get device pixel ratio with fallback
+                    let dpr = 1;
+                    try {
+                        dpr = window.devicePixelRatio || 1;
+                        // Clamp DPR to reasonable values to prevent memory issues
+                        dpr = Math.min(Math.max(dpr, 1), 3);
+                    } catch (e) {
+                        console.warn('⚠️ Could not determine device pixel ratio, using 1');
+                        dpr = 1;
+                    }
+                    
+                    if (DEBUG_MODE) console.log(`🖥️ Setting up canvas: ${cssWidth}x${cssHeight} CSS, DPR: ${dpr}`);
+                    
+                    // Set canvas size with error handling
+                    try {
+                        canvas.width = cssWidth * dpr;
+                        canvas.height = cssHeight * dpr;
+                    } catch (e) {
+                        console.error('❌ Failed to set canvas size, falling back to 1x DPR');
+                        dpr = 1;
+                        canvas.width = cssWidth;
+                        canvas.height = cssHeight;
+                    }
+                    
+                    canvas.style.width = cssWidth + 'px';
+                    canvas.style.height = cssHeight + 'px';
+                    
+                    // Get context with error handling
+                    const ctx = canvas.getContext('2d');
+                    if (!ctx) {
+                        console.error('❌ Failed to get 2D context');
+                        return null;
+                    }
+                    
+                    // Set transform with error handling
+                    try {
+                        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+                        ctx.imageSmoothingEnabled = true;
+                        ctx.imageSmoothingQuality = 'high';
+                    } catch (e) {
+                        console.warn('⚠️ Failed to set canvas transform, using fallback');
+                        ctx.setTransform(1, 0, 0, 1, 0, 0);
+                    }
+                    
+                    if (DEBUG_MODE) console.log(`✅ Canvas setup complete: ${canvas.width}x${canvas.height} actual`);
+                    return ctx;
+                } catch (error) {
+                    console.error('❌ Canvas setup failed:', error);
+                    // Return a basic context as fallback
+                    try {
+                        canvas.width = cssWidth;
+                        canvas.height = cssHeight;
+                        canvas.style.width = cssWidth + 'px';
+                        canvas.style.height = cssHeight + 'px';
+                        return canvas.getContext('2d');
+                    } catch (fallbackError) {
+                        console.error('❌ Even fallback canvas setup failed:', fallbackError);
+                        return null;
+                    }
+                }
+            }
+
+            // Canvas sizes in CSS pixels
+            const previewCssWidth = 600, previewCssHeight = 700;
+            const cropCssWidth = 400, cropCssHeight = 400;
+
+            // Setup canvases for retina with error handling
+            const canvas = document.getElementById('tshirtPreview');
+            const ctx = setupRetinaCanvas(canvas, previewCssWidth, previewCssHeight);
+            const cropCanvas = document.getElementById('cropCanvas');
+            const cropCtx = setupRetinaCanvas(cropCanvas, cropCssWidth, cropCssHeight);
+            
+            // Verify canvas setup succeeded
+            if (!ctx) {
+                console.error('❌ Failed to setup main preview canvas');
+                alert('Canvas setup failed. Please refresh the page and try again.');
+            }
+            if (!cropCtx) {
+                console.error('❌ Failed to setup crop canvas');
+                alert('Crop canvas setup failed. Please refresh the page and try again.');
+            }
+            const tshirtMockup = new Image();
+            tshirtMockup.src = 'assets/tshirt-mockup.png';
+
+            // Image adjustment UI elements
+            const cropContainer = document.getElementById('cropContainer');
+            const cropBtn = document.getElementById('cropBtn');
+            const cropShapeRadios = document.getElementsByName('cropShape');
+            const enableCropSelection = document.getElementById('enableCropSelection');
+            const cropShapeContainer = document.getElementById('cropShapeContainer');
+            let cropShape = 'square';
+            let showCropSelection = false;
+            
+            // Handle crop selection toggle
+            enableCropSelection.addEventListener('change', (e) => {
+                showCropSelection = e.target.checked;
+                if (showCropSelection) {
+                    cropShapeContainer.style.display = 'block';
+                } else {
+                    cropShapeContainer.style.display = 'none';
+                }
+                drawCropCanvas();
+            });
+            
+            cropShapeRadios.forEach(radio => {
+                radio.addEventListener('change', (e) => {
+                    cropShape = e.target.value;
+                    drawCropCanvas();
+                });
+            });
+
+            // Add image offset state
+            let imageOffset = { x: 0, y: 0 };
+            let isPanning = false;
+            let panStart = { x: 0, y: 0 };
+            let viewportStart = { x: 0, y: 0 };
+
+            // Add back the missing variable declarations
+            let processedImage = null;
+            let processedImageUrl = '';
+            let croppedImage = null;
+            let dragging = false;
+            let scaling = false;
+            let offsetX = 0, offsetY = 0;
+            let imgX = 200, imgY = 250; // Initial position in CSS pixels
+            let imgScale = 1;
+            let dragStartY = 0;
+            let initialScale = 1;
+            let imgRotation = 0; // in degrees
+
+            // Crop rectangle state (in CSS pixels)
+            let cropRect = { x: 80, y: 80, w: 240, h: 240 };
+            let cropDrag = false;
+            let cropResize = false;
+            let cropResizeCorner = '';
+            let cropStart = { x: 0, y: 0 };
+            let cropStartRect = { x: 0, y: 0, w: 0, h: 0 };
+
+            // Print area for high-res preview (in CSS pixels)
+            const printArea = { x: 150, y: 180, width: 300, height: 350 };
+
+            const spinner = document.getElementById('spinner');
+            const resetContainer = document.getElementById('resetContainer');
+            const resetBtn = document.getElementById('resetBtn');
+
+            // Restore slider element references and values
+            const cropRotationSlider = document.getElementById('cropRotationSlider');
+            const cropRotationValue = document.getElementById('cropRotationValue');
+            const cropZoomSlider = document.getElementById('cropZoomSlider');
+            const cropZoomValue = document.getElementById('cropZoomValue');
+
+            let originalProcessedImage = null; // original BG-removed image from backend (always color)
+            let trueOriginalImage = null; // backup copy of the original color image for background processing
+            const effectSelect = document.getElementById('effectSelect');
+            let effectChoice = effectSelect.value; // initialise from dropdown
+            
+            // Effect cache for instant switching
+            let effectCache = {};
+            let backgroundProcessingActive = false;
+
+            document.getElementById('processBtn').addEventListener('click', async () => {
+                const file = document.getElementById('userImageInput').files[0];
+                if (!file) return alert('Please select an image first.');
+                
+                // Set processing state
+                isProcessingImage = true;
+                pendingEffectChange = null;
+                
+                spinner.style.display = 'block';
+                cropContainer.style.display = 'none';
+                
+                // Clear previous cache
+                effectCache = {};
+                backgroundProcessingActive = false;
+                trueOriginalImage = null;
+                
+                const formData = new FormData();
+                formData.append('image', file);
+                // Don't send effect to backend - we'll apply all effects in frontend
+                // formData.append('effect', effectChoice);
+
+                try {
+                    // Call your backend pipeline (with debugging to identify grayscale conversion)
+                    console.log('🔧 Calling backend with color preservation focus...');
+                    if (DEBUG_MODE) console.log('🌐 Network request starting...', {
+                        timestamp: new Date().toISOString(),
+                        fileSize: file.size,
+                        fileName: file.name
+                    });
+                    
+                    const startTime = performance.now();
+                    // Try multiple backend URLs in case of network issues
+                    const backendUrls = [
+                        'http://localhost:8080/process-image',
+                        'http://127.0.0.1:8080/process-image'
+                    ];
+                    
+                    let response;
+                    let lastError;
+                    
+                    for (const url of backendUrls) {
+                        try {
+                            console.log(`🔗 Trying backend URL: ${url}`);
+                            response = await fetch(url, { 
+                                method: 'POST', 
+                                body: formData,
+                                // Add timeout handling
+                                signal: AbortSignal.timeout(30000) // 30 second timeout
+                            });
+                            
+                            if (response.ok) {
+                                console.log(`✅ Successfully connected to: ${url}`);
+                                break;
+                            } else {
+                                console.warn(`⚠️ ${url} returned status ${response.status}`);
+                                lastError = new Error(`HTTP ${response.status}: ${response.statusText}`);
+                            }
+                        } catch (error) {
+                            console.warn(`⚠️ Failed to connect to ${url}:`, error.message);
+                            lastError = error;
+                            response = null;
+                        }
+                    }
+                    
+                    if (!response || !response.ok) {
+                        throw lastError || new Error('All backend URLs failed');
+                    }
+                    const endTime = performance.now();
+                    
+                    if (DEBUG_MODE) console.log(`🌐 Network request completed in ${Math.round(endTime - startTime)}ms`, {
+                        status: response.status,
+                        ok: response.ok,
+                        headers: Object.fromEntries(response.headers.entries())
+                    });
+                    
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                    }
+                    
+                    const data = await response.json();
+                    spinner.style.display = 'none';
+                    if (data.imageUrl) {
+                        processedImageUrl = data.imageUrl;
+                        processedImage = new Image();
+                        processedImage.crossOrigin = "anonymous";
+                        processedImage.onload = () => {
+                            if (DEBUG_MODE) console.log(`🖼️ Backend returned image: ${processedImage.width}x${processedImage.height}`);
+                            
+                            if (DEBUG_MODE) console.log(`🖼️ Backend processed image: ${processedImage.width}x${processedImage.height}`);
+                            
+                            // Create a completely isolated copy of the original image for background processing
+                            const isolatedCanvas = document.createElement('canvas');
+                            isolatedCanvas.width = processedImage.width;
+                            isolatedCanvas.height = processedImage.height;
+                            const isolatedCtx = isolatedCanvas.getContext('2d');
+                            isolatedCtx.drawImage(processedImage, 0, 0);
+                            
+                            trueOriginalImage = new Image();
+                            trueOriginalImage.src = isolatedCanvas.toDataURL();
+                            
+                            trueOriginalImage.onload = () => {
+                                console.log(`🖼️ Original image backup created: ${trueOriginalImage.width}x${trueOriginalImage.height}`);
+                                
+                                originalProcessedImage = processedImage;
+                                
+                                // Clear processing state
+                                isProcessingImage = false;
+                                
+                                // Check if there's a pending effect change
+                                if (pendingEffectChange) {
+                                    console.log(`🔄 Applying pending effect change: ${pendingEffectChange}`);
+                                    effectChoice = pendingEffectChange;
+                                    effectSelect.value = pendingEffectChange;
+                                    pendingEffectChange = null;
+                                }
+                            
+                                // Apply selected effect immediately, then start background processing
+                                applySelectedEffectThenCrop().then(() => {
+                                    // Start background processing only after selected effect is complete
+                                    startBackgroundEffectProcessing();
+                                });
+                            };
+                        };
+                        processedImage.src = processedImageUrl;
+                    } else {
+                        alert('Image processing failed.');
+                    }
+                } catch (error) {
+                    spinner.style.display = 'none';
+                    
+                    // Clear processing state on error
+                    isProcessingImage = false;
+                    pendingEffectChange = null;
+                    
+                    console.error('❌ Error processing image:', error);
+                    
+                    // Provide more specific error messages
+                    let errorMessage = 'Error processing image. ';
+                    if (error.name === 'AbortError') {
+                        errorMessage += 'Request timed out. Check your network connection.';
+                    } else if (error.message.includes('HTTP')) {
+                        errorMessage += `Server error: ${error.message}`;
+                    } else if (error.message.includes('fetch')) {
+                        errorMessage += 'Network connection failed. Check if the server is running.';
+                    } else {
+                        errorMessage += `${error.message || 'Please try again.'}`;
+                    }
+                    
+                    // Add network diagnostic info
+                    console.log('🔍 Network diagnostic info:', {
+                        online: navigator.onLine,
+                        connection: navigator.connection ? {
+                            effectiveType: navigator.connection.effectiveType,
+                            downlink: navigator.connection.downlink,
+                            rtt: navigator.connection.rtt
+                        } : 'Not available',
+                        timestamp: new Date().toISOString()
+                    });
+                    
+                    alert(errorMessage);
+                }
+            });
+
+            // --- Image Adjustment UI logic ---
+            function showImageAdjustmentUI() {
+                cropContainer.style.display = 'block';
+                resetContainer.style.display = 'none';
+                viewport = { x: 0, y: 0, scale: 1, rotation: 0 };
+                cropRotationSlider.value = 0;
+                cropZoomSlider.value = 1;
+                cropRotationValue.textContent = '0°';
+                cropZoomValue.textContent = '1.00×';
+                cropRect = { x: 80, y: 80, w: 240, h: 240 };
+                
+                // Reset crop selection state
+                document.getElementById('enableCropSelection').checked = false;
+                document.getElementById('cropShapeContainer').style.display = 'none';
+                
+                drawCropCanvas();
+            }
+            
+            // Skip cropping and go directly to preview
+            function skipToPreview() {
+                console.log('⏭️ Skipping cropping, going directly to preview');
+                cropContainer.style.display = 'none';
+                resetContainer.style.display = 'block';
+                
+                // Use the processed image directly as the "cropped" image
+                croppedImage = processedImage;
+                
+                // Calculate initial positioning for the t-shirt
+                if (croppedImage) {
+                    const aspectRatio = croppedImage.width / croppedImage.height;
+                    let scaledWidth, scaledHeight;
+                    
+                    // Fit the image nicely within the print area
+                    if (aspectRatio > printArea.width / printArea.height) {
+                        // Image is wider - scale by width
+                        scaledWidth = printArea.width * 0.8; // Leave some margin
+                        scaledHeight = scaledWidth / aspectRatio;
+                    } else {
+                        // Image is taller - scale by height
+                        scaledHeight = printArea.height * 0.8; // Leave some margin
+                        scaledWidth = scaledHeight * aspectRatio;
+                    }
+                    
+                    imgScale = 1;
+                    imgX = printArea.x + (printArea.width - scaledWidth) / 2;
+                    imgY = printArea.y + (printArea.height - scaledHeight) / 2;
+                    
+                    if (DEBUG_MODE) console.log(`📐 Positioned image: ${scaledWidth.toFixed(1)}x${scaledHeight.toFixed(1)} at (${imgX.toFixed(1)}, ${imgY.toFixed(1)})`);
+                    
+                    drawPreview();
+                }
+            }
+
+            // Viewport state for cropping UI
+            let viewport = {
+                x: 0, // pan offset x (in canvas px)
+                y: 0, // pan offset y (in canvas px)
+                scale: 1, // zoom
+                rotation: 0 // in degrees
+            };
+
+            function drawCropCanvas() {
+                // Check if we have a valid processed image
+                if (!processedImage) {
+                    console.warn('⚠️ drawCropCanvas: processedImage is null, skipping draw');
+                    return;
+                }
+                
+                // Check if crop context is available
+                if (!cropCtx) {
+                    console.error('❌ drawCropCanvas: cropCtx is null, cannot draw');
+                    return;
+                }
+                
+                try {
+                    // Clear canvas with proper retina scaling
+                    const dpr = window.devicePixelRatio || 1;
+                    cropCtx.save();
+                    cropCtx.setTransform(1, 0, 0, 1, 0, 0); // Reset to clear properly
+                    cropCtx.clearRect(0, 0, cropCanvas.width, cropCanvas.height);
+                    cropCtx.restore(); // Restore DPR transform
+                    
+                    // Apply viewport transform for image
+                    cropCtx.setTransform(
+                        viewport.scale * dpr, 0, 0, viewport.scale * dpr,
+                        (cropCssWidth / 2 + viewport.x) * dpr,
+                        (cropCssHeight / 2 + viewport.y) * dpr
+                    );
+                    cropCtx.rotate(viewport.rotation * Math.PI / 180);
+                    cropCtx.drawImage(
+                        processedImage,
+                        -processedImage.width / 2,
+                        -processedImage.height / 2,
+                        processedImage.width,
+                        processedImage.height
+                    );
+                    cropCtx.setTransform(dpr, 0, 0, dpr, 0, 0); // reset for overlays with DPR
+                } catch (error) {
+                    console.error('❌ Error drawing crop canvas:', error);
+                    // Try to reset the canvas and context
+                    try {
+                        const dpr = window.devicePixelRatio || 1;
+                        cropCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+                        cropCtx.clearRect(0, 0, cropCssWidth, cropCssHeight);
+                    } catch (resetError) {
+                        console.error('❌ Failed to reset crop canvas:', resetError);
+                    }
+                    return;
+                }
+                
+                // Only draw crop selection if enabled
+                if (showCropSelection) {
+                    cropCtx.save();
+                    cropCtx.strokeStyle = '#007bff';
+                    cropCtx.lineWidth = 2;
+                    cropCtx.fillStyle = 'rgba(0,123,255,0.15)';
+                    if (cropShape === 'circle') {
+                        const cx = cropRect.x + cropRect.w / 2;
+                        const cy = cropRect.y + cropRect.h / 2;
+                        const r = Math.min(cropRect.w, cropRect.h) / 2;
+                        cropCtx.beginPath();
+                        cropCtx.arc(cx, cy, r, 0, 2 * Math.PI);
+                        cropCtx.stroke();
+                        cropCtx.fill();
+                    } else {
+                        cropCtx.strokeRect(cropRect.x, cropRect.y, cropRect.w, cropRect.h);
+                        cropCtx.fillRect(cropRect.x, cropRect.y, cropRect.w, cropRect.h);
+                    }
+                    cropCtx.fillStyle = '#007bff';
+                    const size = 8;
+                    cropCtx.fillRect(cropRect.x - size/2, cropRect.y - size/2, size, size);
+                    cropCtx.fillRect(cropRect.x + cropRect.w - size/2, cropRect.y - size/2, size, size);
+                    cropCtx.fillRect(cropRect.x - size/2, cropRect.y + cropRect.h - size/2, size, size);
+                    cropCtx.fillRect(cropRect.x + cropRect.w - size/2, cropRect.y + cropRect.h - size/2, size, size);
+                    cropCtx.restore();
+                }
+            }
+
+            cropCanvas.addEventListener('mousedown', (e) => {
+                const rect = cropCanvas.getBoundingClientRect();
+                const dpr = window.devicePixelRatio || 1;
+                const x = (e.clientX - rect.left) * (cropCssWidth / rect.width);
+                const y = (e.clientY - rect.top) * (cropCssHeight / rect.height);
+                
+                // Only handle crop interactions if crop selection is enabled
+                if (showCropSelection) {
+                    // Check for resize handles
+                    const size = 8;
+                    if (isInHandle(x, y, cropRect.x, cropRect.y, size)) {
+                        cropResize = true; cropResizeCorner = 'tl';
+                    } else if (isInHandle(x, y, cropRect.x + cropRect.w, cropRect.y, size)) {
+                        cropResize = true; cropResizeCorner = 'tr';
+                    } else if (isInHandle(x, y, cropRect.x, cropRect.y + cropRect.h, size)) {
+                        cropResize = true; cropResizeCorner = 'bl';
+                    } else if (isInHandle(x, y, cropRect.x + cropRect.w, cropRect.y + cropRect.h, size)) {
+                        cropResize = true; cropResizeCorner = 'br';
+                    } else if (x > cropRect.x && x < cropRect.x + cropRect.w && y > cropRect.y && y < cropRect.y + cropRect.h) {
+                        cropDrag = true;
+                    } else {
+                        // Start panning
+                        isPanning = true;
+                        panStart = { x: e.clientX, y: e.clientY };
+                        viewportStart = { x: viewport.x, y: viewport.y };
+                    }
+                    cropStart = { x, y };
+                    cropStartRect = { ...cropRect };
+                } else {
+                    // Always allow panning when crop selection is disabled
+                    isPanning = true;
+                    panStart = { x: e.clientX, y: e.clientY };
+                    viewportStart = { x: viewport.x, y: viewport.y };
+                }
+            });
+            cropCanvas.addEventListener('mousemove', (e) => {
+                const rect = cropCanvas.getBoundingClientRect();
+                const dpr = window.devicePixelRatio || 1;
+                const x = (e.clientX - rect.left) * (cropCssWidth / rect.width);
+                const y = (e.clientY - rect.top) * (cropCssHeight / rect.height);
+                let dx = x - cropStart.x;
+                let dy = y - cropStart.y;
+                if (isPanning) {
+                    let panDx = e.clientX - panStart.x;
+                    let panDy = e.clientY - panStart.y;
+                    viewport.x = viewportStart.x + panDx;
+                    viewport.y = viewportStart.y + panDy;
+                    drawCropCanvas();
+                } else if (cropDrag && showCropSelection) {
+                    cropRect.x = Math.max(0, Math.min(cropStartRect.x + dx, cropCssWidth - cropRect.w));
+                    cropRect.y = Math.max(0, Math.min(cropStartRect.y + dy, cropCssHeight - cropRect.h));
+                    drawCropCanvas();
+                } else if (cropResize && showCropSelection) {
+                    switch (cropResizeCorner) {
+                        case 'tl':
+                            cropRect.x = Math.max(0, Math.min(cropStartRect.x + dx, cropStartRect.x + cropStartRect.w - 20));
+                            cropRect.y = Math.max(0, Math.min(cropStartRect.y + dy, cropStartRect.y + cropStartRect.h - 20));
+                            cropRect.w = cropStartRect.w - (cropRect.x - cropStartRect.x);
+                            cropRect.h = cropStartRect.h - (cropRect.y - cropStartRect.y);
+                            break;
+                        case 'tr':
+                            cropRect.y = Math.max(0, Math.min(cropStartRect.y + dy, cropStartRect.y + cropStartRect.h - 20));
+                            cropRect.w = Math.max(20, cropStartRect.w + dx);
+                            cropRect.h = cropStartRect.h - (cropRect.y - cropStartRect.y);
+                            break;
+                        case 'bl':
+                            cropRect.x = Math.max(0, Math.min(cropStartRect.x + dx, cropStartRect.x + cropStartRect.w - 20));
+                            cropRect.w = cropStartRect.w - (cropRect.x - cropStartRect.x);
+                            cropRect.h = Math.max(20, cropStartRect.h + dy);
+                            break;
+                        case 'br':
+                            cropRect.w = Math.max(20, cropStartRect.w + dx);
+                            cropRect.h = Math.max(20, cropStartRect.h + dy);
+                            break;
+                    }
+                    // Clamp to canvas
+                    cropRect.w = Math.min(cropRect.w, cropCssWidth - cropRect.x);
+                    cropRect.h = Math.min(cropRect.h, cropCssHeight - cropRect.y);
+                }
+                drawCropCanvas();
+            });
+            cropCanvas.addEventListener('mouseup', () => {
+                cropDrag = false;
+                cropResize = false;
+                isPanning = false;
+            });
+            cropCanvas.addEventListener('mouseleave', () => {
+                cropDrag = false;
+                cropResize = false;
+                isPanning = false;
+            });
+
+            function isInHandle(x, y, hx, hy, size) {
+                return x > hx - size/2 && x < hx + size/2 && y > hy - size/2 && y < hy + size/2;
+            }
+
+            cropBtn.addEventListener('click', () => {
+                if (showCropSelection) {
+                    // Crop the image using the selected area
+                    console.log('✂️ Cropping image to selection');
+                    
+                    // Helper: map a point from canvas to image space (before rotation)
+                    function canvasToImageCoords(x, y, viewport, canvasCenter) {
+                        // 1. Move to canvas center
+                        x -= canvasCenter.x;
+                        y -= canvasCenter.y;
+                        // 2. Undo pan
+                        x -= viewport.x;
+                        y -= viewport.y;
+                        // 3. Undo scale
+                        x /= viewport.scale;
+                        y /= viewport.scale;
+                        // 4. Move to image center
+                        x += processedImage.width / 2;
+                        y += processedImage.height / 2;
+                        return { x, y };
+                    }
+                    const canvasCenter = { x: cropCssWidth / 2, y: cropCssHeight / 2 };
+                    // 1. Draw the rotated image to an offscreen canvas
+                    let offCanvas = document.createElement('canvas');
+                    offCanvas.width = processedImage.width;
+                    offCanvas.height = processedImage.height;
+                    let offCtx = offCanvas.getContext('2d');
+                    offCtx.save();
+                    offCtx.translate(processedImage.width / 2, processedImage.height / 2);
+                    offCtx.rotate(viewport.rotation * Math.PI / 180);
+                    offCtx.drawImage(processedImage, -processedImage.width / 2, -processedImage.height / 2);
+                    offCtx.restore();
+
+                    // 2. Map the crop rectangle center to image space (before rotation)
+                    const cropCenterCanvas = {
+                        x: cropRect.x + cropRect.w / 2,
+                        y: cropRect.y + cropRect.h / 2
+                    };
+                    let imgCenter = canvasToImageCoords(cropCenterCanvas.x, cropCenterCanvas.y, viewport, canvasCenter);
+
+                    // 3. Compute the source rectangle in the rotated image
+                    const srcW = cropRect.w / viewport.scale;
+                    const srcH = cropRect.h / viewport.scale;
+                    const srcX = imgCenter.x - srcW / 2;
+                    const srcY = imgCenter.y - srcH / 2;
+
+                    // 4. Draw the region to the output canvas
+                    let tempCanvas = document.createElement('canvas');
+                    tempCanvas.width = cropRect.w;
+                    tempCanvas.height = cropRect.h;
+                    let tempCtx = tempCanvas.getContext('2d');
+                    tempCtx.imageSmoothingEnabled = true;
+                    tempCtx.imageSmoothingQuality = 'high';
+                    tempCtx.drawImage(
+                        offCanvas,
+                        srcX, srcY, srcW, srcH,
+                        0, 0, cropRect.w, cropRect.h
+                    );
+                    if (cropShape === 'circle') {
+                        tempCtx.save();
+                        tempCtx.globalCompositeOperation = 'destination-in';
+                        tempCtx.beginPath();
+                        const r = Math.min(tempCanvas.width, tempCanvas.height) / 2;
+                        tempCtx.arc(tempCanvas.width / 2, tempCanvas.height / 2, r, 0, 2 * Math.PI);
+                        tempCtx.closePath();
+                        tempCtx.fill();
+                        tempCtx.restore();
+                    }
+                    croppedImage = new Image();
+                    croppedImage.onload = () => {
+                        cropContainer.style.display = 'none';
+                        resetContainer.style.display = 'block';
+                        imgScale = 1;
+                        imgX = printArea.x + (printArea.width - croppedImage.width * (printArea.width / croppedImage.width)) / 2;
+                        imgY = printArea.y + (printArea.height - croppedImage.height * (printArea.height / croppedImage.height)) / 2;
+                        drawPreview();
+                    };
+                    croppedImage.src = tempCanvas.toDataURL();
+                } else {
+                    // Apply rotation and zoom without cropping
+                    console.log('🔄 Applying rotation and zoom without cropping');
+                    
+                    // Create a canvas to apply transformations to the full image
+                    let transformCanvas = document.createElement('canvas');
+                    transformCanvas.width = processedImage.width;
+                    transformCanvas.height = processedImage.height;
+                    let transformCtx = transformCanvas.getContext('2d');
+                    
+                    transformCtx.save();
+                    transformCtx.translate(processedImage.width / 2, processedImage.height / 2);
+                    transformCtx.rotate(viewport.rotation * Math.PI / 180);
+                    transformCtx.scale(viewport.scale, viewport.scale);
+                    transformCtx.drawImage(processedImage, -processedImage.width / 2, -processedImage.height / 2);
+                    transformCtx.restore();
+                    
+                    croppedImage = new Image();
+                    croppedImage.onload = () => {
+                        cropContainer.style.display = 'none';
+                        resetContainer.style.display = 'block';
+                        
+                        // Calculate smart positioning for the transformed image
+                        const aspectRatio = croppedImage.width / croppedImage.height;
+                        let scaledWidth, scaledHeight;
+                        
+                        if (aspectRatio > printArea.width / printArea.height) {
+                            scaledWidth = printArea.width * 0.8;
+                            scaledHeight = scaledWidth / aspectRatio;
+                        } else {
+                            scaledHeight = printArea.height * 0.8;
+                            scaledWidth = scaledHeight * aspectRatio;
+                        }
+                        
+                        imgScale = 1;
+                        imgX = printArea.x + (printArea.width - scaledWidth) / 2;
+                        imgY = printArea.y + (printArea.height - scaledHeight) / 2;
+                        
+                        drawPreview();
+                    };
+                    croppedImage.src = transformCanvas.toDataURL();
+                }
+            });
+
+            resetBtn.addEventListener('click', () => {
+                resetContainer.style.display = 'none';
+                showImageAdjustmentUI();
+            });
+            
+            // Add refresh canvas functionality
+            const refreshCanvasBtn = document.getElementById('refreshCanvasBtn');
+            refreshCanvasBtn.addEventListener('click', () => {
+                console.log('🔄 Manually refreshing canvas...');
+                
+                // Force canvas clearing and redraw
+                try {
+                    if (ctx) {
+                        ctx.save();
+                        ctx.setTransform(1, 0, 0, 1, 0, 0);
+                        ctx.clearRect(0, 0, canvas.width, canvas.height);
+                        ctx.restore();
+                        
+                        // Wait a moment then redraw
+                        setTimeout(() => {
+                            drawPreview();
+                        }, 50);
+                    }
+                } catch (error) {
+                    console.error('❌ Error refreshing canvas:', error);
+                }
+            });
+
+            // --- T-shirt preview logic ---
+            canvas.addEventListener('mousedown', (e) => {
+                if (!croppedImage) return;
+                const rect = canvas.getBoundingClientRect();
+                const dpr = window.devicePixelRatio || 1;
+                const mouseX = (e.clientX - rect.left) * (previewCssWidth / rect.width);
+                const mouseY = (e.clientY - rect.top) * (previewCssHeight / rect.height);
+                const w = croppedImage.width * imgScale * (printArea.width / croppedImage.width);
+                const h = croppedImage.height * imgScale * (printArea.height / croppedImage.height);
+                if (
+                    mouseX > imgX && mouseX < imgX + w &&
+                    mouseY > imgY && mouseY < imgY + h
+                ) {
+                    if (e.shiftKey) {
+                        scaling = true;
+                        dragStartY = mouseY;
+                        initialScale = imgScale;
+                    } else {
+                        dragging = true;
+                        offsetX = mouseX - imgX;
+                        offsetY = mouseY - imgY;
+                    }
+                }
+            });
+            canvas.addEventListener('mousemove', (e) => {
+                if (!croppedImage) return;
+                const rect = canvas.getBoundingClientRect();
+                const dpr = window.devicePixelRatio || 1;
+                const mouseX = (e.clientX - rect.left) * (previewCssWidth / rect.width);
+                const mouseY = (e.clientY - rect.top) * (previewCssHeight / rect.height);
+                if (dragging) {
+                    imgX = mouseX - offsetX;
+                    imgY = mouseY - offsetY;
+                    // Constrain to print area
+                    const w = croppedImage.width * imgScale * (printArea.width / croppedImage.width);
+                    const h = croppedImage.height * imgScale * (printArea.height / croppedImage.height);
+                    imgX = Math.max(printArea.x, Math.min(imgX, printArea.x + printArea.width - w));
+                    imgY = Math.max(printArea.y, Math.min(imgY, printArea.y + printArea.height - h));
+                    drawPreview();
+                } else if (scaling) {
+                    let deltaY = mouseY - dragStartY;
+                    let scaleChange = 1 - deltaY / 200;
+                    imgScale = Math.max(0.2, Math.min(2, initialScale * scaleChange));
+                    drawPreview();
+                }
+            });
+            canvas.addEventListener('mouseup', () => { dragging = false; scaling = false; });
+            canvas.addEventListener('mouseleave', () => { dragging = false; scaling = false; });
+
+            function drawPreview() {
+                if (!ctx) {
+                    console.error('❌ drawPreview: ctx is null, cannot draw');
+                    return;
+                }
+                
+                try {
+                    // Clear the entire canvas with proper retina scaling
+                    const dpr = window.devicePixelRatio || 1;
+                    ctx.save();
+                    ctx.setTransform(1, 0, 0, 1, 0, 0); // Reset transform to clear properly
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    ctx.restore(); // Restore the DPR transform
+                    
+                    // Draw t-shirt mockup
+                    if (tshirtMockup && tshirtMockup.complete) {
+                        ctx.drawImage(tshirtMockup, 0, 0, previewCssWidth, previewCssHeight);
+                    }
+                    
+                    if (croppedImage && croppedImage.complete) {
+                        const w = croppedImage.width * imgScale * (printArea.width / croppedImage.width);
+                        const h = croppedImage.height * imgScale * (printArea.height / croppedImage.height);
+                        // Center of the image for rotation
+                        const cx = imgX + w / 2;
+                        const cy = imgY + h / 2;
+                        
+                        ctx.save();
+                        // Create clipping path for print area
+                        ctx.beginPath();
+                        ctx.rect(printArea.x, printArea.y, printArea.width, printArea.height);
+                        ctx.clip();
+                        
+                        // Apply rotation transform
+                        ctx.translate(cx, cy);
+                        ctx.rotate(imgRotation * Math.PI / 180);
+                        
+                        // Draw the image
+                        ctx.drawImage(croppedImage, -w / 2, -h / 2, w, h);
+                        ctx.restore();
+                    }
+                } catch (error) {
+                    console.error('❌ Error in drawPreview:', error);
+                    // Try basic fallback rendering
+                    try {
+                        ctx.clearRect(0, 0, previewCssWidth, previewCssHeight);
+                        if (tshirtMockup && tshirtMockup.complete) {
+                            ctx.drawImage(tshirtMockup, 0, 0, previewCssWidth, previewCssHeight);
+                        }
+                    } catch (fallbackError) {
+                        console.error('❌ Even fallback drawPreview failed:', fallbackError);
+                    }
+                }
+            }
+
+            tshirtMockup.onload = drawPreview;
+
+            // Pinch-to-zoom for mobile (anchor at canvas center)
+            let lastTouchDist = null;
+            let pinchStartScale = 1;
+            cropCanvas.addEventListener('touchstart', (e) => {
+                if (e.touches.length === 2) {
+                    e.preventDefault();
+                    const dx = e.touches[0].clientX - e.touches[1].clientX;
+                    const dy = e.touches[0].clientY - e.touches[1].clientY;
+                    lastTouchDist = Math.sqrt(dx * dx + dy * dy);
+                    pinchStartScale = viewport.scale;
+                }
+            }, { passive: false });
+            cropCanvas.addEventListener('touchmove', (e) => {
+                if (e.touches.length === 2 && lastTouchDist !== null) {
+                    e.preventDefault();
+                    const dx = e.touches[0].clientX - e.touches[1].clientX;
+                    const dy = e.touches[0].clientY - e.touches[1].clientY;
+                    const newDist = Math.sqrt(dx * dx + dy * dy);
+                    let scaleChange = newDist / lastTouchDist;
+                    let newScale = pinchStartScale * scaleChange;
+                    newScale = Math.max(0.2, Math.min(3.0, newScale));
+                    viewport.scale = newScale;
+                    cropZoomSlider.value = newScale;
+                    cropZoomValue.textContent = newScale.toFixed(2) + '×';
+                    drawCropCanvas();
+                }
+            }, { passive: false });
+            cropCanvas.addEventListener('touchend', (e) => {
+                if (e.touches.length < 2) {
+                    lastTouchDist = null;
+                }
+            });
+
+            // Touch panning for mobile
+            let isTouchPanning = false;
+            let touchPanStart = { x: 0, y: 0 };
+            let touchViewportStart = { x: 0, y: 0 };
+            cropCanvas.addEventListener('touchstart', (e) => {
+                if (e.touches.length === 1) {
+                    // One finger: start panning
+                    const rect = cropCanvas.getBoundingClientRect();
+                    const x = (e.touches[0].clientX - rect.left) * (cropCssWidth / rect.width);
+                    const y = (e.touches[0].clientY - rect.top) * (cropCssHeight / rect.height);
+                    // Only pan if not on crop rect or handles
+                    const size = 8;
+                    if (!isInHandle(x, y, cropRect.x, cropRect.y, size) &&
+                        !isInHandle(x, y, cropRect.x + cropRect.w, cropRect.y, size) &&
+                        !isInHandle(x, y, cropRect.x, cropRect.y + cropRect.h, size) &&
+                        !isInHandle(x, y, cropRect.x + cropRect.w, cropRect.y + cropRect.h, size) &&
+                        !(x > cropRect.x && x < cropRect.x + cropRect.w && y > cropRect.y && y < cropRect.y + cropRect.h)) {
+                        isTouchPanning = true;
+                        touchPanStart = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+                        touchViewportStart = { x: viewport.x, y: viewport.y };
+                    }
+                }
+            }, { passive: false });
+            cropCanvas.addEventListener('touchmove', (e) => {
+                if (e.touches.length === 1 && isTouchPanning) {
+                    e.preventDefault();
+                    const dx = e.touches[0].clientX - touchPanStart.x;
+                    const dy = e.touches[0].clientY - touchPanStart.y;
+                    viewport.x = touchViewportStart.x + dx;
+                    viewport.y = touchViewportStart.y + dy;
+                    drawCropCanvas();
+                }
+            }, { passive: false });
+            cropCanvas.addEventListener('touchend', (e) => {
+                if (e.touches.length === 0) {
+                    isTouchPanning = false;
+                }
+            });
+
+            // Ensure slider event listeners are present
+            cropRotationSlider.addEventListener('input', (e) => {
+                viewport.rotation = parseInt(e.target.value, 10);
+                cropRotationValue.textContent = viewport.rotation + '°';
+                drawCropCanvas();
+            });
+            cropZoomSlider.addEventListener('input', (e) => {
+                viewport.scale = parseFloat(e.target.value);
+                cropZoomValue.textContent = viewport.scale.toFixed(2) + '×';
+                drawCropCanvas();
+            });
+
+            // Two-finger rotate gesture for mobile
+            let isPinching = false;
+            let initialPinchAngle = 0;
+            let initialRotation = 0;
+            cropCanvas.addEventListener('touchstart', (e) => {
+                if (e.touches.length === 2) {
+                    isPinching = true;
+                    // Calculate initial angle
+                    const dx = e.touches[1].clientX - e.touches[0].clientX;
+                    const dy = e.touches[1].clientY - e.touches[0].clientY;
+                    initialPinchAngle = Math.atan2(dy, dx) * 180 / Math.PI;
+                    initialRotation = viewport.rotation;
+                }
+            }, { passive: false });
+            cropCanvas.addEventListener('touchmove', (e) => {
+                if (e.touches.length === 2 && isPinching) {
+                    e.preventDefault();
+                    // Calculate current angle
+                    const dx = e.touches[1].clientX - e.touches[0].clientX;
+                    const dy = e.touches[1].clientY - e.touches[0].clientY;
+                    const currentAngle = Math.atan2(dy, dx) * 180 / Math.PI;
+                    let deltaAngle = currentAngle - initialPinchAngle;
+                    // Normalize to [-180, 180]
+                    if (deltaAngle > 180) deltaAngle -= 360;
+                    if (deltaAngle < -180) deltaAngle += 360;
+                    viewport.rotation = initialRotation + deltaAngle;
+                    cropRotationSlider.value = viewport.rotation;
+                    cropRotationValue.textContent = Math.round(viewport.rotation) + '°';
+                    drawCropCanvas();
+                }
+            }, { passive: false });
+            cropCanvas.addEventListener('touchend', (e) => {
+                if (e.touches.length < 2) {
+                    isPinching = false;
+                }
+            });
+
+            // Double-tap to reset zoom/pan/rotation (mobile)
+            let lastTapTime = 0;
+            cropCanvas.addEventListener('touchend', (e) => {
+                if (e.touches.length === 0 && e.changedTouches.length === 1) {
+                    const now = Date.now();
+                    if (now - lastTapTime < 350) { // 350ms threshold for double-tap
+                        // Reset viewport
+                        viewport = { x: 0, y: 0, scale: 1, rotation: 0 };
+                        cropRotationSlider.value = 0;
+                        cropZoomSlider.value = 1;
+                        cropRotationValue.textContent = '0°';
+                        cropZoomValue.textContent = '1.00×';
+                        drawCropCanvas();
+                        lastTapTime = 0; // reset
+                    } else {
+                        lastTapTime = now;
+                    }
+                }
+            });
+
+            // Haptic feedback for mobile (simulated with vibration API and visual cues)
+            cropCanvas.addEventListener('touchstart', (e) => {
+                if (e.touches.length === 1) {
+                    const touch = e.touches[0];
+                    const rect = cropCanvas.getBoundingClientRect();
+                    const x = touch.clientX - rect.left;
+                    const y = touch.clientY - rect.top;
+                    // Check if touch is near a crop edge or center (e.g., within 10px)
+                    const snapThreshold = 10;
+                    const isNearEdge = (
+                        Math.abs(x - cropRect.x) < snapThreshold ||
+                        Math.abs(x - (cropRect.x + cropRect.width)) < snapThreshold ||
+                        Math.abs(y - cropRect.y) < snapThreshold ||
+                        Math.abs(y - (cropRect.y + cropRect.height)) < snapThreshold
+                    );
+                    const isNearCenter = (
+                        Math.abs(x - (cropRect.x + cropRect.width / 2)) < snapThreshold &&
+                        Math.abs(y - (cropRect.y + cropRect.height / 2)) < snapThreshold
+                    );
+                    if (isNearEdge || isNearCenter) {
+                        // Vibrate if supported
+                        if (navigator.vibrate) {
+                            navigator.vibrate(50);
+                        }
+                        // Visual cue: briefly flash the crop rectangle
+                        cropCanvas.style.border = '2px solid #ff0000';
+                        setTimeout(() => {
+                            cropCanvas.style.border = '';
+                        }, 200);
+                    }
+                }
+            });
+
+            // Background effect processing for instant switching
+            async function startBackgroundEffectProcessing() {
+                if (backgroundProcessingActive) return;
+                
+                // Ensure we have a valid source image
+                let sourceImage = trueOriginalImage;
+                if (!sourceImage) {
+                    console.warn(`⚠️ trueOriginalImage not ready for background processing, using originalProcessedImage`);
+                    sourceImage = originalProcessedImage;
+                }
+                
+                if (!sourceImage) {
+                    console.error(`❌ No source image available for background processing`);
+                    return;
+                }
+                
+                backgroundProcessingActive = true;
+                const currentEffect = effectSelect.value;
+                
+                // Get all available effects - process blackwhite last to avoid color contamination
+                const allEffects = ['blackwhite', 'dithering', 'watercolor', 'mosaic', 'popart', '8bit'];
+                const effectsToProcess = allEffects.filter(effect => effect !== currentEffect);
+                
+                if (DEBUG_MODE) {
+                    console.log('🔄 Starting background processing for:', effectsToProcess);
+                    console.log(`🖼️ Using source image for background processing: ${sourceImage.width}x${sourceImage.height}`);
+                }
+                
+                // Process remaining effects silently in sequence to avoid interference
+                try {
+                    for (const effectName of effectsToProcess) {
+                        try {
+                            if (DEBUG_MODE) console.log(`🔄 Processing background effect: ${effectName}`);
+                            
+                            // Create a fresh copy of the source image for each effect to prevent contamination
+                            const freshCanvas = document.createElement('canvas');
+                            freshCanvas.width = sourceImage.width;
+                            freshCanvas.height = sourceImage.height;
+                            const freshCtx = freshCanvas.getContext('2d');
+                            freshCtx.drawImage(sourceImage, 0, 0);
+                            
+                            const freshImg = new Image();
+                            freshImg.src = freshCanvas.toDataURL();
+                            
+                            await new Promise(resolve => {
+                                freshImg.onload = resolve;
+                            });
+                            
+                            if (DEBUG_MODE) console.log(`🖼️ Fresh image copy created for ${effectName}, size: ${freshImg.width}x${freshImg.height}`);
+                            
+                            const effectImg = await EffectContainer.execute(effectName, freshImg);
+                            effectCache[effectName] = effectImg;
+                            if (DEBUG_MODE) console.log(`✅ Background processed: ${effectName}`);
+                        } catch (error) {
+                            console.error(`❌ Background processing failed for ${effectName}:`, error);
+                        }
+                    }
+                    if (DEBUG_MODE) console.log('🎉 All background effects processed!');
+                    
+                } catch (error) {
+                    console.error('Background processing error:', error);
+                } finally {
+                    backgroundProcessingActive = false;
+                }
+            }
+
+            // Add processing state management
+            let isProcessingImage = false;
+            let pendingEffectChange = null;
+
+            // Effect dropdown with instant switching and state management
+            effectSelect.addEventListener('change', async () => {
+                const newEffect = effectSelect.value;
+                effectChoice = newEffect;
+                
+                // If currently processing an image, store the pending change
+                if (isProcessingImage) {
+                    console.log(`⏳ Image still processing, storing pending effect change: ${newEffect}`);
+                    pendingEffectChange = newEffect;
+                    
+                    // Show visual feedback
+                    const originalText = effectSelect.options[effectSelect.selectedIndex].text;
+                    effectSelect.options[effectSelect.selectedIndex].text = `${originalText} (pending...)`;
+                    setTimeout(() => {
+                        effectSelect.options[effectSelect.selectedIndex].text = originalText;
+                    }, 2000);
+                    
+                    return;
+                }
+                
+                // Check if we have a valid source image before proceeding
+                if (!originalProcessedImage && !trueOriginalImage) {
+                    console.log(`⏳ No source image available yet, storing pending effect change: ${newEffect}`);
+                    pendingEffectChange = newEffect;
+                    
+                    // Show visual feedback
+                    const originalText = effectSelect.options[effectSelect.selectedIndex].text;
+                    effectSelect.options[effectSelect.selectedIndex].text = `${originalText} (pending...)`;
+                    setTimeout(() => {
+                        effectSelect.options[effectSelect.selectedIndex].text = originalText;
+                    }, 2000);
+                    
+                    return;
+                }
+                
+                // If we have this effect cached, switch instantly
+                if (effectCache[newEffect]) {
+                    if (DEBUG_MODE) console.log(`⚡ Instant switch to cached effect: ${newEffect}`);
+                    processedImage = effectCache[newEffect];
+                    drawCropCanvas(); // Refresh the display
+                    return;
+                }
+                
+                // If not cached, process it normally (this should rarely happen after initial load)
+                if (DEBUG_MODE) console.log(`🔄 Processing effect on-demand: ${newEffect}`);
+                await applySelectedEffectThenCrop();
+            });
+
+            async function applySelectedEffectThenCrop() {
+                const effect = effectSelect.value;
+                
+                try {
+                    // Check if we have this effect cached first
+                    if (effectCache[effect]) {
+                        if (DEBUG_MODE) console.log(`⚡ Using cached effect: ${effect}`);
+                        processedImage = effectCache[effect];
+                        showImageAdjustmentUI();
+                        return;
+                    }
+                    
+                    // Get effect configuration
+                    const config = EffectContainer.getConfig(effect);
+                    
+                    if (!config) {
+                        console.error(`Unknown effect: ${effect}`);
+                        processedImage = originalProcessedImage; // Use original
+                        showImageAdjustmentUI();
+                        return;
+                    }
+                    
+                    // Ensure we have a valid image to work with
+                    let sourceImage = trueOriginalImage;
+                    if (!sourceImage) {
+                        console.warn(`⚠️ trueOriginalImage not ready, using originalProcessedImage as fallback`);
+                        sourceImage = originalProcessedImage;
+                    }
+                    
+                    if (!sourceImage) {
+                        console.error(`❌ No source image available for effect processing`);
+                        processedImage = originalProcessedImage || null;
+                        if (processedImage) {
+                            showImageAdjustmentUI();
+                        } else {
+                            console.error(`❌ Cannot show UI - no processed image available`);
+                        }
+                        return;
+                    }
+                    
+                    // Execute the effect using the container system
+                    if (DEBUG_MODE) console.log(`🎯 Applying selected effect '${effect}' using source image: ${sourceImage.width}x${sourceImage.height}`);
+                    const effectImg = await EffectContainer.execute(effect, sourceImage);
+                    
+                    // Cache the result for future instant switching
+                    effectCache[effect] = effectImg;
+                    
+                    // Check if this effect requires backend processing
+                    if (config.requiresBackend) {
+                        // For backend effects, continue with backend processing
+                        processedImage = effectImg;
+                        showImageAdjustmentUI();
+                    } else {
+                        // For frontend-only effects, use the result directly
+                        processedImage = effectImg;
+                        showImageAdjustmentUI();
+                    }
+                    
+                    if (DEBUG_MODE) console.log(`✅ Selected effect '${effect}' processing complete`);
+                    
+                } catch (error) {
+                    console.error('Error applying effect:', error);
+                    // Fallback to original image
+                    processedImage = originalProcessedImage;
+                    if (processedImage) {
+                        showImageAdjustmentUI();
+                    } else {
+                        console.error(`❌ Cannot show UI - no fallback image available`);
+                    }
+                }
+            }
+
+
+
+
+        });
+    </script>
+</body>
+</html>
+
+
+ 

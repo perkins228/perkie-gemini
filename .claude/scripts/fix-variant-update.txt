@@ -1,0 +1,102 @@
+      // Automatically select the correct product variant based on pet count
+      function updateVariantForPetCount(petCount) {
+        console.log('🔥 updateVariantForPetCount called with:', petCount);
+        
+        // Prevent infinite loop when variant sync triggers pet selection
+        if (window.variantSyncDisabled) {
+          console.log('⏸️ Variant update skipped (sync in progress)');
+          return;
+        }
+        console.log('✅ Sync lock check passed');
+        
+        console.log('🔄 Updating variant for pet count:', petCount);
+        
+        // Determine target variant text based on pet count
+        var targetVariantText = '';
+        if (petCount === 0 || petCount === 1) {
+          targetVariantText = '1 Pet';
+        } else if (petCount === 2) {
+          targetVariantText = '2 Pets';
+        } else if (petCount >= 3) {
+          targetVariantText = '3 Pets';
+        }
+        
+        console.log('🎯 Looking for variant:', targetVariantText);
+        
+        // Method 1: Work with Shopify's variant-selects custom element
+        var variantSelectsElement = document.querySelector('variant-selects');
+        if (variantSelectsElement) {
+          console.log('📦 Found variant-selects element');
+          
+          // Find the radio input for pet variants
+          var variantRadios = variantSelectsElement.querySelectorAll('input[type="radio"]');
+          var found = false;
+          
+          variantRadios.forEach(function(radio) {
+            var label = variantSelectsElement.querySelector('label[for="' + radio.id + '"]');
+            if (label) {
+              var labelText = label.textContent.trim();
+              console.log('  Checking radio label:', labelText);
+              
+              // Exact match (case-insensitive)
+              if (labelText.toLowerCase() === targetVariantText.toLowerCase()) {
+                console.log('  ✅ Found matching variant radio:', labelText);
+                radio.checked = true;
+                radio.click(); // Use click to ensure all handlers fire
+                radio.dispatchEvent(new Event('change', { bubbles: true }));
+                found = true;
+              }
+            }
+          });
+          
+          if (found) {
+            console.log('✅ Variant updated via variant-selects element');
+            return;
+          }
+        }
+        
+        // Method 2: Try option-based variant selection (Dawn theme pattern)
+        var optionSelects = document.querySelectorAll('.product-form__input select');
+        optionSelects.forEach(function(select) {
+          var options = select.querySelectorAll('option');
+          options.forEach(function(option) {
+            var optionText = option.textContent.trim();
+            if (optionText.toLowerCase() === targetVariantText.toLowerCase()) {
+              console.log('✅ Found matching option:', optionText);
+              select.value = option.value;
+              select.dispatchEvent(new Event('change', { bubbles: true }));
+              
+              // Also trigger on the form if needed
+              var form = select.closest('form');
+              if (form) {
+                form.dispatchEvent(new Event('change', { bubbles: true }));
+              }
+            }
+          });
+        });
+        
+        // Method 3: Direct variant ID selection fallback
+        var variantIdSelectors = document.querySelectorAll('select[name="id"], input[name="id"][type="radio"]');
+        variantIdSelectors.forEach(function(selector) {
+          if (selector.tagName === 'SELECT') {
+            var options = selector.querySelectorAll('option');
+            options.forEach(function(option) {
+              if (option.textContent.toLowerCase().includes(targetVariantText.toLowerCase())) {
+                selector.value = option.value;
+                selector.dispatchEvent(new Event('change', { bubbles: true }));
+                console.log('✅ Updated via direct variant select');
+              }
+            });
+          } else if (selector.type === 'radio') {
+            var label = document.querySelector('label[for="' + selector.id + '"]');
+            if (label && label.textContent.toLowerCase().includes(targetVariantText.toLowerCase())) {
+              selector.checked = true;
+              selector.click();
+              console.log('✅ Updated via direct variant radio');
+            }
+          }
+        });
+        
+        // Log what we found for debugging
+        console.log('🔍 Variant selection complete for:', targetVariantText);
+      }

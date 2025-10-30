@@ -1,0 +1,460 @@
+/**
+ * Mobile-First Pet Processor Styles
+ * Simple, clean, optimized for touch
+ */
+
+.pet-processor-mobile {
+  /* Mobile-first base */
+  padding: 1rem;
+  max-width: 100%;
+  margin: 0 auto;
+}
+
+/* Upload Zone */
+.upload-zone {
+  border: 2px dashed rgba(var(--color-foreground), 0.3);
+  border-radius: 12px;
+  padding: 2rem 1rem;
+  text-align: center;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  min-height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.upload-zone.drag-over {
+  border-color: rgb(var(--color-button));
+  background: rgba(var(--color-button), 0.05);
+}
+
+.file-input {
+  display: none;
+}
+
+.upload-label {
+  cursor: pointer;
+  display: block;
+  width: 100%;
+}
+
+.upload-icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+
+.upload-text {
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: rgb(var(--color-foreground));
+  margin-bottom: 0.5rem;
+}
+
+.upload-hint {
+  font-size: 0.9rem;
+  color: rgba(var(--color-foreground), 0.7);
+}
+
+/* Processing View */
+.processing-view {
+  text-align: center;
+  padding: 3rem 1rem;
+}
+
+.processing-spinner {
+  width: 60px;
+  height: 60px;
+  border: 3px solid rgba(var(--color-foreground), 0.1);
+  border-top-color: rgb(var(--color-button));
+  border-radius: 50%;
+  margin: 0 auto 1.5rem;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.processing-text {
+  font-size: 1.1rem;
+  margin-bottom: 0.5rem;
+  color: rgb(var(--color-foreground));
+}
+
+.progress-timer {
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: rgb(var(--color-button));
+  margin: 0.5rem 0 1rem;
+}
+
+.progress-stage-info {
+  font-size: 0.9rem;
+  color: rgba(var(--color-foreground), 0.7);
+  margin-bottom: 1.5rem;
+  line-height: 1.4;
+}
+
+.processing-progress {
+  max-width: 300px;
+  height: 6px;
+  background: rgba(var(--color-foreground), 0.1);
+  border-radius: 3px;
+  margin: 1.5rem auto;
+  overflow: hidden;
+  position: relative;
+}
+
+.progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, rgb(var(--color-button)), rgba(var(--color-button), 0.8));
+  border-radius: 3px;
+  transition: width 0.5s ease;
+  width: 0;
+  position: relative;
+}
+
+/* Progress bar animation */
+.progress-bar::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 30px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  animation: progress-shine 2s ease-in-out infinite;
+}
+
+@keyframes progress-shine {
+  0% { transform: translateX(-30px); }
+  100% { transform: translateX(330px); }
+}
+
+.cancel-processing-btn {
+  background: none;
+  border: 1px solid rgba(var(--color-foreground), 0.3);
+  color: rgba(var(--color-foreground), 0.7);
+  padding: 0.75rem 1.5rem;
+  border-radius: 6px;
+  margin-top: 2rem;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-height: 44px;
+}
+
+.cancel-processing-btn:hover {
+  border-color: rgba(var(--color-foreground), 0.5);
+  color: rgba(var(--color-foreground), 0.9);
+}
+
+/* Result View */
+.pet-image-container {
+  margin: 0 auto 1.5rem;
+  max-width: 280px; /* Mobile-optimized size */
+  border-radius: 12px;
+  overflow: hidden;
+  background: rgba(var(--color-foreground), 0.05);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.pet-image {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* Effect Grid - Mobile Optimized */
+.effect-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.5rem;
+  margin: 0 auto 1.5rem;
+  max-width: 280px; /* Match image container width */
+}
+
+.effect-btn {
+  min-height: 48px;
+  min-width: 48px;
+  border: 2px solid rgba(var(--color-foreground), 0.2);
+  background: rgb(var(--color-background));
+  border-radius: 8px;
+  padding: 0.5rem 0.25rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.125rem;
+  
+  /* Touch feedback */
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+.effect-btn:active {
+  transform: scale(0.97);
+}
+
+.effect-btn.active {
+  border-color: rgb(var(--color-button));
+  background: rgba(var(--color-button), 0.1);
+}
+
+.effect-emoji {
+  font-size: clamp(1.1rem, 4vw, 1.4rem);
+  line-height: 1;
+  display: block;
+}
+
+.effect-name {
+  font-size: clamp(0.65rem, 2.5vw, 0.8rem);
+  font-weight: 500;
+  text-align: center;
+  line-height: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100%;
+}
+
+/* Pet Name Section */
+.pet-name-section {
+  margin: 0 auto 1.5rem;
+  max-width: 280px; /* Match image container width */
+}
+
+.pet-name-section label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  color: rgb(var(--color-foreground));
+}
+
+.pet-name-input {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid rgba(var(--color-foreground), 0.2);
+  border-radius: 6px;
+  font-size: 1rem;
+  background: rgb(var(--color-background));
+  color: rgb(var(--color-foreground));
+}
+
+/* Artist Notes Section - Redesigned */
+.artist-notes-section {
+  margin: 0 auto 1.5rem;
+  max-width: 280px;
+  background: rgba(var(--color-foreground), 0.03);
+  border: 1px solid rgba(var(--color-foreground), 0.1);
+  border-radius: 12px;
+  padding: 1rem;
+  transition: all 0.3s ease;
+}
+
+.artist-notes-section:focus-within {
+  border-color: rgba(var(--color-button), 0.5);
+  background: rgba(var(--color-button), 0.02);
+}
+
+.artist-notes-section label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  font-size: 0.95rem;
+  color: rgb(var(--color-foreground));
+}
+
+.artist-notes-input {
+  width: 100%;
+  min-height: 80px;
+  padding: 0.75rem;
+  border: 1px solid rgba(var(--color-foreground), 0.15);
+  border-radius: 8px;
+  font-size: 0.95rem;
+  background: rgb(var(--color-background));
+  resize: vertical;
+  transition: border-color 0.2s ease;
+  font-family: inherit;
+}
+
+.artist-notes-input:focus {
+  outline: none;
+  border-color: rgb(var(--color-button));
+}
+
+.char-count {
+  text-align: right;
+  margin-top: 0.5rem;
+  font-size: 0.75rem;
+  color: rgba(var(--color-foreground), 0.5);
+}
+
+/* Action Buttons */
+.action-buttons {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+  margin: 0 auto;
+  max-width: 280px;
+}
+
+.btn-primary,
+.btn-secondary {
+  padding: 0.875rem 1.5rem;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+  min-height: 48px; /* Touch-friendly */
+}
+
+.btn-primary {
+  background: rgb(var(--color-button));
+  color: rgb(var(--color-button-text));
+}
+
+.btn-primary:active {
+  transform: scale(0.98);
+}
+
+.btn-primary:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.btn-secondary {
+  background: transparent;
+  color: rgb(var(--color-foreground));
+  border: 1px solid rgba(var(--color-foreground), 0.3);
+}
+
+.btn-secondary:active {
+  transform: scale(0.98);
+}
+
+/* Error View */
+.error-view {
+  text-align: center;
+  padding: 2rem 1rem;
+}
+
+.error-icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+
+.error-message {
+  font-size: 1.1rem;
+  color: rgb(var(--color-foreground));
+  margin-bottom: 1.5rem;
+}
+
+.try-again-btn {
+  min-width: 150px;
+}
+
+/* Tablet and Desktop */
+@media (min-width: 768px) {
+  .pet-processor-mobile {
+    padding: 2rem;
+    max-width: 800px;
+  }
+  
+  /* Consistent container widths */
+  .pet-image-container,
+  .effect-grid,
+  .pet-name-section,
+  .artist-notes-section,
+  .action-buttons {
+    max-width: 400px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  
+  .effect-grid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+  }
+  
+  .upload-zone {
+    min-height: 250px;
+  }
+}
+
+/* Desktop */
+@media (min-width: 1024px) {
+  .pet-image-container,
+  .effect-grid,
+  .pet-name-section,
+  .artist-notes-section,
+  .action-buttons {
+    max-width: 600px;
+  }
+}
+
+/* High DPI Displays */
+@media (min-resolution: 2dppx) {
+  .upload-zone,
+  .effect-btn {
+    border-width: 1px;
+  }
+}
+
+/* Mobile-specific progress optimizations */
+@media (max-width: 768px) {
+  .processing-view {
+    padding: 2rem 1rem;
+  }
+  
+  .progress-timer {
+    font-size: 1.4rem;
+  }
+  
+  .processing-progress {
+    height: 8px;
+    max-width: 90%;
+  }
+  
+  .cancel-processing-btn {
+    width: 100%;
+    max-width: 200px;
+  }
+  
+  /* Reduce animation frequency on mobile for battery */
+  .progress-bar::after {
+    animation-duration: 3s;
+  }
+}
+
+/* Ultra-narrow screen optimizations */
+@media (max-width: 360px) {
+  .effect-grid {
+    gap: 0.375rem;
+  }
+  
+  .effect-btn {
+    padding: 0.5rem 0.2rem;
+  }
+  
+  .effect-name {
+    font-size: 0.6rem;
+  }
+}
+
+/* Very narrow screens */
+@media (max-width: 340px) {
+  .effect-btn .effect-name {
+    font-size: 0.55rem;
+    letter-spacing: -0.02em;
+  }
+  
+  .effect-emoji {
+    font-size: 1.2rem;
+  }
+}

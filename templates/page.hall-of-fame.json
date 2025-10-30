@@ -1,0 +1,940 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "sections": {
+    "main": {
+      "type": "main-page",
+      "disabled": true,
+      "settings": {
+        "padding_top": 28,
+        "padding_bottom": 28
+      }
+    },
+    "image_banner_kyY9iW": {
+      "type": "image-banner",
+      "blocks": {
+        "text_JF8bM7": {
+          "type": "text",
+          "settings": {
+            "text": "Perkie Prints Pet of the Month",
+            "text_style": "body"
+          }
+        },
+        "heading_PhwR4z": {
+          "type": "heading",
+          "settings": {
+            "heading": "Hall of Fame",
+            "heading_size": "h0"
+          }
+        },
+        "buttons_AkRj9H": {
+          "type": "buttons",
+          "disabled": true,
+          "settings": {
+            "button_label_1": "Button label",
+            "button_link_1": "",
+            "button_style_secondary_1": false,
+            "button_label_2": "Button label",
+            "button_link_2": "",
+            "button_style_secondary_2": false
+          }
+        }
+      },
+      "block_order": [
+        "text_JF8bM7",
+        "heading_PhwR4z",
+        "buttons_AkRj9H"
+      ],
+      "name": "t:sections.image-banner.presets.name",
+      "settings": {
+        "image": "shopify://shop_images/team_pets_copybig_e3afba67-b8a9-4856-8b8a-ed265598c246.jpg",
+        "image_overlay_opacity": 0,
+        "image_height": "medium",
+        "image_behavior": "none",
+        "desktop_content_position": "middle-center",
+        "desktop_content_alignment": "center",
+        "show_text_box": true,
+        "color_scheme": "",
+        "stack_images_on_mobile": true,
+        "mobile_content_alignment": "center",
+        "show_text_below": false
+      }
+    },
+    "image_with_text_3i4i89": {
+      "type": "image-with-text",
+      "blocks": {
+        "caption_RU4zq9": {
+          "type": "caption",
+          "settings": {
+            "caption": "September 2025 Pet of the month Winner",
+            "text_style": "caption-with-letter-spacing",
+            "text_size": "medium"
+          }
+        },
+        "heading_WqeVLQ": {
+          "type": "heading",
+          "settings": {
+            "heading": "Beef",
+            "heading_size": "h1"
+          }
+        },
+        "text_jWNHWb": {
+          "type": "text",
+          "settings": {
+            "text": "<p>Meet Beef 👋  Beef is 2.5 years old, and was named by our sons during a brainstorming conversation on taco Tuesday! He loves long runs with his dad and snuggles with his buddy Harry, our mini poodle. He’s the best boy.</p>",
+            "text_style": "body"
+          }
+        }
+      },
+      "block_order": [
+        "caption_RU4zq9",
+        "heading_WqeVLQ",
+        "text_jWNHWb"
+      ],
+      "name": "t:sections.image-with-text.presets.name",
+      "settings": {
+        "image": "shopify://shop_images/Before_After_Sept_25.jpg",
+        "height": "adapt",
+        "desktop_image_width": "medium",
+        "layout": "text_first",
+        "image_behavior": "none",
+        "content_layout": "no-overlap",
+        "desktop_content_position": "middle",
+        "desktop_content_alignment": "center",
+        "mobile_content_alignment": "left",
+        "section_color_scheme": "",
+        "color_scheme": "",
+        "padding_top": 36,
+        "padding_bottom": 36
+      }
+    },
+    "multicolumn_nhJAcY": {
+      "type": "multicolumn",
+      "blocks": {
+        "column_kmdkhT": {
+          "type": "column",
+          "settings": {
+            "image": "shopify://shop_images/Screenshot_2025-10-24_at_3.55.11_PM.png",
+            "title": "Lemon - Winner for \"Smiley Pups\"",
+            "text": "<p>🐾🎾 Meet Lemon, the multitasking Golden Retriever! 🍋🐶 </p><p>Her talent? Carrying three tennis balls, a bone, and a toy all at once! Talk about a Golden Overechiever! 😂 When she’s not busy juggling her treasures, you can find her snacking and playing with her little human brother, who she thinks is just another toy! Vote for Lemon, because who wouldn’t want a dog that can do it all while looking this adorable? 🥇❤️🐾 </p>",
+            "link_label": "",
+            "link": ""
+          }
+        },
+        "column_bm6YTK": {
+          "type": "column",
+          "settings": {
+            "image": "shopify://shop_images/Screenshot_2025-10-24_at_3.54.41_PM.png",
+            "title": "Maple - Winner for \"Ready For My Close Up\"",
+            "text": "<p>Miss Maple is a 3 year old medical research laboratory survivor who is learning about the outside world day by day and she absolutely lights up our lives! She is the sweetest little love and we are the luckiest to have her as part of the family. She's learning to dog one step at a time and never ceases to crack us up with her little snorts and huffs as her beagle attitude starts to come out. Seeing her discover the world has been amazing, and it's been so sweet to see our 3 cats (Butters, Peanut, and Nugget) adopt her as well!</p>",
+            "link_label": "",
+            "link": ""
+          }
+        },
+        "column_WG7MGT": {
+          "type": "column",
+          "settings": {
+            "image": "shopify://shop_images/Screenshot_2025-10-24_at_3.56.24_PM.png",
+            "title": "Fiona & Jessa - Winners for \"Pallin' Around Town\"",
+            "text": "<p>Fiona and Jessa are sisters from a five puppy litter.They arrived to the Wash DC area from Indiana just over a year ago. Jessa is the smaller in stature one but still has a large personality; she is the quiet one but will fight when it’s for right. Fiona is her slightly older and bigger sister with a concern and caring that can be overwhelming as she too gets overwhelmed by emotion.</p>",
+            "link_label": "",
+            "link": ""
+          }
+        },
+        "column_7nEQa8": {
+          "type": "column",
+          "settings": {
+            "image": "shopify://shop_images/Screenshot_2025-10-24_at_3.56.49_PM.png",
+            "title": "Beef - Winner for \"Seriously Cute\"",
+            "text": "<p>Beef is 2.5 years old, and was named by our sons during a brainstorming conversation on taco Tuesday! He loves long runs with his dad and snuggles with his buddy Harry, our mini poodle. He’s the best boy.</p>",
+            "link_label": "",
+            "link": ""
+          }
+        }
+      },
+      "block_order": [
+        "column_kmdkhT",
+        "column_bm6YTK",
+        "column_WG7MGT",
+        "column_7nEQa8"
+      ],
+      "name": "t:sections.multicolumn.presets.name",
+      "settings": {
+        "title": "September Runner-up category winners..",
+        "heading_size": "h1",
+        "image_width": "full",
+        "image_ratio": "adapt",
+        "button_label": "",
+        "button_link": "",
+        "columns_desktop": 4,
+        "column_alignment": "left",
+        "background_style": "primary",
+        "color_scheme": "",
+        "columns_mobile": "1",
+        "swipe_on_mobile": true,
+        "padding_top": 36,
+        "padding_bottom": 36
+      }
+    },
+    "image_with_text_7zQXpH": {
+      "type": "image-with-text",
+      "blocks": {
+        "caption_cHhjcV": {
+          "type": "caption",
+          "settings": {
+            "caption": "August 2025 Pet of the month Winner",
+            "text_style": "caption-with-letter-spacing",
+            "text_size": "medium"
+          }
+        },
+        "heading_jPWige": {
+          "type": "heading",
+          "settings": {
+            "heading": "Petty",
+            "heading_size": "h1"
+          }
+        },
+        "text_iwp7TC": {
+          "type": "text",
+          "settings": {
+            "text": "<p>Meet Petty 👋  Petty is a 5 year old border collie/lab mix - though around here he prefers the title of purebred good boy. Named after the music legend Tom Petty, he’s happiest when he’s swimming in the lake or going on long trail walks, he even counts a trip to the vet as a good time. His quirks? He’s adorably suspicious of small kitchen appliances - but that just makes him all the more lovable! </p>",
+            "text_style": "body"
+          }
+        }
+      },
+      "block_order": [
+        "caption_cHhjcV",
+        "heading_jPWige",
+        "text_iwp7TC"
+      ],
+      "name": "t:sections.image-with-text.presets.name",
+      "settings": {
+        "image": "shopify://shop_images/Before_After_Aug_2025.jpg",
+        "height": "adapt",
+        "desktop_image_width": "medium",
+        "layout": "text_first",
+        "image_behavior": "none",
+        "content_layout": "no-overlap",
+        "desktop_content_position": "middle",
+        "desktop_content_alignment": "center",
+        "mobile_content_alignment": "left",
+        "section_color_scheme": "",
+        "color_scheme": "",
+        "padding_top": 36,
+        "padding_bottom": 36
+      }
+    },
+    "multicolumn_Qbg6Wn": {
+      "type": "multicolumn",
+      "blocks": {
+        "column_NiHQi8": {
+          "type": "column",
+          "settings": {
+            "image": "shopify://shop_images/35606_Sersch_Atlas_Layla_square.png",
+            "title": "Atlas & Laya - Winners for \"Furry Companions\"",
+            "text": "<p>Laya the corgi and Atlas the snowshoe are the fluffiest odd couple around. She’s all wiggles and zoomies; he’s cool, calm, and slightly dramatic. But somehow, they’re inseparable—chasing toys, lounging in the backyard, and taking synchronized naps like pros. Their friendship may be unlikely, but it’s 100% adorable.</p>",
+            "link_label": "",
+            "link": ""
+          }
+        },
+        "column_9fHU9d": {
+          "type": "column",
+          "settings": {
+            "image": "shopify://shop_images/35579_Kirkpatrick_Jack_DIGI_972f4b4b-b1dc-4ed2-8b1f-4b7560064d66.png",
+            "title": "Jack - Winner for \"Licky Lous\"",
+            "text": "<p>Jack is a 17 year old rescue. I call him my mystery man because not even the vet really knows what he is. He has slothy long legs and loves to swim. He even has his own pool floaty to float around on. He loves to go on adventures and I carry him in a backpack when we go hiking or he gets pushed in a stroller for long walks. And he's the sweetest most perfect boy.</p>",
+            "link_label": "",
+            "link": ""
+          }
+        },
+        "column_pApQze": {
+          "type": "column",
+          "settings": {
+            "image": "shopify://shop_images/35583_Queen_Ada_DIGI_3bfafb07-871a-4a68-aa79-4d6341da71b6.png",
+            "title": "Ada - Winner for \"Modelesque\"",
+            "text": "<p>Ada is named after Ada Lovelace, the first  computer programmer. She lives with a new 4 month old sibling and loves to be involved. She's always making sure to bring the baby pacifiers, toys, and bottles that she finds around the house. Her favorite hobbies are playing fetch and swimming... preferably being done simultaneously.</p>",
+            "link_label": "",
+            "link": ""
+          }
+        },
+        "column_Qf4C6Q": {
+          "type": "column",
+          "settings": {
+            "image": "shopify://shop_images/35594_Reeves_Luna_V2_DIGI_2a08345e-b38d-433d-a2f0-1698a40ea045.png",
+            "title": "Luna - Winner for \"Those Ears Do All The Talking\"",
+            "text": "<p>Luna is OBSESSED with tennis balls. There’s always at least one close and the other one is probably in her mouth. Even when her human brother was born, she would take him her tennis ball to throw. Two years later, he’s now big enough to throw it for her.</p>",
+            "link_label": "",
+            "link": ""
+          }
+        }
+      },
+      "block_order": [
+        "column_NiHQi8",
+        "column_9fHU9d",
+        "column_pApQze",
+        "column_Qf4C6Q"
+      ],
+      "name": "t:sections.multicolumn.presets.name",
+      "settings": {
+        "title": "August Runner-up category winners..",
+        "heading_size": "h1",
+        "image_width": "full",
+        "image_ratio": "adapt",
+        "button_label": "",
+        "button_link": "",
+        "columns_desktop": 4,
+        "column_alignment": "left",
+        "background_style": "primary",
+        "color_scheme": "",
+        "columns_mobile": "1",
+        "swipe_on_mobile": true,
+        "padding_top": 36,
+        "padding_bottom": 36
+      }
+    },
+    "image_with_text_WVY7G6": {
+      "type": "image-with-text",
+      "blocks": {
+        "caption_7BcWC9": {
+          "type": "caption",
+          "settings": {
+            "caption": "July 2025 Pet of the month Winner",
+            "text_style": "caption-with-letter-spacing",
+            "text_size": "medium"
+          }
+        },
+        "heading_8Fdzn4": {
+          "type": "heading",
+          "settings": {
+            "heading": "Binx",
+            "heading_size": "h1"
+          }
+        },
+        "text_dKUjwG": {
+          "type": "text",
+          "settings": {
+            "text": "<p>Meet Binx 👋  A fun fact about her is that she loves watermelon and she can be sassy but loving when she feels like it! She loves playing fetch with her dad  and she’s being featured on our wedding cake in September! </p>",
+            "text_style": "body"
+          }
+        }
+      },
+      "block_order": [
+        "caption_7BcWC9",
+        "heading_8Fdzn4",
+        "text_dKUjwG"
+      ],
+      "name": "t:sections.image-with-text.presets.name",
+      "settings": {
+        "image": "shopify://shop_images/Before_After_july_2025.jpg",
+        "height": "adapt",
+        "desktop_image_width": "medium",
+        "layout": "text_first",
+        "image_behavior": "none",
+        "content_layout": "no-overlap",
+        "desktop_content_position": "middle",
+        "desktop_content_alignment": "center",
+        "mobile_content_alignment": "left",
+        "section_color_scheme": "",
+        "color_scheme": "",
+        "padding_top": 36,
+        "padding_bottom": 36
+      }
+    },
+    "multicolumn_QfJ9JF": {
+      "type": "multicolumn",
+      "blocks": {
+        "column_NXPbX4": {
+          "type": "column",
+          "settings": {
+            "image": "shopify://shop_images/35420_Silvidi_Howard_Harold_DIGI_d8fbed84-a725-4c59-a021-3bcc15abd0e2.png",
+            "title": "Howard & Harold- Winners for \"Bonded for life\"",
+            "text": "<p>The boys are true brothers. They love daily walkies, cheese, and tickles </p>",
+            "link_label": "",
+            "link": ""
+          }
+        },
+        "column_6WDdjR": {
+          "type": "column",
+          "settings": {
+            "image": "shopify://shop_images/35528_Levitt_River_DIGI_2be770bb-3f3f-4e49-9b3c-356e97cfc4f8.png",
+            "title": "River- Winner for \"The Fluffernutters\"",
+            "text": "<p>River is an 8 year old Portuguese Water Dog who loves bananas and walkies. He has a dog brother, Fynn, and they are preparing for their first human sister to arrive in October! Unsurprisingly, baby girl's nursery is going to be River & Fynn themed!</p>",
+            "link_label": "",
+            "link": ""
+          }
+        },
+        "column_7acQnc": {
+          "type": "column",
+          "settings": {
+            "image": "shopify://shop_images/35479_Turk_Napoleon_DIGI-2_e88cbe9d-cc23-49bc-bd7e-d0b430d4dedd.png",
+            "title": "Napoleon -  Winner for Certified Goobers",
+            "text": "<p>Napoleon is not only a Certified Goober, but also the King of all he surveys. He uses his good looks and sassy personality to win over everyone he meets.</p>",
+            "link_label": "",
+            "link": ""
+          }
+        },
+        "column_AqbWnz": {
+          "type": "column",
+          "settings": {
+            "image": "shopify://shop_images/35467_Borzecki_Kingston_DIGI_601bfb02-4245-4133-8462-ae57e94bfcb0.png",
+            "title": "Kingston- Winner for \"Floppy Eared Friends\"",
+            "text": "<p>Kingston was the best, good boy! He loved ice cubes & cheese. He also loved to just lay outside on the deck and watch the world go by. When he wasn’t getting enough attention, he would nudge your hand with his nose for some love💙</p>",
+            "link_label": "",
+            "link": ""
+          }
+        }
+      },
+      "block_order": [
+        "column_NXPbX4",
+        "column_6WDdjR",
+        "column_7acQnc",
+        "column_AqbWnz"
+      ],
+      "name": "t:sections.multicolumn.presets.name",
+      "settings": {
+        "title": "July Runner-up category winners..",
+        "heading_size": "h1",
+        "image_width": "full",
+        "image_ratio": "adapt",
+        "button_label": "",
+        "button_link": "",
+        "columns_desktop": 4,
+        "column_alignment": "left",
+        "background_style": "primary",
+        "color_scheme": "",
+        "columns_mobile": "1",
+        "swipe_on_mobile": true,
+        "padding_top": 36,
+        "padding_bottom": 36
+      }
+    },
+    "image_with_text_yRTeX3": {
+      "type": "image-with-text",
+      "blocks": {
+        "caption_e4BmMH": {
+          "type": "caption",
+          "settings": {
+            "caption": "June 2025 Pet of the month Winner",
+            "text_style": "caption-with-letter-spacing",
+            "text_size": "medium"
+          }
+        },
+        "heading_cVFdNh": {
+          "type": "heading",
+          "settings": {
+            "heading": "Oscar",
+            "heading_size": "h1"
+          }
+        },
+        "text_c67GpR": {
+          "type": "text",
+          "settings": {
+            "text": "<p>Meet Oscar 👋  Oscar was a rescue dog who was found walking on the road with a can stuck on his head as just a 3 month old puppy desperately searching for food. Luckily he walked out of the bush in the right time to get help. He was a very shy scared boy to start but turned into the most loving, cuddly boy! Him being part husky made him have a mind of his own which kept us on our toes but he was always so grateful of life right up until the day he succumbed to cancer in June 2025. We miss his large presence in the house so much🤍</p>",
+            "text_style": "body"
+          }
+        }
+      },
+      "block_order": [
+        "caption_e4BmMH",
+        "heading_cVFdNh",
+        "text_c67GpR"
+      ],
+      "name": "t:sections.image-with-text.presets.name",
+      "settings": {
+        "image": "shopify://shop_images/Before_After_June_2025.jpg",
+        "height": "adapt",
+        "desktop_image_width": "medium",
+        "layout": "text_first",
+        "image_behavior": "none",
+        "content_layout": "no-overlap",
+        "desktop_content_position": "middle",
+        "desktop_content_alignment": "center",
+        "mobile_content_alignment": "left",
+        "section_color_scheme": "",
+        "color_scheme": "",
+        "padding_top": 36,
+        "padding_bottom": 36
+      }
+    },
+    "multicolumn_jHDY4h": {
+      "type": "multicolumn",
+      "blocks": {
+        "column_cfr8tK": {
+          "type": "column",
+          "settings": {
+            "image": "shopify://shop_images/35428_Taylor_Zeppelin_DIGI_ce2c01c8-61b2-4d0e-87f0-b4a8e959bc6a.png",
+            "title": "Zeppelin- Winner for \"What Do You Mean \"Treats All Done\"?!\"",
+            "text": "<p>Zeppelin made us a family of 3 when we adopted him on our 1 week wedding anniversary. Zeppelin is a sweet puppy who wants to befriend every person and dog he meets. He loves playing, spending time with our neighbors, playing, \"swimming\" and sunning himself on the grass, playing, figuring out how to open doors and gates, playing, and his daycare friends. </p>",
+            "link_label": "",
+            "link": ""
+          }
+        },
+        "column_GUXffH": {
+          "type": "column",
+          "settings": {
+            "image": "shopify://shop_images/35358_Conejo-Mir_Loza_Tarka_DIGI_95de4eae-ad25-4277-a9c8-cd3ba29d0576.png",
+            "title": "Tarka- Winner for \"Slobber Squad'",
+            "text": "<p>Tarka is a fruit bat. She loves nothing more than chomping on a watermelon,stealing a slice of orange , or enjoy her 10am 🍐 pear a day!  She sheds, she licks (a lot!), but she loves her pack beyond measure.</p><p>Follow her on insta - tarkanaylorjames</p>",
+            "link_label": "",
+            "link": ""
+          }
+        },
+        "column_96FBy4": {
+          "type": "column",
+          "settings": {
+            "image": "shopify://shop_images/35365_Whittaker_Goldy_Keaton_square.png",
+            "title": "Goldy & Keaton - Winners for Snuggle Buddies",
+            "text": "",
+            "link_label": "",
+            "link": ""
+          }
+        }
+      },
+      "block_order": [
+        "column_cfr8tK",
+        "column_GUXffH",
+        "column_96FBy4"
+      ],
+      "name": "t:sections.multicolumn.presets.name",
+      "settings": {
+        "title": "June Runner-up category winners..",
+        "heading_size": "h1",
+        "image_width": "full",
+        "image_ratio": "adapt",
+        "button_label": "",
+        "button_link": "",
+        "columns_desktop": 3,
+        "column_alignment": "left",
+        "background_style": "primary",
+        "color_scheme": "",
+        "columns_mobile": "1",
+        "swipe_on_mobile": true,
+        "padding_top": 36,
+        "padding_bottom": 36
+      }
+    },
+    "ks_image_compare_rFXG3J": {
+      "type": "ks-image-compare",
+      "name": "KS - Image compare",
+      "settings": {
+        "color_scheme": "scheme-f318d737-2be2-4346-8605-b2fbd6208608",
+        "page_width": "",
+        "show_only_img": false,
+        "img_alignment": "right",
+        "mobile_before_img": "shopify://shop_images/35307_Kipnis_Winston_square_before.jpg",
+        "mobile_after_img": "shopify://shop_images/35307_Kipnis_Winston_square_after.jpg",
+        "desktop_before_img": "shopify://shop_images/35307_Kipnis_Winston_square_before.jpg",
+        "desktop_after_img": "shopify://shop_images/35307_Kipnis_Winston_square_after.jpg",
+        "icv_controls_color": "#ffffff",
+        "icv_controls_circle": true,
+        "icv_smoothing": true,
+        "icv_hover_start": false,
+        "icv_vertical_mode": false,
+        "icv_starting_point": 50,
+        "icv_show_labels": true,
+        "icv_label_before": "Before",
+        "icv_label_after": "After",
+        "icv_labels_font_size": 0.9,
+        "icv_labels_position": "bottom",
+        "text_align_mobile": "text-center",
+        "text_align_desktop": "text-tablet-center",
+        "subtitle": "Grand Prize  Winner",
+        "subtitle_font_size": "fs-sm",
+        "title": "May 2025 - Meet Winston",
+        "title_font_size": "h1",
+        "description": "<p>At just 2 years old Winston is the pride and joy of his forever family! He loves walkies, going to daycare, belly scratches and most of all his Grandma! He is the happiest boy in the world and his mom’s best friend!</p>",
+        "description_font_size": "fs-lg",
+        "btn_primary_text": "",
+        "btn_primary_style": "button--primary",
+        "btn_primary_url": "",
+        "btn_secondary_text": "",
+        "btn_secondary_style": "button--secondary",
+        "btn_secondary_url": "",
+        "pt": 36,
+        "pb": 36
+      }
+    },
+    "image_with_text_PiPD3t": {
+      "type": "image-with-text",
+      "blocks": {
+        "caption_WRaKjU": {
+          "type": "caption",
+          "settings": {
+            "caption": "May 2025 Pet of the month Winner",
+            "text_style": "caption-with-letter-spacing",
+            "text_size": "medium"
+          }
+        },
+        "heading_gqM7HB": {
+          "type": "heading",
+          "settings": {
+            "heading": "Winston",
+            "heading_size": "h1"
+          }
+        },
+        "text_kmHhTV": {
+          "type": "text",
+          "settings": {
+            "text": "<p>Meet Winston 👋  At just 2 years old Winston is the pride and joy of his forever family! He loves walkies, going to daycare, belly scratches and most of all his Grandma! He is the happiest boy in the world and his mom’s best friend!</p>",
+            "text_style": "body"
+          }
+        }
+      },
+      "block_order": [
+        "caption_WRaKjU",
+        "heading_gqM7HB",
+        "text_kmHhTV"
+      ],
+      "name": "t:sections.image-with-text.presets.name",
+      "settings": {
+        "image": "shopify://shop_images/Before_After_May_2025.jpg",
+        "height": "adapt",
+        "desktop_image_width": "medium",
+        "layout": "text_first",
+        "image_behavior": "none",
+        "content_layout": "no-overlap",
+        "desktop_content_position": "middle",
+        "desktop_content_alignment": "center",
+        "mobile_content_alignment": "left",
+        "section_color_scheme": "",
+        "color_scheme": "",
+        "padding_top": 36,
+        "padding_bottom": 36
+      }
+    },
+    "multicolumn_4AhjJA": {
+      "type": "multicolumn",
+      "blocks": {
+        "column_3QTT4C": {
+          "type": "column",
+          "settings": {
+            "image": "shopify://shop_images/35247_Tangney_Charlie_DIGI.png",
+            "title": "Charlie - Winner for Feline Fine",
+            "text": "<p>We adopted Charlie from the humane society 8 years ago. He was found on the side of the road and we like to joke that his few weeks scrounging on the street permanently altered his personality. All this boy wants to do is EAT. His life goal is to steal food despite being more than well fed. </p>",
+            "link_label": "",
+            "link": ""
+          }
+        },
+        "column_hExETg": {
+          "type": "column",
+          "settings": {
+            "image": "shopify://shop_images/35254_Montgomery_Hank_Duke_Stella_DIGI_square_b015f8c4-4dcd-4344-acf5-4fc6a0e7b63c.png",
+            "title": "Hank, Duke, & Stella - Winner for Best Pet Friend",
+            "text": "<p>The three best friends that anyone could have! Stella, was adopted from Proverbs 12:10 rescue almost six years ago and has been the queen of the castle ever since. We met Duke five years ago at Wags and Walks Nashville and knew in an instant he was meant to be our boy. Hank came to us as a scrawny, 10 week old puppy with rickets, and after fostering him for a month, we knew he had already found his home. They each have their own special personality and have added so much love to our home!</p>",
+            "link_label": "",
+            "link": ""
+          }
+        },
+        "column_wEKreT": {
+          "type": "column",
+          "settings": {
+            "image": "shopify://shop_images/35289_Hastings_Gloria_DIGI_1b786ef7-71b3-4868-8d6b-a89f593d309e.png",
+            "title": "Gloria - Winner for I Can Has Treat?!",
+            "text": "<p>Gloria was the sweetest mastiff on the planet. Her favorite activity was snuggling on the couch or sunbathing in a sunny spot on the floor. We lost her almost 6 months ago and while life will never be the same without her, we know we’re so lucky to have rescued her and be the ones she chose to cuddle with everyday </p>",
+            "link_label": "",
+            "link": ""
+          }
+        },
+        "column_3MjhJ4": {
+          "type": "column",
+          "settings": {
+            "image": "shopify://shop_images/35293_Lam_Paco_V2_DIGI.png",
+            "title": "Paco - Winner for Living The Puppin' Dream!",
+            "text": "<p>Paco is a rescue from the San Diego Humane Society and has been living with his forever family for the past 7 years. He enjoys his nap time, loves to sunbathe, and makes his bed for his comfort. </p>",
+            "link_label": "",
+            "link": ""
+          }
+        }
+      },
+      "block_order": [
+        "column_3QTT4C",
+        "column_hExETg",
+        "column_wEKreT",
+        "column_3MjhJ4"
+      ],
+      "name": "t:sections.multicolumn.presets.name",
+      "settings": {
+        "title": "May Runner-up category winners..",
+        "heading_size": "h1",
+        "image_width": "full",
+        "image_ratio": "adapt",
+        "button_label": "",
+        "button_link": "",
+        "columns_desktop": 4,
+        "column_alignment": "left",
+        "background_style": "primary",
+        "color_scheme": "",
+        "columns_mobile": "1",
+        "swipe_on_mobile": true,
+        "padding_top": 36,
+        "padding_bottom": 36
+      }
+    },
+    "ks_image_compare_Pb7RA9": {
+      "type": "ks-image-compare",
+      "name": "KS - Image compare",
+      "settings": {
+        "color_scheme": "scheme-f318d737-2be2-4346-8605-b2fbd6208608",
+        "page_width": "",
+        "show_only_img": false,
+        "img_alignment": "left",
+        "mobile_before_img": "shopify://shop_images/34933_Novak_Shadow_square_before.jpg",
+        "mobile_after_img": "shopify://shop_images/34933_Novak_Shadow_square_after.jpg",
+        "desktop_before_img": "shopify://shop_images/34933_Novak_Shadow_square_before.jpg",
+        "desktop_after_img": "shopify://shop_images/34933_Novak_Shadow_square_after.jpg",
+        "icv_controls_color": "#ffffff",
+        "icv_controls_circle": true,
+        "icv_smoothing": true,
+        "icv_hover_start": false,
+        "icv_vertical_mode": false,
+        "icv_starting_point": 50,
+        "icv_show_labels": true,
+        "icv_label_before": "Before",
+        "icv_label_after": "After",
+        "icv_labels_font_size": 0.9,
+        "icv_labels_position": "bottom",
+        "text_align_mobile": "text-center",
+        "text_align_desktop": "text-tablet-center",
+        "subtitle": "Grand Prize  Winner",
+        "subtitle_font_size": "fs-sm",
+        "title": "April 2025 - Meet Shadow",
+        "title_font_size": "h1",
+        "description": "<p>Shadow’s smile always touched so many hearts, no matter where he went. I felt his light in his eyes and I still feel his light three months after his passing as I look at this picture. He was truly a once in a lifetime dog </p>",
+        "description_font_size": "fs-lg",
+        "btn_primary_text": "",
+        "btn_primary_style": "button--primary",
+        "btn_primary_url": "",
+        "btn_secondary_text": "",
+        "btn_secondary_style": "button--secondary",
+        "btn_secondary_url": "",
+        "pt": 36,
+        "pb": 36
+      }
+    },
+    "multicolumn_t3EAAE": {
+      "type": "multicolumn",
+      "blocks": {
+        "column_tktRW7": {
+          "type": "column",
+          "settings": {
+            "image": "shopify://shop_images/35094_clift_Lulu_DIGI_3550b80e-f4e5-45ac-b044-5a4b3939dbbb.png",
+            "title": "Lulu - Winner for Cat Corner",
+            "text": "<p>Lulu is a 5 year old Calico. She lives in the concrete jungle, but still manages to practice her bird watching skills daily from her scratcher pole perch. Lulu loves cardboard boxes and paper bags (specifically Trader Joe's). When it's nice out, her mom and dad take her to the park in her backpack and she enjoys watching her squirrel friends. She also looks forward to cookie scavenger hunts around the apartment when mom leaves for work. </p>",
+            "link_label": "",
+            "link": ""
+          }
+        },
+        "column_rwr7Ve": {
+          "type": "column",
+          "settings": {
+            "image": "shopify://shop_images/35183_Mason_Willow_DIGI_834ba9f4-8a14-4ed2-84b1-f3e80b4e74b5.png",
+            "title": "Willow - Winner for Perfect Smile",
+            "text": "<p>Willow is a 1.5y old Golden with a huge personality. Some of her favorite activities are playing with her friends, splashing in the pool, and, of course, eating! She is a big goofball - she loves to play tricks on her parents, and one of her favorite games is hide and seek. That being said, she is also a big sweetheart - she always shares her toys (and snacks!) with her friends (both human and dog), and snuggles with her mom every morning. </p>",
+            "link_label": "",
+            "link": ""
+          }
+        },
+        "column_mD7CHY": {
+          "type": "column",
+          "settings": {
+            "image": "shopify://shop_images/35182_Maceachern_Star_DIGI_b1f01b02-809c-4b7f-aa36-de7c63542c8f.png",
+            "title": "Star - Winner for \"Best \"Sit-and-Stare\"\"",
+            "text": "<p>Star was loyal and passionate about her people but won the hearts of strangers as well. The perfect ambassador for the breed. Her stoic beauty and silly antics were the perfect yin and yang. Star recently passed due to old age and we can’t think of a better way to pay tribute to her than to share her Perkie Print with the world.</p>",
+            "link_label": "",
+            "link": ""
+          }
+        },
+        "column_7aQ8Mi": {
+          "type": "column",
+          "settings": {
+            "image": "shopify://shop_images/35110_katityra_Daisy_DIGI_216f8236-a02d-4ac0-935d-e6ef9304f41c.png",
+            "title": "Daisy - Winner for Ultimate Floof",
+            "text": "<p>Daisy is a 4 month old mini bernedoodle living her best life in Montana. She is a spunky and lovable little lady just doing her best to keep up with her big brothers learning to be an expert hiker. </p>",
+            "link_label": "",
+            "link": ""
+          }
+        }
+      },
+      "block_order": [
+        "column_tktRW7",
+        "column_rwr7Ve",
+        "column_mD7CHY",
+        "column_7aQ8Mi"
+      ],
+      "name": "t:sections.multicolumn.presets.name",
+      "settings": {
+        "title": "April Runner-up category winners..",
+        "heading_size": "h1",
+        "image_width": "full",
+        "image_ratio": "adapt",
+        "button_label": "",
+        "button_link": "",
+        "columns_desktop": 4,
+        "column_alignment": "left",
+        "background_style": "primary",
+        "color_scheme": "",
+        "columns_mobile": "1",
+        "swipe_on_mobile": true,
+        "padding_top": 36,
+        "padding_bottom": 36
+      }
+    },
+    "collapsible_content_6Q9feE": {
+      "type": "collapsible-content",
+      "blocks": {
+        "collapsible_row_FXErjA": {
+          "type": "collapsible_row",
+          "settings": {
+            "heading": "Nominations:",
+            "icon": "check_mark",
+            "row_content": "<ul><li>Placing an order automatically enters you for a chance to be nominated! 🎉</li><li>Our team selects a shortlist of nominees based on the most memorable pets of the month</li><li>If you’ve been nominated, you’ll receive an email from our team to let you know! </li><li>We understand if you prefer to keep your portrait for personal use only! Participation is optional :)</li></ul>",
+            "page": ""
+          }
+        },
+        "collapsible_row_nHmca9": {
+          "type": "collapsible_row",
+          "settings": {
+            "heading": "Finalist Showcase:",
+            "icon": "check_mark",
+            "row_content": "<ul><li>Nominees that accept will become a finalist for Pet of the Month!</li><li>Finalists' portraits will be showcased on our website and shared with our community to vote for their favorites.</li></ul>",
+            "page": ""
+          }
+        },
+        "collapsible_row_j6NrfA": {
+          "type": "collapsible_row",
+          "settings": {
+            "heading": "Community Voting:",
+            "icon": "check_mark",
+            "row_content": "<ul><li>Customers, followers, and pet enthusiasts are invited to vote for their favorite pet from the finalist showcase.</li><li>Votes can be cast through a survey shared on our Instagram, website, and email</li></ul>",
+            "page": ""
+          }
+        },
+        "collapsible_row_F3LGhW": {
+          "type": "collapsible_row",
+          "settings": {
+            "heading": "Winner Announcement:",
+            "icon": "check_mark",
+            "row_content": "<ul><li>After all the votes are in, we'll announce the the Pet of the Month!</li><li>The winning pet and its owner receive a free pocket tee!</li></ul>",
+            "page": ""
+          }
+        },
+        "collapsible_row_LT8ViP": {
+          "type": "collapsible_row",
+          "settings": {
+            "heading": "Hall of Fame:",
+            "icon": "check_mark",
+            "row_content": "<ul><li>Each month's winner will be featured in our Pet of the Month Hall of Fame on our website, creating a lasting tribute to the adorable and cherished pets in our community. <a href=\"/pages/hall-of-fame\" title=\"Hall of Fame\">Check out the Hall of Fame. </a></li></ul>",
+            "page": ""
+          }
+        },
+        "collapsible_row_cFHnFt": {
+          "type": "collapsible_row",
+          "settings": {
+            "heading": "Prizes:",
+            "icon": "check_mark",
+            "row_content": "<ul><li>The Pet of the Month will receive a free pocket tee and be honored on the website as a part of our Pet of the Month Spotlight</li><li>Each of the respective category winners will get a free 5x7 Unframed Print! </li></ul>",
+            "page": ""
+          }
+        }
+      },
+      "block_order": [
+        "collapsible_row_FXErjA",
+        "collapsible_row_nHmca9",
+        "collapsible_row_j6NrfA",
+        "collapsible_row_F3LGhW",
+        "collapsible_row_LT8ViP",
+        "collapsible_row_cFHnFt"
+      ],
+      "name": "t:sections.collapsible_content.presets.name",
+      "settings": {
+        "caption": "",
+        "heading": "Contest Details",
+        "heading_size": "h1",
+        "heading_alignment": "center",
+        "layout": "none",
+        "container_color_scheme": "",
+        "color_scheme": "",
+        "open_first_collapsible_row": false,
+        "image_ratio": "adapt",
+        "desktop_layout": "image_second",
+        "padding_top": 36,
+        "padding_bottom": 36
+      }
+    },
+    "image_banner_jLct86": {
+      "type": "image-banner",
+      "blocks": {
+        "heading_Epx4Tt": {
+          "type": "heading",
+          "settings": {
+            "heading": "The Perfect Place for Every Proud Pet Lover",
+            "heading_size": "h1"
+          }
+        },
+        "text_zMm9DQ": {
+          "type": "text",
+          "settings": {
+            "text": "<strong>Did you know?</strong> Every order that is placed during this month, is eligible and entered into win the Perkie Prints Pet Of The Month contest for the following month!  Every Grand Prize winner gets a Free Pocket Tee and unframed print and every category winner gets a free 5x7 unframed print! Join the fun, and shop for your chance to win!",
+            "text_style": "body"
+          }
+        },
+        "buttons_HHJ4pz": {
+          "type": "buttons",
+          "settings": {
+            "button_label_1": "Shop & Enter to Win Next Month",
+            "button_link_1": "shopify://collections/25-shop-all",
+            "button_style_secondary_1": false,
+            "button_label_2": "",
+            "button_link_2": "",
+            "button_style_secondary_2": false
+          }
+        }
+      },
+      "block_order": [
+        "heading_Epx4Tt",
+        "text_zMm9DQ",
+        "buttons_HHJ4pz"
+      ],
+      "name": "t:sections.image-banner.presets.name",
+      "settings": {
+        "image": "shopify://shop_images/FramesLayoutcopy2_62668862-798e-4adc-b692-68337d1b264a.jpg",
+        "image_overlay_opacity": 0,
+        "image_height": "medium",
+        "image_behavior": "none",
+        "desktop_content_position": "middle-center",
+        "desktop_content_alignment": "center",
+        "show_text_box": true,
+        "color_scheme": "scheme-872ca72f-3acf-40b0-9717-028f5840921f",
+        "stack_images_on_mobile": true,
+        "mobile_content_alignment": "center",
+        "show_text_below": true
+      }
+    }
+  },
+  "order": [
+    "main",
+    "image_banner_kyY9iW",
+    "image_with_text_3i4i89",
+    "multicolumn_nhJAcY",
+    "image_with_text_7zQXpH",
+    "multicolumn_Qbg6Wn",
+    "image_with_text_WVY7G6",
+    "multicolumn_QfJ9JF",
+    "image_with_text_yRTeX3",
+    "multicolumn_jHDY4h",
+    "ks_image_compare_rFXG3J",
+    "image_with_text_PiPD3t",
+    "multicolumn_4AhjJA",
+    "ks_image_compare_Pb7RA9",
+    "multicolumn_t3EAAE",
+    "collapsible_content_6Q9feE",
+    "image_banner_jLct86"
+  ]
+}

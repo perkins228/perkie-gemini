@@ -1,0 +1,455 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "sections": {
+    "main": {
+      "type": "main-product",
+      "blocks": {
+        "vendor": {
+          "type": "text",
+          "settings": {
+            "text": "{{ product.vendor }}",
+            "text_style": "uppercase"
+          }
+        },
+        "title": {
+          "type": "title",
+          "settings": {}
+        },
+        "junip_junip_product_summary_MJBpdP": {
+          "type": "shopify://apps/junip/blocks/junip-product-summary/dc14f5a8-ed15-41b1-ad08-cfba23f9789b",
+          "settings": {
+            "product": "pocket-tee",
+            "alignment": ""
+          }
+        },
+        "price": {
+          "type": "price",
+          "settings": {}
+        },
+        "icon_with_text_k8QR7p": {
+          "type": "icon-with-text",
+          "settings": {
+            "layout": "vertical",
+            "icon_1": "none",
+            "heading_1": "1️⃣ Personalize Your products & Upload photos",
+            "icon_2": "none",
+            "heading_2": "2️⃣  Checkout & Begin your custom <a href=\"/pages/our-artistic-process\" title=\"Our Artistic Process\">design services</a> journey via email",
+            "icon_3": "none",
+            "heading_3": "3️⃣ Sit tight while we individually print & ship your order"
+          }
+        },
+        "easify_options_easify_product_options_iRE3bW": {
+          "type": "shopify://apps/easify-options/blocks/easify-product-options/d2288b18-c1ba-42f5-b3b3-26c75c8820bf",
+          "settings": {}
+        },
+        "icon_with_text_itJ4cM": {
+          "type": "icon-with-text",
+          "disabled": true,
+          "settings": {
+            "layout": "horizontal",
+            "icon_1": "paw_print",
+            "heading_1": "Upload a Photo of Your Pet",
+            "icon_2": "heart",
+            "heading_2": "Your Custom Design Services Begin",
+            "icon_3": "truck",
+            "heading_3": "Sit tight while we individually print & ship your order"
+          }
+        },
+        "variant_picker": {
+          "type": "variant_picker",
+          "settings": {
+            "picker_type": "button",
+            "swatch_shape": "circle"
+          }
+        },
+        "popup_DVrfhR": {
+          "type": "popup",
+          "settings": {
+            "text": "What Is My Size?",
+            "page": "{{ product.metafields.custom.size_guide.value.size_guide.value }}"
+          }
+        },
+        "inventory_8B9RYq": {
+          "type": "inventory",
+          "disabled": true,
+          "settings": {
+            "text_style": "body",
+            "inventory_threshold": 10,
+            "show_inventory_quantity": true
+          }
+        },
+        "ks_countdown_dyBPWA": {
+          "type": "ks-countdown",
+          "disabled": true,
+          "settings": {
+            "datetime": "2025-03-30 09:00",
+            "metafield": "custom.countdown",
+            "color_scheme": "scheme-3",
+            "title": "Hurry up!",
+            "title_font_size": "fs-xl",
+            "title_text_style": "body",
+            "description": "<p>This sale is going to end soon!</p>",
+            "description_font_size": "fs-md"
+          }
+        },
+        "text_Gr9CFk": {
+          "type": "text",
+          "disabled": true,
+          "settings": {
+            "text": "Below are 2 personalization fields that will show as product attributes. You can add other personalization fields types like selects, radios, date, etc.",
+            "text_style": "body"
+          }
+        },
+        "ks_personalization_cQgW8j": {
+          "type": "ks-personalization",
+          "disabled": true,
+          "settings": {
+            "type": "file",
+            "label": "File upload",
+            "options": "United States, Canada, France",
+            "info_text": "",
+            "required": true,
+            "required_text": "*",
+            "textarea_height": 100,
+            "pt": 0,
+            "pb": 0
+          }
+        },
+        "text_bdCzpR": {
+          "type": "text",
+          "settings": {
+            "text": "Buy More, Save More!",
+            "text_style": "uppercase"
+          }
+        },
+        "ks_quantity_break_gtUd8h": {
+          "type": "ks-quantity-break",
+          "settings": {
+            "selected": false,
+            "qty": 1,
+            "discount": 0,
+            "color_scheme": "scheme-a0e7b8bd-780c-4183-84c3-89d36d4ca1f4",
+            "title": "Buy 1",
+            "subtitle": "No savings",
+            "badge": "",
+            "badge_color": "#3450b3",
+            "mt": 16,
+            "mb": 16
+          }
+        },
+        "ks_quantity_break_qpgp3J": {
+          "type": "ks-quantity-break",
+          "settings": {
+            "selected": true,
+            "qty": 2,
+            "discount": 30,
+            "color_scheme": "scheme-a0e7b8bd-780c-4183-84c3-89d36d4ca1f4",
+            "title": "Buy 2",
+            "subtitle": "You save 30%",
+            "badge": "Most Popular",
+            "badge_color": "#ff5964",
+            "mt": 16,
+            "mb": 16
+          }
+        },
+        "ks_quantity_break_dRpPje": {
+          "type": "ks-quantity-break",
+          "settings": {
+            "selected": false,
+            "qty": 3,
+            "discount": 40,
+            "color_scheme": "scheme-a0e7b8bd-780c-4183-84c3-89d36d4ca1f4",
+            "title": "Buy 3",
+            "subtitle": "You save 40%",
+            "badge": "+ Free shipping",
+            "badge_color": "#ff5964",
+            "mt": 16,
+            "mb": 16
+          }
+        },
+        "ks_personalization_jmz4tp": {
+          "type": "ks-personalization",
+          "disabled": true,
+          "settings": {
+            "type": "radio",
+            "label": "Add On these product",
+            "options": "United States, Canada, France",
+            "info_text": "",
+            "required": true,
+            "required_text": "*",
+            "textarea_height": 100,
+            "pt": 0,
+            "pb": 0
+          }
+        },
+        "quantity_selector": {
+          "type": "quantity_selector",
+          "disabled": true,
+          "settings": {}
+        },
+        "buy_buttons": {
+          "type": "buy_buttons",
+          "settings": {
+            "show_dynamic_checkout": false,
+            "show_gift_card_recipient": true
+          }
+        },
+        "icon_with_text_yrtTAb": {
+          "type": "icon-with-text",
+          "settings": {
+            "layout": "horizontal",
+            "icon_1": "heart",
+            "heading_1": "Support a small, three person business",
+            "icon_2": "paw_print",
+            "heading_2": "Every Purchase Gives Back",
+            "icon_3": "truck",
+            "heading_3": "Free US Shipping Over  $100"
+          }
+        },
+        "ks_cross_sells_ii9Eg4": {
+          "type": "ks-cross-sells",
+          "settings": {
+            "metafield": "custom.cross_sells",
+            "color_scheme": "scheme-1",
+            "img_ratio": "ratio-1x1",
+            "btn_style": "button--primary",
+            "title": "Frequently Bought Together",
+            "title_font_size": "fs-md",
+            "title_text_style": "subtitle",
+            "description": "",
+            "description_font_size": "fs-sm"
+          }
+        },
+        "ks_delivery_dates_E8Q9rD": {
+          "type": "ks-delivery-dates",
+          "settings": {
+            "description": "<p>Buy it now and with prompt response, receive it between [start] and [end]</p>",
+            "start": 4,
+            "end": 9,
+            "date_format": "%A, %e %B",
+            "show_icon": true,
+            "icon_size": 20,
+            "description_font_size": "fs-md"
+          }
+        },
+        "description": {
+          "type": "description",
+          "disabled": true,
+          "settings": {}
+        },
+        "share": {
+          "type": "share",
+          "settings": {
+            "share_label": "Share"
+          }
+        },
+        "collapsible_tab_9pTVbh": {
+          "type": "collapsible_tab",
+          "settings": {
+            "heading": "Product Description",
+            "icon": "check_mark",
+            "content": "{{ product.description }}",
+            "page": ""
+          }
+        },
+        "collapsible_tab_d7d9CE": {
+          "type": "collapsible_tab",
+          "source": "{{ product.metafields.custom.size_guide.value }}",
+          "settings": {
+            "heading": "What is my size?",
+            "icon": "ruler",
+            "content": "",
+            "page": "{{ product.metafields.custom.size_guide.value.size_guide.value }}"
+          }
+        },
+        "collapsible_tab_hrn6Wc": {
+          "type": "collapsible_tab",
+          "source": "{{ product.metafields.custom.specs.value }}",
+          "settings": {
+            "heading": "Care Details",
+            "icon": "leaf",
+            "content": "{{ product.metafields.custom.specs.value.care_instructions | metafield_tag }}",
+            "page": ""
+          }
+        },
+        "collapsible_tab_cAqkmU": {
+          "type": "collapsible_tab",
+          "settings": {
+            "heading": "Will I get a chance to preview my Perkie Print artwork before you send to print?",
+            "icon": "eye",
+            "content": "<p>Of course! Once you place your order, you will receive a complimentary photo consultation service to ensure we have the perfect image. Once your custom artwork is ready, we will send you a preview for your final approval—allowing for minor adjustments if needed.<a href=\"https://perkieprints.com/pages/our-artistic-process\" title=\"Our Artistic Process\">Learn more about the process here</a>.</p>",
+            "page": ""
+          }
+        },
+        "ks_breadcrumb_xEHhJ8": {
+          "type": "ks-breadcrumb",
+          "settings": {
+            "pt": 0,
+            "pb": 0
+          }
+        },
+        "ks_sticky_atc_cDERJ9": {
+          "type": "ks-sticky-atc",
+          "settings": {
+            "color_scheme": "",
+            "border_top_opacity": 100,
+            "max_width": "900",
+            "img_ratio": "ratio-1x1",
+            "btn_style": "button--primary"
+          }
+        },
+        "ks_prev_next_LCt33F": {
+          "type": "ks-prev-next",
+          "settings": {
+            "title": "Prev/Next products",
+            "img_ratio": "ratio-1x1"
+          }
+        }
+      },
+      "block_order": [
+        "vendor",
+        "title",
+        "junip_junip_product_summary_MJBpdP",
+        "price",
+        "icon_with_text_k8QR7p",
+        "easify_options_easify_product_options_iRE3bW",
+        "icon_with_text_itJ4cM",
+        "variant_picker",
+        "popup_DVrfhR",
+        "inventory_8B9RYq",
+        "ks_countdown_dyBPWA",
+        "text_Gr9CFk",
+        "ks_personalization_cQgW8j",
+        "text_bdCzpR",
+        "ks_quantity_break_gtUd8h",
+        "ks_quantity_break_qpgp3J",
+        "ks_quantity_break_dRpPje",
+        "ks_personalization_jmz4tp",
+        "quantity_selector",
+        "buy_buttons",
+        "icon_with_text_yrtTAb",
+        "ks_cross_sells_ii9Eg4",
+        "ks_delivery_dates_E8Q9rD",
+        "description",
+        "share",
+        "collapsible_tab_9pTVbh",
+        "collapsible_tab_d7d9CE",
+        "collapsible_tab_hrn6Wc",
+        "collapsible_tab_cAqkmU",
+        "ks_breadcrumb_xEHhJ8",
+        "ks_sticky_atc_cDERJ9",
+        "ks_prev_next_LCt33F"
+      ],
+      "settings": {
+        "enable_sticky_info": true,
+        "color_scheme": "scheme-872ca72f-3acf-40b0-9717-028f5840921f",
+        "media_size": "medium",
+        "constrain_to_viewport": true,
+        "media_fit": "cover",
+        "gallery_layout": "thumbnail",
+        "mobile_thumbnails": "show",
+        "media_position": "left",
+        "image_zoom": "lightbox",
+        "hide_variants": false,
+        "enable_video_looping": true,
+        "padding_top": 36,
+        "padding_bottom": 12
+      }
+    },
+    "1729857341ac933e54": {
+      "type": "apps",
+      "settings": {
+        "include_margins": true
+      }
+    },
+    "related-products": {
+      "type": "related-products",
+      "settings": {
+        "heading": "You may also like",
+        "heading_size": "h1",
+        "products_to_show": 4,
+        "columns_desktop": 4,
+        "columns_mobile": "2",
+        "color_scheme": "scheme-1",
+        "image_ratio": "square",
+        "image_shape": "default",
+        "show_secondary_image": true,
+        "show_vendor": false,
+        "show_rating": true,
+        "padding_top": 36,
+        "padding_bottom": 28
+      }
+    },
+    "multirow_L7T4ik": {
+      "type": "multirow",
+      "blocks": {
+        "row_kQDhxW": {
+          "type": "row",
+          "source": "{{ product.metafields.custom.default_story_blocks_group.value }}",
+          "settings": {
+            "caption": "{{ product.metafields.custom.default_story_blocks_group.value.title.value }}",
+            "heading": "Row",
+            "text": "<p>Pair text with an image to focus on your chosen product, collection, or blog post. Add details on availability, style, or even provide a review.</p>",
+            "button_label": "Button label",
+            "button_link": ""
+          }
+        },
+        "row_tnrTAq": {
+          "type": "row",
+          "settings": {
+            "caption": "Caption",
+            "heading": "Row",
+            "text": "<p>Pair text with an image to focus on your chosen product, collection, or blog post. Add details on availability, style, or even provide a review.</p>",
+            "button_label": "Button label",
+            "button_link": ""
+          }
+        },
+        "row_4YmxhD": {
+          "type": "row",
+          "settings": {
+            "caption": "Caption",
+            "heading": "Row",
+            "text": "<p>Pair text with an image to focus on your chosen product, collection, or blog post. Add details on availability, style, or even provide a review.</p>",
+            "button_label": "Button label",
+            "button_link": ""
+          }
+        }
+      },
+      "block_order": [
+        "row_kQDhxW",
+        "row_tnrTAq",
+        "row_4YmxhD"
+      ],
+      "name": "t:sections.multirow.presets.name",
+      "settings": {
+        "image_height": "medium",
+        "desktop_image_width": "medium",
+        "image_layout": "alternate-left",
+        "heading_size": "h1",
+        "text_style": "body",
+        "button_style": "secondary",
+        "desktop_content_position": "middle",
+        "desktop_content_alignment": "left",
+        "mobile_content_alignment": "left",
+        "section_color_scheme": "",
+        "row_color_scheme": "",
+        "padding_top": 36,
+        "padding_bottom": 36
+      }
+    }
+  },
+  "order": [
+    "main",
+    "1729857341ac933e54",
+    "related-products",
+    "multirow_L7T4ik"
+  ]
+}

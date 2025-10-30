@@ -1,0 +1,27 @@
+# Exclude parent directory files that confuse buildpack detection
+../package.json
+../package-lock.json
+../node_modules/
+
+# Development and test files
+__tests__/
+tests/
+test_*.py
+*_test.py
+test-*.html
+development_archive/
+
+# Documentation
+*.md
+docs/
+
+# IDE and cache
+.cursor/
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Logs and temporary files
+*.log
+temp/
+.tmp/ 

@@ -1,0 +1,12 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "permissions": {
+    "allow": [
+      "Bash(git add -A)",
+      "Bash(git commit -m \"$(cat <<''EOF''\nCleanup: Archive 152 analysis docs and remove 19 temp files\n\nArchive Strategy:\n- Archive recent Quick Upload optimization docs (Oct 16-21) to 2025-10-quick-upload-optimization/ (50 files)\n- Archive older variant system docs to 2025-08-to-10-variant-system/ (98 files)\n- Archive root documentation to 2025-10-root-cleanup/ (4 files)\n\nDeletions:\n- Remove 4MB of temp log files (Cloud Run debugging artifacts)\n- Remove base64 test data files (obsolete test artifacts)\n- Remove malformed/empty files (_ul, malformed squid file)\n- Remove test images and data (cartplaceholder.png, Order.png, etc.)\n- Remove orphaned test scripts (create_test_image.py)\n\n.gitignore Updates:\n- Add patterns to prevent future temp file accumulation\n- Ignore temp logs (logs_*.json, temp_logs*.json)\n- Ignore test data files (*_base64.txt, test-*.txt)\n- Ignore debug images in root (/*.png, /*.jpg)\n- Ignore ROI calculation files (*_roi_*.txt)\n- Update active session to context_session_001.md\n\nRepository health: -9MB clutter, improved git status clarity\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")"
+    ],
+    "deny": [],
+    "ask": [],
+    "defaultMode": "acceptEdits"
+  }
+}

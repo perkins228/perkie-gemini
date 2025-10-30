@@ -1,0 +1,14 @@
+{% if settings.ks_wishlist %}
+  <ks-wishlist-btn
+    class="ks-wishlist-btn color-{{ settings.ks_wishlist_color_scheme }}"
+    data-product-url="{{ product.url | split: '?' | first }}"
+  >
+    <button
+      class=""
+      aria-label="{{ 'kondasoft.wishlist.add' | t }}"
+      aria-pressed="false"
+    >
+      {% render 'ks-svg-icons', icon: 'heart', size: 18, stroke_width: 1.5 %}
+    </button>
+  </ks-wishlist-btn>
+{% endif %}

@@ -1,0 +1,532 @@
+{% comment %}
+  Pet Font Style Selector Component
+  Allows customers to choose font style for pet names on products
+  4 Styles: Classic, Modern, Playful, Elegant
+{% endcomment %}
+
+<div class="pet-font-selector" id="pet-font-selector" style="display: none;">
+  <div class="font-selector-header">
+    <h3 class="font-selector-title">Choose Name Style</h3>
+    <p class="font-selector-subtitle">Select how <span class="font-selector-pet-name" data-pet-names="{{ pet_name | escape }}">{{ pet_name | default: "your pet's name" | escape }}</span> will appear on the product</p>
+  </div>
+
+  <div class="font-style-options">
+    {% comment %} Preppy Style - Libre Caslon Text with borders {% endcomment %}
+    <label class="font-style-card" data-font-style="preppy">
+      <input type="radio"
+             name="properties[_font_style]"
+             value="preppy"
+             class="font-style-radio">
+      <div class="font-style-preview">
+        <span class="font-style-label">Preppy</span>
+        <div class="font-preview-text font-preview-preppy" style="font-family: 'Libre Caslon Text', 'Garamond', serif;">
+          <span class="preview-pet-name" data-pet-names="{{ pet_name | escape }}">{{ pet_name | default: "Buddy" | escape }}</span>
+        </div>
+      </div>
+    </label>
+
+    {% comment %} Classic Style - Default {% endcomment %}
+    <label class="font-style-card" data-font-style="classic">
+      <input type="radio"
+             name="properties[_font_style]"
+             value="classic"
+             class="font-style-radio"
+             checked>
+      <div class="font-style-preview">
+        <span class="font-style-label">Classic</span>
+        <div class="font-preview-text" style="font-family: 'Merriweather', serif;">
+          <span class="preview-pet-name" data-pet-names="{{ pet_name | escape }}">{{ pet_name | default: "Buddy" | escape }}</span>
+        </div>
+      </div>
+    </label>
+
+    {% comment %} Playful Style {% endcomment %}
+    <label class="font-style-card" data-font-style="playful">
+      <input type="radio"
+             name="properties[_font_style]"
+             value="playful"
+             class="font-style-radio">
+      <div class="font-style-preview">
+        <span class="font-style-label">Playful</span>
+        <div class="font-preview-text" style="font-family: 'Rampart One', cursive;">
+          <span class="preview-pet-name" data-pet-names="{{ pet_name | escape }}">{{ pet_name | default: "Buddy" | escape }}</span>
+        </div>
+      </div>
+    </label>
+
+    {% comment %} Elegant Style - Ms Madi font {% endcomment %}
+    <label class="font-style-card" data-font-style="elegant">
+      <input type="radio"
+             name="properties[_font_style]"
+             value="elegant"
+             class="font-style-radio">
+      <div class="font-style-preview">
+        <span class="font-style-label">Elegant</span>
+        <div class="font-preview-text" style="font-family: 'Ms Madi', 'Sacramento', cursive;">
+          <span class="preview-pet-name" data-pet-names="{{ pet_name | escape }}">{{ pet_name | default: "Buddy" | escape }}</span>
+        </div>
+      </div>
+    </label>
+
+    {% comment %} Trend Style - Fascinate font {% endcomment %}
+    <label class="font-style-card" data-font-style="trend">
+      <input type="radio"
+             name="properties[_font_style]"
+             value="trend"
+             class="font-style-radio">
+      <div class="font-style-preview">
+        <span class="font-style-label">Trend</span>
+        <div class="font-preview-text" style="font-family: 'Fascinate', 'Rampart One', cursive;">
+          <span class="preview-pet-name" data-pet-names="{{ pet_name | escape }}">{{ pet_name | default: "Buddy" | escape }}</span>
+        </div>
+      </div>
+    </label>
+
+    {% comment %} Blank Style - For the 40% who prefer portraits without names {% endcomment %}
+    <label class="font-style-card" data-font-style="no-text">
+      <input type="radio"
+             name="properties[_font_style]"
+             value="no-text"
+             class="font-style-radio">
+      <div class="font-style-preview">
+        <span class="font-style-label">Blank</span>
+        <div class="font-preview-text" style="color: rgba(var(--color-foreground), 0.4);">
+          <span class="preview-pet-name" style="opacity: 0.6; font-style: italic;">No Name</span>
+        </div>
+      </div>
+    </label>
+  </div>
+</div>
+
+<style>
+  /* Font Selector Styles - Mobile First */
+  .pet-font-selector {
+    margin: 2rem 0;
+    padding: 1.5rem;
+    background: rgba(var(--color-base-background-1), 1);
+    border-radius: 8px;
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+  }
+
+  .pet-font-selector.visible {
+    opacity: 1;
+  }
+
+  /* Mobile-optimized slide-in */
+  @media screen and (max-width: 749px) {
+    .pet-font-selector {
+      transform: translateY(10px);
+      transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
+    }
+
+    .pet-font-selector.visible {
+      transform: translateY(0);
+    }
+  }
+
+  .font-selector-header {
+    text-align: center;
+    margin-bottom: 1.5rem;
+  }
+
+  .font-selector-title {
+    font-size: 1.25rem;
+    margin-bottom: 0.5rem;
+    color: rgba(var(--color-foreground), 1);
+  }
+
+  .font-selector-subtitle {
+    font-size: 0.875rem;
+    color: rgba(var(--color-foreground), 0.75);
+  }
+
+  .font-style-options {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+  }
+
+  /* Preppy style - 2px borders tight to text */
+  .font-preview-preppy {
+    position: relative;
+    display: inline-block;
+    padding: 0;
+    line-height: 1;
+  }
+
+  .font-preview-preppy::before,
+  .font-preview-preppy::after {
+    content: '';
+    position: absolute;
+    left: 10%;
+    right: 10%;
+    height: 2px;
+    background: rgba(var(--color-foreground), 0.5);
+  }
+
+  .font-preview-preppy::before {
+    top: -4px;
+  }
+
+  .font-preview-preppy::after {
+    bottom: -4px;
+  }
+
+  .font-style-card {
+    position: relative;
+    display: block;
+    padding: 1rem;
+    border: 2px solid rgba(var(--color-foreground), 0.1);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background: white;
+  }
+
+  .font-style-card:hover {
+    border-color: rgba(var(--color-foreground), 0.3);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+
+  .font-style-radio {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .font-style-radio:checked + .font-style-preview {
+    background: rgba(var(--color-foreground), 0.05);
+  }
+
+  .font-style-radio:checked ~ .font-style-preview::after {
+    content: '✓';
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    width: 24px;
+    height: 24px;
+    background: rgba(var(--color-foreground), 1);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.875rem;
+  }
+
+  .font-style-preview {
+    position: relative;
+    padding: 0.75rem;
+    border-radius: 6px;
+    text-align: center;
+  }
+
+  .font-style-label {
+    display: block;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: rgba(var(--color-foreground), 0.6);
+    margin-bottom: 0.5rem;
+  }
+
+  .font-preview-text {
+    font-size: 1.5rem;
+    color: rgba(var(--color-foreground), 1);
+    min-height: 2rem;
+  }
+
+  /* No Name option styling - visually distinct */
+  .font-style-card[data-font-style="no-text"] {
+    background: rgba(var(--color-foreground), 0.02);
+    border-style: dashed;
+  }
+
+  .font-style-card[data-font-style="no-text"] .font-style-label {
+    font-weight: 600;
+    line-height: 1.2;
+  }
+
+  .font-style-card[data-font-style="no-text"] .font-preview-text {
+    font-size: 1.2rem;
+  }
+
+  /* Desktop styles */
+  @media screen and (min-width: 750px) {
+    .font-style-options {
+      grid-template-columns: repeat(3, 1fr);
+    }
+
+    .font-preview-text {
+      font-size: 1.75rem;
+    }
+  }
+
+  /* Touch optimization for mobile - WCAG 2.5.5 requires 48x48px minimum */
+  @media (hover: none) {
+    .font-style-card {
+      min-height: 100px;
+      /* Ensure 48px minimum touch target per WCAG standards */
+      min-width: 48px;
+      padding: 12px; /* Increase padding for better touch targets */
+    }
+  }
+  
+  /* Additional mobile optimizations */
+  @media screen and (max-width: 749px) {
+    .font-style-card {
+      min-height: 48px; /* WCAG minimum */
+      min-width: 48px;  /* WCAG minimum */
+    }
+    
+    .font-preview-text {
+      font-size: 1.75rem; /* Increase from 1.5rem for better mobile readability */
+    }
+  }
+</style>
+
+<script>
+  // Font style validation function
+  function validateFontStyle(fontStyle) {
+    var allowedFonts = ['preppy', 'classic', 'playful', 'elegant', 'trend', 'no-text'];
+
+    // Type check - must be string
+    if (typeof fontStyle !== 'string') {
+      return false;
+    }
+
+    // Length check - reasonable limit
+    if (fontStyle.length > 20) {
+      return false;
+    }
+
+    // Allowed values check
+    if (allowedFonts.indexOf(fontStyle) === -1) {
+      return false;
+    }
+
+    return true;
+  }
+  
+  // Pet name sanitization function
+  function sanitizePetName(name) {
+    if (typeof name !== 'string') {
+      return 'Your Pet';
+    }
+    
+    // Remove HTML tags and dangerous characters, limit length
+    return name
+      .replace(/<[^>]*>/g, '') // Remove HTML tags
+      .replace(/[<>'"&]/g, '') // Remove dangerous characters
+      .substring(0, 50) // Limit length
+      .trim() || 'Your Pet'; // Fallback if empty
+  }
+  
+  document.addEventListener('DOMContentLoaded', function() {
+    var fontSelector = document.getElementById('pet-font-selector');
+    var fontOptions = fontSelector ? fontSelector.querySelectorAll('.font-style-radio') : [];
+    var previewNames = fontSelector ? fontSelector.querySelectorAll('.preview-pet-name') : [];
+    
+    // Helper function to update all preview names with formatting
+    function updatePreviewNames(petName) {
+      if (!petName) return;
+      
+      var safeName = sanitizePetName(petName);
+      var displayName = safeName;
+      
+      // Use formatter if available for ampersand display
+      if (window.PetNameFormatter && typeof window.PetNameFormatter.formatForDisplay === 'function') {
+        displayName = window.PetNameFormatter.formatForDisplay(safeName);
+      }
+      
+      // Update all preview names in font cards (except "No Name" option)
+      previewNames.forEach(function(preview) {
+        // Skip updating if this preview is in the "no-text" (No Name) font option
+        var fontCard = preview.closest('.font-style-card');
+        if (fontCard && fontCard.getAttribute('data-font-style') === 'no-text') {
+          return; // Keep "No Name" text for Blank option
+        }
+        preview.textContent = displayName; // textContent prevents XSS
+      });
+      
+      // Also update the subtitle pet name
+      var subtitlePetName = document.querySelector('.font-selector-pet-name');
+      if (subtitlePetName) {
+        subtitlePetName.textContent = displayName;
+      }
+    }
+    
+    // Helper function to show font selector with animation
+    function showFontSelector() {
+      // CRITICAL FIX: Remove conditional check - always show selector when pet selected
+      if (fontSelector) {
+        fontSelector.style.display = 'block';
+
+        // Mark that font selector was shown this session
+        sessionStorage.setItem('fontSelectorShown', 'true');
+        console.log('✅ Font selector displayed, sessionStorage flag set');
+
+        // Add ARIA live region announcement
+        fontSelector.setAttribute('aria-live', 'polite');
+        fontSelector.setAttribute('role', 'region');
+
+        // Add fade-in animation (small delay for CSS transition)
+        setTimeout(function() {
+          fontSelector.classList.add('visible');
+        }, 10);
+      }
+    }
+
+    // Helper function to hide font selector
+    function hideFontSelector() {
+      if (fontSelector) {
+        fontSelector.classList.remove('visible');
+        setTimeout(function() {
+          fontSelector.style.display = 'none';
+        }, 300); // Wait for fade-out animation
+      }
+    }
+
+    // NEW: Listen for pet name input changes
+    document.addEventListener('pet-name:changed', function(e) {
+      try {
+        if (!e.detail) return;
+
+        // Filter by section ID if provided (multi-section support)
+        if (e.detail.sectionId && e.detail.sectionId !== '{{ section.id }}') {
+          return; // Different section, ignore event
+        }
+
+        // Validate displayName type
+        if (e.detail.displayName && typeof e.detail.displayName === 'string' && e.detail.displayName.trim().length > 0) {
+          // Update all font preview cards with the entered names
+          updatePreviewNames(e.detail.displayName);
+
+          // Update ARIA label with pet names
+          if (fontSelector) {
+            fontSelector.setAttribute('aria-label', 'Font style selector for ' + e.detail.displayName);
+          }
+
+          // Show font selector
+          showFontSelector();
+        } else {
+          // Hide font selector if pet name is cleared
+          hideFontSelector();
+        }
+      } catch (error) {
+        // Font selector failure should not break page
+      }
+    });
+
+    // EXISTING: Keep pet:selected listener for backward compatibility (saved pets)
+    document.addEventListener('pet:selected', function(e) {
+      try {
+        if (e.detail && e.detail.name) {
+          updatePreviewNames(e.detail.name);
+
+          // Update ARIA label
+          if (fontSelector) {
+            fontSelector.setAttribute('aria-label', 'Font style selector for ' + e.detail.name);
+          }
+
+          // Show font selector using helper function
+          showFontSelector();
+        }
+      } catch (error) {
+        // Silent fail
+      }
+    });
+    
+    // Add visual feedback on selection
+    fontOptions.forEach(function(radio) {
+      radio.addEventListener('change', function() {
+        // Remove selected class from all cards
+        document.querySelectorAll('.font-style-card').forEach(function(card) {
+          card.classList.remove('selected');
+        });
+        
+        // Add selected class to current card
+        if (radio.checked) {
+          radio.closest('.font-style-card').classList.add('selected');
+        }
+        
+        // Store selection with validation
+        if (validateFontStyle(radio.value)) {
+          localStorage.setItem('selectedFontStyle', radio.value);
+          console.log('🎨 Font style selected and saved:', radio.value);
+        } else {
+          console.warn('⚠️ Invalid font style selected:', radio.value, '- defaulting to classic');
+          localStorage.setItem('selectedFontStyle', 'classic');
+        }
+
+        // Handle no-text option - hide pet name input field
+        var petNameField = document.querySelector('.field--pet-name');
+        if (!petNameField) {
+          petNameField = document.querySelector('[name="properties[_pet_name]"]');
+          if (petNameField) {
+            petNameField = petNameField.closest('.field');
+          }
+        }
+
+        if (petNameField) {
+          if (radio.value === 'no-text') {
+            petNameField.style.display = 'none';
+            // Clear the pet name value when no-text is selected
+            var nameInput = petNameField.querySelector('input');
+            if (nameInput) {
+              nameInput.value = '';
+            }
+          } else {
+            petNameField.style.display = 'block';
+          }
+        }
+
+        // Dispatch event for other components
+        var event = new CustomEvent('font:selected', {
+          detail: { style: radio.value, includeNames: radio.value !== 'no-text' }
+        });
+        document.dispatchEvent(event);
+      });
+    });
+    
+    // Check if formatter is available and update existing previews
+    function checkFormatterAndUpdate() {
+      // Look for any existing pet names in hidden fields or data attributes
+      var existingPetNameField = document.querySelector('[name="properties[_pet_name]"]');
+      if (existingPetNameField && existingPetNameField.value) {
+        updatePreviewNames(existingPetNameField.value);
+      }
+      
+      // Also check data attributes that might have been set
+      var elementsWithPetNames = document.querySelectorAll('[data-pet-names]');
+      if (elementsWithPetNames.length > 0) {
+        elementsWithPetNames.forEach(function(element) {
+          var petNames = element.getAttribute('data-pet-names');
+          if (petNames) {
+            updatePreviewNames(petNames);
+          }
+        });
+      }
+    }
+    
+    // If formatter is already loaded, update immediately
+    if (window.PetNameFormatter) {
+      checkFormatterAndUpdate();
+    } else {
+      // Wait for formatter to load (with timeout to prevent infinite checking)
+      var formatterCheckInterval = setInterval(function() {
+        if (window.PetNameFormatter) {
+          clearInterval(formatterCheckInterval);
+          checkFormatterAndUpdate();
+        }
+      }, 100);
+      
+      // Stop checking after 3 seconds
+      setTimeout(function() {
+        clearInterval(formatterCheckInterval);
+      }, 3000);
+    }
+  });
+</script>
