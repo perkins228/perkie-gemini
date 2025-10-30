@@ -28,19 +28,15 @@ app = FastAPI(
     version="1.0.0"
 )
 
-# CORS middleware - matching production InSPyReNet API configuration
+# CORS middleware - Allow all origins for testing (wildcards don't work in FastAPI)
+# TODO: Implement custom CORS middleware with regex patterns for production
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "https://*.shopify.com",
-        "https://*.shopifypreview.com",
-        "https://*.myshopify.com",
-        "http://localhost:*",
-        "https://localhost:*"
-    ],
-    allow_credentials=True,
-    allow_methods=["*"],
+    allow_origins=["*"],  # Allow all origins (wildcards like *.shopify.com don't work)
+    allow_credentials=False,  # Must be False when using allow_origins=["*"]
+    allow_methods=["GET", "POST", "OPTIONS"],
     allow_headers=["*"],
+    expose_headers=["*"],
 )
 
 
