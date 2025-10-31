@@ -23,25 +23,47 @@ genai.configure(api_key=settings.gemini_api_key)
 # These replace Pop Art (ink_wash) and Dithering (van_gogh)
 STYLE_PROMPTS = {
     ArtisticStyle.INK_WASH: (
-        "Create a portrait in East Asian ink wash style. "
-        "Frame tightly on head, neck, and upper shoulders with face as focal point. "
-        "Maintain identical facial features, fur color, and eye shape. Keep the pet's head orientation and pose consistent, ensuring that its unique markings and expression remain true to the reference. "
-        "For multiple pets touching, create group; if separated but clear, group; if mixed clarity, choose clearest. "
-        "Remove background completely. "
-        "Apply flowing ink gradients for features, spontaneous brush strokes for fur texture. "
-        "Use minimal expressive lines capturing personality. "
-        "Isolate on pure white background (#FFFFFF) with no gradients or textures."
+        # COMPOSITION (Lead with this for emphasis)
+        "Create an artistic portrait showing ONLY the pet's head and neck. "
+        "Compose like a traditional portrait painting - the face should fill most of the frame, "
+        "cropping at the base of the neck where it meets the shoulders. "
+        "No body, legs, paws, or tail should be visible. Focus entirely on the face, ears, and neck. "
+
+        # SUBJECT PRESERVATION
+        "Maintain identical facial features, exact fur colors and patterns, precise eye shape and color. "
+        "Preserve the pet's natural expression and all unique markings without alteration. "
+
+        # ARTISTIC STYLE (Ink Wash - NOT photographic)
+        "Render in traditional East Asian ink wash (sumi-e) painting style. "
+        "Use flowing black ink gradients with varying density to create depth and dimension. "
+        "Apply spontaneous, expressive brush strokes for fur texture. "
+        "Use minimal lines to capture personality and essence rather than photorealistic detail. "
+        "The artwork should feel like a contemplative brush painting, not a photograph. "
+
+        # BACKGROUND
+        "Isolate the portrait on pure white (#FFFFFF) background with no gradients, textures, or environmental elements."
     ),
     ArtisticStyle.VAN_GOGH_POST_IMPRESSIONISM: (
-        "Create a Van Gogh Post-Impressionist portrait. "
-        "Tightly frame the pet's head, neck, and upper chest with face as focal point. "
-        "Maintain identical facial features, fur color, and eye shape. Keep the pet's head orientation and pose consistent, ensuring that its unique markings and expression remain true to the reference. "
-        "For multiple pets: if touching create group; if separated but clear create group; if mixed clarity choose clearest. "
-        "Remove background completely. "
-        "Apply Van Gogh style with thick impasto brushstrokes, vibrant expressive colors (blues, yellows, greens, ochres), "
-        "swirling patterns in fur, bold dark outlines, complementary color layers. "
-        "Reference Arles period (1888-1889) technique. "
-        "Isolate on pure white background (#FFFFFF)."
+        # COMPOSITION (Lead with this)
+        "Create a painted portrait focusing exclusively on the pet's head and neck. "
+        "Compose in the style of Van Gogh's portrait paintings - face dominates the frame, "
+        "cropping precisely at the neck base. "
+        "Show only head, ears, and neck - no chest, body, legs, or tail visible. "
+
+        # SUBJECT PRESERVATION
+        "Maintain accurate facial anatomy, exact fur coloration, and precise eye characteristics. "
+        "Preserve the pet's authentic expression and all distinctive markings. "
+
+        # ARTISTIC STYLE (Van Gogh - Bold and Painterly)
+        "Paint in Van Gogh's Post-Impressionist style with thick, visible impasto brushstrokes. "
+        "Use vibrant, expressive colors - bold blues, warm yellows, rich ochres, and deep greens. "
+        "Create swirling, dynamic patterns in the fur with clearly visible brushstroke texture. "
+        "Apply bold dark outlines defining facial features. "
+        "Reference Van Gogh's Arles period (1888-1889) portrait technique - "
+        "the artwork should feel like an oil painting with emotional intensity, not a photograph. "
+
+        # BACKGROUND
+        "Isolate on pure white (#FFFFFF) background with no environmental elements or gradients."
     ),
 }
 
@@ -55,8 +77,11 @@ async def retry_with_backoff(
     """
     Retry with exponential backoff for transient failures
 
+    CRITICAL: genai.GenerativeModel.generate_content() is a BLOCKING synchronous call.
+    We must run it in a thread pool executor to avoid blocking the event loop.
+
     Args:
-        func: Function to retry
+        func: Function to retry (should be synchronous)
         max_retries: Maximum number of retry attempts
         base_delay: Initial delay in seconds
         max_delay: Maximum delay in seconds
@@ -69,7 +94,9 @@ async def retry_with_backoff(
     """
     for attempt in range(max_retries):
         try:
-            return func()
+            # Run blocking function in thread pool to avoid blocking event loop
+            loop = asyncio.get_event_loop()
+            return await loop.run_in_executor(None, func)
         except Exception as e:
             if attempt == max_retries - 1:
                 logger.error(f"All {max_retries} retry attempts failed: {e}")
@@ -142,7 +169,7 @@ class GeminiClient:
                 lambda: self.model.generate_content(
                     contents=[prompt, input_image],
                     generation_config=types.GenerationConfig(
-                        temperature=settings.gemini_temperature,
+                        temperature=0.7,  # Lower for more consistent framing
                         top_p=settings.gemini_top_p,
                         top_k=settings.gemini_top_k,
                     )
