@@ -57,8 +57,9 @@ New to this repository? Here are the essential commands:
 
 ### Testing Locally
 ```bash
-# Test theme changes - ALWAYS use Playwright MCP with Shopify test URL
+# Test theme changes - ALWAYS use Chrome DevTools MCP with Shopify test URL
 # Ask user for current test URL if unknown (URLs expire periodically)
+# Chrome DevTools MCP allows direct browser interaction and console inspection
 
 # Test Python API locally (if working on Gemini API)
 cd backend/gemini-artistic-api
@@ -81,7 +82,7 @@ git push origin main
 
 ### Access Test Environment
 - **Ask user for current test URL** - URLs expire and need refreshing
-- Use Playwright MCP to test all changes before committing
+- **Use Chrome DevTools MCP** to test all changes before committing (browser automation + console access)
 
 ## 🔧 Development & Deployment
 
@@ -144,9 +145,10 @@ python src/main.py
 
 ### Testing Strategy
 ```bash
-# PRIMARY: Always use Playwright MCP with Shopify test URL
+# PRIMARY: Always use Chrome DevTools MCP with Shopify test URL
 # - Ask user for current test URL if unknown (URLs expire)
 # - Test all changes in real Shopify environment before committing
+# - Chrome DevTools MCP provides browser automation + console access
 
 # SECONDARY: Local HTML test files (when test URL unavailable)
 # Frontend tests - open in browser
@@ -160,7 +162,7 @@ python test_generation.py
 ```
 
 **Testing Priority:**
-1. **First**: Use Playwright MCP with Shopify test URL
+1. **First**: Use Chrome DevTools MCP with Shopify test URL
 2. **If test URL unavailable**: Ask user for fresh URL
 3. **Last resort**: Use local HTML test files
 
