@@ -602,27 +602,54 @@ class PetProcessor {
         filename: PetStorage.sanitizeName(latestPet.data.filename || 'Pet'),
         originalUrl: latestPet.data.originalUrl || '',
         effects: {},
-        selectedEffect: latestPet.data.effect || 'enhancedblackwhite'
+        selectedEffect: latestPet.data.selectedEffect || latestPet.data.effect || 'enhancedblackwhite'
       };
 
-      // Restore the selected effect with security validation
-      const effectName = latestPet.data.effect;
+      // NEW FORMAT: Restore all effects if available
+      if (latestPet.data.effects && typeof latestPet.data.effects === 'object') {
+        // New format: effects object contains all generated effects
+        for (const [effectName, effectData] of Object.entries(latestPet.data.effects)) {
+          if (!effectData || typeof effectData !== 'object') continue;
 
-      if (effectName && sanitizedThumbnail) {
-        if (effectName === 'modern' || effectName === 'classic') {
-          // Gemini effect - thumbnail might be GCS URL or data URL
-          this.currentPet.effects[effectName] = {
-            gcsUrl: latestPet.data.gcsUrl || '',
-            dataUrl: sanitizedThumbnail.startsWith('data:') ? sanitizedThumbnail : null,
-            cacheHit: true
-          };
-        } else {
-          // InSPyReNet effect - use data URL
-          this.currentPet.effects[effectName] = {
-            gcsUrl: latestPet.data.gcsUrl || '',
-            dataUrl: sanitizedThumbnail.startsWith('data:') ? sanitizedThumbnail : null,
-            cacheHit: true
-          };
+          // Validate URLs/data for each effect
+          let validatedEffect = { cacheHit: true };
+
+          if (effectData.gcsUrl && validateGCSUrl(effectData.gcsUrl)) {
+            validatedEffect.gcsUrl = effectData.gcsUrl;
+          }
+
+          if (effectData.dataUrl) {
+            const sanitized = validateAndSanitizeImageData(effectData.dataUrl);
+            if (sanitized) {
+              validatedEffect.dataUrl = sanitized;
+            }
+          }
+
+          // Only add effect if we have valid data
+          if (validatedEffect.gcsUrl || validatedEffect.dataUrl) {
+            this.currentPet.effects[effectName] = validatedEffect;
+          }
+        }
+      } else {
+        // OLD FORMAT: Restore only the selected effect (backward compatibility)
+        const effectName = latestPet.data.effect;
+
+        if (effectName && sanitizedThumbnail) {
+          if (effectName === 'modern' || effectName === 'classic') {
+            // Gemini effect - thumbnail might be GCS URL or data URL
+            this.currentPet.effects[effectName] = {
+              gcsUrl: latestPet.data.gcsUrl || '',
+              dataUrl: sanitizedThumbnail.startsWith('data:') ? sanitizedThumbnail : null,
+              cacheHit: true
+            };
+          } else {
+            // InSPyReNet effect - use data URL
+            this.currentPet.effects[effectName] = {
+              gcsUrl: latestPet.data.gcsUrl || '',
+              dataUrl: sanitizedThumbnail.startsWith('data:') ? sanitizedThumbnail : null,
+              cacheHit: true
+            };
+          }
         }
       }
 
@@ -1645,14 +1672,17 @@ class PetProcessor {
       }
     }
 
+    // FIX: Save all effects, not just selected one
     const petData = {
       name: petName,
       artistNote: artistNote,
       filename: this.currentPet.filename,
-      effect: selectedEffect,
+      selectedEffect: selectedEffect,  // Currently selected effect
+      effects: this.currentPet.effects,  // ALL generated effects
       thumbnail: effectData.dataUrl || effectData.gcsUrl,  // Thumbnail (dataUrl for InSPyReNet, gcsUrl for Gemini)
       gcsUrl: gcsUrl,                 // Full-resolution processed image URL
-      originalUrl: originalUrl         // Full-resolution original image URL
+      originalUrl: originalUrl,        // Full-resolution original image URL
+      timestamp: Date.now()            // For sorting by most recent
     };
 
     // Save with GCS URLs to localStorage

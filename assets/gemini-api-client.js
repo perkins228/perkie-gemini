@@ -26,7 +26,9 @@ class GeminiAPIClient {
     this.customerId = this.getOrCreateCustomerId();
 
     // Quota state (cached from last API response)
+    // FIX: Include 'allowed: true' so timeout fallback doesn't trigger false exhaustion
     this.quotaState = {
+      allowed: true,      // Essential for quota check fallback
       remaining: 10,
       limit: 10,
       warningLevel: 1,
@@ -176,8 +178,9 @@ class GeminiAPIClient {
         timeout: 5000 // Quick check
       });
 
-      // Update cached quota state
+      // Update cached quota state with 'allowed' property
       this.quotaState = {
+        allowed: response.allowed !== false,  // Default true if missing
         remaining: response.remaining,
         limit: response.limit,
         warningLevel: response.warning_level,
