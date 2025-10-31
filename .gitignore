@@ -1,6 +1,15 @@
-# Secrets and credentials
+# Secrets and credentials - NEVER COMMIT THESE
 perkieprints-sa-key.json
 .env
+.env.*
+*.key
+*.pem
+*-key.json
+*_key.json
+secrets/
+# API keys pattern (Google, AWS, etc.)
+*api*key*
+*apikey*
 
 # Dependencies
 node_modules/

@@ -129,7 +129,7 @@ python src/main.py
 - **Project**: perkieprints-nanobanana
 - **Project ID**: gen-lang-client-0601138686
 - **Project Number**: 753651513695
-- **API Key**: AIzaSyAP6X8DdL1kPlah25du8s_YzipwOnYd_7I
+- **API Key**: Stored in Google Cloud Secret Manager (`gemini-api-key` secret) - NEVER commit keys to git
 - **Model**: gemini-2.5-flash-image (NOT 2.0, NOT standard 2.5)
 - **Region**: us-central1
 - **Storage Bucket**: perkieprints-processing-cache

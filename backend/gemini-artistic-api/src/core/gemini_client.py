@@ -1,6 +1,7 @@
 """Gemini API client with artistic style prompts for pet portraits"""
 import google.generativeai as genai
 from google.generativeai import types
+from google.generativeai.types.generation_types import GenerateContentResponse
 import base64
 import time
 import asyncio
@@ -20,50 +21,26 @@ genai.configure(api_key=settings.gemini_api_key)
 
 
 # Artistic style prompts optimized for Gemini 2.5 Flash Image
-# These replace Pop Art (ink_wash) and Dithering (van_gogh)
+# Simplified to avoid safety filter triggers while maintaining quality
 STYLE_PROMPTS = {
     ArtisticStyle.INK_WASH: (
-        # COMPOSITION (Lead with this for emphasis)
-        "Create an artistic portrait showing ONLY the pet's head and neck. "
-        "Compose like a traditional portrait painting - the face should fill most of the frame, "
-        "cropping at the base of the neck where it meets the shoulders. "
-        "No body, legs, paws, or tail should be visible. Focus entirely on the face, ears, and neck. "
-
-        # SUBJECT PRESERVATION
-        "Maintain identical facial features, exact fur colors and patterns, precise eye shape and color. "
-        "Preserve the pet's natural expression and all unique markings without alteration. "
-
-        # ARTISTIC STYLE (Ink Wash - NOT photographic)
-        "Render in traditional East Asian ink wash (sumi-e) painting style. "
-        "Use flowing black ink gradients with varying density to create depth and dimension. "
-        "Apply spontaneous, expressive brush strokes for fur texture. "
-        "Use minimal lines to capture personality and essence rather than photorealistic detail. "
-        "The artwork should feel like a contemplative brush painting, not a photograph. "
-
-        # BACKGROUND
-        "Isolate the portrait on pure white (#FFFFFF) background with no gradients, textures, or environmental elements."
+        # Clear, simple artistic instruction
+        "Transform this pet photo into a traditional Asian ink wash painting. "
+        "Create a portrait composition showing the pet's head and neck area. "
+        "Use flowing black ink with varying gradients to create an artistic effect. "
+        "Apply expressive brush strokes in the style of sumi-e painting. "
+        "Keep the pet's features recognizable while making it look like a painting. "
+        "Place the portrait on a clean white background."
     ),
     ArtisticStyle.VAN_GOGH_POST_IMPRESSIONISM: (
-        # COMPOSITION (Lead with this)
-        "Create a painted portrait focusing exclusively on the pet's head and neck. "
-        "Compose in the style of Van Gogh's portrait paintings - face dominates the frame, "
-        "cropping precisely at the neck base. "
-        "Show only head, ears, and neck - no chest, body, legs, or tail visible. "
-
-        # SUBJECT PRESERVATION
-        "Maintain accurate facial anatomy, exact fur coloration, and precise eye characteristics. "
-        "Preserve the pet's authentic expression and all distinctive markings. "
-
-        # ARTISTIC STYLE (Van Gogh - Bold and Painterly)
-        "Paint in Van Gogh's Post-Impressionist style with thick, visible impasto brushstrokes. "
-        "Use vibrant, expressive colors - bold blues, warm yellows, rich ochres, and deep greens. "
-        "Create swirling, dynamic patterns in the fur with clearly visible brushstroke texture. "
-        "Apply bold dark outlines defining facial features. "
-        "Reference Van Gogh's Arles period (1888-1889) portrait technique - "
-        "the artwork should feel like an oil painting with emotional intensity, not a photograph. "
-
-        # BACKGROUND
-        "Isolate on pure white (#FFFFFF) background with no environmental elements or gradients."
+        # Clear, simple artistic instruction
+        "Transform this pet photo into a Van Gogh style painting. "
+        "Create a portrait composition focusing on the pet's head and neck. "
+        "Use bold, visible brushstrokes like Van Gogh's portrait paintings. "
+        "Apply vibrant colors - blues, yellows, and greens with thick paint texture. "
+        "Add swirling patterns and expressive brushwork to the fur. "
+        "Keep the pet's features recognizable while making it look like an oil painting. "
+        "Place the portrait on a clean white background."
     ),
 }
 
@@ -172,11 +149,42 @@ class GeminiClient:
                         temperature=0.7,  # Lower for more consistent framing
                         top_p=settings.gemini_top_p,
                         top_k=settings.gemini_top_k,
-                    )
+                    ),
+                    # Add safety settings to reduce blocking
+                    safety_settings={
+                        types.HarmCategory.HARM_CATEGORY_HATE_SPEECH: types.HarmBlockThreshold.BLOCK_ONLY_HIGH,
+                        types.HarmCategory.HARM_CATEGORY_HARASSMENT: types.HarmBlockThreshold.BLOCK_ONLY_HIGH,
+                        types.HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT: types.HarmBlockThreshold.BLOCK_ONLY_HIGH,
+                        types.HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT: types.HarmBlockThreshold.BLOCK_ONLY_HIGH,
+                    }
                 )
             )
 
-            # Extract generated image
+            # Check if prompt was blocked by safety filters
+            if response.prompt_feedback:
+                # Log the prompt feedback for debugging
+                logger.warning(f"Prompt feedback: {response.prompt_feedback}")
+
+                # Check if the prompt was blocked
+                if hasattr(response.prompt_feedback, 'block_reason'):
+                    block_reason = response.prompt_feedback.block_reason
+                    logger.error(f"Prompt blocked by safety filter: {block_reason}")
+                    raise ValueError(f"Content generation blocked by safety filter: {block_reason}")
+
+            # Check if we have any candidates
+            if not response.candidates:
+                logger.error("No candidates returned - prompt may have been blocked")
+                raise ValueError("No content generated - the prompt may have been blocked by safety filters")
+
+            # Check the first candidate for safety ratings
+            candidate = response.candidates[0]
+            # FinishReason values: 0=FINISH_REASON_UNSPECIFIED, 1=STOP, 2=MAX_TOKENS, 3=SAFETY, 4=RECITATION, 5=OTHER
+            if hasattr(candidate, 'finish_reason') and candidate.finish_reason != 1:  # 1 = STOP (normal completion)
+                logger.warning(f"Generation stopped early: {candidate.finish_reason}")
+                if candidate.finish_reason == 3:  # 3 = SAFETY
+                    raise ValueError("Content generation blocked due to safety concerns")
+
+            # Extract generated image - REVERT TO ORIGINAL WORKING CODE
             if not response.parts:
                 raise ValueError("No image generated by Gemini")
 

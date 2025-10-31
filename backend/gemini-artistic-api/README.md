@@ -92,7 +92,9 @@ gsutil lifecycle set lifecycle.json gs://perkieprints-processing-cache
 
 For production, store the Gemini API key in Secret Manager:
 ```bash
-echo -n "AIzaSyAP6X8DdL1kPlah25du8s_YzipwOnYd_7I" | \
+# IMPORTANT: Never commit API keys to git!
+# Get your API key from https://aistudio.google.com/apikey
+echo -n "YOUR_API_KEY_HERE" | \
   gcloud secrets create gemini-api-key \
   --data-file=- \
   --replication-policy="automatic" \
