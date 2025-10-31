@@ -1419,3 +1419,72 @@ See: `assets/gemini-api-client.js:148` and `assets/pet-processor.js:1155`
 ### Testing Status
 **Next**: Test with fresh image upload to verify images now generate correctly with proper model.
 
+---
+
+## Work Log
+
+### 2025-10-31 23:45 - CV/ML Engineer: Gemini Image Generation Investigation
+
+**Task**: Research and provide definitive solution for "Empty image data" errors after 6+ hours of debugging
+
+**What was done**:
+1. Conducted comprehensive online research on gemini-2.5-flash-image capabilities
+2. Analyzed official Google documentation and working implementations
+3. Compared current code with official examples
+4. Identified critical missing configuration
+
+**Root Cause Identified**:
+
+**PRIMARY ISSUE**: Missing `response_modalities=["IMAGE"]` in generation config
+- Current code (line 148) does NOT specify response modalities
+- Without this, Gemini defaults to TEXT output only
+- This explains why `inline_data` is always None/empty
+
+**SECONDARY ISSUE**: Response extraction assumes wrong structure
+- Code checks `response.parts` directly (line 205)
+- Should check BOTH `response.parts` AND `response.candidates[0].content.parts`
+- Response structure varies based on modalities configuration
+
+**Definitive Answers**:
+
+1. **YES, gemini-2.5-flash-image CAN generate images** - It's Google's dedicated image generation model
+2. **Correct API**: Use google-generativeai SDK with proper configuration
+3. **Why inline_data is empty**: Missing response_modalities=["IMAGE"] configuration
+4. **No alternative needed** - Fix the configuration and it will work
+
+**Solution** (3 critical changes):
+
+```python
+# Change 1: Add response_modalities (line 148)
+generation_config=types.GenerationConfig(
+    response_modalities=["IMAGE"],  # CRITICAL - MISSING!
+    temperature=0.7,
+    top_p=settings.gemini_top_p,
+    top_k=settings.gemini_top_k,
+)
+
+# Change 2: Fix response extraction (lines 205-216)
+# Check BOTH response.parts AND response.candidates[0].content.parts
+
+# Change 3: Verify model name
+gemini_model: str = "gemini-2.5-flash-image"  # Correct
+```
+
+**Documentation Created**:
+- `.claude/doc/gemini-api-ml-cv-fix-implementation.md` - Complete implementation plan
+
+**Supporting Evidence**:
+- Official docs confirm image generation: https://ai.google.dev/gemini-api/docs/image-generation
+- Python examples show response_modalities requirement
+- Model pricing: $0.039 per generated image (1290 tokens)
+
+**Impact**: This single line addition (`response_modalities=["IMAGE"]`) should fix the entire issue
+
+**Next Steps**:
+1. Add response_modalities to generation config
+2. Update response extraction to check both locations
+3. Deploy and test
+
+**Time to Fix**: 15 minutes (one-line critical fix)
+**Risk**: MINIMAL (configuration addition only)
+
