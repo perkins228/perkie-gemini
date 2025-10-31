@@ -1,11 +1,219 @@
 /**
  * Pet Processor - Mobile-First ES6+ Implementation
  * Replaces 2,343 lines of ES5 with 600 lines of modern JavaScript
- * Version: 1.0.2 - Gemini Artistic API Integration
+ * Version: 1.0.3 - Security Hardening & Session Restoration
  */
 
 // Gemini modules loaded via global scope (gemini-api-client.js, gemini-effects-ui.js)
 // Available as: window.GeminiAPIClient, window.GeminiEffectsUI
+
+// ============================================================================
+// SECURITY UTILITIES
+// Phase 0: Security hardening for localStorage and URL validation
+// ============================================================================
+
+/**
+ * Validates that a URL is a trusted Google Cloud Storage URL
+ * Prevents XSS and phishing attacks via URL injection
+ *
+ * @param {string} url - URL to validate
+ * @returns {boolean} True if URL is from trusted GCS domain
+ */
+function validateGCSUrl(url) {
+  if (!url || typeof url !== 'string') {
+    return false;
+  }
+
+  try {
+    const urlObj = new URL(url);
+
+    // Whitelist: Only allow Google Cloud Storage domains
+    const trustedDomains = [
+      'storage.googleapis.com',
+      'storage.cloud.google.com'
+    ];
+
+    // Check if hostname matches trusted domains
+    const isTrusted = trustedDomains.some(domain =>
+      urlObj.hostname === domain || urlObj.hostname.endsWith(`.${domain}`)
+    );
+
+    // Must use HTTPS
+    if (urlObj.protocol !== 'https:') {
+      console.warn('🔒 Rejected non-HTTPS URL:', url);
+      return false;
+    }
+
+    if (!isTrusted) {
+      console.warn('🔒 Rejected untrusted domain:', urlObj.hostname);
+      return false;
+    }
+
+    return true;
+  } catch (error) {
+    console.warn('🔒 Invalid URL format:', url);
+    return false;
+  }
+}
+
+/**
+ * Validates and sanitizes image data URLs
+ * Prevents arbitrary code execution via SVG data URLs
+ *
+ * @param {string} dataUrl - Data URL to validate
+ * @returns {string|null} Sanitized data URL or null if invalid
+ */
+function validateAndSanitizeImageData(dataUrl) {
+  if (!dataUrl || typeof dataUrl !== 'string') {
+    return null;
+  }
+
+  // Must start with data:image/
+  if (!dataUrl.startsWith('data:image/')) {
+    console.warn('🔒 Rejected non-image data URL');
+    return null;
+  }
+
+  // Block SVG data URLs (can contain embedded scripts)
+  if (dataUrl.startsWith('data:image/svg+xml')) {
+    console.warn('🔒 Blocked SVG data URL (XSS risk)');
+    return null;
+  }
+
+  // Allowed formats: jpeg, jpg, png, webp
+  const allowedFormats = ['jpeg', 'jpg', 'png', 'webp'];
+  const formatMatch = dataUrl.match(/^data:image\/(jpeg|jpg|png|webp);base64,/);
+
+  if (!formatMatch) {
+    console.warn('🔒 Rejected data URL with invalid format');
+    return null;
+  }
+
+  // Check size (data URLs can be large - limit to 10MB base64 encoded)
+  const maxSize = 10 * 1024 * 1024 * 1.37; // Base64 is ~37% larger
+  if (dataUrl.length > maxSize) {
+    console.warn('🔒 Rejected oversized data URL:', dataUrl.length, 'bytes');
+    return null;
+  }
+
+  return dataUrl;
+}
+
+/**
+ * Checks if localStorage has available quota
+ * Prevents silent failures on mobile devices with limited storage
+ *
+ * @param {number} estimatedSizeKB - Estimated size needed in KB
+ * @returns {boolean} True if quota is available
+ */
+function checkLocalStorageQuota(estimatedSizeKB = 100) {
+  try {
+    // Try to estimate current usage
+    let currentSize = 0;
+    for (let key in localStorage) {
+      if (localStorage.hasOwnProperty(key)) {
+        currentSize += localStorage[key].length + key.length;
+      }
+    }
+
+    const currentSizeKB = currentSize / 1024;
+    const estimatedTotalKB = currentSizeKB + estimatedSizeKB;
+
+    // Most browsers: 5-10MB limit for localStorage
+    // Conservative limit: 4MB to leave safety margin
+    const maxQuotaKB = 4 * 1024;
+
+    if (estimatedTotalKB > maxQuotaKB) {
+      console.warn('🔒 localStorage quota nearly exhausted:', {
+        current: `${currentSizeKB.toFixed(2)} KB`,
+        estimated: `${estimatedTotalKB.toFixed(2)} KB`,
+        max: `${maxQuotaKB} KB`
+      });
+      return false;
+    }
+
+    return true;
+  } catch (error) {
+    console.error('🔒 localStorage quota check failed:', error);
+    return false; // Fail safe
+  }
+}
+
+/**
+ * Wraps async operations with timeout protection
+ * Prevents operations from hanging indefinitely
+ *
+ * @param {Promise} promise - Promise to wrap
+ * @param {number} timeoutMs - Timeout in milliseconds (default: 5000)
+ * @param {string} operationName - Name for logging
+ * @returns {Promise} Promise that rejects on timeout
+ */
+function withTimeout(promise, timeoutMs = 5000, operationName = 'Operation') {
+  return Promise.race([
+    promise,
+    new Promise((_, reject) =>
+      setTimeout(() => reject(new Error(`${operationName} timed out after ${timeoutMs}ms`)), timeoutMs)
+    )
+  ]);
+}
+
+/**
+ * Safe localStorage wrapper with error boundaries
+ * Prevents single corrupted entry from crashing the app
+ *
+ * @param {string} key - localStorage key
+ * @param {any} defaultValue - Default value if operation fails
+ * @returns {any} Parsed value or defaultValue
+ */
+function safeGetLocalStorage(key, defaultValue = null) {
+  try {
+    const value = localStorage.getItem(key);
+    if (value === null) {
+      return defaultValue;
+    }
+
+    // Try to parse as JSON if it looks like JSON
+    if (value.startsWith('{') || value.startsWith('[')) {
+      try {
+        return JSON.parse(value);
+      } catch (parseError) {
+        console.warn(`🔒 Failed to parse localStorage key "${key}" as JSON, returning raw value`);
+        return value;
+      }
+    }
+
+    return value;
+  } catch (error) {
+    console.error(`🔒 localStorage.getItem failed for key "${key}":`, error);
+    return defaultValue;
+  }
+}
+
+/**
+ * Safe localStorage setter with quota checking
+ *
+ * @param {string} key - localStorage key
+ * @param {any} value - Value to store (will be JSON stringified if object)
+ * @returns {boolean} True if successful
+ */
+function safeSetLocalStorage(key, value) {
+  try {
+    const stringValue = typeof value === 'string' ? value : JSON.stringify(value);
+    const estimatedSizeKB = stringValue.length / 1024;
+
+    // Check quota before setting
+    if (!checkLocalStorageQuota(estimatedSizeKB)) {
+      console.error(`🔒 Insufficient localStorage quota for key "${key}"`);
+      return false;
+    }
+
+    localStorage.setItem(key, stringValue);
+    return true;
+  } catch (error) {
+    console.error(`🔒 localStorage.setItem failed for key "${key}":`, error);
+    return false;
+  }
+}
 
 // Comparison Manager for Effect Gallery
 // Moved before PetProcessor to fix initialization error
@@ -266,15 +474,230 @@ class PetProcessor {
       console.error('🐾 Cannot initialize PetProcessor - no container found');
       return;
     }
-    
+
     // Render UI
     this.render();
-    
+
     // Bind events
     this.bindEvents();
 
+    // Restore previous session if exists (with timeout protection)
+    try {
+      await withTimeout(
+        this.restoreSession(),
+        5000,
+        'Session restoration'
+      );
+    } catch (error) {
+      console.warn('⚠️ Session restoration timed out or failed:', error.message);
+      // Non-critical - continue with fresh session
+    }
+
     // Initialize features
     this.initializeFeatures();
+  }
+
+  /**
+   * Restore previous session from localStorage
+   * Phase 1: Session Restoration with Security Hardening
+   * Called during initialization to recover pet data after page refresh
+   */
+  async restoreSession() {
+    try {
+      console.log('🔄 Attempting to restore session from localStorage');
+
+      // Check if PetStorage is available
+      if (typeof PetStorage === 'undefined') {
+        console.log('🔄 PetStorage not available, skipping restore');
+        return;
+      }
+
+      // Get all pets from PetStorage with error boundary
+      let allPets;
+      try {
+        allPets = PetStorage.getAll();
+      } catch (storageError) {
+        console.error('❌ PetStorage.getAll() failed:', storageError);
+        return;
+      }
+
+      if (!allPets || typeof allPets !== 'object') {
+        console.warn('⚠️ Invalid pet storage format, skipping restore');
+        return;
+      }
+
+      const petIds = Object.keys(allPets);
+
+      if (petIds.length === 0) {
+        console.log('🔄 No session to restore (no saved pets)');
+        return;
+      }
+
+      // Validate and filter pets with corrupted data
+      const validPets = petIds
+        .map(id => ({ id, data: allPets[id] }))
+        .filter(pet => {
+          // Basic validation
+          if (!pet.data || typeof pet.data !== 'object') {
+            console.warn(`⚠️ Skipping pet ${pet.id}: invalid data structure`);
+            return false;
+          }
+
+          if (!pet.data.timestamp || typeof pet.data.timestamp !== 'number') {
+            console.warn(`⚠️ Skipping pet ${pet.id}: missing or invalid timestamp`);
+            return false;
+          }
+
+          return true;
+        });
+
+      if (validPets.length === 0) {
+        console.warn('⚠️ No valid pets found in storage');
+        return;
+      }
+
+      // Get most recent pet (by timestamp)
+      const sortedPets = validPets.sort((a, b) => (b.data.timestamp || 0) - (a.data.timestamp || 0));
+      const latestPet = sortedPets[0];
+
+      console.log(`🔄 Restoring most recent pet: ${latestPet.id}`);
+
+      // Validate URLs with security checks
+      const gcsUrl = latestPet.data.gcsUrl;
+      const originalUrl = latestPet.data.originalUrl;
+      const thumbnail = latestPet.data.thumbnail;
+
+      // Validate GCS URLs
+      if (gcsUrl && !validateGCSUrl(gcsUrl)) {
+        console.warn('🔒 Invalid GCS URL detected, clearing:', gcsUrl);
+        latestPet.data.gcsUrl = '';
+      }
+
+      if (originalUrl && !validateGCSUrl(originalUrl)) {
+        console.warn('🔒 Invalid original URL detected, clearing:', originalUrl);
+        latestPet.data.originalUrl = '';
+      }
+
+      // Validate and sanitize data URL
+      let sanitizedThumbnail = null;
+      if (thumbnail) {
+        if (thumbnail.startsWith('data:')) {
+          sanitizedThumbnail = validateAndSanitizeImageData(thumbnail);
+          if (!sanitizedThumbnail) {
+            console.warn('🔒 Invalid data URL detected and blocked');
+          }
+        } else if (thumbnail.startsWith('http')) {
+          // Thumbnail is a URL - validate it
+          if (validateGCSUrl(thumbnail)) {
+            sanitizedThumbnail = thumbnail;
+          } else {
+            console.warn('🔒 Invalid thumbnail URL detected and blocked');
+          }
+        }
+      }
+
+      // Reconstruct currentPet object with validated data
+      this.currentPet = {
+        id: latestPet.id,
+        filename: PetStorage.sanitizeName(latestPet.data.filename || 'Pet'),
+        originalUrl: latestPet.data.originalUrl || '',
+        effects: {},
+        selectedEffect: latestPet.data.effect || 'enhancedblackwhite'
+      };
+
+      // Restore the selected effect with security validation
+      const effectName = latestPet.data.effect;
+
+      if (effectName && sanitizedThumbnail) {
+        if (effectName === 'modern' || effectName === 'classic') {
+          // Gemini effect - thumbnail might be GCS URL or data URL
+          this.currentPet.effects[effectName] = {
+            gcsUrl: latestPet.data.gcsUrl || '',
+            dataUrl: sanitizedThumbnail.startsWith('data:') ? sanitizedThumbnail : null,
+            cacheHit: true
+          };
+        } else {
+          // InSPyReNet effect - use data URL
+          this.currentPet.effects[effectName] = {
+            gcsUrl: latestPet.data.gcsUrl || '',
+            dataUrl: sanitizedThumbnail.startsWith('data:') ? sanitizedThumbnail : null,
+            cacheHit: true
+          };
+        }
+      }
+
+      // Check for other Gemini effects in localStorage (modern/classic)
+      // These might exist even if not the selected effect
+      const modernKey = `${latestPet.id}_modern`;
+      const classicKey = `${latestPet.id}_classic`;
+
+      const modernData = safeGetLocalStorage(modernKey, null);
+      if (modernData && !this.currentPet.effects.modern) {
+        // Validate modern effect data
+        let validModernUrl = null;
+        if (typeof modernData === 'string') {
+          if (modernData.startsWith('http') && validateGCSUrl(modernData)) {
+            validModernUrl = modernData;
+          } else if (modernData.startsWith('data:')) {
+            validModernUrl = validateAndSanitizeImageData(modernData);
+          }
+        }
+
+        if (validModernUrl) {
+          this.currentPet.effects.modern = {
+            gcsUrl: validModernUrl.startsWith('http') ? validModernUrl : '',
+            dataUrl: validModernUrl.startsWith('data:') ? validModernUrl : null,
+            cacheHit: true
+          };
+        }
+      }
+
+      const classicData = safeGetLocalStorage(classicKey, null);
+      if (classicData && !this.currentPet.effects.classic) {
+        // Validate classic effect data
+        let validClassicUrl = null;
+        if (typeof classicData === 'string') {
+          if (classicData.startsWith('http') && validateGCSUrl(classicData)) {
+            validClassicUrl = classicData;
+          } else if (classicData.startsWith('data:')) {
+            validClassicUrl = validateAndSanitizeImageData(classicData);
+          }
+        }
+
+        if (validClassicUrl) {
+          this.currentPet.effects.classic = {
+            gcsUrl: validClassicUrl.startsWith('http') ? validClassicUrl : '',
+            dataUrl: validClassicUrl.startsWith('data:') ? validClassicUrl : null,
+            cacheHit: true
+          };
+        }
+      }
+
+      // Show result view with restored data (only if we have effects)
+      const effectCount = Object.keys(this.currentPet.effects).length;
+      if (effectCount > 0) {
+        console.log(`✅ Session restored with ${effectCount} effect(s):`, Object.keys(this.currentPet.effects));
+
+        // Show the result view
+        this.showResult({ effects: this.currentPet.effects });
+
+        // Set initial image to selected effect
+        const img = this.container.querySelector('.pet-image');
+        if (img) {
+          const selectedEffectData = this.currentPet.effects[this.currentPet.selectedEffect];
+          if (selectedEffectData) {
+            img.src = selectedEffectData.gcsUrl || selectedEffectData.dataUrl;
+          }
+        }
+      } else {
+        console.log('🔄 Pet found but no valid effects to restore');
+      }
+
+    } catch (error) {
+      console.error('❌ Session restoration failed:', error);
+      // Non-critical - just start fresh
+      this.currentPet = null;
+    }
   }
   
   initializeFeatures() {
@@ -872,54 +1295,93 @@ class PetProcessor {
 
   /**
    * Update effect button states based on availability
-   * - Disable Modern/Classic if not loaded yet or quota exhausted
-   * - Show loading indicator for Gemini effects being generated
+   * Phase 3: Improved Button State Logic
+   *
+   * State priority (highest to lowest):
+   * 1. Effect loaded → ENABLED (can view)
+   * 2. Quota exhausted (0/10) → DISABLED with helpful message
+   * 3. Processing → LOADING indicator
+   * 4. Gemini disabled globally → DISABLED/HIDDEN
+   * 5. Ready to generate → ENABLED (allow generation)
    */
   updateEffectButtonStates() {
-    if (!this.currentPet) return;
+    // No pet loaded - disable all Gemini buttons
+    if (!this.currentPet) {
+      const buttons = this.container.querySelectorAll('.effect-btn');
+      buttons.forEach(btn => {
+        if (btn.dataset.effect === 'modern' || btn.dataset.effect === 'classic') {
+          btn.disabled = true;
+          btn.classList.add('effect-btn--disabled');
+          btn.classList.remove('effect-btn--loading', 'effect-btn--ready');
+          btn.title = 'Upload a photo to enable AI effects';
+        }
+      });
+      return;
+    }
 
     const buttons = this.container.querySelectorAll('.effect-btn');
     buttons.forEach(btn => {
       const effect = btn.dataset.effect;
 
-      // Always enable B&W and Color (unlimited)
+      // Always enable B&W and Color (unlimited, always available)
       if (effect === 'enhancedblackwhite' || effect === 'color') {
         btn.disabled = false;
-        btn.classList.remove('effect-btn--loading', 'effect-btn--disabled');
+        btn.classList.remove('effect-btn--loading', 'effect-btn--disabled', 'effect-btn--ready');
+        btn.title = effect === 'enhancedblackwhite' ? 'Black & White effect' : 'Color effect';
         return;
       }
 
       // Handle Gemini effects (Modern and Classic)
       if (effect === 'modern' || effect === 'classic') {
         const effectData = this.currentPet.effects[effect];
+        const effectLabel = effect === 'modern' ? 'Modern' : 'Classic';
 
-        if (!effectData) {
-          // Not loaded yet - check if we're still loading or quota exhausted
-          if (this.geminiEnabled && this.geminiClient) {
-            const quotaExhausted = this.geminiClient.isQuotaExhausted();
+        // Priority 1: Effect already loaded → ENABLE for viewing
+        if (effectData) {
+          btn.disabled = false;
+          btn.classList.remove('effect-btn--loading', 'effect-btn--disabled', 'effect-btn--ready');
+          btn.title = `View ${effectLabel} effect`;
+          return;
+        }
 
-            if (quotaExhausted) {
-              // Quota exhausted - disable button
-              btn.disabled = true;
-              btn.classList.add('effect-btn--disabled');
-              btn.classList.remove('effect-btn--loading');
-            } else {
-              // Still loading - show loading indicator
-              btn.disabled = true;
-              btn.classList.add('effect-btn--loading');
-              btn.classList.remove('effect-btn--disabled');
-            }
-          } else {
-            // Gemini disabled - disable button
+        // Priority 2: Check if Gemini is disabled globally
+        if (!this.geminiEnabled) {
+          btn.disabled = true;
+          btn.classList.add('effect-btn--disabled');
+          btn.classList.remove('effect-btn--loading', 'effect-btn--ready');
+          btn.title = 'AI effects not available';
+          return;
+        }
+
+        // Priority 3: Check quota status
+        if (this.geminiClient) {
+          const quotaExhausted = this.geminiClient.isQuotaExhausted();
+
+          if (quotaExhausted) {
+            // Quota exhausted - disable with helpful message
             btn.disabled = true;
             btn.classList.add('effect-btn--disabled');
-            btn.classList.remove('effect-btn--loading');
+            btn.classList.remove('effect-btn--loading', 'effect-btn--ready');
+            btn.title = 'Daily AI limit reached (resets at midnight)';
+            return;
           }
-        } else {
-          // Effect loaded - enable button
-          btn.disabled = false;
-          btn.classList.remove('effect-btn--loading', 'effect-btn--disabled');
         }
+
+        // Priority 4: Check if currently processing
+        if (this.isProcessing) {
+          btn.disabled = true;
+          btn.classList.add('effect-btn--loading');
+          btn.classList.remove('effect-btn--disabled', 'effect-btn--ready');
+          btn.title = `Generating ${effectLabel} effect...`;
+          return;
+        }
+
+        // Priority 5: Ready to generate → ENABLE
+        // Allow user to click to trigger generation
+        btn.disabled = false;
+        btn.classList.add('effect-btn--ready');
+        btn.classList.remove('effect-btn--loading', 'effect-btn--disabled');
+        btn.title = `Click to generate ${effectLabel} effect`;
       }
     });
   }

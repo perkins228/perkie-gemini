@@ -36,27 +36,92 @@ class GeminiAPIClient {
 
   /**
    * Check if Gemini effects are enabled via feature flag
+   * Phase 2: Feature Flag Fix with Gradual Rollout
+   *
+   * Three-layer system:
+   * 1. Explicit disable flag (gemini_effects_enabled = 'false')
+   * 2. Gradual rollout percentage (gemini_rollout_percent, default 10%)
+   * 3. Grandfather clause for existing Gemini users
    */
   checkFeatureFlag() {
     try {
-      // Three-layer feature flag system:
-      // 1. Global enable/disable
+      // Layer 1: Check explicit disable flag
       const globalFlag = localStorage.getItem('gemini_effects_enabled');
-      if (globalFlag === 'false') return false;
+      if (globalFlag === 'false') {
+        console.log('🎨 Gemini effects explicitly disabled via feature flag');
+        return false;
+      }
 
-      // 2. Gradual rollout percentage (0-100)
-      const rolloutPercent = parseInt(localStorage.getItem('gemini_rollout_percent') || '0', 10);
-      if (rolloutPercent === 0) return false;
-      if (rolloutPercent === 100) return true;
+      // If explicitly enabled, bypass rollout percentage
+      if (globalFlag === 'true') {
+        console.log('🎨 Gemini effects explicitly enabled via feature flag');
+        return true;
+      }
 
-      // 3. Session-based deterministic rollout (same session always sees same state)
+      // Layer 2: Grandfather clause - check if user has existing Gemini sessions
+      // This prevents taking away functionality from users who already used it
+      if (this.hasExistingGeminiSession()) {
+        console.log('🎨 Gemini effects enabled (existing session detected)');
+        return true;
+      }
+
+      // Layer 3: Gradual rollout percentage (NEW DEFAULT: 10% instead of 0%)
+      const rolloutKey = localStorage.getItem('gemini_rollout_percent');
+
+      // If key doesn't exist, use 10% default rollout (conservative gradual launch)
+      // This is safer than 100% which could cause quota exhaustion
+      const rolloutPercent = rolloutKey !== null
+        ? parseInt(rolloutKey, 10)
+        : 10; // DEFAULT: 10% gradual rollout
+
+      if (rolloutPercent === 0) {
+        console.log('🎨 Gemini effects disabled (0% rollout)');
+        return false;
+      }
+
+      if (rolloutPercent === 100) {
+        console.log('🎨 Gemini effects enabled (100% rollout)');
+        return true;
+      }
+
+      // Deterministic session-based rollout (same session always sees same state)
       const sessionHash = this.hashCustomerId(this.getOrCreateCustomerId());
       const inRollout = (sessionHash % 100) < rolloutPercent;
 
+      console.log(`🎨 Gemini effects ${inRollout ? 'enabled' : 'disabled'} (${rolloutPercent}% rollout, hash: ${sessionHash % 100})`);
+
       return inRollout;
     } catch (error) {
-      console.error('Feature flag check failed:', error);
+      console.error('🎨 Feature flag check failed:', error);
       return false; // Fail closed
+    }
+  }
+
+  /**
+   * Check if user has existing Gemini-generated images (grandfather clause)
+   * Prevents taking away functionality from users who already used it
+   */
+  hasExistingGeminiSession() {
+    try {
+      // Check if there are any modern/classic effects in localStorage
+      for (let key in localStorage) {
+        if (key.includes('_modern') || key.includes('_classic')) {
+          return true;
+        }
+      }
+
+      // Check PetStorage if available
+      if (typeof PetStorage !== 'undefined') {
+        const allPets = PetStorage.getAll();
+        return Object.values(allPets).some(pet =>
+          pet.effect === 'modern' || pet.effect === 'classic'
+        );
+      }
+
+      return false;
+    } catch (error) {
+      console.error('🎨 hasExistingGeminiSession check failed:', error);
+      return false;
     }
   }
 
