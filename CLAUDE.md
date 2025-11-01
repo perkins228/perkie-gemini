@@ -40,12 +40,15 @@ The platform is a custom e-commerce site where 70% of orders come from mobile, f
 - **Technology**: FastAPI + PyTorch + InSPyReNet model
 - **Deployment**: Google Cloud Run with NVIDIA L4 GPU
 
-#### Experimental Gemini Artistic API (THIS REPO)
+#### Gemini Artistic API (THIS REPO)
 - **Service**: Gemini Artistic API for pet portrait generation
-- **Status**: ✅ **ACTIVE DEVELOPMENT** - Safe to modify in this repo
-- **Location**: `backend/gemini-artistic-api/` (if implemented)
+- **Status**: ✅ **PRODUCTION READY** - Successfully migrated to future-proof SDK
+- **Location**: `backend/gemini-artistic-api/`
 - **Technology**: FastAPI + Google Gemini 2.5 Flash Image
-- **Model**: gemini-2.5-flash-image (NOT 2.0, NOT standard 2.5)
+- **SDK**: `google-genai==1.47.0` (future-proof through 2027+, migrated 2025-11-01)
+- **Model**: gemini-2.5-flash-image with native image generation support
+- **Features**: Native `response_modalities=["IMAGE"]` support
+- **Deployment**: Cloud Run revision 00017-6bv serving 100% traffic
 - **Project**: perkieprints-nanobanana (gen-lang-client-0601138686)
 - **Region**: us-central1
 - **Storage**: perkieprints-processing-cache bucket

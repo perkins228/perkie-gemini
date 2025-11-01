@@ -7,13 +7,111 @@
 ---
 
 ## Table of Contents
-1. [Prerequisites](#prerequisites)
-2. [Project Setup](#project-setup)
-3. [Core Implementation](#core-implementation)
-4. [Cloud Infrastructure](#cloud-infrastructure)
-5. [Deployment](#deployment)
-6. [Testing & Verification](#testing--verification)
-7. [Common Pitfalls](#common-pitfalls)
+1. [SDK Migration Status](#sdk-migration-status) ⚠️ **IMPORTANT**
+2. [Prerequisites](#prerequisites)
+3. [Project Setup](#project-setup)
+4. [Core Implementation](#core-implementation)
+5. [Cloud Infrastructure](#cloud-infrastructure)
+6. [Deployment](#deployment)
+7. [Testing & Verification](#testing--verification)
+8. [Common Pitfalls](#common-pitfalls)
+
+---
+
+## SDK Migration Status
+
+**⚠️ IMPORTANT: SDK has been migrated to future-proof version (2025-11-01)**
+
+### Current Production Status
+- **SDK Version**: `google-genai==1.47.0` (future-proof through 2027+)
+- **Previous SDK**: `google-generativeai==0.3.1` (deprecated, EOL November 30, 2025)
+- **Migration Date**: November 1, 2025
+- **Production Status**: ✅ Successfully deployed (revision 00017-6bv)
+- **Testing**: Both Modern and Classic effects verified working
+
+### Why We Migrated
+The old `google-generativeai==0.3.1` SDK had several limitations:
+- **Hard EOL**: November 30, 2025 (70-80% chance of breaking within 6 months)
+- **Missing Features**: No support for `response_modalities` parameter
+- **Prompt Workarounds**: Required "GENERATE IMAGE OUTPUT" text in prompts
+- **Dependency Conflicts**: Incompatible with modern FastAPI/Pydantic versions
+
+### Key SDK Changes
+
+**Import Changes**:
+```python
+# OLD (deprecated)
+import google.generativeai as genai
+from google.generativeai import types
+genai.configure(api_key=settings.gemini_api_key)
+
+# NEW (current)
+from google import genai
+from google.genai import types
+# No global configure - client handles it
+```
+
+**Client Initialization**:
+```python
+# OLD
+self.model = genai.GenerativeModel(model_name=self.model_name)
+
+# NEW
+self.client = genai.Client(api_key=settings.gemini_api_key)
+```
+
+**Generation API**:
+```python
+# OLD
+response = self.model.generate_content(
+    contents=[prompt, input_image],
+    generation_config=types.GenerationConfig(
+        temperature=0.7,
+        # response_modalities NOT supported
+    )
+)
+
+# NEW
+response = self.client.models.generate_content(
+    model=self.model_name,
+    contents=[prompt, input_image],
+    config=types.GenerateContentConfig(
+        response_modalities=["IMAGE"],  # NOW SUPPORTED!
+        temperature=0.7,
+        top_p=settings.gemini_top_p,
+        top_k=settings.gemini_top_k,
+    )
+)
+```
+
+**Safety Settings**:
+```python
+# OLD (dict format)
+safety_settings={
+    types.HarmCategory.HARM_CATEGORY_HATE_SPEECH: types.HarmBlockThreshold.BLOCK_ONLY_HIGH
+}
+
+# NEW (list of objects)
+safety_settings=[
+    types.SafetySetting(
+        category="HARM_CATEGORY_HATE_SPEECH",
+        threshold="BLOCK_ONLY_HIGH"
+    )
+]
+```
+
+### Current Dependencies
+See [requirements.txt](backend/gemini-artistic-api/requirements.txt) for complete list. Key versions:
+- `google-genai==1.47.0` (image generation SDK)
+- `fastapi==0.115.5` (updated for anyio compatibility)
+- `pydantic==2.10.3` (updated for SDK compatibility)
+- `google-cloud-firestore==2.19.0` (updated)
+- `google-cloud-storage==2.19.0` (updated)
+
+### Migration Resources
+- **Sustainability Review**: [.claude/doc/gemini-api-infrastructure-sustainability-review.md](.claude/doc/gemini-api-infrastructure-sustainability-review.md)
+- **Session Context**: [.claude/tasks/archived/context_session_2025-10-31_gemini-sdk-migration-and-fixes.md](.claude/tasks/archived/context_session_2025-10-31_gemini-sdk-migration-and-fixes.md)
+- **Commit**: 995fdc2 "Migrate Gemini API to future-proof SDK"
 
 ---
 
@@ -35,12 +133,13 @@
 ### Gemini API Access
 - **API Key**: Obtain from Google AI Studio (https://aistudio.google.com/app/apikey)
 - **Model**: Verify access to `gemini-2.5-flash-image` (image generation model)
+- **SDK**: Use `google-genai==1.47.0` (NOT the deprecated `google-generativeai`)
 - **Test Access**:
   ```python
-  import google.generativeai as genai
-  genai.configure(api_key="YOUR_API_KEY")
-  model = genai.GenerativeModel(model_name="gemini-2.5-flash-image")
-  # Should not raise errors
+  from google import genai
+
+  client = genai.Client(api_key="YOUR_API_KEY")
+  # Should not raise errors - access verified
   ```
 
 ### Local Development Tools
@@ -73,15 +172,17 @@ touch src/models/__init__.py
 
 ### Step 2: Create requirements.txt
 
+**⚠️ Note**: These versions have been updated after SDK migration. See current [requirements.txt](backend/gemini-artistic-api/requirements.txt) for production versions.
+
 ```txt
 # requirements.txt
-fastapi==0.104.1
-uvicorn[standard]==0.24.0
-pydantic==2.5.0
-pydantic-settings==2.1.0
-google-generativeai==0.3.1
-google-cloud-firestore==2.13.1
-google-cloud-storage==2.13.0
+fastapi==0.115.5  # Updated for anyio>=4.0.0 compatibility
+uvicorn[standard]==0.32.1  # Updated for compatibility
+pydantic==2.10.3  # Updated for SDK compatibility
+pydantic-settings==2.6.1  # Updated for compatibility
+google-genai==1.47.0  # NEW SDK - replaces deprecated google-generativeai
+google-cloud-firestore==2.19.0  # Updated for compatibility
+google-cloud-storage==2.19.0  # Updated for compatibility
 pillow==10.1.0
 python-multipart==0.0.6
 ```
