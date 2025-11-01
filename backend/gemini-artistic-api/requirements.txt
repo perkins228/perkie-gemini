@@ -1,16 +1,16 @@
 # Core FastAPI dependencies
-fastapi==0.104.1
-uvicorn[standard]==0.24.0
-python-multipart==0.0.6
+fastapi==0.115.5  # Updated for anyio>=4.0.0 compatibility
+uvicorn[standard]==0.32.1  # Updated for compatibility
+python-multipart==0.0.20  # Updated to latest stable
 
 # Pydantic for validation
-pydantic==2.5.0
-pydantic-settings==2.1.0
+pydantic==2.10.3  # Updated for compatibility
+pydantic-settings==2.6.1  # Updated for compatibility
 
 # Google Cloud dependencies
-google-generativeai==0.3.1
-google-cloud-firestore==2.13.1
-google-cloud-storage==2.13.0
+google-genai==1.47.0  # New SDK - replaces deprecated google-generativeai
+google-cloud-firestore==2.19.0  # Updated for compatibility
+google-cloud-storage==2.19.0  # Updated for compatibility
 
 # Image processing
-pillow==10.1.0
+pillow==11.1.0  # Updated to latest stable

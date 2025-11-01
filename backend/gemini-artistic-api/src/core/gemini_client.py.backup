@@ -1,6 +1,7 @@
 """Gemini API client with artistic style prompts for pet portraits"""
-from google import genai
-from google.genai import types
+import google.generativeai as genai
+from google.generativeai import types
+from google.generativeai.types.generation_types import GenerateContentResponse
 import base64
 import time
 import asyncio
@@ -15,26 +16,35 @@ logger = logging.getLogger(__name__)
 
 T = TypeVar('T')
 
+# Configure Gemini API
+genai.configure(api_key=settings.gemini_api_key)
+
 
 # Artistic style prompts optimized for Gemini 2.5 Flash Image
-# Clean prompts - response_modalities handles image output request
+# Simplified to avoid safety filter triggers while maintaining quality
 STYLE_PROMPTS = {
     ArtisticStyle.INK_WASH: (
-        "Transform this pet photo into a traditional Asian ink wash painting. "
+        # CRITICAL: Model name gemini-2.5-flash-image should generate images by default
+        # Explicitly request image output in prompt as SDK 0.3.1 doesn't support response_modalities
+        "GENERATE IMAGE OUTPUT: Transform this pet photo into a traditional Asian ink wash painting. "
         "Create a portrait composition showing the pet's head and neck area. "
         "Use flowing black ink with varying gradients to create an artistic effect. "
         "Apply expressive brush strokes in the style of sumi-e painting. "
         "Keep the pet's features recognizable while making it look like a painting. "
-        "Place the portrait on a clean white background."
+        "Place the portrait on a clean white background. "
+        "OUTPUT FORMAT: Generated image (not text description)."
     ),
     ArtisticStyle.VAN_GOGH_POST_IMPRESSIONISM: (
-        "Transform this pet photo into a Van Gogh style painting. "
+        # CRITICAL: Model name gemini-2.5-flash-image should generate images by default
+        # Explicitly request image output in prompt as SDK 0.3.1 doesn't support response_modalities
+        "GENERATE IMAGE OUTPUT: Transform this pet photo into a Van Gogh style painting. "
         "Create a portrait composition focusing on the pet's head and neck. "
         "Use bold, visible brushstrokes like Van Gogh's portrait paintings. "
         "Apply vibrant colors - blues, yellows, and greens with thick paint texture. "
         "Add swirling patterns and expressive brushwork to the fur. "
         "Keep the pet's features recognizable while making it look like an oil painting. "
-        "Place the portrait on a clean white background."
+        "Place the portrait on a clean white background. "
+        "OUTPUT FORMAT: Generated image (not text description)."
     ),
 }
 
@@ -79,12 +89,12 @@ async def retry_with_backoff(
 
 
 class GeminiClient:
-    """Client for Gemini 2.5 Flash Image API - New SDK"""
+    """Client for Gemini 2.5 Flash Image API"""
 
     def __init__(self):
         self.model_name = settings.gemini_model
-        self.client = genai.Client(api_key=settings.gemini_api_key)
-        logger.info(f"Initialized Gemini client (new SDK): {self.model_name}")
+        self.model = genai.GenerativeModel(model_name=self.model_name)
+        logger.info(f"Initialized Gemini client: {self.model_name}")
 
     async def generate_artistic_style(
         self,
@@ -136,36 +146,21 @@ class GeminiClient:
 
             # Generate with Gemini with retry logic for transient failures
             logger.info(f"Generating {style.value}...")
-
-            # New SDK uses different API structure
             response = await retry_with_backoff(
-                lambda: self.client.models.generate_content(
-                    model=self.model_name,
+                lambda: self.model.generate_content(
                     contents=[prompt, input_image],
-                    config=types.GenerateContentConfig(
-                        response_modalities=["IMAGE"],  # CRITICAL: Now supported in new SDK!
-                        temperature=0.7,
+                    generation_config=types.GenerationConfig(
+                        temperature=0.7,  # Lower for more consistent framing
                         top_p=settings.gemini_top_p,
                         top_k=settings.gemini_top_k,
-                        safety_settings=[
-                            types.SafetySetting(
-                                category="HARM_CATEGORY_HATE_SPEECH",
-                                threshold="BLOCK_ONLY_HIGH"
-                            ),
-                            types.SafetySetting(
-                                category="HARM_CATEGORY_HARASSMENT",
-                                threshold="BLOCK_ONLY_HIGH"
-                            ),
-                            types.SafetySetting(
-                                category="HARM_CATEGORY_DANGEROUS_CONTENT",
-                                threshold="BLOCK_ONLY_HIGH"
-                            ),
-                            types.SafetySetting(
-                                category="HARM_CATEGORY_SEXUALLY_EXPLICIT",
-                                threshold="BLOCK_ONLY_HIGH"
-                            ),
-                        ]
-                    )
+                    ),
+                    # Add safety settings to reduce blocking
+                    safety_settings={
+                        types.HarmCategory.HARM_CATEGORY_HATE_SPEECH: types.HarmBlockThreshold.BLOCK_ONLY_HIGH,
+                        types.HarmCategory.HARM_CATEGORY_HARASSMENT: types.HarmBlockThreshold.BLOCK_ONLY_HIGH,
+                        types.HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT: types.HarmBlockThreshold.BLOCK_ONLY_HIGH,
+                        types.HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT: types.HarmBlockThreshold.BLOCK_ONLY_HIGH,
+                    }
                 )
             )
 
