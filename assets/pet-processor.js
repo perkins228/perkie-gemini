@@ -225,7 +225,7 @@ class ComparisonManager {
     this.comparisonEffect = null;
     this.longPressTimer = null;
     this.swipeStartX = null;
-    this.effectOrder = ['enhancedblackwhite', 'color', 'modern', 'classic'];
+    this.effectOrder = ['enhancedblackwhite', 'color', 'modern', 'sketch'];
     this.currentComparisonIndex = 0;
     
     this.initializeComparison();
@@ -635,7 +635,7 @@ class PetProcessor {
         const effectName = latestPet.data.effect;
 
         if (effectName && sanitizedThumbnail) {
-          if (effectName === 'modern' || effectName === 'classic') {
+          if (effectName === 'modern' || effectName === 'sketch') {
             // Gemini effect - thumbnail might be GCS URL or data URL
             this.currentPet.effects[effectName] = {
               gcsUrl: latestPet.data.gcsUrl || '',
@@ -653,10 +653,10 @@ class PetProcessor {
         }
       }
 
-      // Check for other Gemini effects in localStorage (modern/classic)
+      // Check for other Gemini effects in localStorage (modern/sketch)
       // These might exist even if not the selected effect
       const modernKey = `${latestPet.id}_modern`;
-      const classicKey = `${latestPet.id}_classic`;
+      const sketchKey = `${latestPet.id}_sketch`;
 
       const modernData = safeGetLocalStorage(modernKey, null);
       if (modernData && !this.currentPet.effects.modern) {
@@ -679,22 +679,22 @@ class PetProcessor {
         }
       }
 
-      const classicData = safeGetLocalStorage(classicKey, null);
-      if (classicData && !this.currentPet.effects.classic) {
-        // Validate classic effect data
-        let validClassicUrl = null;
-        if (typeof classicData === 'string') {
-          if (classicData.startsWith('http') && validateGCSUrl(classicData)) {
-            validClassicUrl = classicData;
-          } else if (classicData.startsWith('data:')) {
-            validClassicUrl = validateAndSanitizeImageData(classicData);
+      const sketchData = safeGetLocalStorage(sketchKey, null);
+      if (sketchData && !this.currentPet.effects.sketch) {
+        // Validate sketch effect data
+        let validSketchUrl = null;
+        if (typeof sketchData === 'string') {
+          if (sketchData.startsWith('http') && validateGCSUrl(sketchData)) {
+            validSketchUrl = sketchData;
+          } else if (sketchData.startsWith('data:')) {
+            validSketchUrl = validateAndSanitizeImageData(sketchData);
           }
         }
 
-        if (validClassicUrl) {
-          this.currentPet.effects.classic = {
-            gcsUrl: validClassicUrl.startsWith('http') ? validClassicUrl : '',
-            dataUrl: validClassicUrl.startsWith('data:') ? validClassicUrl : null,
+        if (validSketchUrl) {
+          this.currentPet.effects.sketch = {
+            gcsUrl: validSketchUrl.startsWith('http') ? validSketchUrl : '',
+            dataUrl: validSketchUrl.startsWith('data:') ? validSketchUrl : null,
             cacheHit: true
           };
         }
@@ -823,9 +823,9 @@ class PetProcessor {
                   <span class="effect-emoji">🖌️</span>
                   <span class="effect-name">Modern</span>
                 </button>
-                <button class="effect-btn effect-btn--ai" data-effect="classic">
-                  <span class="effect-emoji">🎨</span>
-                  <span class="effect-name">Classic</span>
+                <button class="effect-btn effect-btn--ai" data-effect="sketch">
+                  <span class="effect-emoji">✏️</span>
+                  <span class="effect-name">Sketch</span>
                 </button>
               </div>
             </div>
@@ -1164,11 +1164,11 @@ class PetProcessor {
             processingTime: geminiResults.modern.processingTime
           };
 
-          effects.classic = {
-            gcsUrl: geminiResults.classic.url,
+          effects.sketch = {
+            gcsUrl: geminiResults.sketch.url,
             dataUrl: null, // Gemini effects use Cloud Storage URLs
-            cacheHit: geminiResults.classic.cacheHit,
-            processingTime: geminiResults.classic.processingTime
+            cacheHit: geminiResults.sketch.cacheHit,
+            processingTime: geminiResults.sketch.processingTime
           };
 
           // Store quota information
@@ -1183,11 +1183,11 @@ class PetProcessor {
 
           console.log('🎨 Gemini AI effects generated:', {
             modern: geminiResults.modern.cacheHit ? 'cached' : 'generated',
-            classic: geminiResults.classic.cacheHit ? 'cached' : 'generated',
+            sketch: geminiResults.sketch.cacheHit ? 'cached' : 'generated',
             quota: geminiResults.quota
           });
 
-          // Update button states - Modern and Classic should now be enabled
+          // Update button states - Modern and Sketch should now be enabled
           this.updateEffectButtonStates();
         }
       } catch (error) {
@@ -1283,7 +1283,7 @@ class PetProcessor {
 
     if (!effectData) {
       // Check if this is a Gemini effect that's unavailable due to quota
-      if ((effect === 'modern' || effect === 'classic') && this.geminiEnabled) {
+      if ((effect === 'modern' || effect === 'sketch') && this.geminiEnabled) {
         // Show quota exhausted message
         if (this.geminiUI) {
           this.geminiUI.showWarning(4, 0); // Level 4 = exhausted
@@ -1301,7 +1301,7 @@ class PetProcessor {
     // Update image - handle both data URLs (InSPyReNet) and Cloud Storage URLs (Gemini)
     const img = this.container.querySelector('.pet-image');
     if (img) {
-      if (effect === 'modern' || effect === 'classic') {
+      if (effect === 'modern' || effect === 'sketch') {
         // Gemini effects use Cloud Storage URLs
         img.src = effectData.gcsUrl;
       } else {
@@ -1336,7 +1336,7 @@ class PetProcessor {
     if (!this.currentPet) {
       const buttons = this.container.querySelectorAll('.effect-btn');
       buttons.forEach(btn => {
-        if (btn.dataset.effect === 'modern' || btn.dataset.effect === 'classic') {
+        if (btn.dataset.effect === 'modern' || btn.dataset.effect === 'sketch') {
           btn.disabled = true;
           btn.classList.add('effect-btn--disabled');
           btn.classList.remove('effect-btn--loading', 'effect-btn--ready');
@@ -1358,10 +1358,10 @@ class PetProcessor {
         return;
       }
 
-      // Handle Gemini effects (Modern and Classic)
-      if (effect === 'modern' || effect === 'classic') {
+      // Handle Gemini effects (Modern and Sketch)
+      if (effect === 'modern' || effect === 'sketch') {
         const effectData = this.currentPet.effects[effect];
-        const effectLabel = effect === 'modern' ? 'Modern' : 'Classic';
+        const effectLabel = effect === 'modern' ? 'Modern' : 'Sketch';
 
         // Priority 1: Effect already loaded → ENABLE for viewing
         if (effectData) {

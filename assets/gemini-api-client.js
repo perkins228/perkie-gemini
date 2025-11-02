@@ -4,7 +4,7 @@
  * Integrates with existing Pet Processor architecture
  *
  * Features:
- * - Batch generation (Modern + Classic together)
+ * - Batch generation (Modern + Sketch together)
  * - Rate limit tracking (10/day with 4-level warnings)
  * - Feature flag support for gradual rollout
  * - Retry logic with exponential backoff
@@ -170,10 +170,10 @@ class GeminiAPIClient {
           cacheHit: response.results.ink_wash.cache_hit,
           processingTime: response.results.ink_wash.processing_time_ms
         },
-        classic: {
-          url: response.results.van_gogh_post_impressionism.image_url,
-          cacheHit: response.results.van_gogh_post_impressionism.cache_hit,
-          processingTime: response.results.van_gogh_post_impressionism.processing_time_ms
+        sketch: {
+          url: response.results.pen_and_marker.image_url,
+          cacheHit: response.results.pen_and_marker.cache_hit,
+          processingTime: response.results.pen_and_marker.processing_time_ms
         },
         quota: {
           remaining: response.quota_remaining,
@@ -218,7 +218,7 @@ class GeminiAPIClient {
     // Map our style names to API enum
     const styleMap = {
       'modern': 'ink_wash',
-      'classic': 'van_gogh_post_impressionism'
+      'sketch': 'pen_and_marker'
     };
 
     const requestBody = {

@@ -246,13 +246,13 @@ class GeminiEffectsUI {
   }
 
   /**
-   * Update badges on Modern and Classic effect buttons
+   * Update badges on Modern and Sketch effect buttons
    */
   updateEffectBadges(remaining, level) {
     const modernBtn = this.container.querySelector('[data-effect="modern"]');
-    const classicBtn = this.container.querySelector('[data-effect="classic"]');
+    const sketchBtn = this.container.querySelector('[data-effect="sketch"]');
 
-    [modernBtn, classicBtn].forEach(btn => {
+    [modernBtn, sketchBtn].forEach(btn => {
       if (!btn) return;
 
       // Remove existing badge
@@ -332,13 +332,13 @@ class GeminiEffectsUI {
   }
 
   /**
-   * Enable/disable Modern and Classic buttons based on quota
+   * Enable/disable Modern and Sketch buttons based on quota
    */
   updateButtonStates(level) {
     const modernBtn = this.container.querySelector('[data-effect="modern"]');
-    const classicBtn = this.container.querySelector('[data-effect="classic"]');
+    const sketchBtn = this.container.querySelector('[data-effect="sketch"]');
 
-    [modernBtn, classicBtn].forEach(btn => {
+    [modernBtn, sketchBtn].forEach(btn => {
       if (!btn) return;
 
       if (level === 4) {

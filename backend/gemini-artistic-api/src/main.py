@@ -46,7 +46,7 @@ async def health_check():
     return {
         "status": "healthy",
         "model": settings.gemini_model,
-        "styles": ["ink_wash", "van_gogh_post_impressionism"],
+        "styles": ["ink_wash", "pen_and_marker"],
         "timestamp": time.time()
     }
 
@@ -59,7 +59,7 @@ async def model_info():
         "project": settings.project_id,
         "styles": {
             "ink_wash": "Modern - East Asian ink wash style",
-            "van_gogh_post_impressionism": "Classic - Van Gogh Post-Impressionist style"
+            "pen_and_marker": "Sketch - Contemporary pen and marker illustration"
         },
         "rate_limits": {
             "daily": settings.rate_limit_daily,
@@ -266,14 +266,14 @@ async def batch_generate_styles(request: Request, req: BatchGenerateRequest):
         start_total = time.time()
         results_list = await asyncio.gather(
             generate_style(ArtisticStyle.INK_WASH),
-            generate_style(ArtisticStyle.VAN_GOGH_POST_IMPRESSIONISM),
+            generate_style(ArtisticStyle.PEN_AND_MARKER),
             return_exceptions=True
         )
 
         # Check for errors
         for i, result in enumerate(results_list):
             if isinstance(result, Exception):
-                style_name = ["ink_wash", "van_gogh_post_impressionism"][i]
+                style_name = ["ink_wash", "pen_and_marker"][i]
                 logger.error(f"Error generating {style_name}: {result}")
                 raise HTTPException(status_code=500, detail=f"Error generating {style_name}: {str(result)}")
 

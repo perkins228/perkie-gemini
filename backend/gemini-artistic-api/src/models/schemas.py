@@ -7,7 +7,7 @@ from typing import Optional, Dict
 class ArtisticStyle(str, Enum):
     """Available artistic styles - only 2 styles to replace production effects"""
     INK_WASH = "ink_wash"                                   # "Modern" - replaces Pop Art
-    VAN_GOGH_POST_IMPRESSIONISM = "van_gogh_post_impressionism"  # "Classic" - replaces Dithering
+    PEN_AND_MARKER = "pen_and_marker"                       # "Sketch" - replaces Dithering
 
 
 class GenerateRequest(BaseModel):

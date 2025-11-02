@@ -27,13 +27,15 @@ STYLE_PROMPTS = {
         "Keep the pet's features recognizable while making it look like a painting. "
         "Place the portrait on a clean white background."
     ),
-    ArtisticStyle.VAN_GOGH_POST_IMPRESSIONISM: (
-        "Transform this pet photo into a Van Gogh style painting. "
+    ArtisticStyle.PEN_AND_MARKER: (
+        "Transform this pet photo into a contemporary pen and marker illustration. "
         "Create a portrait composition focusing on the pet's head and neck. "
-        "Use bold, visible brushstrokes like Van Gogh's portrait paintings. "
-        "Apply vibrant colors - blues, yellows, and greens with thick paint texture. "
-        "Add swirling patterns and expressive brushwork to the fur. "
-        "Keep the pet's features recognizable while making it look like an oil painting. "
+        "Use bold black pen outlines to define the pet's features and structure. "
+        "Fill areas with vibrant marker colors using confident strokes - oranges, blues, teals, and pinks. "
+        "Apply cross-hatching and parallel lines for shading and texture in the fur. "
+        "Add small dots and dashes for detail work around eyes and nose. "
+        "Keep the pet's expression and personality clearly visible. "
+        "Use a limited color palette of 5-7 colors for visual coherence. "
         "Place the portrait on a clean white background."
     ),
 }
