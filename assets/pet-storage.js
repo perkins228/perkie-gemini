@@ -16,29 +16,37 @@ class PetStorage {
   static async compressThumbnail(dataUrl, maxWidth = 200, quality = 0.6) {
     return new Promise((resolve) => {
       const img = new Image();
+
+      // FIX: Set crossOrigin for GCS URLs to prevent canvas taint
+      // Gemini effects store images on Google Cloud Storage
+      // Without this, canvas.toDataURL() throws SecurityError
+      if (dataUrl.startsWith('https://storage.googleapis.com')) {
+        img.crossOrigin = 'anonymous';
+      }
+
       img.onload = () => {
         const canvas = document.createElement('canvas');
         const ctx = canvas.getContext('2d');
-        
+
         // Calculate dimensions maintaining aspect ratio
         const ratio = Math.min(maxWidth / img.width, maxWidth / img.height);
         canvas.width = img.width * ratio;
         canvas.height = img.height * ratio;
-        
+
         // Fill with white background for JPEG compression
         ctx.fillStyle = '#ffffff';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
-        
+
         // Draw with high quality
         ctx.imageSmoothingEnabled = true;
         ctx.imageSmoothingQuality = 'high';
         ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-        
+
         // Convert to compressed JPEG
         const compressed = canvas.toDataURL('image/jpeg', quality);
         const sizeKB = (compressed.length * 0.75 / 1024).toFixed(1);
         console.log(`📸 Compressed: ${img.width}x${img.height} → ${canvas.width}x${canvas.height} (${sizeKB}KB)`);
-        
+
         resolve(compressed);
       };
       img.onerror = () => {
