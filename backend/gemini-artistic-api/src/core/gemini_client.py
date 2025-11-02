@@ -28,10 +28,10 @@ STYLE_PROMPTS = {
         "Place the portrait on a clean white background."
     ),
     ArtisticStyle.PEN_AND_MARKER: (
-        "Transform this pet photo into a contemporary pen and marker illustration. "
+        "Transform this pet photo into a pen and marker illustration. "
         "Create a portrait composition focusing on the pet's head and neck. "
         "Use bold black pen outlines to define the pet's features and structure. "
-        "Fill areas with vibrant marker colors using confident strokes - oranges, blues, teals, and pinks. "
+        "Fill areas with vibrant marker colors using confident strokes. "
         "Apply cross-hatching and parallel lines for shading and texture in the fur. "
         "Add small dots and dashes for detail work around eyes and nose. "
         "Keep the pet's expression and personality clearly visible. "
