@@ -1,82 +1,23 @@
 /**
  * Simple Pet Storage System
- * Replaces 6 storage mechanisms with 1 clean solution
- * Total: 75 lines
+ * Simplified for GCS URL-only storage (no thumbnails, no originals)
  */
 class PetStorage {
   static storagePrefix = 'perkie_pet_';
-  
-  /**
-   * Compress image to thumbnail size
-   * @param {string} dataUrl - Base64 data URL
-   * @param {number} maxWidth - Maximum width in pixels (default 200)
-   * @param {number} quality - JPEG quality 0-1 (default 0.6)
-   * @returns {Promise<string>} Compressed data URL
-   */
-  static async compressThumbnail(dataUrl, maxWidth = 200, quality = 0.6) {
-    return new Promise((resolve) => {
-      const img = new Image();
-
-      // FIX: Set crossOrigin for GCS URLs to prevent canvas taint
-      // Gemini effects store images on Google Cloud Storage
-      // Without this, canvas.toDataURL() throws SecurityError
-      if (dataUrl.startsWith('https://storage.googleapis.com')) {
-        img.crossOrigin = 'anonymous';
-      }
-
-      img.onload = () => {
-        const canvas = document.createElement('canvas');
-        const ctx = canvas.getContext('2d');
-
-        // Calculate dimensions maintaining aspect ratio
-        const ratio = Math.min(maxWidth / img.width, maxWidth / img.height);
-        canvas.width = img.width * ratio;
-        canvas.height = img.height * ratio;
-
-        // Fill with white background for JPEG compression
-        ctx.fillStyle = '#ffffff';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-        // Draw with high quality
-        ctx.imageSmoothingEnabled = true;
-        ctx.imageSmoothingQuality = 'high';
-        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-
-        // Convert to compressed JPEG
-        const compressed = canvas.toDataURL('image/jpeg', quality);
-        const sizeKB = (compressed.length * 0.75 / 1024).toFixed(1);
-        console.log(`📸 Compressed: ${img.width}x${img.height} → ${canvas.width}x${canvas.height} (${sizeKB}KB)`);
-
-        resolve(compressed);
-      };
-      img.onerror = () => {
-        console.warn('Failed to compress image, using original');
-        resolve(dataUrl);
-      };
-      img.src = dataUrl;
-    });
-  }
 
   /**
-   * Save pet data to localStorage with compression
-   * ONLY saves the selected effect as compressed thumbnail
+   * Save pet data to localStorage (GCS URLs only, no compression)
+   * NEW: Simplified structure for test site - no thumbnails, no original uploads
    */
   static async save(petId, data) {
     try {
-      // Compress thumbnail before storage (200px max, 60% quality)
-      const compressedThumbnail = data.thumbnail ? 
-        await this.compressThumbnail(data.thumbnail, 200, 0.6) : '';
-      
+      // Simplified storage: Only artist notes and effect GCS URLs
+      // Customer provides pet name, selects effect, and uploads image on product page
       const storageData = {
         petId,
-        name: data.name || 'Pet',
-        filename: data.filename || '',
-        thumbnail: compressedThumbnail, // COMPRESSED thumbnail only
-        gcsUrl: data.gcsUrl || '',       // Cloud Storage URL for processed image
-        originalUrl: data.originalUrl || '', // Cloud Storage URL for original image
-        artistNote: data.artistNote || '', // User-provided artist notes
-        effect: data.effect || 'original',
-        timestamp: Date.now()
+        artistNote: data.artistNote || '',   // User-provided artist notes
+        effects: data.effects || {},         // { style: { gcsUrl } } structure
+        timestamp: Date.now()                // For cleanup/sorting
       };
       
       // Check storage quota before saving
@@ -201,16 +142,16 @@ class PetStorage {
   /**
    * Update global window.perkiePets for Shopify cart integration
    * CRITICAL: This is what Shopify reads when adding to cart
+   * SIMPLIFIED: Only artistNote and effects (customer provides name/selection on product page)
    */
   static updateGlobalPets() {
     const allPets = this.getAll();
     window.perkiePets = {
       pets: Object.values(allPets).map(pet => ({
         sessionKey: pet.petId,
-        gcsUrl: pet.gcsUrl,
-        effect: pet.effect,
-        thumbnail: pet.thumbnail,
-        name: pet.name
+        artistNote: pet.artistNote || '',
+        effects: pet.effects || {},
+        timestamp: pet.timestamp || Date.now()
       }))
     };
   }
@@ -218,22 +159,23 @@ class PetStorage {
   /**
    * NEW: Map-compatible iteration for pet selector
    * Replaces window.perkieEffects.forEach()
+   * UPDATED: GCS URLs only (no thumbnails)
    */
   static forEachEffect(callback) {
     const pets = this.getAll();
     Object.entries(pets).forEach(function(entry) {
       const petId = entry[0];
       const pet = entry[1];
-      
+
       // Generate Map-compatible key format
-      const effect = pet.effect || 'enhancedblackwhite';
+      const effect = pet.selectedEffect || pet.effect || 'enhancedblackwhite';
       const key = petId + '_' + effect;
-      const imageUrl = pet.thumbnail || pet.gcsUrl;
-      
+      const imageUrl = pet.gcsUrl;
+
       if (imageUrl) {
         callback(imageUrl, key);
       }
-      
+
       // Also provide metadata key
       const metadataKey = petId + '_metadata';
       const metadata = {
@@ -250,22 +192,24 @@ class PetStorage {
 
   /**
    * NEW: Get specific effect URL (Map-compatible)
+   * UPDATED: GCS URLs only (no thumbnails)
    */
   static getEffectUrl(sessionKey, effect) {
     const pet = this.get(sessionKey);
     if (!pet) return null;
-    
+
     // Check if we have the specific effect
-    if (pet.effects && pet.effects[effect]) {
-      return pet.effects[effect];
+    if (pet.effects && pet.effects[effect] && pet.effects[effect].gcsUrl) {
+      return pet.effects[effect].gcsUrl;
     }
-    
-    // Fallback to thumbnail or gcsUrl
-    return pet.thumbnail || pet.gcsUrl || null;
+
+    // Fallback to main gcsUrl
+    return pet.gcsUrl || null;
   }
 
   /**
    * NEW: Get metadata for a pet (Map-compatible)
+   * SIMPLIFIED: Only artistNote and effects (customer provides name/selection on product page)
    */
   static getMetadata(sessionKey) {
     const pet = this.get(sessionKey);
@@ -273,54 +217,45 @@ class PetStorage {
 
     return {
       sessionKey: sessionKey,
-      name: pet.name || pet.petName || 'Pet',
-      effect: pet.effect || 'enhancedblackwhite',
       artistNote: pet.artistNote || '',
-      filename: pet.filename || 'pet.jpg',
-      timestamp: pet.timestamp || Date.now(),
-      gcsUrl: pet.gcsUrl || '',
-      originalUrl: pet.originalUrl || ''
+      effects: pet.effects || {},
+      timestamp: pet.timestamp || Date.now()
     };
   }
 
   /**
-   * NEW: Get all pets formatted for renderPets()
-   * Returns array of pet objects with Map-like structure
+   * NEW: Get all pets formatted for product page pet selector
+   * Returns array of pet objects with only artistNote and effects
+   * SIMPLIFIED: Customer provides name/selection on product page
    */
   static getAllForDisplay() {
     const pets = this.getAll();
     const displayPets = [];
-    
+
     Object.entries(pets).forEach(function(entry) {
       const sessionKey = entry[0];
       const pet = entry[1];
-      
+
       // Create effects Map for compatibility
       const effectsMap = new Map();
       if (pet.effects) {
         Object.entries(pet.effects).forEach(function(effectEntry) {
-          effectsMap.set(effectEntry[0], effectEntry[1]);
+          const effectName = effectEntry[0];
+          const effectData = effectEntry[1];
+          // Support both old format (string URL) and new format ({gcsUrl})
+          const url = (typeof effectData === 'string') ? effectData : effectData.gcsUrl;
+          effectsMap.set(effectName, url);
         });
-      } else if (pet.thumbnail || pet.gcsUrl) {
-        // Single effect case
-        const effect = pet.effect || 'enhancedblackwhite';
-        effectsMap.set(effect, pet.thumbnail || pet.gcsUrl);
       }
-      
+
       displayPets.push({
         sessionKey: sessionKey,
-        name: pet.name || pet.petName || 'Pet',
-        thumbnail: pet.thumbnail || pet.gcsUrl,
-        effect: pet.effect || 'enhancedblackwhite',
         effects: effectsMap,
-        metadata: {
-          artistNote: pet.artistNote || '',
-          filename: pet.filename || 'pet.jpg',
-          timestamp: pet.timestamp || Date.now()
-        }
+        artistNote: pet.artistNote || '',
+        timestamp: pet.timestamp || Date.now()
       });
     });
-    
+
     return displayPets;
   }
 

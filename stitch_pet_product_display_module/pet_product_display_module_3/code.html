@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Pet Product Customization</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Epilogue:wght@400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&amp;family=Pacifico&amp;family=Caveat:wght@400;700&amp;display=swap" rel="stylesheet"/>
+<script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#38e07b",
+                        "background-light": "#f6f8f7",
+                        "background-dark": "#122017",
+                    },
+                    fontFamily: {
+                        "display": ["Epilogue", "sans-serif"],
+                        "lato": ["Lato", "sans-serif"],
+                        "pacifico": ["Pacifico", "cursive"],
+                        "caveat": ["Caveat", "cursive"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.5rem",
+                        "lg": "1rem",
+                        "xl": "1.5rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            font-family: 'Epilogue', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display">
+<div class="relative flex h-auto min-h-screen w-full flex-col group/design-root overflow-x-hidden">
+<div class="layout-container flex h-full grow flex-col">
+<div class="flex flex-1 justify-center py-10 sm:py-16 md:py-20 px-4 sm:px-6 lg:px-8">
+<div class="layout-content-container flex flex-col max-w-[960px] flex-1">
+<div class="flex flex-col gap-8 group/font-options">
+<div class="flex flex-col gap-6 rounded-xl border border-gray-200 dark:border-gray-700 p-4 sm:p-6 m-4">
+<div class="flex flex-col items-start gap-4">
+<div class="w-full">
+<label class="text-gray-900 dark:text-white text-lg font-bold leading-normal pb-3 block" for="pet-count-select">Number of Pets</label>
+<div class="grid w-full grid-cols-3 gap-2">
+<label class="flex cursor-pointer h-14 grow items-center justify-center overflow-hidden rounded-lg bg-gray-100 dark:bg-gray-800 px-3 has-[:checked]:bg-white dark:has-[:checked]:bg-gray-700 has-[:checked]:shadow-[0_1px_3px_rgba(0,0,0,0.1)] has-[:checked]:text-gray-900 dark:has-[:checked]:text-white text-gray-500 dark:text-gray-400 text-base font-semibold leading-normal transition-colors">
+<span class="truncate">1</span>
+<input class="invisible w-0" name="pet-count" type="radio" value="1"/>
+</label>
+<label class="flex cursor-pointer h-14 grow items-center justify-center overflow-hidden rounded-lg bg-gray-100 dark:bg-gray-800 px-3 has-[:checked]:bg-white dark:has-[:checked]:bg-gray-700 has-[:checked]:shadow-[0_1px_3px_rgba(0,0,0,0.1)] has-[:checked]:text-gray-900 dark:has-[:checked]:text-white text-gray-500 dark:text-gray-400 text-base font-semibold leading-normal transition-colors">
+<span class="truncate">2</span>
+<input checked="" class="invisible w-0" name="pet-count" type="radio" value="2"/>
+</label>
+<label class="flex cursor-pointer h-14 grow items-center justify-center overflow-hidden rounded-lg bg-gray-100 dark:bg-gray-800 px-3 has-[:checked]:bg-white dark:has-[:checked]:bg-gray-700 has-[:checked]:shadow-[0_1px_3px_rgba(0,0,0,0.1)] has-[:checked]:text-gray-900 dark:has-[:checked]:text-white text-gray-500 dark:text-gray-400 text-base font-semibold leading-normal transition-colors">
+<span class="truncate">3</span>
+<input class="invisible w-0" name="pet-count" type="radio" value="3"/>
+</label>
+</div>
+</div>
+</div>
+<div class="mt-6 space-y-4">
+<div class="flex justify-between items-center">
+<h2 class="text-gray-900 dark:text-white text-lg font-bold leading-tight tracking-[-0.015em] text-left">Your Pet's Details</h2>
+</div>
+<div class="hidden group-has-[input[value='no-text']:checked]/font-options:flex flex-col sm:flex-row items-start sm:items-center gap-4 rounded-lg bg-blue-50 dark:bg-blue-900/30 p-4 border border-blue-200 dark:border-blue-800">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-blue-600 dark:text-blue-400 flex-shrink-0"> info </span>
+<p class="text-sm font-medium text-blue-800 dark:text-blue-200">Text will not be included on your product.</p>
+</div>
+<label class="flex-shrink-0 ml-auto cursor-pointer rounded-md bg-blue-100 dark:bg-blue-800/50 px-3 py-1.5 text-sm font-semibold text-blue-700 dark:text-blue-200 hover:bg-blue-200 dark:hover:bg-blue-800 transition-colors" for="lato-font-selector">Add Text</label>
+</div>
+<div class="flex flex-col gap-4 group-has-[:checked:not([value='no-text'])]/font-options:opacity-100 group-has-[input[value='no-text']:checked]/font-options:opacity-50 group-has-[input[value='no-text']:checked]/font-options:pointer-events-none transition-opacity">
+<div class="flex flex-col w-full group">
+<div class="flex w-full items-center gap-4">
+<label class="flex-grow">
+<p class="text-gray-900 dark:text-white text-sm font-medium leading-normal pb-2">Pet 1's Name</p>
+<input class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-gray-900 dark:text-white focus:outline-0 focus:ring-2 focus:ring-primary/50 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 focus:border-primary h-12 placeholder:text-gray-400 dark:placeholder:text-gray-500 p-3 text-sm font-normal leading-normal" placeholder="Enter name" value="Buddy"/>
+</label>
+<div class="pt-7 flex items-center gap-2">
+<button class="relative flex-shrink-0 flex items-center justify-center gap-2 rounded-lg bg-gray-100 dark:bg-gray-700 px-5 py-3 text-sm font-semibold text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors h-12">
+<span>Upload</span>
+<input class="absolute inset-0 z-10 h-full w-full cursor-pointer opacity-0" type="file"/>
+</button>
+<button class="flex-shrink-0 flex items-center justify-center rounded-lg bg-gray-100 dark:bg-gray-700 px-5 py-3 text-sm font-semibold text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors h-12">
+<span>Preview</span>
+</button>
+</div>
+</div>
+<div class="mt-3">
+<label class="flex items-center gap-2 cursor-pointer">
+<input class="form-checkbox peer h-4 w-4 rounded border-gray-300 dark:border-gray-600 text-primary bg-gray-100 dark:bg-gray-700 focus:ring-primary/50" name="perkie-print-1" type="checkbox"/>
+<span class="text-gray-700 dark:text-gray-300 text-sm font-medium">Use Existing Perkie Print</span>
+</label>
+</div>
+<div class="mt-3 hidden peer-checked:block">
+<input class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-gray-900 dark:text-white focus:outline-0 focus:ring-2 focus:ring-primary/50 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 focus:border-primary h-12 placeholder:text-gray-400 dark:placeholder:text-gray-500 p-3 text-sm font-normal leading-normal" placeholder="Enter previous order number"/>
+</div>
+</div>
+<div class="flex flex-col w-full group">
+<div class="flex w-full items-center gap-4">
+<label class="flex-grow">
+<p class="text-gray-900 dark:text-white text-sm font-medium leading-normal pb-2">Pet 2's Name</p>
+<input class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-gray-900 dark:text-white focus:outline-0 focus:ring-2 focus:ring-primary/50 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 focus:border-primary h-12 placeholder:text-gray-400 dark:placeholder:text-gray-500 p-3 text-sm font-normal leading-normal" placeholder="Enter name" value="Lucy"/>
+</label>
+<div class="pt-7 flex items-center gap-2">
+<button class="relative flex-shrink-0 flex items-center justify-center gap-2 rounded-lg bg-gray-100 dark:bg-gray-700 px-5 py-3 text-sm font-semibold text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors h-12">
+<span>Upload</span>
+<input class="absolute inset-0 z-10 h-full w-full cursor-pointer opacity-0" type="file"/>
+</button>
+<button class="flex-shrink-0 flex items-center justify-center rounded-lg bg-gray-100 dark:bg-gray-700 px-5 py-3 text-sm font-semibold text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors h-12">
+<span>Preview</span>
+</button>
+</div>
+</div>
+<div class="mt-3">
+<label class="flex items-center gap-2 cursor-pointer">
+<input class="form-checkbox peer h-4 w-4 rounded border-gray-300 dark:border-gray-600 text-primary bg-gray-100 dark:bg-gray-700 focus:ring-primary/50" name="perkie-print-2" type="checkbox"/>
+<span class="text-gray-700 dark:text-gray-300 text-sm font-medium">Use Existing Perkie Print</span>
+</label>
+</div>
+<div class="mt-3 hidden peer-checked:block">
+<input class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-gray-900 dark:text-white focus:outline-0 focus:ring-2 focus:ring-primary/50 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 focus:border-primary h-12 placeholder:text-gray-400 dark:placeholder:text-gray-500 p-3 text-sm font-normal leading-normal" placeholder="Enter previous order number"/>
+</div>
+</div>
+<div class="flex flex-col w-full group hidden">
+<div class="flex w-full items-center gap-4">
+<label class="flex-grow">
+<p class="text-gray-900 dark:text-white text-sm font-medium leading-normal pb-2">Pet 3's Name</p>
+<input class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-gray-900 dark:text-white focus:outline-0 focus:ring-2 focus:ring-primary/50 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 focus:border-primary h-12 placeholder:text-gray-400 dark:placeholder:text-gray-500 p-3 text-sm font-normal leading-normal" placeholder="Enter name" value="Max"/>
+</label>
+<div class="pt-7 flex items-center gap-2">
+<button class="relative flex-shrink-0 flex items-center justify-center gap-2 rounded-lg bg-gray-100 dark:bg-gray-700 px-5 py-3 text-sm font-semibold text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors h-12">
+<span>Upload</span>
+<input class="absolute inset-0 z-10 h-full w-full cursor-pointer opacity-0" type="file"/>
+</button>
+<button class="flex-shrink-0 flex items-center justify-center rounded-lg bg-gray-100 dark:bg-gray-700 px-5 py-3 text-sm font-semibold text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors h-12">
+<span>Preview</span>
+</button>
+</div>
+</div>
+<div class="mt-3">
+<label class="flex items-center gap-2 cursor-pointer">
+<input class="form-checkbox peer h-4 w-4 rounded border-gray-300 dark:border-gray-600 text-primary bg-gray-100 dark:bg-gray-700 focus:ring-primary/50" name="perkie-print-3" type="checkbox"/>
+<span class="text-gray-700 dark:text-gray-300 text-sm font-medium">Use Existing Perkie Print</span>
+</label>
+</div>
+<div class="mt-3 hidden peer-checked:block">
+<input class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-gray-900 dark:text-white focus:outline-0 focus:ring-2 focus:ring-primary/50 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 focus:border-primary h-12 placeholder:text-gray-400 dark:placeholder:text-gray-500 p-3 text-sm font-normal leading-normal" placeholder="Enter previous order number"/>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="flex flex-col gap-6 rounded-xl border border-gray-200 dark:border-gray-700 p-4 sm:p-6 m-4 mt-8">
+<h2 class="text-gray-900 dark:text-white text-[22px] font-bold leading-tight tracking-[-0.015em] text-left">Choose Style</h2>
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+<label class="group relative cursor-pointer">
+<input class="peer sr-only" name="global-style-select" type="radio" value="bw"/>
+<div class="flex flex-col items-center gap-3 rounded-lg border-2 border-transparent bg-gray-100 dark:bg-gray-800 p-3 transition-all peer-checked:border-primary peer-checked:bg-white dark:peer-checked:bg-gray-700">
+<img alt="Preview of B&amp;W image style" class="h-20 w-20 rounded-md object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCHbfQrGxLkmBnSwm_iQIJMsr8Nu35BEicG7MP9q4DJNxAkVJlSwvRESfDEtrvdRmZ5PnPuaDsO9E-utybD8U1ltIG06DEawJgZPZqqekBzCor8AYMAf_2hBjZ3u1ZgrBktXRovEaBPHEQtzXYkZQXpkKH2Ovy1iAIhiNCdbsZXiEKdTjst-DxMed4jDlung2ygpntEYYYAw3EtwtbUmfUKxL_bx26ZPLOHccgmn5cGHqN_JxQTMpbwtIojJQPWcuLztdAEdNziZg"/>
+<p class="text-sm font-semibold text-gray-800 dark:text-gray-200">B&amp;W</p>
+</div>
+<div class="pointer-events-none absolute bottom-full mb-2 w-max max-w-xs rounded-md bg-gray-800 dark:bg-gray-700 px-3 py-2 text-sm font-normal text-white opacity-0 shadow-lg transition-opacity group-hover:opacity-100"> A striking black and white conversion that highlights your pet's features. <div class="absolute left-1/2 top-full -translate-x-1/2 border-8 border-transparent border-t-gray-800 dark:border-t-gray-700"></div>
+</div>
+</label>
+<label class="group relative cursor-pointer">
+<input class="peer sr-only" name="global-style-select" type="radio" value="color"/>
+<div class="flex flex-col items-center gap-3 rounded-lg border-2 border-transparent bg-gray-100 dark:bg-gray-800 p-3 transition-all peer-checked:border-primary peer-checked:bg-white dark:peer-checked:bg-gray-700">
+<img alt="Preview of Color image style" class="h-20 w-20 rounded-md object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCHbfQrGxLkmBnSwm_iQIJMsr8Nu35BEicG7MP9q4DJNxAkVJlSwvRESfDEtrvdRmZ5PnPuaDsO9E-utybD8U1ltIG06DEawJgZPZqqekBzCor8AYMAf_2hBjZ3u1ZgrBktXRovEaBPHEQtzXYkZQXpkKH2Ovy1iAIhiNCdbsZXiEKdTjst-DxMed4jDlung2ygpntEYYYAw3EtwtbUmfUKxL_bx26ZPLOHccgmn5cGHqN_JxQTMpbwtIojJQPWcuLztdAEdNziZg"/>
+<p class="text-sm font-semibold text-gray-800 dark:text-gray-200">Color</p>
+</div>
+<div class="pointer-events-none absolute bottom-full mb-2 w-max max-w-xs rounded-md bg-gray-800 dark:bg-gray-700 px-3 py-2 text-sm font-normal text-white opacity-0 shadow-lg transition-opacity group-hover:opacity-100"> Your pet's photo is used as is, preserving the original colors and lighting. <div class="absolute left-1/2 top-full -translate-x-1/2 border-8 border-transparent border-t-gray-800 dark:border-t-gray-700"></div>
+</div>
+</label>
+<label class="group relative cursor-pointer">
+<input checked="" class="peer sr-only" name="global-style-select" type="radio" value="modern"/>
+<div class="flex flex-col items-center gap-3 rounded-lg border-2 border-transparent bg-gray-100 dark:bg-gray-800 p-3 transition-all peer-checked:border-primary peer-checked:bg-white dark:peer-checked:bg-gray-700">
+<img alt="Preview of Modern image style" class="h-20 w-20 rounded-md object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCNc-IoA6Gtk6cd3g8pv5YiTbM-fYXwt_e672lD5i8ctuP1P3zuJiNEaWLsNPtnRWlYooGqjBrJiy4FCwt04XBuihANHgi1LnPOzuIMABjGUiOj5bwmEA9yY84xwmpwXYssYSiaaG7KEEOadfHrD2fNAfMGX2xFq2EWg7SuCtbN_wlYkLW8g0u8nJlWguYk-uoshypGXtRXsIKQooTDn4ABAIV841jcE4vp3ysyag8r2F-SCIxh1Q0t_M8BIzEsB6pCyANSb2A5CQ"/>
+<p class="text-sm font-semibold text-gray-800 dark:text-gray-200">Modern</p>
+</div>
+<div class="pointer-events-none absolute bottom-full mb-2 w-max max-w-xs rounded-md bg-gray-800 dark:bg-gray-700 px-3 py-2 text-sm font-normal text-white opacity-0 shadow-lg transition-opacity group-hover:opacity-100"> A clean, contemporary look with a simple background to make your pet pop. <div class="absolute left-1/2 top-full -translate-x-1/2 border-8 border-transparent border-t-gray-800 dark:border-t-gray-700"></div>
+</div>
+</label>
+<label class="group relative cursor-pointer">
+<input class="peer sr-only" name="global-style-select" type="radio" value="classic"/>
+<div class="flex flex-col items-center gap-3 rounded-lg border-2 border-transparent bg-gray-100 dark:bg-gray-800 p-3 transition-all peer-checked:border-primary peer-checked:bg-white dark:peer-checked:bg-gray-700">
+<img alt="Preview of Classic image style" class="h-20 w-20 rounded-md object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCffsuJTDSXW1msgj3ht_0seDJRulOYGR75QtysF-iY1_DwXDqFS5GjqZW_KUt9GobIQ0wSEb9tTtAl3Klo9lqqYq_V6V1MkHaNUEM-iEgp0-4-K7GKfkc6SgrK6qFdibChse30B5xrzd5dFELQVjIaninpA_y4jJOoSPnISZkt2WfgRcSfbCsUSKlxw0zLSoZKeiLzSpMcq8V1dQKnBaobNs85NgHEnogOoaoyf3XKS0nX9npnaGr1YNEE-nkmOj8H1-UvYNomig"/>
+<p class="text-sm font-semibold text-gray-800 dark:text-gray-200">Classic</p>
+</div>
+<div class="pointer-events-none absolute bottom-full mb-2 w-max max-w-xs rounded-md bg-gray-800 dark:bg-gray-700 px-3 py-2 text-sm font-normal text-white opacity-0 shadow-lg transition-opacity group-hover:opacity-100"> A timeless, artistic rendering of your pet, often with a textured backdrop. <div class="absolute left-1/2 top-full -translate-x-1/2 border-8 border-transparent border-t-gray-800 dark:border-t-gray-700"></div>
+</div>
+</label>
+</div>
+</div>
+<div class="flex flex-col gap-6 rounded-xl border border-gray-200 dark:border-gray-700 p-4 sm:p-6 m-4 mt-8">
+<h2 class="text-gray-900 dark:text-white text-[22px] font-bold leading-tight tracking-[-0.015em] text-left">Choose Font</h2>
+<div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+<label class="flex cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-4 text-center has-[:checked]:ring-2 has-[:checked]:ring-primary has-[:checked]:border-primary transition-all">
+<input class="sr-only" name="font-select" type="radio" value="no-text"/>
+<p class="text-base font-semibold text-gray-800 dark:text-gray-200">No Text</p>
+<div class="flex items-center justify-center h-[36px]">
+<span class="material-symbols-outlined text-3xl text-gray-400 dark:text-gray-500"> block </span>
+</div>
+</label>
+<label class="flex cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-4 text-center has-[:checked]:ring-2 has-[:checked]:ring-primary has-[:checked]:border-primary transition-all">
+<input checked="" class="sr-only" id="lato-font-selector" name="font-select" type="radio" value="lato"/>
+<p class="text-base font-semibold text-gray-800 dark:text-gray-200">Modern</p>
+<p class="font-lato text-2xl text-gray-600 dark:text-gray-400 truncate">Buddy, Lucy</p>
+</label>
+<label class="flex cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-4 text-center has-[:checked]:ring-2 has-[:checked]:ring-primary has-[:checked]:border-primary transition-all">
+<input class="sr-only" name="font-select" type="radio" value="pacifico"/>
+<p class="text-base font-semibold text-gray-800 dark:text-gray-200">Playful</p>
+<p class="font-pacifico text-2xl text-gray-600 dark:text-gray-400 truncate">Buddy, Lucy</p>
+</label>
+<label class="flex cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-4 text-center has-[:checked]:ring-2 has-[:checked]:ring-primary has-[:checked]:border-primary transition-all">
+<input class="sr-only" name="font-select" type="radio" value="caveat"/>
+<p class="text-base font-semibold text-gray-800 dark:text-gray-200">Handwritten</p>
+<p class="font-caveat text-3xl text-gray-600 dark:text-gray-400 truncate">Buddy, Lucy</p>
+</label>
+</div>
+</div>
+</div>
+<div class="flex justify-start p-4 mt-4">
+<button class="flex items-center justify-center gap-2 rounded-lg bg-primary px-8 py-3.5 text-base font-bold text-gray-900 shadow-sm transition-transform hover:scale-[1.02] active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-primary/50 focus:ring-offset-2 dark:focus:ring-offset-background-dark">
+                        Add to Cart
+                    </button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</body></html>

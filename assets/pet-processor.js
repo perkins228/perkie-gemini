@@ -564,50 +564,23 @@ class PetProcessor {
 
       // Validate URLs with security checks
       const gcsUrl = latestPet.data.gcsUrl;
-      const originalUrl = latestPet.data.originalUrl;
-      const thumbnail = latestPet.data.thumbnail;
 
-      // Validate GCS URLs
+      // Validate GCS URL
       if (gcsUrl && !validateGCSUrl(gcsUrl)) {
         console.warn('🔒 Invalid GCS URL detected, clearing:', gcsUrl);
         latestPet.data.gcsUrl = '';
       }
 
-      if (originalUrl && !validateGCSUrl(originalUrl)) {
-        console.warn('🔒 Invalid original URL detected, clearing:', originalUrl);
-        latestPet.data.originalUrl = '';
-      }
-
-      // Validate and sanitize data URL
-      let sanitizedThumbnail = null;
-      if (thumbnail) {
-        if (thumbnail.startsWith('data:')) {
-          sanitizedThumbnail = validateAndSanitizeImageData(thumbnail);
-          if (!sanitizedThumbnail) {
-            console.warn('🔒 Invalid data URL detected and blocked');
-          }
-        } else if (thumbnail.startsWith('http')) {
-          // Thumbnail is a URL - validate it
-          if (validateGCSUrl(thumbnail)) {
-            sanitizedThumbnail = thumbnail;
-          } else {
-            console.warn('🔒 Invalid thumbnail URL detected and blocked');
-          }
-        }
-      }
-
-      // Reconstruct currentPet object with validated data
+      // Reconstruct currentPet object with validated data (no originalUrl, no thumbnail)
       this.currentPet = {
         id: latestPet.id,
         filename: PetStorage.sanitizeName(latestPet.data.filename || 'Pet'),
-        originalUrl: latestPet.data.originalUrl || '',
         effects: {},
         selectedEffect: latestPet.data.selectedEffect || latestPet.data.effect || 'enhancedblackwhite'
       };
 
-      // NEW FORMAT: Restore all effects if available
+      // Restore all effects from new simplified format
       if (latestPet.data.effects && typeof latestPet.data.effects === 'object') {
-        // New format: effects object contains all generated effects
         for (const [effectName, effectData] of Object.entries(latestPet.data.effects)) {
           if (!effectData || typeof effectData !== 'object') continue;
 
@@ -630,28 +603,8 @@ class PetProcessor {
             this.currentPet.effects[effectName] = validatedEffect;
           }
         }
-      } else {
-        // OLD FORMAT: Restore only the selected effect (backward compatibility)
-        const effectName = latestPet.data.effect;
-
-        if (effectName && sanitizedThumbnail) {
-          if (effectName === 'modern' || effectName === 'sketch') {
-            // Gemini effect - thumbnail might be GCS URL or data URL
-            this.currentPet.effects[effectName] = {
-              gcsUrl: latestPet.data.gcsUrl || '',
-              dataUrl: sanitizedThumbnail.startsWith('data:') ? sanitizedThumbnail : null,
-              cacheHit: true
-            };
-          } else {
-            // InSPyReNet effect - use data URL
-            this.currentPet.effects[effectName] = {
-              gcsUrl: latestPet.data.gcsUrl || '',
-              dataUrl: sanitizedThumbnail.startsWith('data:') ? sanitizedThumbnail : null,
-              cacheHit: true
-            };
-          }
-        }
       }
+      // Note: Old format data is ignored (fresh start for new test site)
 
       // Check for other Gemini effects in localStorage (modern/sketch)
       // These might exist even if not the selected effect
@@ -971,25 +924,21 @@ class PetProcessor {
     this.showProcessing();
 
     try {
-      // Parallel operations: upload original AND process with API
-      const [originalUrl, result] = await Promise.all([
-        this.uploadOriginalImage(file),
-        this.callAPI(file)
-      ]);
+      // Process image with API (no longer uploading original)
+      const result = await this.callAPI(file);
 
-      // Store result with both original and processed URLs
+      // Store result (no originalUrl - customer will upload on product page)
       this.currentPet = {
         id: `pet_${crypto.randomUUID()}`,
         filename: file.name,
         originalFile: file,
-        originalUrl: originalUrl, // NEW: Cloud Storage URL for original
         ...result
       };
 
       // Show result
       this.showResult(result);
 
-      // Update button states (Modern/Classic will be disabled/loading initially)
+      // Update button states (Modern/Sketch will be disabled/loading initially)
       this.updateEffectButtonStates();
 
     } catch (error) {
@@ -998,54 +947,9 @@ class PetProcessor {
     }
   }
   
-  async uploadOriginalImage(file) {
-    // Convert file to data URL for upload
-    const dataUrl = await new Promise((resolve) => {
-      const reader = new FileReader();
-      reader.onloadend = () => resolve(reader.result);
-      reader.readAsDataURL(file);
-    });
-    
-    // Generate session ID if not exists
-    const sessionId = this.getSessionId();
-    
-    // Upload to storage API
-    const requestBody = {
-      session_id: sessionId,
-      images: {
-        original: dataUrl
-      },
-      metadata: {
-        filename: file.name,
-        size: file.size,
-        type: file.type,
-        timestamp: new Date().toISOString()
-      }
-    };
-    
-    try {
-      const response = await fetch(`${this.apiUrl}/api/storage/upload`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(requestBody)
-      });
-      
-      if (!response.ok) {
-        console.error('Failed to upload original image:', response.status);
-        // Don't fail the whole process if original upload fails
-        return null;
-      }
-      
-      const data = await response.json();
-      return data.urls.original || null;
-    } catch (error) {
-      console.error('Error uploading original image:', error);
-      // Don't fail the whole process if original upload fails
-      return null;
-    }
-  }
+  // REMOVED: uploadOriginalImage() method
+  // Original images are no longer uploaded to GCS
+  // Customers will upload images on the product page or provide order number
   
   getSessionId() {
     // Get or create session ID for tracking uploads
@@ -1635,12 +1539,11 @@ class PetProcessor {
       return false;
     }
 
-    // CRITICAL FIX: Upload to GCS before saving to localStorage
-    console.log('📤 Uploading images to GCS...');
+    // Upload to GCS if needed (InSPyReNet effects only - Gemini already has gcsUrl)
+    console.log('📤 Uploading processed image to GCS if needed...');
     let gcsUrl = effectData.gcsUrl || '';
-    let originalUrl = this.currentPet.originalUrl || '';
 
-    // Upload processed image if not already uploaded
+    // Upload processed image if not already uploaded (InSPyReNet effects)
     if (!gcsUrl && effectData.dataUrl) {
       gcsUrl = await this.uploadToGCS(
         effectData.dataUrl,
@@ -1652,37 +1555,16 @@ class PetProcessor {
         effectData.gcsUrl = gcsUrl; // Cache in memory
         console.log(`✅ Processed image uploaded: ${gcsUrl}`);
       } else {
-        console.warn('⚠️ Processed image upload failed, will use thumbnail');
+        console.warn('⚠️ Processed image upload failed');
       }
     }
 
-    // Upload original image if not already uploaded
-    if (!originalUrl && this.currentPet.originalDataUrl) {
-      originalUrl = await this.uploadToGCS(
-        this.currentPet.originalDataUrl,
-        this.currentPet.id,
-        'original',
-        'none'
-      );
-      if (originalUrl) {
-        this.currentPet.originalUrl = originalUrl; // Cache in memory
-        console.log(`✅ Original image uploaded: ${originalUrl}`);
-      } else {
-        console.warn('⚠️ Original image upload failed');
-      }
-    }
-
-    // FIX: Save all effects, not just selected one
+    // Save only artistNote and effects GCS URLs
+    // Customer provides name, selects effect, and uploads image on product page
     const petData = {
-      name: petName,
-      artistNote: artistNote,
-      filename: this.currentPet.filename,
-      selectedEffect: selectedEffect,  // Currently selected effect
-      effects: this.currentPet.effects,  // ALL generated effects
-      thumbnail: effectData.dataUrl || effectData.gcsUrl,  // Thumbnail (dataUrl for InSPyReNet, gcsUrl for Gemini)
-      gcsUrl: gcsUrl,                 // Full-resolution processed image URL
-      originalUrl: originalUrl,        // Full-resolution original image URL
-      timestamp: Date.now()            // For sorting by most recent
+      artistNote: artistNote,           // User-provided artist notes
+      effects: this.currentPet.effects, // ALL generated effects with GCS URLs
+      timestamp: Date.now()             // For cleanup/sorting
     };
 
     // Save with GCS URLs to localStorage
@@ -1699,14 +1581,12 @@ class PetProcessor {
     }
 
     // Dispatch event for Shopify integration
+    // Only include sessionKey and artistNote (customer provides name/effect on product page)
     document.dispatchEvent(new CustomEvent('petProcessorComplete', {
       detail: {
         sessionKey: this.currentPet.id,
-        gcsUrl: gcsUrl,
-        originalUrl: originalUrl,
-        effect: selectedEffect,
-        name: petName,
-        artistNote: artistNote
+        artistNote: artistNote,
+        effects: this.currentPet.effects  // All effect GCS URLs
       }
     }));
 
@@ -1916,8 +1796,7 @@ class PetProcessor {
       
       effects[petId] = {
         sessionKey: petId,
-        effect: petData.effect,
-        thumbnail: petData.thumbnail,
+        effect: petData.selectedEffect || petData.effect,
         gcsUrl: petData.gcsUrl || '',
         name: petData.name,
         filename: petData.filename || 'pet.jpg',
@@ -2135,7 +2014,7 @@ class PetProcessor {
    * Called from buy-buttons.liquid during cart integration
    * @param {string} sessionKey - Pet session identifier
    * @param {string} effect - Effect name
-   * @param {Function} callback - Called with {original: url, processed: url} or null
+   * @param {Function} callback - Called with {processed: url} or null
    */
   async syncSelectedToCloud(sessionKey, effect, callback) {
     try {
@@ -2157,11 +2036,10 @@ class PetProcessor {
         return;
       }
 
-      // Check if URLs already exist (cached)
-      if (effectData.gcsUrl && pet.originalUrl) {
-        console.log('✅ Using cached GCS URLs');
+      // Check if URL already exists (cached)
+      if (effectData.gcsUrl) {
+        console.log('✅ Using cached GCS URL');
         callback({
-          original: pet.originalUrl,
           processed: effectData.gcsUrl
         });
         return;
@@ -2181,37 +2059,21 @@ class PetProcessor {
         return;
       }
 
-      // Upload original image if available
-      let originalUrl = null;
-      if (pet.originalDataUrl) {
-        originalUrl = await this.uploadToGCS(
-          pet.originalDataUrl,
-          sessionKey,
-          'original',
-          'none'
-        );
-      }
-
-      // Update pet data with GCS URLs
+      // Update pet data with GCS URL
       effectData.gcsUrl = processedUrl;
-      if (originalUrl) {
-        pet.originalUrl = originalUrl;
-      }
 
-      // Update PetStorage with GCS URLs
+      // Update PetStorage with GCS URL
       const petData = PetStorage.get(sessionKey);
       if (petData) {
         await PetStorage.save(sessionKey, {
           ...petData,
-          gcsUrl: processedUrl,
-          originalUrl: originalUrl || petData.originalUrl || ''
+          gcsUrl: processedUrl
         });
-        console.log('✅ Updated PetStorage with GCS URLs');
+        console.log('✅ Updated PetStorage with GCS URL');
       }
 
-      // Return URLs via callback
+      // Return URL via callback (no originalUrl - customer uploads on product page)
       callback({
-        original: originalUrl,
         processed: processedUrl
       });
 

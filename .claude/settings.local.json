@@ -32,7 +32,11 @@
       "Bash(gcloud secrets versions disable:*)",
       "Bash(for file in gemini-quota-endpoint-failure-debug-plan.md gemini-effects-conversion-strategy.md gemini-api-deployment-plan.md gemini-api-infrastructure-review.md)",
       "Bash(do sed -i 's/AIzaSyAP6X8DdL1kPlah25du8s_YzipwOnYd_7I/[REDACTED - See Secret Manager]/g' \"$file\")",
-      "Bash(done)"
+      "Bash(done)",
+      "Bash(gcloud run services list:*)",
+      "Bash(timeout 5 bash:*)",
+      "Bash(dir /s /b \"c:\\Users\\perki\\OneDrive\\Desktop\\Perkie\\Perkie-Gemini\\stitch_pet_product_display_module\")",
+      "Bash(find:*)"
     ],
     "deny": [],
     "ask": [],
