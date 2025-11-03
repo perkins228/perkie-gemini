@@ -305,8 +305,9 @@
 
 </div>
 
-{% comment %} Get color scheme from section settings {% endcomment %}
-{% assign scheme = settings.color_schemes | default: settings %}
+{% comment %} Get color scheme from block settings {% endcomment %}
+{% assign color_scheme_id = block.settings.color_scheme | default: 'scheme-1' %}
+{% assign scheme = settings.color_schemes[color_scheme_id].settings %}
 {% assign scheme_background = scheme.background | default: '#ffffff' %}
 {% assign scheme_text = scheme.text | default: '#000000' %}
 {% assign scheme_button = scheme.button | default: '#ebff7a' %}
@@ -314,7 +315,7 @@
 
 <style>
 /* Pet Selector - Stitch Pattern Styles */
-/* Using Shopify theme color scheme - customizable in theme editor */
+/* Using independent color scheme - customizable in block settings */
 
 :root {
   --pet-selector-primary: {{ scheme_button }};
