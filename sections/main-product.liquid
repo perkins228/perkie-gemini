@@ -476,7 +476,10 @@
                 {% endif %}
               {%- when 'ks_pet_customizer' -%}
                 <div class="product__pet-customizer" {{ block.shopify_attributes }}>
-                  {% render 'ks-product-pet-customizer', product: product, block: block %}
+                  {%- comment -%}
+                    Pet customizer disabled - file does not exist
+                    {% render 'ks-product-pet-customizer', product: product, block: block %}
+                  {%- endcomment -%}
                 </div>
               {%- when 'buy_buttons' -%}
                 {%- render 'buy-buttons',
