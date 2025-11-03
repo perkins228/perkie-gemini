@@ -39,7 +39,8 @@
           "settings": {
             "custom_image_fee": "0.00",
             "max_pets_per_product": 3,
-            "preview_product_variant_id": ""
+            "preview_product_variant_id": "",
+            "color_scheme": "scheme-f318d737-2be2-4346-8605-b2fbd6208608"
           }
         },
         "variant_picker": {
