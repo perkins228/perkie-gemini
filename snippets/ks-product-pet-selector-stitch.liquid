@@ -126,9 +126,15 @@
                data-style-radio="enhancedblackwhite">
         <div class="style-card__content">
           <div class="style-card__image-wrapper">
-            <img src="{{ 'pet-bw-preview.jpg' | asset_url }}"
-                 alt="Black & White style preview"
-                 class="style-card__image">
+            {% if block.settings.style_preview_bw != blank %}
+              <img src="{{ block.settings.style_preview_bw | image_url: width: 320 }}"
+                   alt="Black & White style preview"
+                   class="style-card__image">
+            {% else %}
+              <img src="{{ 'pet-bw-preview.jpg' | asset_url }}"
+                   alt="Black & White style preview"
+                   class="style-card__image">
+            {% endif %}
           </div>
           <p class="style-card__label">B&W</p>
         </div>
@@ -147,9 +153,15 @@
                data-style-radio="color">
         <div class="style-card__content">
           <div class="style-card__image-wrapper">
-            <img src="{{ 'pet-color-preview.jpg' | asset_url }}"
-                 alt="Color style preview"
-                 class="style-card__image">
+            {% if block.settings.style_preview_color != blank %}
+              <img src="{{ block.settings.style_preview_color | image_url: width: 320 }}"
+                   alt="Color style preview"
+                   class="style-card__image">
+            {% else %}
+              <img src="{{ 'pet-color-preview.jpg' | asset_url }}"
+                   alt="Color style preview"
+                   class="style-card__image">
+            {% endif %}
           </div>
           <p class="style-card__label">Color</p>
         </div>
@@ -169,9 +181,15 @@
                data-style-radio="modern">
         <div class="style-card__content">
           <div class="style-card__image-wrapper">
-            <img src="{{ 'pet-modern-preview.jpg' | asset_url }}"
-                 alt="Modern style preview"
-                 class="style-card__image">
+            {% if block.settings.style_preview_modern != blank %}
+              <img src="{{ block.settings.style_preview_modern | image_url: width: 320 }}"
+                   alt="Modern style preview"
+                   class="style-card__image">
+            {% else %}
+              <img src="{{ 'pet-modern-preview.jpg' | asset_url }}"
+                   alt="Modern style preview"
+                   class="style-card__image">
+            {% endif %}
           </div>
           <p class="style-card__label">Modern</p>
         </div>
@@ -190,9 +208,15 @@
                data-style-radio="sketch">
         <div class="style-card__content">
           <div class="style-card__image-wrapper">
-            <img src="{{ 'pet-sketch-preview.jpg' | asset_url }}"
-                 alt="Sketch style preview"
-                 class="style-card__image">
+            {% if block.settings.style_preview_sketch != blank %}
+              <img src="{{ block.settings.style_preview_sketch | image_url: width: 320 }}"
+                   alt="Sketch style preview"
+                   class="style-card__image">
+            {% else %}
+              <img src="{{ 'pet-sketch-preview.jpg' | asset_url }}"
+                   alt="Sketch style preview"
+                   class="style-card__image">
+            {% endif %}
           </div>
           <p class="style-card__label">Sketch</p>
         </div>
