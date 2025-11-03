@@ -462,8 +462,8 @@
                 
                 {% if show_pet_selector %}
                   <div class="product__pet-selector" {{ block.shopify_attributes }}>
-                    {% comment %} Render pet selector module {% endcomment %}
-                    {% render 'ks-product-pet-selector', product: product, section: section %}
+                    {% comment %} Render new Stitch UI pet selector {% endcomment %}
+                    {% render 'ks-product-pet-selector-stitch', product: product, section: section %}
                     
                     {% comment %} Conditionally render font selector based on metafield {% endcomment %}
                     {% if product.metafields.custom.supports_font_styles == true %}
