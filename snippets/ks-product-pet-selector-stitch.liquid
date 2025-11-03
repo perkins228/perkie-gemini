@@ -305,35 +305,61 @@
 
 </div>
 
+{% comment %} Get color scheme from section settings {% endcomment %}
+{% assign scheme = settings.color_schemes | default: settings %}
+{% assign scheme_background = scheme.background | default: '#ffffff' %}
+{% assign scheme_text = scheme.text | default: '#000000' %}
+{% assign scheme_button = scheme.button | default: '#ebff7a' %}
+{% assign scheme_button_label = scheme.button_label | default: '#461312' %}
+
 <style>
 /* Pet Selector - Stitch Pattern Styles */
-/* Using Perkie theme colors: primary #ebff7a, button text #461312 */
+/* Using Shopify theme color scheme - customizable in theme editor */
+
+:root {
+  --pet-selector-primary: {{ scheme_button }};
+  --pet-selector-primary-text: {{ scheme_button_label }};
+  --pet-selector-text: {{ scheme_text }};
+  --pet-selector-background: {{ scheme_background }};
+  --pet-selector-gray-50: #f9fafb;
+  --pet-selector-gray-100: #f3f4f6;
+  --pet-selector-gray-200: #e5e7eb;
+  --pet-selector-gray-300: #d1d5db;
+  --pet-selector-gray-400: #9ca3af;
+  --pet-selector-gray-500: #6b7280;
+  --pet-selector-gray-600: #4b5563;
+  --pet-selector-gray-700: #374151;
+  --pet-selector-gray-800: #1f2937;
+  --pet-selector-gray-900: #111827;
+}
 
 .pet-selector-stitch {
   max-width: 960px;
   margin: 0 auto;
   padding: 1rem;
+  color: var(--pet-selector-text);
 }
 
 .pet-selector__section {
   margin-bottom: 2rem;
   padding: 1.5rem;
-  border: 1px solid #e5e7eb;
+  border: 1px solid var(--pet-selector-gray-200);
   border-radius: 0.75rem;
+  background-color: var(--pet-selector-background);
 }
 
 .pet-selector__label {
   display: block;
   font-size: 1.125rem;
   font-weight: 700;
-  color: #000000;
+  color: var(--pet-selector-text);
   margin-bottom: 0.75rem;
 }
 
 .pet-selector__heading {
   font-size: 1.375rem;
   font-weight: 700;
-  color: #000000;
+  color: var(--pet-selector-text);
   margin: 0 0 1.5rem 0;
 }
 
@@ -351,8 +377,8 @@
   height: 3.5rem;
   cursor: pointer;
   border-radius: 0.5rem;
-  background-color: #f3f4f6;
-  color: #6b7280;
+  background-color: var(--pet-selector-gray-100);
+  color: var(--pet-selector-gray-500);
   font-size: 1rem;
   font-weight: 600;
   transition: all 0.2s;
@@ -368,10 +394,10 @@
 
 .pet-count-btn--active,
 .pet-count-btn:has(input:checked) {
-  background-color: #ffffff;
-  color: #000000;
+  background-color: var(--pet-selector-background);
+  color: var(--pet-selector-text);
   box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-  border-color: #ebff7a;
+  border-color: var(--pet-selector-primary);
 }
 
 /* Pet Details */
@@ -401,7 +427,7 @@
 .pet-detail__label-text {
   font-size: 0.875rem;
   font-weight: 500;
-  color: #000000;
+  color: var(--pet-selector-text);
   margin: 0 0 0.5rem 0;
 }
 
@@ -409,16 +435,17 @@
   width: 100%;
   height: 3rem;
   padding: 0 0.75rem;
-  border: 1px solid #d1d5db;
+  border: 1px solid var(--pet-selector-gray-300);
   border-radius: 0;
   font-size: 0.875rem;
-  color: #000000;
+  color: var(--pet-selector-text);
+  background-color: var(--pet-selector-background);
 }
 
 .pet-detail__name-input:focus {
   outline: none;
-  border-color: #ebff7a;
-  box-shadow: 0 0 0 2px rgba(235, 255, 122, 0.2);
+  border-color: var(--pet-selector-primary);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--pet-selector-primary) 20%, transparent);
 }
 
 .pet-detail__buttons {
@@ -432,19 +459,19 @@
   position: relative;
   height: 3rem;
   padding: 0 1.25rem;
-  background-color: #f3f4f6;
+  background-color: var(--pet-selector-gray-100);
   border: none;
   border-radius: 40px;
   font-size: 0.875rem;
   font-weight: 600;
-  color: #374151;
+  color: var(--pet-selector-gray-700);
   cursor: pointer;
   transition: background-color 0.2s;
 }
 
 .pet-detail__upload-btn:hover,
 .pet-detail__preview-btn:hover {
-  background-color: #e5e7eb;
+  background-color: var(--pet-selector-gray-200);
 }
 
 .pet-detail__file-input {
@@ -465,13 +492,13 @@
   cursor: pointer;
   font-size: 0.875rem;
   font-weight: 500;
-  color: #374151;
+  color: var(--pet-selector-gray-700);
 }
 
 .pet-detail__checkbox {
   width: 1rem;
   height: 1rem;
-  accent-color: #ebff7a;
+  accent-color: var(--pet-selector-primary);
 }
 
 .pet-detail__order-input {
@@ -482,16 +509,17 @@
   width: 100%;
   height: 3rem;
   padding: 0 0.75rem;
-  border: 1px solid #d1d5db;
+  border: 1px solid var(--pet-selector-gray-300);
   border-radius: 0;
   font-size: 0.875rem;
-  color: #000000;
+  color: var(--pet-selector-text);
+  background-color: var(--pet-selector-background);
 }
 
 .pet-detail__order-number:focus {
   outline: none;
-  border-color: #ebff7a;
-  box-shadow: 0 0 0 2px rgba(235, 255, 122, 0.2);
+  border-color: var(--pet-selector-primary);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--pet-selector-primary) 20%, transparent);
 }
 
 /* Style Selector */
@@ -532,7 +560,7 @@
   align-items: center;
   gap: 0.75rem;
   padding: 0.75rem;
-  background-color: #f3f4f6;
+  background-color: var(--pet-selector-gray-100);
   border: 2px solid transparent;
   border-radius: 0.5rem;
   transition: all 0.2s;
@@ -540,8 +568,8 @@
 
 .style-card--active .style-card__content,
 .style-card:has(input:checked) .style-card__content {
-  background-color: #ffffff;
-  border-color: #ebff7a;
+  background-color: var(--pet-selector-background);
+  border-color: var(--pet-selector-primary);
 }
 
 .style-card__image-wrapper {
@@ -560,7 +588,7 @@
 .style-card__label {
   font-size: 0.875rem;
   font-weight: 600;
-  color: #1f2937;
+  color: var(--pet-selector-gray-800);
   margin: 0;
 }
 
@@ -571,8 +599,8 @@
   transform: translateX(-50%);
   margin-bottom: 0.5rem;
   padding: 0.5rem 0.75rem;
-  background-color: #1f2937;
-  color: #ffffff;
+  background-color: var(--pet-selector-gray-800);
+  color: var(--pet-selector-background);
   font-size: 0.875rem;
   border-radius: 0.375rem;
   white-space: nowrap;
@@ -624,8 +652,8 @@
   align-items: center;
   gap: 0.5rem;
   padding: 1rem;
-  background-color: #ffffff;
-  border: 1px solid #e5e7eb;
+  background-color: var(--pet-selector-background);
+  border: 1px solid var(--pet-selector-gray-200);
   border-radius: 0.5rem;
   transition: all 0.2s;
   min-height: 7rem;
@@ -633,20 +661,20 @@
 
 .font-card--active .font-card__content,
 .font-card:has(input:checked) .font-card__content {
-  border-color: #ebff7a;
-  box-shadow: 0 0 0 2px rgba(235, 255, 122, 0.3);
+  border-color: var(--pet-selector-primary);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--pet-selector-primary) 30%, transparent);
 }
 
 .font-card__title {
   font-size: 1rem;
   font-weight: 600;
-  color: #1f2937;
+  color: var(--pet-selector-gray-800);
   margin: 0;
 }
 
 .font-card__preview {
   font-size: 1.5rem;
-  color: #6b7280;
+  color: var(--pet-selector-gray-500);
   margin: 0;
   text-align: center;
   overflow: hidden;
@@ -663,7 +691,7 @@
 .font-card__no-text-icon {
   width: 2rem;
   height: 2rem;
-  fill: #9ca3af;
+  fill: var(--pet-selector-gray-400);
 }
 
 /* Font-specific styles */
