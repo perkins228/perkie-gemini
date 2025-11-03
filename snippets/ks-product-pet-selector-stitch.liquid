@@ -27,7 +27,9 @@
 {% if has_custom_tag %}
 <div class="pet-selector-stitch"
      data-max-pets="{{ max_pets_per_product }}"
-     data-product-id="{{ product.id }}">
+     data-product-id="{{ product.id }}"
+     style="--pet-selector-primary: {{ scheme_button }}; --pet-selector-primary-text: {{ scheme_button_label }}; --pet-selector-text: {{ scheme_text }}; --pet-selector-background: {{ scheme_background }};">
+
 
   {% comment %} Pet Count Selector {% endcomment %}
   <div class="pet-selector__section">
@@ -317,13 +319,11 @@
 
 <style>
 /* Pet Selector - Stitch Pattern Styles */
-/* Using independent color scheme - customizable in block settings */
+/* Color variables set via inline style on container for instant theme editor updates */
 
-:root {
-  --pet-selector-primary: {{ scheme_button }};
-  --pet-selector-primary-text: {{ scheme_button_label }};
-  --pet-selector-text: {{ scheme_text }};
-  --pet-selector-background: {{ scheme_background }};
+.pet-selector-stitch {
+  /* Theme color variables are set via inline style attribute above */
+  /* Static gray scale variables defined here */
   --pet-selector-gray-50: #f9fafb;
   --pet-selector-gray-100: #f3f4f6;
   --pet-selector-gray-200: #e5e7eb;
