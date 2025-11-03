@@ -40,7 +40,7 @@
             "custom_image_fee": "0.00",
             "max_pets_per_product": 3,
             "preview_product_variant_id": "",
-            "style_preview_bw": "shopify://shop_images/pet-bw-preview_60940ce9-5e30-4299-8aac-b5d4d8b0b359.jpg",
+            "style_preview_bw": "shopify://shop_images/pet-bw-preview.jpg",
             "style_preview_color": "shopify://shop_images/pet-color-preview.jpg",
             "color_scheme": "scheme-f318d737-2be2-4346-8605-b2fbd6208608"
           }
