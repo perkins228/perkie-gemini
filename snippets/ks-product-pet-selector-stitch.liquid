@@ -842,6 +842,35 @@
   font-size: 0.75rem;
 }
 
+.pet-detail__upload-status__file-delete {
+  flex-shrink: 0;
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 50%;
+  border: 1px solid #dc2626;
+  background-color: white;
+  color: #dc2626;
+  font-size: 1rem;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  padding: 0;
+  margin-left: 0.25rem;
+}
+
+.pet-detail__upload-status__file-delete:hover {
+  background-color: #dc2626;
+  color: white;
+  transform: scale(1.1);
+}
+
+.pet-detail__upload-status__file-delete:active {
+  transform: scale(0.95);
+}
+
 /* Processor Modal Styles */
 .pet-processor-modal {
   position: fixed;
@@ -1079,6 +1108,13 @@
   });
 
   // Upload button handlers - Native Shopify file upload (files uploaded to CDN)
+  // Track uploaded files per pet (persistent across multiple uploads)
+  const petFiles = {
+    1: [],
+    2: [],
+    3: []
+  };
+
   for (let i = 1; i <= 3; i++) {
     const uploadBtn = container.querySelector(`[data-pet-upload-btn="${i}"]`);
     const fileInput = container.querySelector(`[data-pet-file-input="${i}"]`);
@@ -1092,71 +1128,107 @@
         fileInput.click();
       });
 
-      // Handle file selection
+      // Handle file selection (additive - doesn't replace existing files)
       fileInput.addEventListener('change', (e) => {
-        const files = Array.from(e.target.files);
+        const newFiles = Array.from(e.target.files);
 
         // Validation 1: File count
-        if (files.length === 0) {
+        if (newFiles.length === 0) {
           return; // User cancelled
         }
 
-        if (files.length > maxFiles) {
-          alert(`You can only upload ${maxFiles} photo(s) for this pet.`);
+        // Check if adding new files would exceed max
+        const currentCount = petFiles[i].length;
+        const totalCount = currentCount + newFiles.length;
+
+        if (totalCount > maxFiles) {
+          alert(`You can only upload ${maxFiles} photo(s) total for this pet. You already have ${currentCount} file(s).`);
           fileInput.value = ''; // Clear selection
           return;
         }
 
         // Validation 2: File size (max 50MB per Shopify)
-        for (let j = 0; j < files.length; j++) {
-          if (files[j].size > 50 * 1024 * 1024) {
-            alert(`${files[j].name} is too large. Max 50MB per file.`);
+        for (let j = 0; j < newFiles.length; j++) {
+          if (newFiles[j].size > 50 * 1024 * 1024) {
+            alert(`${newFiles[j].name} is too large. Max 50MB per file.`);
             fileInput.value = '';
             return;
           }
         }
 
         // Validation 3: File type (must be image)
-        for (let j = 0; j < files.length; j++) {
-          if (!files[j].type.startsWith('image/')) {
-            alert(`${files[j].name} is not an image file. Please select JPG, PNG, or HEIC.`);
+        for (let j = 0; j < newFiles.length; j++) {
+          if (!newFiles[j].type.startsWith('image/')) {
+            alert(`${newFiles[j].name} is not an image file. Please select JPG, PNG, or HEIC.`);
             fileInput.value = '';
             return;
           }
         }
 
+        // Validation 4: Check for duplicates
+        let duplicatesSkipped = 0;
+        const filesToAdd = [];
+
+        for (let j = 0; j < newFiles.length; j++) {
+          const isDuplicate = petFiles[i].some(existingFile =>
+            existingFile.name === newFiles[j].name && existingFile.size === newFiles[j].size
+          );
+
+          if (!isDuplicate) {
+            filesToAdd.push(newFiles[j]);
+          } else {
+            duplicatesSkipped++;
+          }
+        }
+
+        if (duplicatesSkipped > 0) {
+          alert(`${duplicatesSkipped} duplicate file(s) skipped.`);
+        }
+
+        // Add new files to persistent storage
+        petFiles[i].push(...filesToAdd);
+
+        // Clear file input to allow re-uploading same files if deleted
+        fileInput.value = '';
+
         // All validations passed - update UI
-        const count = files.length;
+        const count = petFiles[i].length;
         uploadBtn.textContent = `Upload (${count}/${maxFiles})`;
         uploadBtn.classList.add('has-uploads');
 
         // Show uploaded file names below pet name
-        displayUploadedFiles(i, files);
+        displayUploadedFiles(i, petFiles[i]);
 
-        // Populate order properties (metadata only, not image data)
-        populateOrderProperties(i, files);
+        // Populate order properties and update file input with all files
+        updateFileInputWithAllFiles(i, petFiles[i]);
+        populateOrderProperties(i, petFiles[i]);
 
-        // Store file references in localStorage for preview modal
-        // We'll convert first file to data URL for preview
-        if (files.length > 0) {
+        // Store first file in localStorage for preview modal
+        if (petFiles[i].length > 0) {
           const reader = new FileReader();
           reader.onload = (event) => {
             const previewData = [{
-              name: files[0].name,
+              name: petFiles[i][0].name,
               data: event.target.result, // Base64 for preview only
-              size: files[0].size,
-              type: files[0].type
+              size: petFiles[i][0].size,
+              type: petFiles[i][0].type
             }];
             localStorage.setItem(`pet_${i}_images`, JSON.stringify(previewData));
           };
-          reader.readAsDataURL(files[0]);
+          reader.readAsDataURL(petFiles[i][0]);
         }
       });
 
-      // Display uploaded file names with sizes
+      // Display uploaded file names with sizes and delete buttons
       function displayUploadedFiles(petIndex, files) {
         const statusContainer = container.querySelector(`[data-upload-status="${petIndex}"]`);
         if (!statusContainer) return;
+
+        if (files.length === 0) {
+          statusContainer.style.display = 'none';
+          statusContainer.innerHTML = '';
+          return;
+        }
 
         // Build HTML for file list
         let html = '';
@@ -1165,16 +1237,96 @@
           const fileSize = formatFileSize(files[j].size);
 
           html += `
-            <div class="pet-detail__upload-status__file">
+            <div class="pet-detail__upload-status__file" data-file-index="${j}">
               <span class="pet-detail__upload-status__file-icon">✓</span>
               <span class="pet-detail__upload-status__file-name">${escapeHtml(fileName)}</span>
               <span class="pet-detail__upload-status__file-size">${fileSize}</span>
+              <button type="button"
+                      class="pet-detail__upload-status__file-delete"
+                      data-pet-index="${petIndex}"
+                      data-file-index="${j}"
+                      aria-label="Delete ${escapeHtml(fileName)}">×</button>
             </div>
           `;
         }
 
         statusContainer.innerHTML = html;
         statusContainer.style.display = 'block';
+
+        // Attach delete button handlers
+        const deleteButtons = statusContainer.querySelectorAll('.pet-detail__upload-status__file-delete');
+        deleteButtons.forEach(btn => {
+          btn.addEventListener('click', (e) => {
+            e.preventDefault();
+            const petIdx = parseInt(btn.dataset.petIndex);
+            const fileIdx = parseInt(btn.dataset.fileIndex);
+            removeFile(petIdx, fileIdx);
+          });
+        });
+      }
+
+      // Remove a file from the uploaded files list
+      function removeFile(petIndex, fileIndex) {
+        // Remove from petFiles array
+        if (fileIndex < 0 || fileIndex >= petFiles[petIndex].length) {
+          return;
+        }
+
+        petFiles[petIndex].splice(fileIndex, 1);
+
+        // Update UI
+        const count = petFiles[petIndex].length;
+        if (count === 0) {
+          uploadBtn.textContent = 'Upload';
+          uploadBtn.classList.remove('has-uploads');
+        } else {
+          uploadBtn.textContent = `Upload (${count}/${maxFiles})`;
+        }
+
+        // Re-render file list
+        displayUploadedFiles(petIndex, petFiles[petIndex]);
+
+        // Update file input with remaining files
+        updateFileInputWithAllFiles(petIndex, petFiles[petIndex]);
+        populateOrderProperties(petIndex, petFiles[petIndex]);
+
+        // Update preview if first file was removed
+        if (petFiles[petIndex].length > 0) {
+          const reader = new FileReader();
+          reader.onload = (event) => {
+            const previewData = [{
+              name: petFiles[petIndex][0].name,
+              data: event.target.result,
+              size: petFiles[petIndex][0].size,
+              type: petFiles[petIndex][0].type
+            }];
+            localStorage.setItem(`pet_${petIndex}_images`, JSON.stringify(previewData));
+          };
+          reader.readAsDataURL(petFiles[petIndex][0]);
+        } else {
+          localStorage.removeItem(`pet_${petIndex}_images`);
+        }
+      }
+
+      // Update file input with all current files using DataTransfer API
+      function updateFileInputWithAllFiles(petIndex, files) {
+        const fileInput = container.querySelector(`[data-pet-file-input="${petIndex}"]`);
+        if (!fileInput) return;
+
+        try {
+          // Check if DataTransfer is supported
+          const dataTransfer = new DataTransfer();
+
+          // Add all files to DataTransfer
+          for (let j = 0; j < files.length; j++) {
+            dataTransfer.items.add(files[j]);
+          }
+
+          // Update file input with new FileList
+          fileInput.files = dataTransfer.files;
+        } catch (e) {
+          console.warn('DataTransfer API not supported, file input may not update correctly:', e);
+        }
       }
 
       // Format file size for display
