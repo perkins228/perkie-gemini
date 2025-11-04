@@ -17,7 +17,12 @@ class GeminiAPIClient {
     this.cache = new Map();
     this.pending = new Map();
     this.maxRetries = 3;
-    this.timeout = 60000; // 60 seconds (includes cold start)
+    // Timeout calculation (2025-11-04):
+    // - Cold start (Cloud Run + Gemini SDK): ~38s
+    // - Generation (batch 2 styles): ~37s
+    // - Buffer (20%): ~15s
+    // Total: 90s → 120s for P95 safety margin
+    this.timeout = 120000; // 120 seconds (handles cold start + generation)
 
     // Feature flag - check if Gemini effects are enabled
     this.enabled = this.checkFeatureFlag();
@@ -95,7 +100,7 @@ class GeminiAPIClient {
     try {
       const response = await this.request(`/api/v1/quota?customer_id=${this.customerId}`, {
         method: 'GET',
-        timeout: 5000 // Quick check
+        timeout: 15000 // 15 seconds (handles cold start Firestore connection)
       });
 
       // Update cached quota state with 'allowed' property
@@ -341,8 +346,10 @@ class GeminiAPIClient {
 
       return response.json();
     } catch (error) {
-      // Retry on network errors
-      if (attempt < this.maxRetries && error.name !== 'AbortError') {
+      // Don't retry timeout errors (they won't succeed on retry)
+      // Don't retry user-cancelled AbortErrors
+      // Do retry transient network errors
+      if (attempt < this.maxRetries && !error.isTimeout && error.name !== 'AbortError') {
         const delay = this.getRetryDelay(attempt);
         console.warn(`Request failed, retrying in ${delay}ms (attempt ${attempt + 1}/${this.maxRetries})`);
         await this.sleep(delay);
@@ -355,20 +362,32 @@ class GeminiAPIClient {
 
   /**
    * Fetch with timeout support
+   * Marks timeout errors to prevent retry loops
    */
   async fetchWithTimeout(url, options) {
     const timeout = options.timeout || this.timeout;
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), timeout);
+    const timeoutId = setTimeout(() => {
+      controller.abort();
+      // Mark signal as timeout for retry logic
+      controller.signal.reason = 'timeout';
+    }, timeout);
 
     try {
       const response = await fetch(url, {
         ...options,
         signal: controller.signal
       });
-      return response;
-    } finally {
       clearTimeout(timeoutId);
+      return response;
+    } catch (error) {
+      clearTimeout(timeoutId);
+      // Mark timeout AbortErrors to prevent retry
+      if (error.name === 'AbortError' && controller.signal.reason === 'timeout') {
+        error.isTimeout = true;
+        error.message = `Request timed out after ${timeout}ms`;
+      }
+      throw error;
     }
   }
 
