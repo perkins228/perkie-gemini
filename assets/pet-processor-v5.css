@@ -1098,6 +1098,7 @@
   height: 100%;
   object-fit: cover;
   display: block;
+  transition: opacity 0.2s, filter 0.2s;
 }
 
 .style-card__label {
@@ -1107,12 +1108,33 @@
   text-align: center;
   margin: 0;
   padding: 0;
+  transition: opacity 0.2s;
 }
 
 /* Active state - red border */
 .style-card.active .style-card__image-wrapper {
   border-color: #ff5964;
   box-shadow: 0 0 0 2px rgba(255, 89, 100, 0.3);
+}
+
+/* Gray-out non-selected styles */
+.style-card:not(.active) .style-card__image {
+  opacity: 0.5;
+  filter: grayscale(30%);
+}
+
+.style-card:not(.active) .style-card__label {
+  opacity: 0.6;
+}
+
+/* Restore full color/opacity on hover (only for non-disabled) */
+.style-card:not(.active):not(.effect-btn--disabled):hover .style-card__image {
+  opacity: 0.8;
+  filter: grayscale(0%);
+}
+
+.style-card:not(.active):not(.effect-btn--disabled):hover .style-card__label {
+  opacity: 1;
 }
 
 /* Hover effect */

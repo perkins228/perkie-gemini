@@ -118,11 +118,12 @@
     <h2 class="pet-selector__section-heading">Choose Style</h2>
     <div class="style-selector__grid">
 
-      {% comment %} B&W Style {% endcomment %}
-      <label class="style-card">
+      {% comment %} B&W Style - DEFAULT SELECTION {% endcomment %}
+      <label class="style-card style-card--active">
         <input type="radio"
                name="properties[Style]"
                value="enhancedblackwhite"
+               checked
                data-style-radio="enhancedblackwhite">
         <div class="style-card__content">
           <div class="style-card__image-wrapper">
@@ -173,11 +174,10 @@
       </label>
 
       {% comment %} Modern (Ink Wash) Style {% endcomment %}
-      <label class="style-card style-card--active">
+      <label class="style-card">
         <input type="radio"
                name="properties[Style]"
                value="modern"
-               checked
                data-style-radio="modern">
         <div class="style-card__content">
           <div class="style-card__image-wrapper">
@@ -619,6 +619,27 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
+  transition: opacity 0.2s, filter 0.2s;
+}
+
+/* Gray-out non-selected styles */
+.style-card:not(.style-card--active):not(:has(input:checked)) .style-card__image {
+  opacity: 0.5;
+  filter: grayscale(30%);
+}
+
+.style-card:not(.style-card--active):not(:has(input:checked)) .style-card__label {
+  opacity: 0.6;
+}
+
+/* Restore full color/opacity on hover */
+.style-card:not(.style-card--active):not(:has(input:checked)):hover .style-card__image {
+  opacity: 0.8;
+  filter: grayscale(0%);
+}
+
+.style-card:not(.style-card--active):not(:has(input:checked)):hover .style-card__label {
+  opacity: 1;
 }
 
 .style-card__label {
@@ -628,6 +649,7 @@
   text-align: center;
   margin: 0;
   padding: 0;
+  transition: opacity 0.2s;
 }
 
 /* Tooltip styles commented out
