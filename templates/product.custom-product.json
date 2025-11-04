@@ -34,6 +34,13 @@
           "type": "price",
           "settings": {}
         },
+        "variant_picker": {
+          "type": "variant_picker",
+          "settings": {
+            "picker_type": "button",
+            "swatch_shape": "circle"
+          }
+        },
         "ks_pet_selector_E8PiYh": {
           "type": "ks_pet_selector",
           "settings": {
@@ -45,13 +52,6 @@
             "style_preview_modern": "shopify://shop_images/pet-modern-preview.jpg",
             "style_preview_sketch": "shopify://shop_images/pet-sketch-preview.jpg",
             "color_scheme": "scheme-f318d737-2be2-4346-8605-b2fbd6208608"
-          }
-        },
-        "variant_picker": {
-          "type": "variant_picker",
-          "settings": {
-            "picker_type": "button",
-            "swatch_shape": "circle"
           }
         },
         "quantity_selector": {
@@ -140,8 +140,8 @@
         "title",
         "junip_junip_product_summary_AC3qBc",
         "price",
-        "ks_pet_selector_E8PiYh",
         "variant_picker",
+        "ks_pet_selector_E8PiYh",
         "quantity_selector",
         "buy_buttons",
         "complementary_kfa9PW",
