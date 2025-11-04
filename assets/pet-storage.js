@@ -10,23 +10,24 @@ class PetStorage {
    * NEW: Simplified structure for test site - no thumbnails, no original uploads
    */
   static async save(petId, data) {
+    // ✅ FIX: Declare at function scope so it's accessible in catch block
+    // Simplified storage: Only artist notes and effect GCS URLs
+    // Customer provides pet name, selects effect, and uploads image on product page
+    const storageData = {
+      petId,
+      artistNote: data.artistNote || '',   // User-provided artist notes
+      effects: data.effects || {},         // { style: { gcsUrl } } structure
+      timestamp: Date.now()                // For cleanup/sorting
+    };
+
     try {
-      // Simplified storage: Only artist notes and effect GCS URLs
-      // Customer provides pet name, selects effect, and uploads image on product page
-      const storageData = {
-        petId,
-        artistNote: data.artistNote || '',   // User-provided artist notes
-        effects: data.effects || {},         // { style: { gcsUrl } } structure
-        timestamp: Date.now()                // For cleanup/sorting
-      };
-      
       // Check storage quota before saving
       const usage = this.getStorageUsage();
       if (usage.percentage > 80) {
         console.warn(`⚠️ Storage at ${usage.percentage}% capacity, running cleanup`);
         this.emergencyCleanup();
       }
-      
+
       localStorage.setItem(this.storagePrefix + petId, JSON.stringify(storageData));
       this.updateGlobalPets(); // Keep window.perkiePets in sync for Shopify
       return true;
