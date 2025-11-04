@@ -442,35 +442,86 @@
         return; // Exit early - don't disable add-to-cart on cart pages
       }
 
-      var petSelector = document.querySelector('[data-max-pets]');
+      // Check for NEW pet selector (ks-product-pet-selector-stitch.liquid)
+      var newPetSelector = document.querySelector('.pet-selector-stitch');
+      var petSelector = newPetSelector || document.querySelector('[data-max-pets]');
+
       if (!petSelector) return; // Not a custom product
 
-      var petNameInput = document.querySelector('[name="properties[_pet_name]"]');
-      var hasCustomPetField = document.querySelector('[name="properties[_has_custom_pet]"]');
+      var self = this;
 
-      // Check if we have either pet image OR pet name
-      var hasPetImage = hasCustomPetField && hasCustomPetField.value === 'true';
-      var hasPetName = petNameInput && petNameInput.value.trim() !== '';
+      // NEW SELECTOR: Handle multiple pet name inputs (Pet 1, Pet 2, Pet 3)
+      if (newPetSelector) {
+        var petNameInputs = newPetSelector.querySelectorAll('[data-pet-name-input]');
 
-      if (hasPetImage || hasPetName) {
-        this.enableAddToCart();
-      } else {
-        this.disableAddToCart();
-      }
-
-      // Listen for pet name input changes
-      if (petNameInput) {
-        var self = this;
-        petNameInput.addEventListener('input', function() {
-          var sanitized = self.sanitizePetName(petNameInput.value);
-          petNameInput.value = sanitized;
-
-          if (sanitized.trim() !== '') {
-            self.enableAddToCart();
-          } else {
-            self.disableAddToCart();
+        // Check if ANY pet name is filled
+        var hasAnyPetName = false;
+        for (var i = 0; i < petNameInputs.length; i++) {
+          if (petNameInputs[i].value.trim() !== '') {
+            hasAnyPetName = true;
+            break;
           }
-        });
+        }
+
+        if (hasAnyPetName) {
+          this.enableAddToCart();
+        } else {
+          this.disableAddToCart();
+        }
+
+        // Listen for pet name input changes on ALL pet name fields
+        for (var j = 0; j < petNameInputs.length; j++) {
+          (function(input) {
+            input.addEventListener('input', function() {
+              var sanitized = self.sanitizePetName(input.value);
+              input.value = sanitized;
+
+              // Check if ANY pet name is filled
+              var anyFilled = false;
+              for (var k = 0; k < petNameInputs.length; k++) {
+                if (petNameInputs[k].value.trim() !== '') {
+                  anyFilled = true;
+                  break;
+                }
+              }
+
+              if (anyFilled) {
+                self.enableAddToCart();
+              } else {
+                self.disableAddToCart();
+              }
+            });
+          })(petNameInputs[j]);
+        }
+      }
+      // OLD SELECTOR: Legacy support for ks-product-pet-selector.liquid
+      else {
+        var petNameInput = document.querySelector('[name="properties[_pet_name]"]');
+        var hasCustomPetField = document.querySelector('[name="properties[_has_custom_pet]"]');
+
+        // Check if we have either pet image OR pet name
+        var hasPetImage = hasCustomPetField && hasCustomPetField.value === 'true';
+        var hasPetName = petNameInput && petNameInput.value.trim() !== '';
+
+        if (hasPetImage || hasPetName) {
+          this.enableAddToCart();
+        } else {
+          this.disableAddToCart();
+        }
+
+        // Listen for pet name input changes
+        if (petNameInput) {
+          petNameInput.addEventListener('input', function() {
+            var sanitized = self.sanitizePetName(petNameInput.value);
+            petNameInput.value = sanitized;
+
+            if (sanitized.trim() !== '') {
+              self.enableAddToCart();
+            } else {
+              self.disableAddToCart();
+            }
+          });
+        }
       }
     },
 
