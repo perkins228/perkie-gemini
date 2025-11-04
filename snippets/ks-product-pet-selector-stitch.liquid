@@ -68,6 +68,8 @@
                    name="properties[Pet {{ i }} Name]"
                    placeholder="Enter name"
                    data-pet-name-input="{{ i }}">
+            {% comment %} File upload status - shown after files selected {% endcomment %}
+            <div class="pet-detail__upload-status" data-upload-status="{{ i }}" style="display: none;"></div>
           </label>
 
           <div class="pet-detail__buttons">
@@ -803,6 +805,43 @@
   background-color: #16a34a;
 }
 
+/* Upload status display below pet name */
+.pet-detail__upload-status {
+  margin-top: 0.5rem;
+  padding: 0.5rem;
+  background-color: #f0fdf4;
+  border-radius: 0.5rem;
+  border: 1px solid #86efac;
+}
+
+.pet-detail__upload-status__file {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.25rem 0;
+  font-size: 0.8125rem;
+  color: #166534;
+}
+
+.pet-detail__upload-status__file-icon {
+  flex-shrink: 0;
+  font-size: 1rem;
+}
+
+.pet-detail__upload-status__file-name {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 500;
+}
+
+.pet-detail__upload-status__file-size {
+  flex-shrink: 0;
+  color: #16a34a;
+  font-size: 0.75rem;
+}
+
 /* Processor Modal Styles */
 .pet-processor-modal {
   position: fixed;
@@ -1091,6 +1130,9 @@
         uploadBtn.textContent = `Upload (${count}/${maxFiles})`;
         uploadBtn.classList.add('has-uploads');
 
+        // Show uploaded file names below pet name
+        displayUploadedFiles(i, files);
+
         // Populate order properties (metadata only, not image data)
         populateOrderProperties(i, files);
 
@@ -1110,6 +1152,46 @@
           reader.readAsDataURL(files[0]);
         }
       });
+
+      // Display uploaded file names with sizes
+      function displayUploadedFiles(petIndex, files) {
+        const statusContainer = container.querySelector(`[data-upload-status="${petIndex}"]`);
+        if (!statusContainer) return;
+
+        // Build HTML for file list
+        let html = '';
+        for (let j = 0; j < files.length; j++) {
+          const fileName = files[j].name;
+          const fileSize = formatFileSize(files[j].size);
+
+          html += `
+            <div class="pet-detail__upload-status__file">
+              <span class="pet-detail__upload-status__file-icon">✓</span>
+              <span class="pet-detail__upload-status__file-name">${escapeHtml(fileName)}</span>
+              <span class="pet-detail__upload-status__file-size">${fileSize}</span>
+            </div>
+          `;
+        }
+
+        statusContainer.innerHTML = html;
+        statusContainer.style.display = 'block';
+      }
+
+      // Format file size for display
+      function formatFileSize(bytes) {
+        if (bytes === 0) return '0 B';
+        const k = 1024;
+        const sizes = ['B', 'KB', 'MB', 'GB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+      }
+
+      // Escape HTML to prevent XSS
+      function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+      }
 
       // Populate hidden order properties for tracking
       function populateOrderProperties(petIndex, files) {
