@@ -509,6 +509,15 @@ class PetProcessor {
     try {
       console.log('🔄 Attempting to restore session from localStorage');
 
+      // === NEW: Check for pet selector uploaded images FIRST ===
+      const petSelectorImage = this.checkPetSelectorUploads();
+      if (petSelectorImage) {
+        console.log('📸 Found uploaded image from pet selector, auto-loading...');
+        await this.loadPetSelectorImage(petSelectorImage);
+        return; // Early return - don't check PetStorage
+      }
+
+      // === EXISTING: Check PetStorage for processed pets ===
       // Check if PetStorage is available
       if (typeof PetStorage === 'undefined') {
         console.log('🔄 PetStorage not available, skipping restore');
@@ -682,7 +691,160 @@ class PetProcessor {
       this.currentPet = null;
     }
   }
-  
+
+  /**
+   * Check for uploaded images from pet selector
+   * Pet selector stores images as: localStorage['pet_0_images'] = [{name, data, size, type}]
+   * @returns {Object|null} Image data if found, null otherwise
+   */
+  checkPetSelectorUploads() {
+    try {
+      // Check for active pet index from sessionStorage (set by pet selector)
+      const activeIndex = parseInt(sessionStorage.getItem('pet_selector_active_index') || '0');
+
+      // First check the active index
+      const activeKey = `pet_${activeIndex}_images`;
+      const activeStored = localStorage.getItem(activeKey);
+
+      if (activeStored) {
+        const images = JSON.parse(activeStored);
+        if (Array.isArray(images) && images.length > 0) {
+          const img = images[0];
+
+          // Validate it's a proper image data structure
+          if (img.data && img.data.startsWith('data:image/')) {
+            console.log(`✅ Found pet selector upload: ${activeKey}`, {
+              name: img.name,
+              size: img.size,
+              type: img.type
+            });
+
+            // Clean up the active index marker
+            sessionStorage.removeItem('pet_selector_active_index');
+
+            return {
+              petIndex: activeIndex,
+              key: activeKey,
+              ...img
+            };
+          }
+        }
+      }
+
+      // Fallback: Check pet_0, pet_1, pet_2 in order
+      for (let i = 0; i < 3; i++) {
+        const key = `pet_${i}_images`;
+        const stored = localStorage.getItem(key);
+
+        if (stored) {
+          const images = JSON.parse(stored);
+          if (Array.isArray(images) && images.length > 0) {
+            const img = images[0];
+
+            // Validate it's a proper image data structure
+            if (img.data && img.data.startsWith('data:image/')) {
+              console.log(`✅ Found pet selector upload (fallback): ${key}`, {
+                name: img.name,
+                size: img.size,
+                type: img.type
+              });
+
+              return {
+                petIndex: i,
+                key: key,
+                ...img
+              };
+            }
+          }
+        }
+      }
+
+      console.log('🔍 No pet selector uploads found');
+      return null;
+    } catch (error) {
+      console.error('❌ Error checking pet selector uploads:', error);
+      return null;
+    }
+  }
+
+  /**
+   * Load and process image from pet selector
+   * Converts base64 data URL to File object and triggers standard processing flow
+   * @param {Object} imageData - Image data from pet selector {name, data, size, type, key}
+   */
+  async loadPetSelectorImage(imageData) {
+    try {
+      console.log('🚀 Auto-loading image from pet selector...');
+
+      // Validate and sanitize the data URL
+      const sanitized = validateAndSanitizeImageData(imageData.data);
+      if (!sanitized) {
+        console.error('❌ Invalid image data from pet selector');
+        this.clearPetSelectorUploads();
+        this.showError('Invalid image data. Please try uploading again.');
+        return;
+      }
+
+      // Convert data URL to Blob
+      const response = await fetch(sanitized);
+      const blob = await response.blob();
+
+      // Create File object with original filename
+      const fileName = imageData.name || 'pet.jpg';
+      const file = new File([blob], fileName, {
+        type: imageData.type || 'image/jpeg'
+      });
+
+      console.log('📸 Processing uploaded image:', {
+        name: file.name,
+        size: `${(file.size / 1024).toFixed(1)}KB`,
+        type: file.type
+      });
+
+      // Clear the pet selector upload now that we've loaded it
+      this.clearPetSelectorUploads();
+
+      // Trigger standard file processing flow
+      await this.processFile(file);
+
+    } catch (error) {
+      console.error('❌ Failed to load pet selector image:', error);
+      this.showError('Failed to load uploaded image. Please try uploading again.');
+      this.clearPetSelectorUploads();
+    }
+  }
+
+  /**
+   * Clear all pet selector uploads from localStorage
+   * Prevents stale data from previous sessions
+   * Called after successfully loading an image or on error
+   */
+  clearPetSelectorUploads() {
+    try {
+      let cleared = 0;
+      // Clear up to 10 pet slots (pet_0 through pet_9)
+      for (let i = 0; i < 10; i++) {
+        const key = `pet_${i}_images`;
+        if (localStorage.getItem(key)) {
+          localStorage.removeItem(key);
+          cleared++;
+          console.log(`🧹 Cleared old upload: ${key}`);
+        }
+      }
+
+      // Also clear any active index marker
+      if (sessionStorage.getItem('pet_selector_active_index')) {
+        sessionStorage.removeItem('pet_selector_active_index');
+      }
+
+      if (cleared > 0) {
+        console.log(`✅ Cleared ${cleared} pet selector upload(s)`);
+      }
+    } catch (error) {
+      console.error('❌ Error clearing pet selector uploads:', error);
+    }
+  }
+
   initializeFeatures() {
     // Initialize comparison manager
     if (typeof ComparisonManager !== 'undefined') {

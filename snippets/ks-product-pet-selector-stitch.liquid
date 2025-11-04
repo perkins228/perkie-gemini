@@ -1456,6 +1456,9 @@
     sessionStorage.setItem('pet_selector_return_url', window.location.href);
     sessionStorage.setItem('pet_selector_scroll_position', window.scrollY.toString());
 
+    // Store which pet index user clicked Preview on (for multiple pet handling)
+    sessionStorage.setItem('pet_selector_active_index', petIndex.toString());
+
     // Navigate to processor page - it will read from localStorage automatically
     window.location.href = '/pages/custom-image-processing#processor';
   }
