@@ -739,29 +739,10 @@
 /* Font-specific styles */
 .font-card__preview--preppy {
   font-family: 'Libre Caslon Text', 'Garamond', serif;
-  position: relative;
-  display: inline-block;
-  padding: 0;
-  line-height: 1;
-}
-
-/* Preppy style - 2px borders tight to text */
-.font-card__preview--preppy::before,
-.font-card__preview--preppy::after {
-  content: '';
-  position: absolute;
-  left: 10%;
-  right: 10%;
-  height: 2px;
-  background: rgba(0, 0, 0, 0.5);
-}
-
-.font-card__preview--preppy::before {
-  top: -4px;
-}
-
-.font-card__preview--preppy::after {
-  bottom: -4px;
+  text-decoration: underline overline;
+  text-decoration-color: rgba(0, 0, 0, 0.5);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 4px;
 }
 
 .font-card__preview--classic {
