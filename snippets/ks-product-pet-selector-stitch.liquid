@@ -1125,13 +1125,17 @@
     radio.addEventListener('change', (e) => {
       const count = parseInt(e.target.value);
       updatePetSections(count);
+      savePetSelectorStateImmediate(); // Save immediately on selection
     });
   });
 
   // Pet name input listeners
   const nameInputs = container.querySelectorAll('[data-pet-name-input]');
   nameInputs.forEach(input => {
-    input.addEventListener('input', updateFontPreviews);
+    input.addEventListener('input', () => {
+      updateFontPreviews();
+      savePetSelectorState(); // Save with debounce on typing
+    });
   });
 
   // Existing Perkie Print checkbox listeners
@@ -1152,6 +1156,7 @@
     card.addEventListener('click', () => {
       styleCards.forEach(c => c.classList.remove('style-card--active'));
       card.classList.add('style-card--active');
+      savePetSelectorStateImmediate(); // Save immediately on selection
     });
   });
 
@@ -1161,6 +1166,7 @@
     card.addEventListener('click', () => {
       fontCards.forEach(c => c.classList.remove('font-card--active'));
       card.classList.add('font-card--active');
+      savePetSelectorStateImmediate(); // Save immediately on selection
     });
   });
 
@@ -1260,6 +1266,9 @@
         updateFileInputWithAllFiles(i, petFiles[i]);
         populateOrderProperties(i, petFiles[i]);
 
+        // Save state after file upload
+        savePetSelectorStateImmediate();
+
         // Store first file in localStorage for preview modal
         if (petFiles[i].length > 0) {
           const reader = new FileReader();
@@ -1346,6 +1355,9 @@
         // Update file input with remaining files
         updateFileInputWithAllFiles(petIndex, petFiles[petIndex]);
         populateOrderProperties(petIndex, petFiles[petIndex]);
+
+        // Save state after file deletion
+        savePetSelectorStateImmediate();
 
         // Update preview if first file was removed
         if (petFiles[petIndex].length > 0) {
@@ -1463,6 +1475,282 @@
     window.location.href = '/pages/custom-image-processing#processor';
   }
 
+  // === STATE PERSISTENCE MODULE ===
+  // Saves and restores pet selector state across page navigation
+
+  /**
+   * Get current product ID from container
+   */
+  function getProductId() {
+    // Try to get from URL first
+    const urlMatch = window.location.pathname.match(/\/products\/[^\/]+/);
+    if (urlMatch) {
+      // Use URL as product identifier (more reliable than dataset)
+      return urlMatch[0];
+    }
+    // Fallback to timestamp-based key (per-session)
+    return 'current';
+  }
+
+  /**
+   * Collect current pet selector state
+   * @returns {Object} Serializable state object
+   */
+  function collectPetSelectorState() {
+    const productId = getProductId();
+
+    // Get current pet count
+    const selectedCountRadio = container.querySelector('[data-pet-count-radio]:checked');
+    const petCount = selectedCountRadio ? parseInt(selectedCountRadio.value) : 0;
+
+    // Collect per-pet data
+    const pets = {};
+    for (let i = 1; i <= 3; i++) {
+      const nameInput = container.querySelector(`[data-pet-name-input="${i}"]`);
+
+      if (nameInput) {
+        pets[i] = {
+          name: nameInput.value.trim(),
+          fileCount: (petFiles[i] || []).length
+        };
+      }
+    }
+
+    // Get global selections
+    const selectedStyle = container.querySelector('[data-style-radio]:checked');
+    const selectedFont = container.querySelector('[data-font-radio]:checked');
+
+    return {
+      productId: productId,
+      timestamp: Date.now(),
+      petCount: petCount,
+      pets: pets,
+      style: selectedStyle ? selectedStyle.value : '',
+      font: selectedFont ? selectedFont.value : ''
+    };
+  }
+
+  let saveStateTimer;
+
+  /**
+   * Save pet selector state to localStorage (debounced)
+   */
+  function savePetSelectorState() {
+    clearTimeout(saveStateTimer);
+
+    saveStateTimer = setTimeout(() => {
+      try {
+        const state = collectPetSelectorState();
+        const key = `perkie_pet_selector_${state.productId}`;
+
+        localStorage.setItem(key, JSON.stringify(state));
+        console.log('💾 Saved pet selector state');
+      } catch (error) {
+        console.error('❌ Failed to save state:', error);
+
+        if (error.name === 'QuotaExceededError') {
+          cleanupOldPetSelectorStates();
+        }
+      }
+    }, 300); // 300ms debounce
+  }
+
+  /**
+   * Save state immediately (no debounce)
+   */
+  function savePetSelectorStateImmediate() {
+    try {
+      const state = collectPetSelectorState();
+      const key = `perkie_pet_selector_${state.productId}`;
+
+      localStorage.setItem(key, JSON.stringify(state));
+      console.log('💾 Saved pet selector state (immediate)');
+    } catch (error) {
+      console.error('❌ Failed to save state:', error);
+    }
+  }
+
+  /**
+   * Clean up old pet selector states (7+ days old)
+   */
+  function cleanupOldPetSelectorStates() {
+    try {
+      const keys = Object.keys(localStorage);
+      const petSelectorKeys = keys.filter(k => k.startsWith('perkie_pet_selector_'));
+      const MAX_AGE = 7 * 24 * 60 * 60 * 1000; // 7 days
+
+      petSelectorKeys.forEach(key => {
+        try {
+          const state = JSON.parse(localStorage.getItem(key));
+          const age = Date.now() - (state.timestamp || 0);
+
+          if (age > MAX_AGE) {
+            localStorage.removeItem(key);
+            console.log('🧹 Cleaned up old state:', key);
+          }
+        } catch (e) {
+          localStorage.removeItem(key);
+        }
+      });
+    } catch (error) {
+      console.error('❌ Cleanup failed:', error);
+    }
+  }
+
+  /**
+   * Load pet selector state from localStorage
+   * @returns {Object|null} State object or null if not found/invalid
+   */
+  function loadPetSelectorState() {
+    try {
+      const productId = getProductId();
+      const key = `perkie_pet_selector_${productId}`;
+      const stored = localStorage.getItem(key);
+
+      if (!stored) {
+        console.log('🔍 No saved state found');
+        return null;
+      }
+
+      const state = JSON.parse(stored);
+
+      // Check expiration (24 hours)
+      const age = Date.now() - (state.timestamp || 0);
+      const MAX_AGE = 24 * 60 * 60 * 1000;
+
+      if (age > MAX_AGE) {
+        console.log('⏰ State expired, clearing');
+        localStorage.removeItem(key);
+        return null;
+      }
+
+      // Validate structure
+      if (!state || typeof state.petCount !== 'number' || !state.pets) {
+        console.warn('⚠️ Invalid state structure');
+        localStorage.removeItem(key);
+        return null;
+      }
+
+      console.log('✅ Loaded valid state');
+      return state;
+
+    } catch (error) {
+      console.error('❌ Failed to load state:', error);
+      return null;
+    }
+  }
+
+  /**
+   * Apply state to UI elements
+   * @param {Object} state - State object to apply
+   */
+  function applyStateToUI(state) {
+    try {
+      console.log('🔄 Restoring pet selector state...');
+
+      // 1. Restore pet count
+      if (state.petCount > 0) {
+        const countRadio = container.querySelector(`[data-pet-count-radio][value="${state.petCount}"]`);
+        if (countRadio) {
+          countRadio.checked = true;
+          updatePetSections(state.petCount);
+        }
+      }
+
+      // 2. Restore per-pet data
+      for (const [index, pet] of Object.entries(state.pets)) {
+        const i = parseInt(index);
+
+        // Restore name
+        const nameInput = container.querySelector(`[data-pet-name-input="${i}"]`);
+        if (nameInput && pet.name) {
+          nameInput.value = pet.name;
+        }
+
+        // Restore upload button state
+        if (pet.fileCount > 0) {
+          const uploadBtn = container.querySelector(`[data-pet-upload-btn="${i}"]`);
+          const fileInput = container.querySelector(`[data-pet-file-input="${i}"]`);
+
+          if (uploadBtn && fileInput) {
+            const maxFiles = parseInt(fileInput.dataset.maxFiles) || 3;
+            uploadBtn.textContent = `Upload (${pet.fileCount}/${maxFiles})`;
+            uploadBtn.classList.add('has-uploads');
+
+            // Re-display uploaded files (read from existing localStorage)
+            const storedImages = localStorage.getItem(`pet_${i}_images`);
+            if (storedImages) {
+              const images = JSON.parse(storedImages);
+              displayUploadedFiles(i, images);
+            }
+          }
+        }
+      }
+
+      // 3. Restore style selection
+      if (state.style) {
+        const styleRadio = container.querySelector(`[data-style-radio="${state.style}"]`);
+        if (styleRadio) {
+          styleRadio.checked = true;
+
+          const styleCard = styleRadio.closest('.style-card');
+          if (styleCard) {
+            container.querySelectorAll('.style-card').forEach(c => c.classList.remove('style-card--active'));
+            styleCard.classList.add('style-card--active');
+          }
+        }
+      }
+
+      // 4. Restore font selection
+      if (state.font) {
+        const fontRadio = container.querySelector(`[data-font-radio="${state.font}"]`);
+        if (fontRadio) {
+          fontRadio.checked = true;
+
+          const fontCard = fontRadio.closest('.font-card');
+          if (fontCard) {
+            container.querySelectorAll('.font-card').forEach(c => c.classList.remove('font-card--active'));
+            fontCard.classList.add('font-card--active');
+          }
+        }
+      }
+
+      // 5. Update font previews
+      updateFontPreviews();
+
+      // 6. Check if user returned from processor
+      const returnUrl = sessionStorage.getItem('pet_selector_return_url');
+      if (returnUrl === window.location.href) {
+        // Restore scroll position
+        const scrollPos = parseInt(sessionStorage.getItem('pet_selector_scroll_position') || '0');
+        setTimeout(() => window.scrollTo(0, scrollPos), 100);
+
+        // Clear markers
+        sessionStorage.removeItem('pet_selector_return_url');
+        sessionStorage.removeItem('pet_selector_scroll_position');
+
+        console.log('🔙 User returned from processor');
+      }
+
+      console.log('✅ State restoration complete');
+
+    } catch (error) {
+      console.error('❌ Failed to restore state:', error);
+    }
+  }
+
+  /**
+   * Restore state on page load
+   */
+  function restorePetSelectorState() {
+    const state = loadPetSelectorState();
+    if (state) {
+      applyStateToUI(state);
+    }
+  }
+
+  // === END STATE PERSISTENCE MODULE ===
+
   // Initialize - No default selections
   // User must actively select pet count, style, and font
   // Pet sections remain hidden until count is selected
@@ -1499,6 +1787,22 @@
       }
     });
   }
+
+  // === RESTORE STATE ON PAGE LOAD ===
+  // Wait for DOM to be fully ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', restorePetSelectorState);
+  } else {
+    restorePetSelectorState();
+  }
+
+  // Also handle pageshow (for mobile back/forward cache)
+  window.addEventListener('pageshow', (e) => {
+    if (e.persisted) {
+      console.log('📄 Page loaded from cache, reloading state...');
+      restorePetSelectorState();
+    }
+  });
 })();
 </script>
 
