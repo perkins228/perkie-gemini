@@ -582,11 +582,18 @@
         missingFields.push('style');
       }
 
-      // 4. Validate font selection (required field)
-      var fontRadio = newPetSelector.querySelector('[data-font-radio]:checked');
-      if (!fontRadio) {
-        missingFields.push('font');
+      // 4. Validate font selection (conditional - only for products that support fonts)
+      // Font section only renders when product.metafields.custom.supports_font_styles == true
+      // Check if font radios exist in DOM (indicates text product supports fonts)
+      var fontRadios = newPetSelector.querySelectorAll('[data-font-radio]');
+      if (fontRadios.length > 0) {
+        // Font section exists - validate that one is selected
+        var fontRadio = newPetSelector.querySelector('[data-font-radio]:checked');
+        if (!fontRadio) {
+          missingFields.push('font');
+        }
       }
+      // If fontRadios.length === 0, this is a non-text product - skip font validation
 
       return {
         isValid: missingFields.length === 0,
@@ -614,8 +621,21 @@
         // Progressive messaging based on completion state
         var buttonText;
         if (missingCount === 1) {
-          // One step away - encouraging
-          buttonText = isMobile ? '👉 1 step left' : '👉 Select font to complete';
+          // One step away - provide specific guidance based on what's missing
+          var missingField = options.missingFields && options.missingFields[0];
+
+          if (missingField === 'font') {
+            buttonText = isMobile ? '👉 1 step left' : '👉 Select font to complete';
+          } else if (missingField === 'style') {
+            buttonText = isMobile ? '👉 1 step left' : '👉 Select style to complete';
+          } else if (missingField === 'pet name') {
+            buttonText = isMobile ? '👉 1 step left' : '👉 Add pet name to complete';
+          } else if (missingField === 'pet count') {
+            buttonText = isMobile ? '👉 1 step left' : '👉 Select number of pets';
+          } else {
+            // Generic fallback
+            buttonText = isMobile ? '👉 1 step left' : '👉 Complete your selection';
+          }
         } else if (missingCount === 2) {
           // Two steps remaining
           buttonText = isMobile ? '↑ 2 steps' : '2 more steps to add to cart';
