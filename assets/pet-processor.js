@@ -478,6 +478,9 @@ class PetProcessor {
     // Render UI
     this.render();
 
+    // Load style preview images from section settings
+    this.loadStylePreviewImages();
+
     // Bind events
     this.bindEvents();
 
@@ -762,24 +765,41 @@ class PetProcessor {
             
             <!-- Effect Selection (shown in result view) -->
             <div class="effect-grid-wrapper" hidden>
+              <h3 class="effect-grid-heading">Choose Style</h3>
               <!-- Effect Selection -->
-              <div class="effect-grid">
-                <button class="effect-btn active" data-effect="enhancedblackwhite">
-                  <span class="effect-emoji">⚫⚪</span>
-                  <span class="effect-name">B&W</span>
-                </button>
-                <button class="effect-btn" data-effect="color">
-                  <span class="effect-emoji">🌈</span>
-                  <span class="effect-name">Color</span>
-                </button>
-                <button class="effect-btn effect-btn--ai" data-effect="modern">
-                  <span class="effect-emoji">🖌️</span>
-                  <span class="effect-name">Modern</span>
-                </button>
-                <button class="effect-btn effect-btn--ai" data-effect="sketch">
-                  <span class="effect-emoji">✏️</span>
-                  <span class="effect-name">Sketch</span>
-                </button>
+              <div class="effect-grid style-selector__grid">
+                <label class="effect-btn style-card active" data-effect="enhancedblackwhite">
+                  <div class="style-card__content">
+                    <div class="style-card__image-wrapper">
+                      <img src="" alt="Black & White style preview" class="style-card__image" data-style-preview="bw">
+                    </div>
+                    <p class="style-card__label">Black & White</p>
+                  </div>
+                </label>
+                <label class="effect-btn style-card" data-effect="color">
+                  <div class="style-card__content">
+                    <div class="style-card__image-wrapper">
+                      <img src="" alt="Color style preview" class="style-card__image" data-style-preview="color">
+                    </div>
+                    <p class="style-card__label">Color</p>
+                  </div>
+                </label>
+                <label class="effect-btn style-card effect-btn--ai" data-effect="modern">
+                  <div class="style-card__content">
+                    <div class="style-card__image-wrapper">
+                      <img src="" alt="Modern style preview" class="style-card__image" data-style-preview="modern">
+                    </div>
+                    <p class="style-card__label">Modern</p>
+                  </div>
+                </label>
+                <label class="effect-btn style-card effect-btn--ai" data-effect="sketch">
+                  <div class="style-card__content">
+                    <div class="style-card__image-wrapper">
+                      <img src="" alt="Sketch style preview" class="style-card__image" data-style-preview="sketch">
+                    </div>
+                    <p class="style-card__label">Sketch</p>
+                  </div>
+                </label>
               </div>
             </div>
             
@@ -860,7 +880,59 @@ class PetProcessor {
       </div>
     `;
   }
-  
+
+  /**
+   * Load style preview images from section settings
+   * Reads data attributes from section element and updates image sources
+   */
+  loadStylePreviewImages() {
+    try {
+      // Get the section element
+      const section = this.container.closest('[data-section-type="ks-pet-processor-v5"]');
+      if (!section) {
+        console.warn('⚠️ Could not find section element for style previews');
+        return;
+      }
+
+      // Define image mapping with fallbacks to default assets
+      const styleImageMap = {
+        'bw': {
+          setting: section.dataset.stylePreviewBw,
+          fallback: 'pet-bw-preview.jpg',
+          element: '[data-style-preview="bw"]'
+        },
+        'color': {
+          setting: section.dataset.stylePreviewColor,
+          fallback: 'pet-color-preview.jpg',
+          element: '[data-style-preview="color"]'
+        },
+        'modern': {
+          setting: section.dataset.stylePreviewModern,
+          fallback: 'pet-modern-preview.jpg',
+          element: '[data-style-preview="modern"]'
+        },
+        'sketch': {
+          setting: section.dataset.stylePreviewSketch,
+          fallback: 'pet-sketch-preview.jpg',
+          element: '[data-style-preview="sketch"]'
+        }
+      };
+
+      // Update each style preview image
+      Object.entries(styleImageMap).forEach(([key, config]) => {
+        const imgElement = this.container.querySelector(config.element);
+        if (imgElement) {
+          // Use customizer image if available, otherwise use fallback asset
+          imgElement.src = config.setting || `https://cdn.shopify.com/s/files/1/0624/6672/0275/files/${config.fallback}`;
+        }
+      });
+
+      console.log('🎨 Style preview images loaded successfully');
+    } catch (error) {
+      console.error('❌ Error loading style preview images:', error);
+    }
+  }
+
   bindEvents() {
     // File input
     const fileInput = this.container.querySelector('.file-input');

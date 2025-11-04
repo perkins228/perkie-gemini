@@ -36,7 +36,10 @@
       "Bash(gcloud run services list:*)",
       "Bash(timeout 5 bash:*)",
       "Bash(dir /s /b \"c:\\Users\\perki\\OneDrive\\Desktop\\Perkie\\Perkie-Gemini\\stitch_pet_product_display_module\")",
-      "Bash(find:*)"
+      "Bash(find:*)",
+      "Bash(git rm:*)",
+      "Bash(git pull:*)",
+      "Bash(git stash:*)"
     ],
     "deny": [],
     "ask": [],

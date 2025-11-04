@@ -10,8 +10,12 @@
 {{ 'pet-social-sharing-simple.css' | asset_url | stylesheet_tag }}
 
 <section id="ks-pet-bg-remover-{{ section.id }}" class="ks-pet-processor-section color-{{ section.settings.color_scheme }}"
-         data-section-type="ks-pet-processor-v5" 
-         data-section-id="{{ section.id }}">
+         data-section-type="ks-pet-processor-v5"
+         data-section-id="{{ section.id }}"
+         {% if section.settings.style_preview_bw != blank %}data-style-preview-bw="{{ section.settings.style_preview_bw | image_url: width: 320 }}"{% endif %}
+         {% if section.settings.style_preview_color != blank %}data-style-preview-color="{{ section.settings.style_preview_color | image_url: width: 320 }}"{% endif %}
+         {% if section.settings.style_preview_modern != blank %}data-style-preview-modern="{{ section.settings.style_preview_modern | image_url: width: 320 }}"{% endif %}
+         {% if section.settings.style_preview_sketch != blank %}data-style-preview-sketch="{{ section.settings.style_preview_sketch | image_url: width: 320 }}"{% endif %}>
   <a id="pet-processor" style="position: absolute; top: -80px;"></a>
   <div class="page-width">
     {% if section.settings.heading != blank %}
@@ -119,6 +123,38 @@
       "id": "color_scheme",
       "label": "Color scheme",
       "default": "scheme-1"
+    },
+    {
+      "type": "header",
+      "content": "Style Preview Images"
+    },
+    {
+      "type": "paragraph",
+      "content": "Upload preview images for each style option. These will be shown as thumbnails when users select styles."
+    },
+    {
+      "type": "image_picker",
+      "id": "style_preview_bw",
+      "label": "Black & White Style Preview",
+      "info": "Preview image for Black & White style"
+    },
+    {
+      "type": "image_picker",
+      "id": "style_preview_color",
+      "label": "Color Style Preview",
+      "info": "Preview image for Color style"
+    },
+    {
+      "type": "image_picker",
+      "id": "style_preview_modern",
+      "label": "Modern Style Preview",
+      "info": "Preview image for Modern (Ink Wash) style"
+    },
+    {
+      "type": "image_picker",
+      "id": "style_preview_sketch",
+      "label": "Sketch Style Preview",
+      "info": "Preview image for Sketch (Pen & Marker) style"
     },
     {
       "type": "header",
