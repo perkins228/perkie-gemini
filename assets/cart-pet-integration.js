@@ -450,48 +450,45 @@
 
       var self = this;
 
-      // NEW SELECTOR: Handle multiple pet name inputs (Pet 1, Pet 2, Pet 3)
+      // NEW SELECTOR: Comprehensive validation for all required fields
       if (newPetSelector) {
+        // Initial validation check
+        self.validateAndUpdateButton();
+
+        // Listen for pet count changes
+        var petCountRadios = newPetSelector.querySelectorAll('[data-pet-count-radio]');
+        for (var i = 0; i < petCountRadios.length; i++) {
+          petCountRadios[i].addEventListener('change', function() {
+            self.validateAndUpdateButton();
+          });
+        }
+
+        // Listen for pet name input changes
         var petNameInputs = newPetSelector.querySelectorAll('[data-pet-name-input]');
-
-        // Check if ANY pet name is filled
-        var hasAnyPetName = false;
-        for (var i = 0; i < petNameInputs.length; i++) {
-          if (petNameInputs[i].value.trim() !== '') {
-            hasAnyPetName = true;
-            break;
-          }
-        }
-
-        if (hasAnyPetName) {
-          this.enableAddToCart();
-        } else {
-          this.disableAddToCart();
-        }
-
-        // Listen for pet name input changes on ALL pet name fields
         for (var j = 0; j < petNameInputs.length; j++) {
           (function(input) {
             input.addEventListener('input', function() {
               var sanitized = self.sanitizePetName(input.value);
               input.value = sanitized;
-
-              // Check if ANY pet name is filled
-              var anyFilled = false;
-              for (var k = 0; k < petNameInputs.length; k++) {
-                if (petNameInputs[k].value.trim() !== '') {
-                  anyFilled = true;
-                  break;
-                }
-              }
-
-              if (anyFilled) {
-                self.enableAddToCart();
-              } else {
-                self.disableAddToCart();
-              }
+              self.validateAndUpdateButton();
             });
           })(petNameInputs[j]);
+        }
+
+        // Listen for style selection changes
+        var styleRadios = newPetSelector.querySelectorAll('[data-style-radio]');
+        for (var k = 0; k < styleRadios.length; k++) {
+          styleRadios[k].addEventListener('change', function() {
+            self.validateAndUpdateButton();
+          });
+        }
+
+        // Listen for font selection changes
+        var fontRadios = newPetSelector.querySelectorAll('[data-font-radio]');
+        for (var l = 0; l < fontRadios.length; l++) {
+          fontRadios[l].addEventListener('change', function() {
+            self.validateAndUpdateButton();
+          });
         }
       }
       // OLD SELECTOR: Legacy support for ks-product-pet-selector.liquid
@@ -532,10 +529,78 @@
       return name.replace(/[^A-Za-z0-9, \-']/g, '').substring(0, 100);
     },
 
+    // NEW: Validate all required fields and update button state
+    validateAndUpdateButton: function() {
+      var validation = this.validateCustomization();
+
+      if (validation.isValid) {
+        this.enableAddToCart();
+      } else {
+        this.disableAddToCart({
+          missingCount: validation.missingFields.length,
+          missingFields: validation.missingFields,
+          isMobile: window.innerWidth <= 750
+        });
+      }
+    },
+
+    // NEW: Comprehensive validation of all customization fields
+    validateCustomization: function() {
+      var newPetSelector = document.querySelector('.pet-selector-stitch');
+      if (!newPetSelector) {
+        return { isValid: true, missingFields: [] };
+      }
+
+      var missingFields = [];
+
+      // 1. Validate pet count selection
+      var petCountRadio = newPetSelector.querySelector('[data-pet-count-radio]:checked');
+      if (!petCountRadio) {
+        missingFields.push('pet count');
+      }
+
+      // 2. Validate pet name(s) - check if ANY pet name is filled
+      var petNameInputs = newPetSelector.querySelectorAll('[data-pet-name-input]');
+      var hasAnyPetName = false;
+      for (var i = 0; i < petNameInputs.length; i++) {
+        // Only check visible inputs (based on pet count)
+        var petDetail = petNameInputs[i].closest('.pet-detail');
+        if (petDetail && petDetail.style.display !== 'none') {
+          if (petNameInputs[i].value.trim() !== '') {
+            hasAnyPetName = true;
+            break;
+          }
+        }
+      }
+      if (!hasAnyPetName) {
+        missingFields.push('pet name');
+      }
+
+      // 3. Validate style selection
+      var styleRadio = newPetSelector.querySelector('[data-style-radio]:checked');
+      if (!styleRadio) {
+        missingFields.push('style');
+      }
+
+      // 4. Validate font selection (required field)
+      var fontRadio = newPetSelector.querySelector('[data-font-radio]:checked');
+      if (!fontRadio) {
+        missingFields.push('font');
+      }
+
+      return {
+        isValid: missingFields.length === 0,
+        missingFields: missingFields
+      };
+    },
+
     // Disable Add to Cart button with instructional message
-    disableAddToCart: function() {
+    // UPDATED: Now supports detailed missing field messages
+    disableAddToCart: function(options) {
       var buttons = document.querySelectorAll('form[action*="/cart/add"] button[name="add"]');
-      var isMobile = window.innerWidth <= 750;
+      options = options || {};
+      var missingCount = options.missingCount || 1;
+      var isMobile = options.isMobile !== undefined ? options.isMobile : window.innerWidth <= 750;
 
       for (var i = 0; i < buttons.length; i++) {
         var btn = buttons[i];
@@ -546,13 +611,26 @@
           btn.dataset.originalText = btn.textContent;
         }
 
-        // Updated messaging for name-only flow
-        if (isMobile) {
-          btn.textContent = '👆 Enter pet name above';
+        // Progressive messaging based on completion state
+        var buttonText;
+        if (missingCount === 1) {
+          // One step away - encouraging
+          buttonText = isMobile ? '👉 1 step left' : '👉 Select font to complete';
+        } else if (missingCount === 2) {
+          // Two steps remaining
+          buttonText = isMobile ? '↑ 2 steps' : '2 more steps to add to cart';
+        } else if (missingCount === 3) {
+          // Three steps remaining
+          buttonText = isMobile ? '↑ 3 steps' : '3 more steps to add to cart';
+        } else if (missingCount >= 4) {
+          // All steps remaining
+          buttonText = isMobile ? '↑ Complete above' : '↑ Complete customization above';
         } else {
-          btn.textContent = '↑ Enter pet name above';
+          // Fallback (legacy)
+          buttonText = isMobile ? '👆 Enter pet name above' : '↑ Enter pet name above';
         }
 
+        btn.textContent = buttonText;
         btn.style.opacity = '0.6';
         btn.style.cursor = 'not-allowed';
       }
