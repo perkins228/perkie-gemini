@@ -340,6 +340,9 @@
 {% assign scheme_button_label = scheme.button_label | default: '#461312' %}
 
 <style>
+/* Google Fonts Import for Font Selector */
+@import url('https://fonts.googleapis.com/css2?family=Libre+Caslon+Text:ital,wght@0,400;0,700;1,400&family=Merriweather:ital,wght@0,300;0,400;0,700;1,300;1,400;1,700&family=Rampart+One&family=Ms+Madi&family=Fascinate&display=swap');
+
 /* Pet Selector - Stitch Pattern Styles */
 /* Color variables set via inline style on container for instant theme editor updates */
 
@@ -735,28 +738,46 @@
 
 /* Font-specific styles */
 .font-card__preview--preppy {
-  font-family: 'Poppins', sans-serif;
-  font-weight: 600;
+  font-family: 'Libre Caslon Text', 'Garamond', serif;
+  position: relative;
+  display: inline-block;
+  padding: 0;
+  line-height: 1;
+}
+
+/* Preppy style - 2px borders tight to text */
+.font-card__preview--preppy::before,
+.font-card__preview--preppy::after {
+  content: '';
+  position: absolute;
+  left: 10%;
+  right: 10%;
+  height: 2px;
+  background: rgba(0, 0, 0, 0.5);
+}
+
+.font-card__preview--preppy::before {
+  top: -4px;
+}
+
+.font-card__preview--preppy::after {
+  bottom: -4px;
 }
 
 .font-card__preview--classic {
-  font-family: 'Times New Roman', serif;
-  font-style: italic;
+  font-family: 'Merriweather', serif;
 }
 
 .font-card__preview--playful {
-  font-family: 'Comic Sans MS', cursive;
+  font-family: 'Rampart One', cursive;
 }
 
 .font-card__preview--elegant {
-  font-family: 'Georgia', serif;
-  font-style: italic;
+  font-family: 'Ms Madi', 'Sacramento', cursive;
 }
 
 .font-card__preview--trend {
-  font-family: 'Arial Black', sans-serif;
-  font-weight: 900;
-  text-transform: uppercase;
+  font-family: 'Fascinate', 'Rampart One', cursive;
 }
 
 /* Mobile Responsiveness */
