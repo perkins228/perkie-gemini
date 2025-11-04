@@ -36,12 +36,11 @@
     <h2 class="pet-selector__section-heading">Number of Pets</h2>
     <div class="pet-selector__count-grid">
       {% for i in (1..max_pets_per_product) %}
-      <label class="pet-count-btn {% if i == 1 %}pet-count-btn--active{% endif %}">
+      <label class="pet-count-btn">
         <span>{{ i }}</span>
         <input type="radio"
                name="pet-count"
                value="{{ i }}"
-               {% if i == 1 %}checked{% endif %}
                data-pet-count-radio>
       </label>
       {% endfor %}
@@ -52,12 +51,12 @@
   <div class="pet-selector__section">
     <h2 class="pet-selector__section-heading">Pet Details</h2>
 
-    {% comment %} Dynamic pet sections (1-3 based on selection) {% endcomment %}
+    {% comment %} Dynamic pet sections (1-3 based on selection) - All hidden initially {% endcomment %}
     <div class="pet-details-container" data-pet-details-container>
       {% for i in (1..3) %}
       <div class="pet-detail"
            data-pet-index="{{ i }}"
-           {% if i > 1 %}style="display: none;"{% endif %}>
+           style="display: none;">
 
         <div class="pet-detail__row">
           <label class="pet-detail__name-label">
@@ -252,11 +251,10 @@
       </label>
 
       {% comment %} Preppy Font (with borders) {% endcomment %}
-      <label class="font-card font-card--active">
+      <label class="font-card">
         <input type="radio"
                name="properties[Font]"
                value="preppy"
-               checked
                data-font-radio="preppy">
         <div class="font-card__content">
           <p class="font-card__title">Preppy</p>
@@ -913,9 +911,9 @@
     });
   });
 
-  // Initialize
-  updatePetSections(1);
-  updateFontPreviews();
+  // Initialize - No default selections
+  // User must actively select pet count, style, and font
+  // Pet sections remain hidden until count is selected
 })();
 </script>
 
