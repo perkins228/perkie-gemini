@@ -1451,52 +1451,13 @@
 
   // Create and show processor modal
   function openProcessorModal(imageDataUrl, petIndex) {
-    // Create modal overlay
-    const modal = document.createElement('div');
-    modal.className = 'pet-processor-modal';
-    modal.innerHTML = `
-      <div class="pet-processor-modal__overlay"></div>
-      <div class="pet-processor-modal__content">
-        <button class="pet-processor-modal__close" aria-label="Close">&times;</button>
-        <div class="pet-processor-modal__header">
-          <h2>Preview Pet ${petIndex} Image</h2>
-          <p>Use the processor below to see how your image will look</p>
-        </div>
-        <div class="pet-processor-modal__body">
-          <iframe
-            src="/pages/pet-background-remover#processor"
-            class="pet-processor-modal__iframe"
-            title="Pet Image Processor">
-          </iframe>
-        </div>
-      </div>
-    `;
+    // Image data already stored in localStorage by file upload handler (line 1273)
+    // Store return URL and scroll position for back navigation
+    sessionStorage.setItem('pet_selector_return_url', window.location.href);
+    sessionStorage.setItem('pet_selector_scroll_position', window.scrollY.toString());
 
-    document.body.appendChild(modal);
-    document.body.style.overflow = 'hidden';
-
-    // Close modal handlers
-    const closeBtn = modal.querySelector('.pet-processor-modal__close');
-    const overlay = modal.querySelector('.pet-processor-modal__overlay');
-
-    const closeModal = () => {
-      document.body.removeChild(modal);
-      document.body.style.overflow = '';
-    };
-
-    closeBtn.addEventListener('click', closeModal);
-    overlay.addEventListener('click', closeModal);
-
-    // Pass image data to iframe when loaded
-    const iframe = modal.querySelector('.pet-processor-modal__iframe');
-    iframe.addEventListener('load', () => {
-      // Send image data to processor
-      iframe.contentWindow.postMessage({
-        type: 'LOAD_IMAGE',
-        imageData: imageDataUrl,
-        petIndex: petIndex
-      }, '*');
-    });
+    // Navigate to processor page - it will read from localStorage automatically
+    window.location.href = '/pages/custom-image-processing#processor';
   }
 
   // Initialize - No default selections
