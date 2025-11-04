@@ -1282,6 +1282,15 @@
             localStorage.setItem(`pet_${i}_images`, JSON.stringify(previewData));
           };
           reader.readAsDataURL(petFiles[i][0]);
+
+          // NEW: Save complete file metadata (all files, no base64)
+          const fileMetadata = petFiles[i].map(file => ({
+            name: file.name,
+            size: file.size,
+            type: file.type
+          }));
+          localStorage.setItem(`pet_${i}_file_metadata`, JSON.stringify(fileMetadata));
+          console.log(`💾 Saved ${fileMetadata.length} file metadata entries for Pet ${i}`);
         }
       });
 
@@ -1372,8 +1381,20 @@
             localStorage.setItem(`pet_${petIndex}_images`, JSON.stringify(previewData));
           };
           reader.readAsDataURL(petFiles[petIndex][0]);
+
+          // NEW: Update file metadata in localStorage after deletion
+          const fileMetadata = petFiles[petIndex].map(file => ({
+            name: file.name,
+            size: file.size,
+            type: file.type
+          }));
+          localStorage.setItem(`pet_${petIndex}_file_metadata`, JSON.stringify(fileMetadata));
+          console.log(`💾 Updated metadata after deletion: ${fileMetadata.length} files for Pet ${petIndex}`);
         } else {
           localStorage.removeItem(`pet_${petIndex}_images`);
+          // NEW: Remove metadata when no files remain
+          localStorage.removeItem(`pet_${petIndex}_file_metadata`);
+          console.log(`🗑️ Removed metadata for Pet ${petIndex} (no files remaining)`);
         }
       }
 
@@ -1677,11 +1698,28 @@
             uploadBtn.textContent = `Upload (${pet.fileCount}/${maxFiles})`;
             uploadBtn.classList.add('has-uploads');
 
-            // Re-display uploaded files (read from existing localStorage)
-            const storedImages = localStorage.getItem(`pet_${i}_images`);
-            if (storedImages) {
-              const images = JSON.parse(storedImages);
-              displayUploadedFiles(i, images);
+            // NEW: Restore from file metadata (complete list, not just preview)
+            const storedMetadata = localStorage.getItem(`pet_${i}_file_metadata`);
+            if (storedMetadata) {
+              try {
+                const fileMetadata = JSON.parse(storedMetadata);
+
+                // Reconstruct petFiles array with mock File objects for UI display
+                // Note: These are not real File objects (can't be re-uploaded)
+                // but have enough data (.name, .size, .type) for UI display
+                petFiles[i] = fileMetadata.map(meta => ({
+                  name: meta.name,
+                  size: meta.size,
+                  type: meta.type
+                }));
+
+                // Display files in UI (will now show all files, not just first)
+                displayUploadedFiles(i, petFiles[i]);
+
+                console.log(`✅ Restored ${petFiles[i].length} files for Pet ${i} from metadata`);
+              } catch (error) {
+                console.error(`❌ Failed to restore files for Pet ${i}:`, error);
+              }
             }
           }
         }
