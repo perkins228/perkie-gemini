@@ -833,7 +833,7 @@
     updateFontPreviews();
   }
 
-  // Update font previews with comma-separated pet names
+  // Update font previews with ampersand formatting (matches old font-selector)
   function updateFontPreviews() {
     const visiblePets = [...petDetailsContainer.querySelectorAll('.pet-detail')]
       .filter(detail => detail.style.display !== 'none');
@@ -843,7 +843,21 @@
       return input.value.trim() || `Pet ${detail.dataset.petIndex}`;
     });
 
-    const previewText = petNames.join(', ');
+    // Format names with ampersand logic (matches PetNameFormatter)
+    let previewText = '';
+    if (petNames.length === 0) {
+      previewText = '';
+    } else if (petNames.length === 1) {
+      previewText = petNames[0];
+    } else if (petNames.length === 2) {
+      // 2 pets: "Sam & Buddy"
+      previewText = petNames[0] + ' & ' + petNames[1];
+    } else {
+      // 3+ pets: "Sam, Buddy & Max" (no Oxford comma)
+      const lastPet = petNames[petNames.length - 1];
+      const otherPets = petNames.slice(0, -1);
+      previewText = otherPets.join(', ') + ' & ' + lastPet;
+    }
 
     fontPreviews.forEach(preview => {
       const textSpan = preview.querySelector('.font-preview-text');
