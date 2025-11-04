@@ -844,8 +844,15 @@
 
 .pet-detail__upload-status__file-delete {
   flex-shrink: 0;
-  width: 1.5rem;
-  height: 1.5rem;
+
+  /* VISUAL SIZE: Keep 24px for design consistency */
+  width: 1.5rem;        /* 24px */
+  height: 1.5rem;       /* 24px */
+
+  /* Enable pseudo-element positioning */
+  position: relative;
+
+  /* Visual styling (unchanged) */
   border-radius: 50%;
   border: 1px solid #dc2626;
   background-color: white;
@@ -858,17 +865,67 @@
   justify-content: center;
   transition: all 0.2s;
   padding: 0;
-  margin-left: 0.25rem;
+
+  /* INCREASED SPACING: More room for fat-finger taps */
+  margin-left: 0.75rem;  /* Was 0.25rem, now 0.75rem */
+
+  /* Touch device optimization */
+  -webkit-tap-highlight-color: rgba(220, 38, 38, 0.2);
+  touch-action: manipulation;  /* Prevents double-tap zoom */
 }
 
-.pet-detail__upload-status__file-delete:hover {
-  background-color: #dc2626;
-  color: white;
-  transform: scale(1.1);
+/* INVISIBLE TAP AREA EXPANSION: 44×44px for accessibility */
+.pet-detail__upload-status__file-delete::before {
+  content: '';
+  position: absolute;
+
+  /* CENTER the 44×44px tap area over 24×24px button */
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+
+  /* MINIMUM TOUCH TARGET: 44×44px (WCAG 2.1 AAA) */
+  width: 2.75rem;   /* 44px */
+  height: 2.75rem;  /* 44px */
+
+  /* Make it tappable but invisible */
+  border-radius: 50%;
+
+  /* DEBUG: Uncomment to visualize tap area during development */
+  /* background-color: rgba(220, 38, 38, 0.1); */
+  /* border: 1px dashed #dc2626; */
 }
 
+/* HOVER STATE: Desktop only (not touch devices) */
+@media (hover: hover) and (pointer: fine) {
+  .pet-detail__upload-status__file-delete:hover {
+    background-color: #dc2626;
+    color: white;
+    transform: scale(1.1);
+  }
+}
+
+/* ACTIVE STATE: Enhanced for touch devices */
 .pet-detail__upload-status__file-delete:active {
   transform: scale(0.95);
+  background-color: #dc2626;
+  color: white;
+
+  /* Haptic feedback hint (Safari iOS) */
+  -webkit-tap-highlight-color: rgba(220, 38, 38, 0.4);
+}
+
+/* FOCUS STATE: Keyboard accessibility */
+.pet-detail__upload-status__file-delete:focus {
+  outline: 2px solid #dc2626;
+  outline-offset: 2px;
+}
+
+/* MOBILE-SPECIFIC: Extra spacing on small screens */
+@media (max-width: 640px) {
+  .pet-detail__upload-status__file-delete {
+    margin-left: 1rem;  /* Even more space on mobile */
+  }
 }
 
 /* Processor Modal Styles */
