@@ -1265,14 +1265,29 @@
   function updateVariantSelection(petCount) {
     console.log(`🔄 Updating variant selection for ${petCount} pet(s)...`);
 
+    // DIAGNOSTIC: Log entire ShopifyAnalytics structure for debugging
+    console.log('🔍 DEBUG: window.ShopifyAnalytics:', window.ShopifyAnalytics);
+
     // Get product data from global window object (set by Shopify)
     if (!window.ShopifyAnalytics || !window.ShopifyAnalytics.meta || !window.ShopifyAnalytics.meta.product) {
       console.warn('⚠️ Product data not available, cannot update variant');
+
+      // DIAGNOSTIC: Check alternative data sources
+      console.log('🔍 DEBUG: Checking alternative sources...');
+      console.log('🔍 DEBUG: window.product:', window.product);
+      console.log('🔍 DEBUG: window.meta:', window.meta);
       return;
     }
 
     const productData = window.ShopifyAnalytics.meta.product;
     const variants = productData.variants;
+
+    // DIAGNOSTIC: Log variant structure
+    console.log('🔍 DEBUG: Variants array length:', variants ? variants.length : 0);
+    if (variants && variants.length > 0) {
+      console.log('🔍 DEBUG: First variant full object:', variants[0]);
+      console.log('🔍 DEBUG: All variant titles:', variants.map(v => v.title || v.name || v.option1));
+    }
 
     if (!variants || variants.length === 0) {
       console.warn('⚠️ No variants found for product');
@@ -1282,6 +1297,8 @@
     // Find variant matching pet count
     // Variant option format: "1 Pet", "2 Pets", "3 Pets"
     const petCountText = petCount === 1 ? '1 Pet' : `${petCount} Pets`;
+    console.log('🔍 DEBUG: Looking for variant matching:', petCountText);
+
     const matchingVariant = variants.find(v => {
       // Check if any variant option matches our pet count text
       return v.option1 === petCountText || v.option2 === petCountText || v.option3 === petCountText;
@@ -1289,25 +1306,68 @@
 
     if (!matchingVariant) {
       console.warn(`⚠️ No variant found for "${petCountText}"`);
+      console.log('🔍 DEBUG: Available option1 values:', variants.map(v => v.option1));
+      console.log('🔍 DEBUG: Available option2 values:', variants.map(v => v.option2));
+      console.log('🔍 DEBUG: Available option3 values:', variants.map(v => v.option3));
       return;
     }
 
     // Update variant ID in form (required for add-to-cart)
-    const form = container.closest('form[action*="/cart/add"]');
+    // FIX: Try multiple form selector strategies
+    let form = container.closest('form[action*="/cart/add"]');
+
+    // DIAGNOSTIC: Log form search results
+    console.log('🔍 DEBUG: container element:', container);
+    console.log('🔍 DEBUG: Form found via closest:', form);
+
     if (!form) {
-      console.warn('⚠️ Add-to-cart form not found');
+      console.warn('⚠️ Add-to-cart form not found via .closest(), trying alternatives...');
+
+      // Try alternative selectors
+      form = document.querySelector('form[action*="/cart/add"]') ||
+             container.parentElement?.querySelector('form[action*="/cart/add"]');
+
+      console.log('🔍 DEBUG: Form found via document.querySelector:', form);
+    }
+
+    if (!form) {
+      console.warn('⚠️ Add-to-cart form not found with any method');
+      console.log('🔍 DEBUG: All forms on page:', document.querySelectorAll('form'));
       return;
     }
 
     const variantInput = form.querySelector('input[name="id"]');
     if (!variantInput) {
       console.warn('⚠️ Variant input field not found in form');
+      console.log('🔍 DEBUG: All inputs in form:', form.querySelectorAll('input'));
       return;
     }
 
     // Update variant ID
     variantInput.value = matchingVariant.id;
-    console.log(`✅ Variant updated: ${matchingVariant.name} (ID: ${matchingVariant.id}, Price: $${(matchingVariant.price / 100).toFixed(2)})`);
+    console.log(`✅ Variant updated: ${matchingVariant.name || matchingVariant.title} (ID: ${matchingVariant.id}, Price: $${(matchingVariant.price / 100).toFixed(2)})`);
+
+    // CRITICAL FIX: Notify Shopify product form of variant change
+    // This ensures the form's internal state updates and correct variant is added to cart
+    try {
+      // Dispatch change event on variant input (Shopify listens for this)
+      const changeEvent = new Event('change', { bubbles: true });
+      variantInput.dispatchEvent(changeEvent);
+      console.log('✅ Dispatched variant change event to Shopify product form');
+
+      // Also trigger Shopify's variant:change custom event for theme components
+      const variantChangeEvent = new CustomEvent('variant:change', {
+        bubbles: true,
+        detail: {
+          variant: matchingVariant,
+          sectionId: form.dataset.sectionId || 'main'
+        }
+      });
+      document.dispatchEvent(variantChangeEvent);
+      console.log('✅ Dispatched variant:change custom event for theme components');
+    } catch (error) {
+      console.error('❌ Error dispatching variant change events:', error);
+    }
 
     // Update price display if available
     updatePriceDisplay(matchingVariant);
