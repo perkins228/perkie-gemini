@@ -1263,61 +1263,51 @@
 
   // NEW: Update variant selection based on pet count by triggering Shopify's variant selector
   function updateVariantSelection(petCount) {
-    console.log(`🔄 Updating variant for ${petCount} pet(s) via Shopify's variant selector...`);
+    console.log(`🔄 Updating variant for ${petCount} pet(s)`);
 
     // Determine target variant text
     const petCountText = petCount === 1 ? '1 Pet' : `${petCount} Pets`;
-    console.log('🎯 Target pet count:', petCountText);
 
     // CRITICAL FIX: Find Shopify's variant-selects component and trigger its inputs
     // This uses Shopify's built-in pub/sub system instead of manually updating values
-    const variantSelects = document.querySelector('variant-selects');
-    if (!variantSelects) {
+    const variantSelectsComponent = document.querySelector('variant-selects');
+    if (!variantSelectsComponent) {
       console.warn('⚠️ variant-selects element not found - cannot update variant');
-      console.log('🔍 DEBUG: Page may not have Shopify Dawn variant selector');
       return;
     }
-
-    console.log('✅ Found variant-selects component');
 
     // Strategy: Find the radio button or select option that matches our pet count
     // and simulate a user click/change to trigger Shopify's event flow
 
     // Try radio buttons first (most common)
-    const variantRadios = variantSelects.querySelectorAll('input[type="radio"]');
-    console.log(`🔍 DEBUG: Found ${variantRadios.length} variant radio buttons`);
+    const variantRadios = variantSelectsComponent.querySelectorAll('input[type="radio"]');
 
     let matchingInput = null;
     variantRadios.forEach(radio => {
       // Get the label for this radio to check the text
-      const label = variantSelects.querySelector(`label[for="${radio.id}"]`);
+      const label = variantSelectsComponent.querySelector(`label[for="${radio.id}"]`);
       if (label) {
         const labelText = label.textContent.trim();
-        console.log(`🔍 DEBUG: Checking radio "${radio.id}" with label: "${labelText}"`);
 
         // Check if label text starts with our pet count (e.g., "1 Pet" or "1 Pet / 5" x 7"")
         if (labelText.startsWith(petCountText)) {
           matchingInput = radio;
-          console.log(`✅ Found matching radio button: "${labelText}"`);
         }
       }
     });
 
-    // Fallback: Try select dropdowns
+    // Fallback: Try select dropdowns if no radio button found
     if (!matchingInput) {
-      const variantSelects = variantSelects.querySelectorAll('select');
-      console.log(`🔍 DEBUG: Trying ${variantSelects.length} select dropdowns`);
+      const selectDropdowns = variantSelectsComponent.querySelectorAll('select');
 
-      variantSelects.forEach(select => {
+      selectDropdowns.forEach(select => {
         const options = select.querySelectorAll('option');
         options.forEach(option => {
           const optionText = option.textContent.trim();
-          console.log(`🔍 DEBUG: Checking option: "${optionText}"`);
 
           if (optionText.startsWith(petCountText)) {
             matchingInput = select;
             select.value = option.value;
-            console.log(`✅ Found matching select option: "${optionText}"`);
           }
         });
       });
@@ -1325,12 +1315,6 @@
 
     if (!matchingInput) {
       console.warn(`⚠️ No variant input found matching "${petCountText}"`);
-      console.log('🔍 DEBUG: Available variant options:',
-        Array.from(variantRadios).map(r => {
-          const label = variantSelects.querySelector(`label[for="${r.id}"]`);
-          return label ? label.textContent.trim() : 'No label';
-        })
-      );
       return;
     }
 
@@ -1340,7 +1324,6 @@
     // 2. product-info subscribes and fetches new HTML
     // 3. Updates price, inventory, etc.
     // 4. Publishes variantChange for other components
-    console.log('🖱️ Simulating user interaction...');
 
     if (matchingInput.tagName === 'INPUT') {
       // For radio buttons: check and trigger click + change events
@@ -1359,8 +1342,6 @@
         cancelable: true
       });
       matchingInput.dispatchEvent(changeEvent);
-
-      console.log('✅ Triggered radio button click and change events');
     } else if (matchingInput.tagName === 'SELECT') {
       // For select dropdowns: trigger change event
       const changeEvent = new Event('change', {
@@ -1368,11 +1349,9 @@
         cancelable: true
       });
       matchingInput.dispatchEvent(changeEvent);
-
-      console.log('✅ Triggered select change event');
     }
 
-    console.log('✅ Variant update complete - Shopify will handle price/cart updates');
+    console.log('✅ Variant selection updated');
   }
 
   // Pet count change listener
