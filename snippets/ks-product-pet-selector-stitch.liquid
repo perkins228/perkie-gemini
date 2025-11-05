@@ -2228,17 +2228,16 @@
   // CRITICAL: Setup form submission handler to populate hidden fields before submit
   // With HTML5 form attribute, inputs are automatically associated with form
   // We only need to populate values from localStorage before submission
-  setupFormSubmitHandler();
 
   function setupFormSubmitHandler() {
     // Find the product form using explicit ID selector (more reliable)
     const form = document.getElementById('{{ product_form_id }}');
     if (!form) {
-      console.error('❌ Pet Selector: Could not find product form with ID {{ product_form_id }}');
-      return;
+      console.warn('⚠️ Pet Selector: Form not found yet, will retry after DOM loads');
+      return false;
     }
 
-    console.log('✅ Pet Selector: Form handler attached to', form.id);
+    console.log('✅ Pet Selector: Form handler attached to', form.getAttribute('id'));
 
     form.addEventListener('submit', function(e) {
       // Populate selected style URLs and filenames from localStorage before submission
@@ -2247,6 +2246,19 @@
       // Note: File inputs and all other inputs are now associated with form via
       // HTML5 form attribute - no need to move them manually!
     });
+
+    return true;
+  }
+
+  // Try immediately (form might already exist)
+  if (!setupFormSubmitHandler()) {
+    // If form doesn't exist yet, wait for DOM to be fully loaded
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', setupFormSubmitHandler);
+    } else {
+      // DOM already loaded, try one more time after a short delay
+      setTimeout(setupFormSubmitHandler, 100);
+    }
   }
 
   // === RESTORE STATE ON PAGE LOAD ===
