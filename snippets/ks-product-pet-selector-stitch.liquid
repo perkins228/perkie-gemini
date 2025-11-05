@@ -1261,11 +1261,84 @@
     });
   }
 
+  // NEW: Update variant selection based on pet count
+  function updateVariantSelection(petCount) {
+    console.log(`🔄 Updating variant selection for ${petCount} pet(s)...`);
+
+    // Get product data from global window object (set by Shopify)
+    if (!window.ShopifyAnalytics || !window.ShopifyAnalytics.meta || !window.ShopifyAnalytics.meta.product) {
+      console.warn('⚠️ Product data not available, cannot update variant');
+      return;
+    }
+
+    const productData = window.ShopifyAnalytics.meta.product;
+    const variants = productData.variants;
+
+    if (!variants || variants.length === 0) {
+      console.warn('⚠️ No variants found for product');
+      return;
+    }
+
+    // Find variant matching pet count
+    // Variant option format: "1 Pet", "2 Pets", "3 Pets"
+    const petCountText = petCount === 1 ? '1 Pet' : `${petCount} Pets`;
+    const matchingVariant = variants.find(v => {
+      // Check if any variant option matches our pet count text
+      return v.option1 === petCountText || v.option2 === petCountText || v.option3 === petCountText;
+    });
+
+    if (!matchingVariant) {
+      console.warn(`⚠️ No variant found for "${petCountText}"`);
+      return;
+    }
+
+    // Update variant ID in form (required for add-to-cart)
+    const form = container.closest('form[action*="/cart/add"]');
+    if (!form) {
+      console.warn('⚠️ Add-to-cart form not found');
+      return;
+    }
+
+    const variantInput = form.querySelector('input[name="id"]');
+    if (!variantInput) {
+      console.warn('⚠️ Variant input field not found in form');
+      return;
+    }
+
+    // Update variant ID
+    variantInput.value = matchingVariant.id;
+    console.log(`✅ Variant updated: ${matchingVariant.name} (ID: ${matchingVariant.id}, Price: $${(matchingVariant.price / 100).toFixed(2)})`);
+
+    // Update price display if available
+    updatePriceDisplay(matchingVariant);
+  }
+
+  // NEW: Update price display on product page
+  function updatePriceDisplay(variant) {
+    // Find price elements (Shopify Dawn theme standard selectors)
+    const priceElement = document.querySelector('.price__regular .price-item--regular');
+    if (!priceElement) {
+      console.warn('⚠️ Price display element not found');
+      return;
+    }
+
+    // Format price (variant.price is in cents)
+    const priceFormatted = `$${(variant.price / 100).toFixed(2)}`;
+    priceElement.textContent = priceFormatted;
+    console.log(`✅ Price display updated: ${priceFormatted}`);
+
+    // Trigger Shopify's variant change event for other theme components
+    if (typeof window.variantChange === 'function') {
+      window.variantChange(variant);
+    }
+  }
+
   // Pet count change listener
   countRadios.forEach(radio => {
     radio.addEventListener('change', (e) => {
       const count = parseInt(e.target.value);
       updatePetSections(count);
+      updateVariantSelection(count); // NEW: Update variant based on pet count
       savePetSelectorStateImmediate(); // Save immediately on selection
     });
   });
