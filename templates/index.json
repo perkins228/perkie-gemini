@@ -61,6 +61,16 @@
         "show_text_below": false
       }
     },
+    "ks_separator_qGBniJ": {
+      "type": "ks-separator",
+      "name": "KS - Separator",
+      "settings": {
+        "container": "page-width",
+        "opacity": 25,
+        "pt": 4,
+        "pb": 4
+      }
+    },
     "ks_marquee_d9Eyaf": {
       "type": "ks-marquee",
       "blocks": {
@@ -91,7 +101,7 @@
         "separator_icon": "heart",
         "separator_icon_size": 18,
         "separator_icon_stroke_width": 1.5,
-        "gap": 4,
+        "gap": 0,
         "pt": 4,
         "pb": 4
       }
@@ -162,6 +172,16 @@
         "item_show_product_count": false,
         "pt": 20,
         "pb": 20
+      }
+    },
+    "ks_separator_hw3jyN": {
+      "type": "ks-separator",
+      "name": "KS - Separator",
+      "settings": {
+        "container": "page-width",
+        "opacity": 25,
+        "pt": 4,
+        "pb": 4
       }
     },
     "ks_image_compare_FEc4MF": {
@@ -263,6 +283,16 @@
         "desktop_layout": "image_second",
         "padding_top": 20,
         "padding_bottom": 24
+      }
+    },
+    "ks_separator_wjFBYC": {
+      "type": "ks-separator",
+      "name": "KS - Separator",
+      "settings": {
+        "container": "page-width",
+        "opacity": 25,
+        "pt": 4,
+        "pb": 4
       }
     },
     "featured_collection_Jxhrxe": {
@@ -492,10 +522,13 @@
   },
   "order": [
     "image_banner_GfEN9b",
+    "ks_separator_qGBniJ",
     "ks_marquee_d9Eyaf",
     "ks_simple_collections_GrfLhc",
+    "ks_separator_hw3jyN",
     "ks_image_compare_FEc4MF",
     "collapsible_content_mUfHFe",
+    "ks_separator_wjFBYC",
     "featured_collection_Jxhrxe",
     "ks_parallax_media_VzVbNE",
     "featured_product_amzyGg",
