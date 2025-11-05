@@ -376,6 +376,13 @@
            data-pet-filename="{{ i }}">
   {% endfor %}
 
+  {% comment %} NEW: Hidden field for artist notes (populated by JavaScript from pet processor) {% endcomment %}
+  <input type="hidden"
+         id="artist-notes-field"
+         name="properties[Artist Notes]"
+         value=""
+         data-artist-notes>
+
 </div>
 
 {% comment %} Get color scheme from block settings {% endcomment %}
@@ -2174,6 +2181,21 @@
         if (filenameField) {
           filenameField.value = sanitizedFilename;
           console.log(`✅ Pet ${i} filename set: ${sanitizedFilename} (original: ${originalFilename})`);
+        }
+      }
+
+      // Extract artist notes from petData (NEW: Artist Notes field)
+      if (petData.artistNote) {
+        const artistNotesField = document.querySelector('[data-artist-notes]');
+        if (artistNotesField) {
+          // SECURITY: Sanitize artist notes (prevent XSS, limit length)
+          const sanitizedNotes = petData.artistNote
+            .substring(0, 200) // Limit to 200 chars
+            .replace(/<[^>]*>/g, '') // Strip HTML tags
+            .trim();
+
+          artistNotesField.value = sanitizedNotes;
+          console.log(`✅ Artist notes set: "${sanitizedNotes.substring(0, 50)}${sanitizedNotes.length > 50 ? '...' : ''}"`);
         }
       }
     }
