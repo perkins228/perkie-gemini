@@ -1305,41 +1305,56 @@
     }
 
     // Find variant matching pet count
-    // Variant option format: "1 Pet", "2 Pets", "3 Pets"
+    // Variant public_title format: "1 Pet / 5" × 7" / No Matting"
+    // We need to match the pet count portion (e.g., "1 Pet", "2 Pets", "3 Pets")
     const petCountText = petCount === 1 ? '1 Pet' : `${petCount} Pets`;
     console.log('🔍 DEBUG: Looking for variant matching:', petCountText);
 
-    const matchingVariant = variants.find(v => {
-      // Check if any variant option matches our pet count text
-      return v.option1 === petCountText || v.option2 === petCountText || v.option3 === petCountText;
-    });
+    // FIX: Match using public_title (which contains pet count + size + matting)
+    // Get currently selected variant to preserve size/matting options
+    const form = container.closest('form[action*="/cart/add"]') ||
+                 document.querySelector('form[action*="/cart/add"]');
+    const currentVariantInput = form?.querySelector('input[name="id"]');
+    const currentVariantId = currentVariantInput?.value;
+    const currentVariant = currentVariantId ? variants.find(v => v.id == currentVariantId) : variants[0];
+
+    // Extract size and matting from current variant (if available)
+    let sizeAndMatting = '';
+    if (currentVariant && currentVariant.public_title) {
+      // Current format: "1 Pet / 5" × 7" / No Matting"
+      // Extract everything after the first " / "
+      const parts = currentVariant.public_title.split(' / ');
+      if (parts.length >= 2) {
+        sizeAndMatting = parts.slice(1).join(' / '); // "5" × 7" / No Matting"
+      }
+    }
+
+    console.log('🔍 DEBUG: Current variant:', currentVariant?.public_title);
+    console.log('🔍 DEBUG: Extracted size/matting:', sizeAndMatting);
+
+    // Find variant matching pet count AND size/matting (if available)
+    let matchingVariant;
+    if (sizeAndMatting) {
+      // Try to find exact match with same size/matting
+      const targetPublicTitle = `${petCountText} / ${sizeAndMatting}`;
+      console.log('🔍 DEBUG: Looking for exact match:', targetPublicTitle);
+      matchingVariant = variants.find(v => v.public_title === targetPublicTitle);
+    }
+
+    // Fallback: Just match pet count (will use first variant with that pet count)
+    if (!matchingVariant) {
+      console.log('🔍 DEBUG: No exact match, finding any variant with:', petCountText);
+      matchingVariant = variants.find(v => v.public_title && v.public_title.startsWith(petCountText));
+    }
 
     if (!matchingVariant) {
       console.warn(`⚠️ No variant found for "${petCountText}"`);
-      console.log('🔍 DEBUG: Available option1 values:', variants.map(v => v.option1));
-      console.log('🔍 DEBUG: Available option2 values:', variants.map(v => v.option2));
-      console.log('🔍 DEBUG: Available option3 values:', variants.map(v => v.option3));
+      console.log('🔍 DEBUG: Available public_titles:', variants.map(v => v.public_title));
       return;
     }
 
     // Update variant ID in form (required for add-to-cart)
-    // FIX: Try multiple form selector strategies
-    let form = container.closest('form[action*="/cart/add"]');
-
-    // DIAGNOSTIC: Log form search results
-    console.log('🔍 DEBUG: container element:', container);
-    console.log('🔍 DEBUG: Form found via closest:', form);
-
-    if (!form) {
-      console.warn('⚠️ Add-to-cart form not found via .closest(), trying alternatives...');
-
-      // Try alternative selectors
-      form = document.querySelector('form[action*="/cart/add"]') ||
-             container.parentElement?.querySelector('form[action*="/cart/add"]');
-
-      console.log('🔍 DEBUG: Form found via document.querySelector:', form);
-    }
-
+    // Note: form already retrieved above for current variant check
     if (!form) {
       console.warn('⚠️ Add-to-cart form not found with any method');
       console.log('🔍 DEBUG: All forms on page:', document.querySelectorAll('form'));
