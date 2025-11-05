@@ -93,7 +93,6 @@
                 <span class="pet-detail__upload-text" data-upload-text="{{ i }}">
                   Click or drag to upload
                 </span>
-                <span class="pet-detail__upload-hint">Up to 3 photos</span>
               </div>
 
               {% comment %} Use Existing Print checkbox below upload zone {% endcomment %}
@@ -842,7 +841,7 @@
 .pet-detail__upload-zone {
   width: 100%;
   /* Removed max-width: 300px to match pet name field width */
-  padding: 2rem 1rem;
+  padding: 10px 1rem;
   border: 2px dashed var(--pet-selector-gray-300);
   border-radius: 0.5rem;
   background-color: var(--pet-selector-gray-50);
@@ -907,7 +906,7 @@
 
 /* Checkbox label below upload zone */
 .pet-detail__image-actions > .pet-detail__checkbox-label {
-  font-size: 0.8125rem;
+  font-size: 9px;
 }
 
 /* === Upload Status and Preview Button Wrapper === */
