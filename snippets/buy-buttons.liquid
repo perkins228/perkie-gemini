@@ -60,7 +60,7 @@
         {%- comment -%} CRITICAL FIX: Pet selector inputs MUST be inside form for submission {%- endcomment -%}
         {%- liquid
           assign show_pet_selector = false
-          if product.tags contains 'pet-custom'
+          if product.tags contains 'custom'
             assign show_pet_selector = true
           endif
         -%}
