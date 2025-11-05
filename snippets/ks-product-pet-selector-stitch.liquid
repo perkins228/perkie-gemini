@@ -1286,7 +1286,17 @@
     console.log('🔍 DEBUG: Variants array length:', variants ? variants.length : 0);
     if (variants && variants.length > 0) {
       console.log('🔍 DEBUG: First variant full object:', variants[0]);
+      console.log('🔍 DEBUG: First variant JSON:', JSON.stringify(variants[0], null, 2));
+      console.log('🔍 DEBUG: All variant keys:', Object.keys(variants[0]));
       console.log('🔍 DEBUG: All variant titles:', variants.map(v => v.title || v.name || v.option1));
+
+      // Check if variants have a different structure
+      if (variants[0].public_title) {
+        console.log('🔍 DEBUG: Variants use public_title:', variants.map(v => v.public_title));
+      }
+      if (variants[0].variant_title) {
+        console.log('🔍 DEBUG: Variants use variant_title:', variants.map(v => v.variant_title));
+      }
     }
 
     if (!variants || variants.length === 0) {
