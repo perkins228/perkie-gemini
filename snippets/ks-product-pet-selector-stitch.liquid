@@ -58,64 +58,65 @@
            data-pet-index="{{ i }}"
            style="display: none;">
 
-        {% comment %} Pet's Name Section {% endcomment %}
-        <div class="pet-detail__section pet-detail__name-section">
-          <h3 class="pet-detail__section-heading">
-            {% if i == 1 %}Pet's Name{% else %}Pet {{ i }}'s Name{% endif %}
-          </h3>
-          <input type="text"
-                 class="pet-detail__name-input"
-                 name="properties[Pet {{ i }} Name]"
-                 placeholder="Enter name"
-                 data-pet-name-input="{{ i }}">
-        </div>
+        {% comment %} Combined Pet Section - Name and Photo together {% endcomment %}
+        <div class="pet-detail__section pet-detail__combined-section">
+          {% comment %} Pet's Name {% endcomment %}
+          <div class="pet-detail__name-group">
+            <h3 class="pet-detail__section-heading">
+              {% if i == 1 %}Pet's Name{% else %}Pet {{ i }}'s Name{% endif %}
+            </h3>
+            <input type="text"
+                   class="pet-detail__name-input"
+                   name="properties[Pet {{ i }} Name]"
+                   placeholder="Enter name"
+                   data-pet-name-input="{{ i }}">
+          </div>
 
-        {% comment %} Pet's Photo Section {% endcomment %}
-        <div class="pet-detail__section pet-detail__image-section"
-             role="region"
-             aria-labelledby="pet-photo-heading-{{ i }}">
-          <h3 id="pet-photo-heading-{{ i }}" class="pet-detail__section-heading">
-            Pet's Photo
-          </h3>
+          {% comment %} Pet's Photo {% endcomment %}
+          <div class="pet-detail__photo-group">
+            <h3 class="pet-detail__section-heading">
+              Pet's Photo
+            </h3>
 
-          <div class="pet-detail__image-actions">
-            <div class="pet-detail__upload-row">
+            <div class="pet-detail__image-actions">
+              <div class="pet-detail__upload-row">
+                <button type="button"
+                        class="pet-detail__upload-btn"
+                        data-pet-upload-btn="{{ i }}">
+                  Upload
+                </button>
+
+                {% comment %} Use Existing Print checkbox next to Upload button {% endcomment %}
+                <label class="pet-detail__checkbox-label">
+                  <input type="checkbox"
+                         class="pet-detail__checkbox"
+                         data-existing-print-checkbox="{{ i }}">
+                  <span>Use Existing Perkie Print</span>
+                </label>
+              </div>
+
+              {% comment %} Native Shopify file upload - files uploaded to CDN on form submit {% endcomment %}
+              <input type="file"
+                     name="properties[Pet {{ i }} Images]"
+                     accept="image/*"
+                     multiple
+                     style="display: none;"
+                     data-pet-file-input="{{ i }}"
+                     data-max-files="3"
+                     aria-label="Upload pet {{ i }} photo(s)">
+
+              {% comment %} File upload status - shown after files selected {% endcomment %}
+              <div class="pet-detail__upload-status"
+                   data-upload-status="{{ i }}"
+                   style="display: none;"></div>
+
               <button type="button"
-                      class="pet-detail__upload-btn"
-                      data-pet-upload-btn="{{ i }}">
-                Upload
+                      class="pet-detail__preview-btn"
+                      data-pet-preview-btn="{{ i }}"
+                      style="opacity: 0; visibility: hidden;">
+                Preview
               </button>
-
-              {% comment %} Use Existing Print checkbox next to Upload button {% endcomment %}
-              <label class="pet-detail__checkbox-label">
-                <input type="checkbox"
-                       class="pet-detail__checkbox"
-                       data-existing-print-checkbox="{{ i }}">
-                <span>Use Existing Perkie Print</span>
-              </label>
             </div>
-
-            {% comment %} Native Shopify file upload - files uploaded to CDN on form submit {% endcomment %}
-            <input type="file"
-                   name="properties[Pet {{ i }} Images]"
-                   accept="image/*"
-                   multiple
-                   style="display: none;"
-                   data-pet-file-input="{{ i }}"
-                   data-max-files="3"
-                   aria-label="Upload pet {{ i }} photo(s)">
-
-            {% comment %} File upload status - shown after files selected {% endcomment %}
-            <div class="pet-detail__upload-status"
-                 data-upload-status="{{ i }}"
-                 style="display: none;"></div>
-
-            <button type="button"
-                    class="pet-detail__preview-btn"
-                    data-pet-preview-btn="{{ i }}"
-                    style="opacity: 0; visibility: hidden;">
-              Preview
-            </button>
           </div>
         </div>
 
@@ -790,24 +791,28 @@
 
 /* === Pet Detail Section Containers === */
 
-/* Base section styling for name/photo subsections */
+/* Base section styling for combined pet section */
 .pet-detail__section {
-  margin-bottom: 0.5rem;      /* Decreased spacing between sections */
+  margin-bottom: 0.5rem;
   padding: 1rem;
   border-radius: 0.5rem;
   background-color: var(--pet-selector-background);
   border: 1px solid var(--pet-selector-gray-100);
 }
 
-/* Name section (minimal styling) */
-.pet-detail__name-section {
+/* Combined section contains both name and photo */
+.pet-detail__combined-section {
   /* Uses base .pet-detail__section styles */
 }
 
-/* Photo section (slightly stronger visual weight) */
-.pet-detail__image-section {
-  background-color: var(--pet-selector-gray-50);
-  border-color: var(--pet-selector-gray-200);
+/* Name group within combined section */
+.pet-detail__name-group {
+  margin-bottom: 1rem;        /* Space between name and photo groups */
+}
+
+/* Photo group within combined section */
+.pet-detail__photo-group {
+  /* No additional styling needed */
 }
 
 /* Section headings (not bold) */
