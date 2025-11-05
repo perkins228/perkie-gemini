@@ -1,7 +1,7 @@
 {% comment %}
   Order Custom Images Display
   Shows customer-uploaded images for staff order management
-  
+
   Usage:
   {% render 'order-custom-images', order: order %}
 {% endcomment %}
@@ -14,7 +14,7 @@
     border-radius: 8px;
     border: 1px solid #dee2e6;
   }
-  
+
   .custom-images-header {
     display: flex;
     align-items: center;
@@ -22,14 +22,14 @@
     font-weight: 600;
     color: #495057;
   }
-  
+
   .custom-images-header svg {
     width: 20px;
     height: 20px;
     margin-right: 0.5rem;
     color: #6c757d;
   }
-  
+
   .custom-image-item {
     background: white;
     border-radius: 6px;
@@ -37,20 +37,20 @@
     margin-bottom: 1rem;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
   }
-  
+
   .custom-image-grid {
     display: grid;
     grid-template-columns: 200px 1fr;
     gap: 1rem;
     align-items: start;
   }
-  
+
   .custom-image-preview {
     border-radius: 4px;
     overflow: hidden;
     border: 1px solid #dee2e6;
   }
-  
+
   .custom-image-preview img {
     width: 100%;
     height: auto;
@@ -59,35 +59,35 @@
     object-fit: contain;
     background: white;
   }
-  
+
   .custom-image-details h4 {
     margin: 0 0 0.5rem 0;
     color: #212529;
     font-size: 1.1rem;
   }
-  
+
   .custom-image-meta {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
     gap: 0.5rem;
     margin-bottom: 1rem;
   }
-  
+
   .custom-image-meta span {
     font-size: 0.875rem;
     color: #6c757d;
   }
-  
+
   .custom-image-meta strong {
     color: #495057;
   }
-  
+
   .custom-image-links {
     display: flex;
     gap: 0.5rem;
     flex-wrap: wrap;
   }
-  
+
   .custom-image-link {
     padding: 0.25rem 0.75rem;
     background: #007bff;
@@ -97,25 +97,17 @@
     font-size: 0.875rem;
     transition: background 0.2s;
   }
-  
+
   .custom-image-link:hover {
     background: #0056b3;
     color: white;
   }
-  
-  .custom-image-link.secondary {
-    background: #6c757d;
-  }
-  
-  .custom-image-link.secondary:hover {
-    background: #545b62;
-  }
-  
+
   @media (max-width: 768px) {
     .custom-image-grid {
       grid-template-columns: 1fr;
     }
-    
+
     .custom-image-preview {
       max-width: 300px;
       margin: 0 auto;
@@ -125,8 +117,11 @@
 
 {%- assign has_custom_images = false -%}
 
+{%- comment -%} Check for custom pet orders (multi-pet support) {%- endcomment -%}
 {%- for line_item in order.line_items -%}
-  {%- if line_item.properties['_has_custom_pet'] == 'true' -%}
+  {%- if line_item.properties['Pet 1 Name'] != blank or
+         line_item.properties['Pet 2 Name'] != blank or
+         line_item.properties['Pet 3 Name'] != blank -%}
     {%- assign has_custom_images = true -%}
     {%- break -%}
   {%- endif -%}
@@ -138,64 +133,100 @@
       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
       </svg>
-      Customer Custom Images
+      Customer Custom Pet Orders
     </div>
-    
+
     {%- for line_item in order.line_items -%}
-      {%- if line_item.properties['_has_custom_pet'] == 'true' -%}
+      {%- comment -%} Display pet data for each custom order {%- endcomment -%}
+      {%- assign pet1 = line_item.properties['Pet 1 Name'] -%}
+      {%- assign pet2 = line_item.properties['Pet 2 Name'] -%}
+      {%- assign pet3 = line_item.properties['Pet 3 Name'] -%}
+      {%- assign has_pets = false -%}
+
+      {%- if pet1 != blank or pet2 != blank or pet3 != blank -%}
+        {%- assign has_pets = true -%}
+      {%- endif -%}
+
+      {%- if has_pets -%}
         <div class="custom-image-item">
           <div class="custom-image-grid">
             <div class="custom-image-preview">
-              {%- if line_item.properties['_processed_image_url'] -%}
-                <img src="{{ line_item.properties['_processed_image_url'] }}" alt="Processed custom image" loading="lazy">
-              {%- elsif line_item.properties['_original_image_url'] -%}
-                <img src="{{ line_item.properties['_original_image_url'] }}" alt="Original custom image" loading="lazy">
+              {%- if line_item.properties['Pet 1 Processed Image URL'] -%}
+                <img src="{{ line_item.properties['Pet 1 Processed Image URL'] }}" alt="Processed pet image" loading="lazy">
+              {%- elsif line_item.properties['Pet 1 Images'] -%}
+                <img src="{{ line_item.properties['Pet 1 Images'] }}" alt="Uploaded pet image" loading="lazy">
               {%- endif -%}
             </div>
-            
+
             <div class="custom-image-details">
               <h4>{{ line_item.product.title }}</h4>
-              
+
               <div class="custom-image-meta">
-                {%- if line_item.properties['_pet_name'] -%}
-                  <span><strong>Pet Name:</strong> {{ line_item.properties['_pet_name'] }}</span>
+                {%- comment -%} Pet Names {%- endcomment -%}
+                {%- if pet1 != blank -%}
+                  <span><strong>Pet 1:</strong> {{ pet1 }}</span>
                 {%- endif -%}
-                
-                {%- if line_item.properties['_effect_applied'] -%}
-                  <span><strong>Effect:</strong> {{ line_item.properties['_effect_applied'] | capitalize }}</span>
+                {%- if pet2 != blank -%}
+                  <span><strong>Pet 2:</strong> {{ pet2 }}</span>
                 {%- endif -%}
-                
-                {%- if line_item.properties['_artist_notes'] -%}
-                  <span style="display: block; margin-top: 0.5rem;">
-                    <strong>Artist Notes:</strong> {{ line_item.properties['_artist_notes'] }}
+                {%- if pet3 != blank -%}
+                  <span><strong>Pet 3:</strong> {{ pet3 }}</span>
+                {%- endif -%}
+
+                {%- comment -%} Style Selection {%- endcomment -%}
+                {%- if line_item.properties['Style'] -%}
+                  <span><strong>Style:</strong> {{ line_item.properties['Style'] | replace: 'enhancedblackwhite', 'Enhanced B&W' | replace: 'color', 'Color' | replace: 'modern', 'Modern' | replace: 'sketch', 'Sketch' }}</span>
+                {%- endif -%}
+
+                {%- comment -%} Font Selection {%- endcomment -%}
+                {%- if line_item.properties['Font'] -%}
+                  <span><strong>Font:</strong> {{ line_item.properties['Font'] | replace: 'no-text', 'No Text' | capitalize }}</span>
+                {%- endif -%}
+
+                {%- comment -%} Artist Notes {%- endcomment -%}
+                {%- if line_item.properties['Artist Notes'] -%}
+                  <span style="display: block; grid-column: 1 / -1; margin-top: 0.5rem;">
+                    <strong>Artist Notes:</strong> {{ line_item.properties['Artist Notes'] }}
                   </span>
                 {%- endif -%}
               </div>
-              
+
               <div class="custom-image-links">
-                {%- if line_item.properties['_processed_image_url'] -%}
-                  <a href="{{ line_item.properties['_processed_image_url'] }}" target="_blank" class="custom-image-link">
+                {%- comment -%} Link to processed image {%- endcomment -%}
+                {%- if line_item.properties['Pet 1 Processed Image URL'] -%}
+                  <a href="{{ line_item.properties['Pet 1 Processed Image URL'] }}" target="_blank" class="custom-image-link">
                     View Processed Image
                   </a>
                 {%- endif -%}
-                
-                {%- if line_item.properties['_original_image_url'] -%}
-                  <a href="{{ line_item.properties['_original_image_url'] }}" target="_blank" class="custom-image-link secondary">
-                    View Original Image
+
+                {%- comment -%} Link to original uploaded image {%- endcomment -%}
+                {%- if line_item.properties['Pet 1 Images'] -%}
+                  <a href="{{ line_item.properties['Pet 1 Images'] }}" target="_blank" class="custom-image-link">
+                    View Original Upload
                   </a>
                 {%- endif -%}
+
+                {%- comment -%} Link to filename reference {%- endcomment -%}
+                {%- if line_item.properties['Pet 1 Filename'] -%}
+                  <span style="font-size: 0.75rem; color: #6c757d; margin-left: 0.5rem;">
+                    File: {{ line_item.properties['Pet 1 Filename'] }}
+                  </span>
+                {%- endif -%}
               </div>
-              
-              {%- comment -%} Debug info for development {%- endcomment -%}
-              {%- if line_item.properties['_crop_coordinates'] or line_item.properties['_image_transformations'] -%}
+
+              {%- comment -%} Order metadata {%- endcomment -%}
+              {%- if line_item.properties['Pet 1 Order Type'] or line_item.properties['Pet 1 Upload Timestamp'] -%}
                 <details style="margin-top: 1rem;">
-                  <summary style="cursor: pointer; font-size: 0.875rem; color: #6c757d;">Technical Details</summary>
+                  <summary style="cursor: pointer; font-size: 0.875rem; color: #6c757d;">Order Details</summary>
                   <div style="margin-top: 0.5rem; font-size: 0.75rem; color: #6c757d; font-family: monospace;">
-                    {%- if line_item.properties['_crop_coordinates'] -%}
-                      <p><strong>Crop Data:</strong> {{ line_item.properties['_crop_coordinates'] }}</p>
+                    {%- if line_item.properties['Pet 1 Order Type'] -%}
+                      <p><strong>Order Type:</strong> {{ line_item.properties['Pet 1 Order Type'] }}</p>
                     {%- endif -%}
-                    {%- if line_item.properties['_image_transformations'] -%}
-                      <p><strong>Transformations:</strong> {{ line_item.properties['_image_transformations'] }}</p>
+                    {%- if line_item.properties['Pet 1 Processing State'] -%}
+                      <p><strong>Processing State:</strong> {{ line_item.properties['Pet 1 Processing State'] }}</p>
+                    {%- endif -%}
+                    {%- if line_item.properties['Pet 1 Upload Timestamp'] -%}
+                      <p><strong>Uploaded:</strong> {{ line_item.properties['Pet 1 Upload Timestamp'] }}</p>
                     {%- endif -%}
                   </div>
                 </details>
@@ -206,4 +237,4 @@
       {%- endif -%}
     {%- endfor -%}
   </div>
-{%- endif -%} 
+{%- endif -%}
