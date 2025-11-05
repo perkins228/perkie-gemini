@@ -79,21 +79,30 @@
             </h4>
 
             <div class="pet-detail__image-actions">
-              <div class="pet-detail__upload-row">
-                <button type="button"
-                        class="pet-detail__upload-btn"
-                        data-pet-upload-btn="{{ i }}">
-                  Upload
-                </button>
-
-                {% comment %} Use Existing Print checkbox next to Upload button {% endcomment %}
-                <label class="pet-detail__checkbox-label">
-                  <input type="checkbox"
-                         class="pet-detail__checkbox"
-                         data-existing-print-checkbox="{{ i }}">
-                  <span>Use Existing Perkie Print</span>
-                </label>
+              {% comment %} Upload Zone - Clickable area for file selection {% endcomment %}
+              <div class="pet-detail__upload-zone"
+                   data-upload-zone="{{ i }}"
+                   tabindex="0"
+                   role="button"
+                   aria-label="Click or drag to upload pet {{ i }} photo(s)">
+                <svg class="pet-detail__upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                  <polyline points="17 8 12 3 7 8"></polyline>
+                  <line x1="12" y1="3" x2="12" y2="15"></line>
+                </svg>
+                <span class="pet-detail__upload-text" data-upload-text="{{ i }}">
+                  Click or drag to upload
+                </span>
+                <span class="pet-detail__upload-hint">Up to 3 photos</span>
               </div>
+
+              {% comment %} Use Existing Print checkbox below upload zone {% endcomment %}
+              <label class="pet-detail__checkbox-label">
+                <input type="checkbox"
+                       class="pet-detail__checkbox"
+                       data-existing-print-checkbox="{{ i }}">
+                <span>Use Existing Perkie Print</span>
+              </label>
 
               {% comment %} Native Shopify file upload - files uploaded to CDN on form submit {% endcomment %}
               <input type="file"
@@ -832,27 +841,76 @@
   gap: 0.75rem;               /* 12px between elements */
 }
 
-/* Upload row - Upload button + checkbox side by side */
-.pet-detail__upload-row {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;               /* 12px between button and checkbox */
+/* Upload Zone - Drag and drop area */
+.pet-detail__upload-zone {
   width: 100%;
   max-width: 300px;
+  padding: 2rem 1rem;
+  border: 2px dashed var(--pet-selector-gray-300);
+  border-radius: 0.5rem;
+  background-color: var(--pet-selector-gray-50);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  text-align: center;
 }
 
-/* Upload button when in row with checkbox - narrower width */
-.pet-detail__upload-row .pet-detail__upload-btn {
-  width: auto;                /* Auto width instead of 100% */
-  margin: 0;                  /* Remove auto centering */
-  flex-shrink: 0;             /* Don't shrink */
+.pet-detail__upload-zone:hover {
+  border-color: #ff5964;
+  background-color: rgba(255, 89, 100, 0.05);
 }
 
-/* Checkbox label when in upload row */
-.pet-detail__upload-row .pet-detail__checkbox-label {
-  font-size: 0.8125rem;       /* Slightly smaller text */
-  white-space: nowrap;        /* Prevent wrapping */
-  flex-shrink: 1;             /* Allow shrinking if needed */
+.pet-detail__upload-zone:focus {
+  outline: none;
+  border-color: #ff5964;
+  box-shadow: 0 0 0 3px rgba(255, 89, 100, 0.2);
+}
+
+.pet-detail__upload-zone.dragover {
+  border-color: #ff5964;
+  background-color: rgba(255, 89, 100, 0.1);
+}
+
+.pet-detail__upload-zone.has-files {
+  border-color: #22c55e;
+  background-color: rgba(34, 197, 94, 0.05);
+}
+
+/* Upload icon */
+.pet-detail__upload-icon {
+  width: 2.5rem;
+  height: 2.5rem;
+  color: var(--pet-selector-gray-400);
+  transition: color 0.2s;
+}
+
+.pet-detail__upload-zone:hover .pet-detail__upload-icon,
+.pet-detail__upload-zone.dragover .pet-detail__upload-icon {
+  color: #ff5964;
+}
+
+.pet-detail__upload-zone.has-files .pet-detail__upload-icon {
+  color: #22c55e;
+}
+
+/* Upload text */
+.pet-detail__upload-text {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--pet-selector-gray-700);
+}
+
+.pet-detail__upload-hint {
+  font-size: 0.75rem;
+  color: var(--pet-selector-gray-500);
+}
+
+/* Checkbox label below upload zone */
+.pet-detail__image-actions > .pet-detail__checkbox-label {
+  font-size: 0.8125rem;
 }
 
 /* === Preview Button Progressive Disclosure === */
@@ -1241,16 +1299,52 @@
   };
 
   for (let i = 1; i <= 3; i++) {
-    const uploadBtn = container.querySelector(`[data-pet-upload-btn="${i}"]`);
+    const uploadZone = container.querySelector(`[data-upload-zone="${i}"]`);
+    const uploadText = container.querySelector(`[data-upload-text="${i}"]`);
     const fileInput = container.querySelector(`[data-pet-file-input="${i}"]`);
 
-    if (uploadBtn && fileInput) {
+    if (uploadZone && fileInput) {
       const maxFiles = parseInt(fileInput.dataset.maxFiles) || 3;
 
-      // Click upload button triggers file input
-      uploadBtn.addEventListener('click', (e) => {
+      // Click upload zone triggers file input
+      uploadZone.addEventListener('click', (e) => {
         e.preventDefault();
         fileInput.click();
+      });
+
+      // Keyboard support for upload zone
+      uploadZone.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          fileInput.click();
+        }
+      });
+
+      // Drag and drop support
+      uploadZone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        uploadZone.classList.add('dragover');
+      });
+
+      uploadZone.addEventListener('dragleave', (e) => {
+        e.preventDefault();
+        uploadZone.classList.remove('dragover');
+      });
+
+      uploadZone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        uploadZone.classList.remove('dragover');
+
+        const files = e.dataTransfer.files;
+        if (files.length > 0) {
+          // Manually trigger file input change with dropped files
+          const dataTransfer = new DataTransfer();
+          for (let j = 0; j < files.length; j++) {
+            dataTransfer.items.add(files[j]);
+          }
+          fileInput.files = dataTransfer.files;
+          fileInput.dispatchEvent(new Event('change', { bubbles: true }));
+        }
       });
 
       // Handle file selection (additive - doesn't replace existing files)
@@ -1318,8 +1412,8 @@
 
         // All validations passed - update UI
         const count = petFiles[i].length;
-        uploadBtn.textContent = `Upload (${count}/${maxFiles})`;
-        uploadBtn.classList.add('has-uploads');
+        uploadText.textContent = `${count}/${maxFiles} photos uploaded`;
+        uploadZone.classList.add('has-files');
 
         // Show uploaded file names below pet name
         displayUploadedFiles(i, petFiles[i]);
@@ -1415,12 +1509,14 @@
         petFiles[petIndex].splice(fileIndex, 1);
 
         // Update UI
+        const uploadZone = container.querySelector(`[data-upload-zone="${petIndex}"]`);
+        const uploadText = container.querySelector(`[data-upload-text="${petIndex}"]`);
         const count = petFiles[petIndex].length;
         if (count === 0) {
-          uploadBtn.textContent = 'Upload';
-          uploadBtn.classList.remove('has-uploads');
+          uploadText.textContent = 'Click or drag to upload';
+          uploadZone.classList.remove('has-files');
         } else {
-          uploadBtn.textContent = `Upload (${count}/${maxFiles})`;
+          uploadText.textContent = `${count}/${maxFiles} photos uploaded`;
         }
 
         // Re-render file list
@@ -1756,15 +1852,16 @@
           nameInput.value = pet.name;
         }
 
-        // Restore upload button state
+        // Restore upload zone state
         if (pet.fileCount > 0) {
-          const uploadBtn = container.querySelector(`[data-pet-upload-btn="${i}"]`);
+          const uploadZone = container.querySelector(`[data-upload-zone="${i}"]`);
+          const uploadText = container.querySelector(`[data-upload-text="${i}"]`);
           const fileInput = container.querySelector(`[data-pet-file-input="${i}"]`);
 
-          if (uploadBtn && fileInput) {
+          if (uploadZone && fileInput) {
             const maxFiles = parseInt(fileInput.dataset.maxFiles) || 3;
-            uploadBtn.textContent = `Upload (${pet.fileCount}/${maxFiles})`;
-            uploadBtn.classList.add('has-uploads');
+            uploadText.textContent = `${pet.fileCount}/${maxFiles} photos uploaded`;
+            uploadZone.classList.add('has-files');
 
             // NEW: Restore from file metadata (complete list, not just preview)
             const storedMetadata = localStorage.getItem(`pet_${i}_file_metadata`);
