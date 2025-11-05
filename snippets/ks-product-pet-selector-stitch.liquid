@@ -362,6 +362,20 @@
     <input type="hidden" id="upload-timestamp-{{ i }}" name="properties[Pet {{ i }} Upload Timestamp]" value="">
   {% endfor %}
 
+  {% comment %} NEW: Hidden fields for selected style URLs and filenames (populated by JavaScript before form submit) {% endcomment %}
+  {% for i in (1..3) %}
+    <input type="hidden"
+           id="pet-{{ i }}-processed-url"
+           name="properties[Pet {{ i }} Processed Image URL]"
+           value=""
+           data-pet-processed-url="{{ i }}">
+    <input type="hidden"
+           id="pet-{{ i }}-filename"
+           name="properties[Pet {{ i }} Filename]"
+           value=""
+           data-pet-filename="{{ i }}">
+  {% endfor %}
+
 </div>
 
 {% comment %} Get color scheme from block settings {% endcomment %}
@@ -1931,6 +1945,150 @@
 
   // === END STATE PERSISTENCE MODULE ===
 
+  // === SELECTED STYLE URL POPULATION MODULE ===
+  // NEW: Populate selected style URLs and filenames before form submission
+
+  /**
+   * Sanitize filename to prevent path traversal and XSS attacks
+   * @param {string} filename - Original filename
+   * @returns {string} Sanitized filename
+   */
+  function sanitizeFilename(filename) {
+    if (!filename) return '';
+
+    // Remove path separators (prevent path traversal)
+    filename = filename.replace(/[\/\\]/g, '');
+
+    // Remove special characters that could cause issues (keep alphanumeric, dots, dashes, underscores)
+    filename = filename.replace(/[^a-zA-Z0-9._-]/g, '_');
+
+    // Limit length to prevent issues
+    filename = filename.slice(0, 100);
+
+    return filename;
+  }
+
+  /**
+   * Validate that URL is a valid GCS URL
+   * @param {string} url - URL to validate
+   * @returns {boolean} True if valid GCS URL
+   */
+  function isValidGCSUrl(url) {
+    if (!url || typeof url !== 'string') return false;
+
+    // Must be HTTPS
+    if (!url.startsWith('https://')) return false;
+
+    try {
+      const urlObj = new URL(url);
+      // Must be from Google Cloud Storage domain
+      return urlObj.hostname === 'storage.googleapis.com' ||
+             urlObj.hostname.endsWith('.storage.googleapis.com');
+    } catch (e) {
+      return false;
+    }
+  }
+
+  /**
+   * Populate selected style URLs and filenames before form submission
+   * Reads selected style from radio button and fetches corresponding GCS URL from localStorage
+   * @returns {boolean} True if successful, false if missing data
+   */
+  function populateSelectedStyleUrls() {
+    console.log('🔍 Populating selected style URLs for order...');
+
+    // Get selected style (global selection)
+    const selectedStyleRadio = container.querySelector('[data-style-radio]:checked');
+    if (!selectedStyleRadio) {
+      console.warn('⚠️ No style selected - skipping style URL population');
+      return false; // Validation should catch this
+    }
+
+    const selectedStyle = selectedStyleRadio.value; // e.g., "modern", "enhancedblackwhite"
+    console.log(`✅ Selected style: ${selectedStyle}`);
+
+    // Get active pet count
+    const selectedCountRadio = container.querySelector('[data-pet-count-radio]:checked');
+    if (!selectedCountRadio) {
+      console.warn('⚠️ No pet count selected - skipping');
+      return false;
+    }
+
+    const petCount = parseInt(selectedCountRadio.value);
+    console.log(`✅ Active pets: ${petCount}`);
+
+    // For each active pet, populate processed URL and filename
+    for (let i = 1; i <= petCount; i++) {
+      // Get pet name to construct localStorage key
+      const petNameInput = container.querySelector(`[data-pet-name-input="${i}"]`);
+      const petName = petNameInput ? petNameInput.value.trim() : '';
+
+      if (!petName) {
+        console.warn(`⚠️ Pet ${i} has no name - skipping URL population`);
+        continue;
+      }
+
+      // Construct localStorage key (matches pet-storage.js pattern: perkie_pet_{name})
+      const storageKey = `perkie_pet_${petName.toLowerCase().replace(/\s+/g, '_')}`;
+      const storedData = localStorage.getItem(storageKey);
+
+      if (!storedData) {
+        console.warn(`⚠️ No localStorage data found for pet ${i} (${petName}) - key: ${storageKey}`);
+        continue;
+      }
+
+      let petData;
+      try {
+        petData = JSON.parse(storedData);
+      } catch (e) {
+        console.error(`❌ Failed to parse localStorage data for pet ${i}:`, e);
+        continue;
+      }
+
+      // Extract selected style URL
+      if (petData.effects && petData.effects[selectedStyle]) {
+        const styleData = petData.effects[selectedStyle];
+        const styleUrl = styleData.gcsUrl || styleData.dataUrl || '';
+
+        if (styleUrl) {
+          // SECURITY: Validate URL before populating (prevent URL injection)
+          if (isValidGCSUrl(styleUrl)) {
+            const urlField = document.querySelector(`[data-pet-processed-url="${i}"]`);
+            if (urlField) {
+              urlField.value = styleUrl;
+              console.log(`✅ Pet ${i} processed URL set: ${styleUrl.substring(0, 60)}...`);
+            }
+          } else {
+            console.error(`❌ Invalid GCS URL for Pet ${i}, skipping: ${styleUrl.substring(0, 60)}...`);
+          }
+        } else {
+          console.warn(`⚠️ Pet ${i} style "${selectedStyle}" has no URL`);
+        }
+      } else {
+        console.warn(`⚠️ Pet ${i} missing effect data for style "${selectedStyle}"`);
+      }
+
+      // Extract original filename from file input (NEW FUNCTIONALITY)
+      const fileInput = container.querySelector(`[data-pet-file-input="${i}"]`);
+      if (fileInput && fileInput.files && fileInput.files.length > 0) {
+        const originalFilename = fileInput.files[0].name;
+
+        // SECURITY: Sanitize filename before storing (prevent path traversal and XSS)
+        const sanitizedFilename = sanitizeFilename(originalFilename);
+
+        const filenameField = document.querySelector(`[data-pet-filename="${i}"]`);
+        if (filenameField) {
+          filenameField.value = sanitizedFilename;
+          console.log(`✅ Pet ${i} filename set: ${sanitizedFilename} (original: ${originalFilename})`);
+        }
+      }
+    }
+
+    return true; // Success
+  }
+
+  // === END SELECTED STYLE URL POPULATION MODULE ===
+
   // Initialize - No default selections
   // User must actively select pet count, style, and font
   // Pet sections remain hidden until count is selected
@@ -1948,6 +2106,9 @@
     }
 
     form.addEventListener('submit', function(e) {
+      // NEW: Populate selected style URLs and filenames before submission
+      populateSelectedStyleUrls();
+
       // Move all file inputs INTO the form before submission
       // This is CRITICAL - Shopify only processes file inputs inside <form> tags
       for (let i = 1; i <= 3; i++) {
