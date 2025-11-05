@@ -69,6 +69,7 @@
                    class="pet-detail__name-input"
                    name="properties[Pet {{ i }} Name]"
                    placeholder="Enter name"
+                   form="{{ product_form_id }}"
                    data-pet-name-input="{{ i }}">
           </div>
 
@@ -108,6 +109,7 @@
                      name="properties[Pet {{ i }} Images]"
                      accept="image/*"
                      style="display: none;"
+                     form="{{ product_form_id }}"
                      data-pet-file-input="{{ i }}"
                      data-max-files="1"
                      aria-label="Upload pet {{ i }} photo">
@@ -135,6 +137,7 @@
                  class="pet-detail__order-number"
                  placeholder="Enter previous order number"
                  name="properties[Pet {{ i }} Order Number]"
+                 form="{{ product_form_id }}"
                  data-order-number-field="{{ i }}">
         </div>
 
@@ -153,6 +156,7 @@
         <input type="radio"
                name="properties[Style]"
                value="enhancedblackwhite"
+               form="{{ product_form_id }}"
                data-style-radio="enhancedblackwhite">
         <div class="style-card__content">
           <div class="style-card__image-wrapper">
@@ -180,6 +184,7 @@
         <input type="radio"
                name="properties[Style]"
                value="color"
+               form="{{ product_form_id }}"
                data-style-radio="color">
         <div class="style-card__content">
           <div class="style-card__image-wrapper">
@@ -207,6 +212,7 @@
         <input type="radio"
                name="properties[Style]"
                value="modern"
+               form="{{ product_form_id }}"
                data-style-radio="modern">
         <div class="style-card__content">
           <div class="style-card__image-wrapper">
@@ -234,6 +240,7 @@
         <input type="radio"
                name="properties[Style]"
                value="sketch"
+               form="{{ product_form_id }}"
                data-style-radio="sketch">
         <div class="style-card__content">
           <div class="style-card__image-wrapper">
@@ -270,6 +277,7 @@
         <input type="radio"
                name="properties[Font]"
                value="no-text"
+               form="{{ product_form_id }}"
                data-font-radio="no-text">
         <div class="font-card__content">
           <p class="font-card__title">No Text</p>
@@ -286,6 +294,7 @@
         <input type="radio"
                name="properties[Font]"
                value="preppy"
+               form="{{ product_form_id }}"
                data-font-radio="preppy">
         <div class="font-card__content">
           <p class="font-card__title">Preppy</p>
@@ -300,6 +309,7 @@
         <input type="radio"
                name="properties[Font]"
                value="classic"
+               form="{{ product_form_id }}"
                data-font-radio="classic">
         <div class="font-card__content">
           <p class="font-card__title">Classic</p>
@@ -314,6 +324,7 @@
         <input type="radio"
                name="properties[Font]"
                value="playful"
+               form="{{ product_form_id }}"
                data-font-radio="playful">
         <div class="font-card__content">
           <p class="font-card__title">Playful</p>
@@ -328,6 +339,7 @@
         <input type="radio"
                name="properties[Font]"
                value="elegant"
+               form="{{ product_form_id }}"
                data-font-radio="elegant">
         <div class="font-card__content">
           <p class="font-card__title">Elegant</p>
@@ -342,6 +354,7 @@
         <input type="radio"
                name="properties[Font]"
                value="trend"
+               form="{{ product_form_id }}"
                data-font-radio="trend">
         <div class="font-card__content">
           <p class="font-card__title">Trend</p>
@@ -357,9 +370,9 @@
 
   {% comment %} Hidden order properties for upload tracking {% endcomment %}
   {% for i in (1..3) %}
-    <input type="hidden" id="order-type-{{ i }}" name="properties[Pet {{ i }} Order Type]" value="">
-    <input type="hidden" id="processing-state-{{ i }}" name="properties[Pet {{ i }} Processing State]" value="">
-    <input type="hidden" id="upload-timestamp-{{ i }}" name="properties[Pet {{ i }} Upload Timestamp]" value="">
+    <input type="hidden" id="order-type-{{ i }}" name="properties[Pet {{ i }} Order Type]" value="" form="{{ product_form_id }}">
+    <input type="hidden" id="processing-state-{{ i }}" name="properties[Pet {{ i }} Processing State]" value="" form="{{ product_form_id }}">
+    <input type="hidden" id="upload-timestamp-{{ i }}" name="properties[Pet {{ i }} Upload Timestamp]" value="" form="{{ product_form_id }}">
   {% endfor %}
 
   {% comment %} NEW: Hidden fields for selected style URLs and filenames (populated by JavaScript before form submit) {% endcomment %}
@@ -368,11 +381,13 @@
            id="pet-{{ i }}-processed-url"
            name="properties[Pet {{ i }} Processed Image URL]"
            value=""
+           form="{{ product_form_id }}"
            data-pet-processed-url="{{ i }}">
     <input type="hidden"
            id="pet-{{ i }}-filename"
            name="properties[Pet {{ i }} Filename]"
            value=""
+           form="{{ product_form_id }}"
            data-pet-filename="{{ i }}">
   {% endfor %}
 
@@ -381,6 +396,7 @@
          id="artist-notes-field"
          name="properties[Artist Notes]"
          value=""
+         form="{{ product_form_id }}"
          data-artist-notes>
 
 </div>
@@ -2209,39 +2225,27 @@
   // User must actively select pet count, style, and font
   // Pet sections remain hidden until count is selected
 
-  // CRITICAL: Setup form submission handler
-  // Move file inputs into form before submission so Shopify can process them
+  // CRITICAL: Setup form submission handler to populate hidden fields before submit
+  // With HTML5 form attribute, inputs are automatically associated with form
+  // We only need to populate values from localStorage before submission
   setupFormSubmitHandler();
 
   function setupFormSubmitHandler() {
-    // Find the product form (cart add form)
-    const form = container.closest('form[action*="/cart/add"]');
+    // Find the product form using explicit ID selector (more reliable)
+    const form = document.getElementById('{{ product_form_id }}');
     if (!form) {
-      console.warn('Pet Selector: Could not find cart form');
+      console.error('❌ Pet Selector: Could not find product form with ID {{ product_form_id }}');
       return;
     }
 
+    console.log('✅ Pet Selector: Form handler attached to', form.id);
+
     form.addEventListener('submit', function(e) {
-      // NEW: Populate selected style URLs and filenames before submission
+      // Populate selected style URLs and filenames from localStorage before submission
       populateSelectedStyleUrls();
 
-      // Move all file inputs INTO the form before submission
-      // This is CRITICAL - Shopify only processes file inputs inside <form> tags
-      for (let i = 1; i <= 3; i++) {
-        const fileInput = container.querySelector(`[data-pet-file-input="${i}"]`);
-
-        if (fileInput && fileInput.files && fileInput.files.length > 0) {
-          // Remove from current parent
-          if (fileInput.parentNode) {
-            fileInput.parentNode.removeChild(fileInput);
-          }
-
-          // Append to form so Shopify can upload files to CDN
-          form.appendChild(fileInput);
-
-          console.log(`📎 Pet Selector: Moved ${fileInput.files.length} file(s) for Pet ${i} into form for submission`);
-        }
-      }
+      // Note: File inputs and all other inputs are now associated with form via
+      // HTML5 form attribute - no need to move them manually!
     });
   }
 
