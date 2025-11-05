@@ -67,7 +67,7 @@
 
         {%- if show_pet_selector -%}
           {%- comment -%} Render pet selector inside form so inputs are submitted {%- endcomment -%}
-          {%- render 'ks-product-pet-selector-stitch', product: product, section: section, block: block -%}
+          {%- render 'ks-product-pet-selector-stitch', product: product -%}
 
           {%- comment -%} Conditionally render font selector based on metafield {%- endcomment -%}
           {%- if product.metafields.custom.supports_font_styles == true -%}
