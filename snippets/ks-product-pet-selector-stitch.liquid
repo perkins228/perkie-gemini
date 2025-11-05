@@ -505,14 +505,11 @@
   box-shadow: 0 0 0 2px rgba(255, 89, 100, 0.2);
 }
 
-.pet-detail__upload-btn,
 .pet-detail__preview-btn {
   position: relative;
   width: 100%;
-  max-width: 300px;
   height: 3rem;
   padding: 0 1.25rem;
-  margin: 0 auto;
   background-color: var(--pet-selector-gray-100);
   border: none;
   border-radius: 40px;
@@ -523,7 +520,6 @@
   transition: background-color 0.2s;
 }
 
-.pet-detail__upload-btn:hover,
 .pet-detail__preview-btn:hover {
   background-color: var(--pet-selector-gray-200);
 }
@@ -837,7 +833,7 @@
 .pet-detail__image-actions {
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: stretch;       /* Changed from center to stretch for full-width children */
   gap: 0.5rem;                /* 8px between elements - tighter grouping with upload zone */
 }
 
