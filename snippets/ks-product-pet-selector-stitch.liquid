@@ -114,17 +114,18 @@
                      data-max-files="3"
                      aria-label="Upload pet {{ i }} photo(s)">
 
-              {% comment %} File upload status - shown after files selected {% endcomment %}
-              <div class="pet-detail__upload-status"
-                   data-upload-status="{{ i }}"
-                   style="display: none;"></div>
-
-              <button type="button"
-                      class="pet-detail__preview-btn"
-                      data-pet-preview-btn="{{ i }}"
-                      style="opacity: 0; visibility: hidden;">
-                Preview
-              </button>
+              {% comment %} File upload status with Preview button - shown after files selected {% endcomment %}
+              <div class="pet-detail__upload-status-wrapper"
+                   data-upload-status-wrapper="{{ i }}"
+                   style="display: none;">
+                <div class="pet-detail__upload-status"
+                     data-upload-status="{{ i }}"></div>
+                <button type="button"
+                        class="pet-detail__preview-btn"
+                        data-pet-preview-btn="{{ i }}">
+                  Preview
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -909,18 +910,26 @@
   font-size: 0.8125rem;
 }
 
-/* === Preview Button Progressive Disclosure === */
+/* === Upload Status and Preview Button Wrapper === */
 
-/* Preview button - hidden until files uploaded */
-.pet-detail__preview-btn {
-  opacity: 0;
-  visibility: hidden;
-  transition: opacity 0.3s ease, visibility 0.3s;
+/* Wrapper for upload status and Preview button - positioned side by side */
+.pet-detail__upload-status-wrapper {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 0.75rem;
+  width: 100%;
 }
 
-.pet-detail__preview-btn.visible {
-  opacity: 1;
-  visibility: visible;
+.pet-detail__upload-status-wrapper .pet-detail__upload-status {
+  flex: 1;
+  min-width: 0;
+}
+
+.pet-detail__upload-status-wrapper .pet-detail__preview-btn {
+  flex-shrink: 0;
+  width: auto;
+  min-width: 100px;
 }
 
 /* Upload button with uploads indicator */
@@ -1297,6 +1306,7 @@
     const uploadZone = container.querySelector(`[data-upload-zone="${i}"]`);
     const uploadText = container.querySelector(`[data-upload-text="${i}"]`);
     const fileInput = container.querySelector(`[data-pet-file-input="${i}"]`);
+    const previewBtn = container.querySelector(`[data-pet-preview-btn="${i}"]`);
 
     if (uploadZone && fileInput) {
       const maxFiles = parseInt(fileInput.dataset.maxFiles) || 3;
@@ -1420,9 +1430,6 @@
         // Save state after file upload
         savePetSelectorStateImmediate();
 
-        // Show Preview button now that files are uploaded
-        previewBtn.classList.add('visible');
-
         // Store first file in localStorage for preview modal
         if (petFiles[i].length > 0) {
           const reader = new FileReader();
@@ -1450,11 +1457,12 @@
 
       // Display uploaded file names with sizes and delete buttons
       function displayUploadedFiles(petIndex, files) {
+        const statusWrapper = container.querySelector(`[data-upload-status-wrapper="${petIndex}"]`);
         const statusContainer = container.querySelector(`[data-upload-status="${petIndex}"]`);
-        if (!statusContainer) return;
+        if (!statusWrapper || !statusContainer) return;
 
         if (files.length === 0) {
-          statusContainer.style.display = 'none';
+          statusWrapper.style.display = 'none';
           statusContainer.innerHTML = '';
           return;
         }
@@ -1480,7 +1488,7 @@
         }
 
         statusContainer.innerHTML = html;
-        statusContainer.style.display = 'block';
+        statusWrapper.style.display = 'flex';
 
         // Attach delete button handlers
         const deleteButtons = statusContainer.querySelectorAll('.pet-detail__upload-status__file-delete');
@@ -1551,9 +1559,6 @@
           // NEW: Remove metadata when no files remain
           localStorage.removeItem(`pet_${petIndex}_file_metadata`);
           console.log(`🗑️ Removed metadata for Pet ${petIndex} (no files remaining)`);
-
-          // Hide Preview button when all files are deleted
-          previewBtn.classList.remove('visible');
         }
       }
 
@@ -1875,12 +1880,6 @@
 
                 // Display files in UI (will now show all files, not just first)
                 displayUploadedFiles(i, petFiles[i]);
-
-                // Show Preview button since files were restored
-                const previewBtn = container.querySelector(`[data-pet-preview-btn="${i}"]`);
-                if (previewBtn) {
-                  previewBtn.classList.add('visible');
-                }
 
                 console.log(`✅ Restored ${petFiles[i].length} files for Pet ${i} from metadata`);
               } catch (error) {
