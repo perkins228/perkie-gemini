@@ -9,65 +9,12 @@
  */
 {
   "sections": {
-    "ks_lookbook_k78e9w": {
-      "type": "ks-lookbook",
-      "disabled": true,
-      "name": "KS - Lookbook",
-      "settings": {
-        "color_scheme": "",
-        "page_width": "",
-        "title": "Look Book",
-        "heading_size": "h1",
-        "description": "<p>An optional description for this section</p>",
-        "description_size": "fs-md",
-        "img_mobile_ratio": "adapt",
-        "img_desktop": "shopify://shop_images/unisex-tee_maker--copy1-ezgif.com-optimize.gif",
-        "img_desktop_ratio": "adapt",
-        "point_color": "#121212",
-        "point_diameter": 1,
-        "pt": 36,
-        "pb": 36
-      }
-    },
-    "1761192777a0c80cce": {
-      "type": "_blocks",
-      "blocks": {
-        "ai_gen_block_737c662_7jHAAh": {
-          "type": "ai_gen_block_737c662",
-          "disabled": true,
-          "settings": {
-            "aspect_ratio": "16/9",
-            "max_width": 1200,
-            "border_radius": 0,
-            "initial_position": 50,
-            "divider_width": 3,
-            "divider_color": "#ffffff",
-            "handle_size": 50,
-            "handle_color": "#ffffff",
-            "handle_icon_color": "#000000",
-            "show_labels": true,
-            "before_label": "Before",
-            "after_label": "After",
-            "label_font_size": 14,
-            "label_bg_color": "#000000",
-            "label_text_color": "#ffffff",
-            "label_border_radius": 4,
-            "label_position_horizontal": 20,
-            "label_position_vertical": 20
-          },
-          "blocks": {}
-        }
-      },
-      "block_order": [
-        "ai_gen_block_737c662_7jHAAh"
-      ],
-      "settings": {}
-    },
     "image_banner_GfEN9b": {
       "type": "image-banner",
       "blocks": {
         "heading_4KXhgC": {
           "type": "heading",
+          "disabled": true,
           "settings": {
             "heading": "Turn a Photo into a Keepsake",
             "heading_size": "h0"
@@ -75,6 +22,7 @@
         },
         "text_pimcgB": {
           "type": "text",
+          "disabled": true,
           "settings": {
             "text": "Hand-illustrated pet portraits, framed prints, and products that celebrate the love you share.",
             "text_style": "body"
@@ -82,6 +30,7 @@
         },
         "buttons_KKgG7L": {
           "type": "buttons",
+          "disabled": true,
           "settings": {
             "button_label_1": "Shop Now",
             "button_link_1": "shopify://collections/personalized-pet-products-gifts",
@@ -99,7 +48,7 @@
       ],
       "name": "t:sections.image-banner.presets.name",
       "settings": {
-        "image": "shopify://shop_images/Homepage.png",
+        "image": "shopify://shop_images/BFCM25Banner.jpg",
         "image_overlay_opacity": 0,
         "image_height": "adapt",
         "image_behavior": "none",
@@ -109,7 +58,7 @@
         "color_scheme": "scheme-f318d737-2be2-4346-8605-b2fbd6208608",
         "stack_images_on_mobile": true,
         "mobile_content_alignment": "center",
-        "show_text_below": true
+        "show_text_below": false
       }
     },
     "ks_marquee_d9Eyaf": {
@@ -127,6 +76,7 @@
       "block_order": [
         "text_JPKLEr"
       ],
+      "disabled": true,
       "name": "KS - Marquee",
       "settings": {
         "color_scheme": "scheme-bbe9ca6b-0116-4f9e-8bc7-ac1f3a240349",
@@ -541,8 +491,6 @@
     }
   },
   "order": [
-    "ks_lookbook_k78e9w",
-    "1761192777a0c80cce",
     "image_banner_GfEN9b",
     "ks_marquee_d9Eyaf",
     "ks_simple_collections_GrfLhc",
