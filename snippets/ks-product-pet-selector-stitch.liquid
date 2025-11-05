@@ -1902,6 +1902,18 @@
 
       console.log('✅ State restoration complete');
 
+      // Trigger Add to Cart validation after restoration
+      // Without this, button stays disabled because programmatic value changes don't fire events
+      if (window.CartPetIntegration && typeof window.CartPetIntegration.validateAndUpdateButton === 'function') {
+        // Small delay to ensure all DOM updates are complete
+        setTimeout(function() {
+          window.CartPetIntegration.validateAndUpdateButton();
+          console.log('🔄 Add to Cart validation triggered after restoration');
+        }, 100);
+      } else {
+        console.warn('⚠️ CartPetIntegration not available for validation');
+      }
+
     } catch (error) {
       console.error('❌ Failed to restore state:', error);
     }
