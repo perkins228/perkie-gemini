@@ -37,6 +37,11 @@
       // Initialize button state for custom products
       this.initializeButtonState();
 
+      // ❌ DISABLED: OLD event listeners (NEW selector handles properties directly)
+      // These event listeners populated OLD property names (_pet_name, _effect_applied, etc.)
+      // NEW selector (ks-product-pet-selector-stitch.liquid) handles all property population
+
+      /*
       // Listen for pet selection events
       document.addEventListener('pet:selected', function(e) {
         self.updateFormFields(e.detail);
@@ -68,6 +73,7 @@
           self.updateFontStyleFields(e.detail.style);
         }
       });
+      */
 
       // Listen for add to cart
       this.interceptAddToCart();
