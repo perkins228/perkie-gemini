@@ -57,6 +57,27 @@
           class="product-variant-id"
         >
 
+        {%- comment -%} CRITICAL FIX: Pet selector inputs MUST be inside form for submission {%- endcomment -%}
+        {%- liquid
+          assign show_pet_selector = false
+          if product.tags contains 'pet-custom'
+            assign show_pet_selector = true
+          endif
+        -%}
+
+        {%- if show_pet_selector -%}
+          {%- comment -%} Render pet selector inside form so inputs are submitted {%- endcomment -%}
+          {%- render 'ks-product-pet-selector-stitch', product: product, section: section, block: block -%}
+
+          {%- comment -%} Conditionally render font selector based on metafield {%- endcomment -%}
+          {%- if product.metafields.custom.supports_font_styles == true -%}
+            {%- render 'pet-font-selector' -%}
+            <script>
+              window.productSupportsFonts = true;
+            </script>
+          {%- endif -%}
+        {%- endif -%}
+
         {%- if gift_card_recipient_feature_active -%}
           {%- render 'gift-card-recipient-form', product: product, form: form, section: section -%}
         {%- endif -%}
