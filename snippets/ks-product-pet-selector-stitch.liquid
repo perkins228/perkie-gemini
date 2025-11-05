@@ -1261,161 +1261,118 @@
     });
   }
 
-  // NEW: Update variant selection based on pet count
+  // NEW: Update variant selection based on pet count by triggering Shopify's variant selector
   function updateVariantSelection(petCount) {
-    console.log(`🔄 Updating variant selection for ${petCount} pet(s)...`);
+    console.log(`🔄 Updating variant for ${petCount} pet(s) via Shopify's variant selector...`);
 
-    // DIAGNOSTIC: Log entire ShopifyAnalytics structure for debugging
-    console.log('🔍 DEBUG: window.ShopifyAnalytics:', window.ShopifyAnalytics);
-
-    // Get product data from global window object (set by Shopify)
-    if (!window.ShopifyAnalytics || !window.ShopifyAnalytics.meta || !window.ShopifyAnalytics.meta.product) {
-      console.warn('⚠️ Product data not available, cannot update variant');
-
-      // DIAGNOSTIC: Check alternative data sources
-      console.log('🔍 DEBUG: Checking alternative sources...');
-      console.log('🔍 DEBUG: window.product:', window.product);
-      console.log('🔍 DEBUG: window.meta:', window.meta);
-      return;
-    }
-
-    const productData = window.ShopifyAnalytics.meta.product;
-    const variants = productData.variants;
-
-    // DIAGNOSTIC: Log variant structure
-    console.log('🔍 DEBUG: Variants array length:', variants ? variants.length : 0);
-    if (variants && variants.length > 0) {
-      console.log('🔍 DEBUG: First variant full object:', variants[0]);
-      console.log('🔍 DEBUG: First variant JSON:', JSON.stringify(variants[0], null, 2));
-      console.log('🔍 DEBUG: All variant keys:', Object.keys(variants[0]));
-      console.log('🔍 DEBUG: All variant titles:', variants.map(v => v.title || v.name || v.option1));
-
-      // Check if variants have a different structure
-      if (variants[0].public_title) {
-        console.log('🔍 DEBUG: Variants use public_title:', variants.map(v => v.public_title));
-      }
-      if (variants[0].variant_title) {
-        console.log('🔍 DEBUG: Variants use variant_title:', variants.map(v => v.variant_title));
-      }
-    }
-
-    if (!variants || variants.length === 0) {
-      console.warn('⚠️ No variants found for product');
-      return;
-    }
-
-    // Find variant matching pet count
-    // Variant public_title format: "1 Pet / 5" × 7" / No Matting"
-    // We need to match the pet count portion (e.g., "1 Pet", "2 Pets", "3 Pets")
+    // Determine target variant text
     const petCountText = petCount === 1 ? '1 Pet' : `${petCount} Pets`;
-    console.log('🔍 DEBUG: Looking for variant matching:', petCountText);
+    console.log('🎯 Target pet count:', petCountText);
 
-    // FIX: Match using public_title (which contains pet count + size + matting)
-    // Get currently selected variant to preserve size/matting options
-    const form = container.closest('form[action*="/cart/add"]') ||
-                 document.querySelector('form[action*="/cart/add"]');
-    const currentVariantInput = form?.querySelector('input[name="id"]');
-    const currentVariantId = currentVariantInput?.value;
-    const currentVariant = currentVariantId ? variants.find(v => v.id == currentVariantId) : variants[0];
-
-    // Extract size and matting from current variant (if available)
-    let sizeAndMatting = '';
-    if (currentVariant && currentVariant.public_title) {
-      // Current format: "1 Pet / 5" × 7" / No Matting"
-      // Extract everything after the first " / "
-      const parts = currentVariant.public_title.split(' / ');
-      if (parts.length >= 2) {
-        sizeAndMatting = parts.slice(1).join(' / '); // "5" × 7" / No Matting"
-      }
-    }
-
-    console.log('🔍 DEBUG: Current variant:', currentVariant?.public_title);
-    console.log('🔍 DEBUG: Extracted size/matting:', sizeAndMatting);
-
-    // Find variant matching pet count AND size/matting (if available)
-    let matchingVariant;
-    if (sizeAndMatting) {
-      // Try to find exact match with same size/matting
-      const targetPublicTitle = `${petCountText} / ${sizeAndMatting}`;
-      console.log('🔍 DEBUG: Looking for exact match:', targetPublicTitle);
-      matchingVariant = variants.find(v => v.public_title === targetPublicTitle);
-    }
-
-    // Fallback: Just match pet count (will use first variant with that pet count)
-    if (!matchingVariant) {
-      console.log('🔍 DEBUG: No exact match, finding any variant with:', petCountText);
-      matchingVariant = variants.find(v => v.public_title && v.public_title.startsWith(petCountText));
-    }
-
-    if (!matchingVariant) {
-      console.warn(`⚠️ No variant found for "${petCountText}"`);
-      console.log('🔍 DEBUG: Available public_titles:', variants.map(v => v.public_title));
+    // CRITICAL FIX: Find Shopify's variant-selects component and trigger its inputs
+    // This uses Shopify's built-in pub/sub system instead of manually updating values
+    const variantSelects = document.querySelector('variant-selects');
+    if (!variantSelects) {
+      console.warn('⚠️ variant-selects element not found - cannot update variant');
+      console.log('🔍 DEBUG: Page may not have Shopify Dawn variant selector');
       return;
     }
 
-    // Update variant ID in form (required for add-to-cart)
-    // Note: form already retrieved above for current variant check
-    if (!form) {
-      console.warn('⚠️ Add-to-cart form not found with any method');
-      console.log('🔍 DEBUG: All forms on page:', document.querySelectorAll('form'));
-      return;
-    }
+    console.log('✅ Found variant-selects component');
 
-    const variantInput = form.querySelector('input[name="id"]');
-    if (!variantInput) {
-      console.warn('⚠️ Variant input field not found in form');
-      console.log('🔍 DEBUG: All inputs in form:', form.querySelectorAll('input'));
-      return;
-    }
+    // Strategy: Find the radio button or select option that matches our pet count
+    // and simulate a user click/change to trigger Shopify's event flow
 
-    // Update variant ID
-    variantInput.value = matchingVariant.id;
-    console.log(`✅ Variant updated: ${matchingVariant.name || matchingVariant.title} (ID: ${matchingVariant.id}, Price: $${(matchingVariant.price / 100).toFixed(2)})`);
+    // Try radio buttons first (most common)
+    const variantRadios = variantSelects.querySelectorAll('input[type="radio"]');
+    console.log(`🔍 DEBUG: Found ${variantRadios.length} variant radio buttons`);
 
-    // CRITICAL FIX: Notify Shopify product form of variant change
-    // This ensures the form's internal state updates and correct variant is added to cart
-    try {
-      // Dispatch change event on variant input (Shopify listens for this)
-      const changeEvent = new Event('change', { bubbles: true });
-      variantInput.dispatchEvent(changeEvent);
-      console.log('✅ Dispatched variant change event to Shopify product form');
+    let matchingInput = null;
+    variantRadios.forEach(radio => {
+      // Get the label for this radio to check the text
+      const label = variantSelects.querySelector(`label[for="${radio.id}"]`);
+      if (label) {
+        const labelText = label.textContent.trim();
+        console.log(`🔍 DEBUG: Checking radio "${radio.id}" with label: "${labelText}"`);
 
-      // Also trigger Shopify's variant:change custom event for theme components
-      const variantChangeEvent = new CustomEvent('variant:change', {
-        bubbles: true,
-        detail: {
-          variant: matchingVariant,
-          sectionId: form.dataset.sectionId || 'main'
+        // Check if label text starts with our pet count (e.g., "1 Pet" or "1 Pet / 5" x 7"")
+        if (labelText.startsWith(petCountText)) {
+          matchingInput = radio;
+          console.log(`✅ Found matching radio button: "${labelText}"`);
         }
+      }
+    });
+
+    // Fallback: Try select dropdowns
+    if (!matchingInput) {
+      const variantSelects = variantSelects.querySelectorAll('select');
+      console.log(`🔍 DEBUG: Trying ${variantSelects.length} select dropdowns`);
+
+      variantSelects.forEach(select => {
+        const options = select.querySelectorAll('option');
+        options.forEach(option => {
+          const optionText = option.textContent.trim();
+          console.log(`🔍 DEBUG: Checking option: "${optionText}"`);
+
+          if (optionText.startsWith(petCountText)) {
+            matchingInput = select;
+            select.value = option.value;
+            console.log(`✅ Found matching select option: "${optionText}"`);
+          }
+        });
       });
-      document.dispatchEvent(variantChangeEvent);
-      console.log('✅ Dispatched variant:change custom event for theme components');
-    } catch (error) {
-      console.error('❌ Error dispatching variant change events:', error);
     }
 
-    // Update price display if available
-    updatePriceDisplay(matchingVariant);
-  }
-
-  // NEW: Update price display on product page
-  function updatePriceDisplay(variant) {
-    // Find price elements (Shopify Dawn theme standard selectors)
-    const priceElement = document.querySelector('.price__regular .price-item--regular');
-    if (!priceElement) {
-      console.warn('⚠️ Price display element not found');
+    if (!matchingInput) {
+      console.warn(`⚠️ No variant input found matching "${petCountText}"`);
+      console.log('🔍 DEBUG: Available variant options:',
+        Array.from(variantRadios).map(r => {
+          const label = variantSelects.querySelector(`label[for="${r.id}"]`);
+          return label ? label.textContent.trim() : 'No label';
+        })
+      );
       return;
     }
 
-    // Format price (variant.price is in cents)
-    const priceFormatted = `$${(variant.price / 100).toFixed(2)}`;
-    priceElement.textContent = priceFormatted;
-    console.log(`✅ Price display updated: ${priceFormatted}`);
+    // CRITICAL: Simulate real user interaction to trigger Shopify's event flow
+    // This causes Shopify to:
+    // 1. Publish optionValueSelectionChange event
+    // 2. product-info subscribes and fetches new HTML
+    // 3. Updates price, inventory, etc.
+    // 4. Publishes variantChange for other components
+    console.log('🖱️ Simulating user interaction...');
 
-    // Trigger Shopify's variant change event for other theme components
-    if (typeof window.variantChange === 'function') {
-      window.variantChange(variant);
+    if (matchingInput.tagName === 'INPUT') {
+      // For radio buttons: check and trigger click + change events
+      matchingInput.checked = true;
+
+      // Dispatch both click and change for maximum compatibility
+      const clickEvent = new MouseEvent('click', {
+        view: window,
+        bubbles: true,
+        cancelable: true
+      });
+      matchingInput.dispatchEvent(clickEvent);
+
+      const changeEvent = new Event('change', {
+        bubbles: true,
+        cancelable: true
+      });
+      matchingInput.dispatchEvent(changeEvent);
+
+      console.log('✅ Triggered radio button click and change events');
+    } else if (matchingInput.tagName === 'SELECT') {
+      // For select dropdowns: trigger change event
+      const changeEvent = new Event('change', {
+        bubbles: true,
+        cancelable: true
+      });
+      matchingInput.dispatchEvent(changeEvent);
+
+      console.log('✅ Triggered select change event');
     }
+
+    console.log('✅ Variant update complete - Shopify will handle price/cart updates');
   }
 
   // Pet count change listener
