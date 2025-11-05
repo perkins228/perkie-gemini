@@ -57,18 +57,6 @@
           class="product-variant-id"
         >
 
-        {%- comment -%} CRITICAL FIX: Pet selector inputs MUST be inside form for submission {%- endcomment -%}
-        {%- comment -%} Pet selector snippet handles tag gating internally - no outer condition needed {%- endcomment -%}
-        {%- render 'ks-product-pet-selector-stitch', product: product -%}
-
-        {%- comment -%} Conditionally render font selector based on metafield {%- endcomment -%}
-        {%- if product.metafields.custom.supports_font_styles == true -%}
-          {%- render 'pet-font-selector' -%}
-          <script>
-            window.productSupportsFonts = true;
-          </script>
-        {%- endif -%}
-
         {%- if gift_card_recipient_feature_active -%}
           {%- render 'gift-card-recipient-form', product: product, form: form, section: section -%}
         {%- endif -%}

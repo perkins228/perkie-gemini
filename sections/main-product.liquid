@@ -446,22 +446,35 @@
               {%- when 'variant_picker' -%}
                 {% render 'product-variant-picker', product: product, block: block, product_form_id: product_form_id %}
               {%- when 'ks_pet_selector' -%}
-                {% comment %} 
+                {% comment %}
                   Modular approach using metafields:
                   - product.metafields.custom.enable_pet_selector (boolean) - Show pet selector
                   - product.metafields.custom.supports_font_styles (boolean) - Show font selector
                   This allows independent control of each module per product
                 {% endcomment %}
-                
-                {%- comment -%}
-                  REMOVED: Pet selector now renders inside form via buy-buttons.liquid (lines 68-79)
-                  This ensures all pet selector inputs are INSIDE the <form> tag for proper submission.
-                  Previous issue: Rendering here created inputs OUTSIDE form, causing zero properties bug.
 
-                  The pet selector is now conditionally rendered within the form based on:
-                  - product.tags contains 'pet-custom' (primary check in buy-buttons.liquid)
-                  - product.metafields.custom.supports_font_styles (font selector enablement)
-                {%- endcomment -%}
+                {% comment %} Check if pet selector should be shown (default true for backward compatibility) {% endcomment %}
+                {% liquid
+                  assign show_pet_selector = product.metafields.custom.enable_pet_selector
+                  if show_pet_selector == blank
+                    assign show_pet_selector = true
+                  endif
+                %}
+
+                {% if show_pet_selector %}
+                  <div class="product__pet-selector" {{ block.shopify_attributes }}>
+                    {% comment %} Render new Stitch UI pet selector {% endcomment %}
+                    {% render 'ks-product-pet-selector-stitch', product: product, section: section, block: block %}
+
+                    {% comment %} Conditionally render font selector based on metafield {% endcomment %}
+                    {% if product.metafields.custom.supports_font_styles == true %}
+                      {% render 'pet-font-selector' %}
+                      <script>
+                        window.productSupportsFonts = true;
+                      </script>
+                    {% endif %}
+                  </div>
+                {% endif %}
               {%- when 'ks_pet_customizer' -%}
                 <div class="product__pet-customizer" {{ block.shopify_attributes }}>
                   {%- comment -%}
