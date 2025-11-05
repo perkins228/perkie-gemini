@@ -107,11 +107,10 @@
               <input type="file"
                      name="properties[Pet {{ i }} Images]"
                      accept="image/*"
-                     multiple
                      style="display: none;"
                      data-pet-file-input="{{ i }}"
-                     data-max-files="3"
-                     aria-label="Upload pet {{ i }} photo(s)">
+                     data-max-files="1"
+                     aria-label="Upload pet {{ i }} photo">
 
               {% comment %} File upload status with Preview button - shown after files selected {% endcomment %}
               <div class="pet-detail__upload-status-wrapper"
@@ -871,8 +870,8 @@
 }
 
 .pet-detail__upload-zone.has-files {
-  border-color: #22c55e;
-  background-color: rgba(34, 197, 94, 0.05);
+  border: 2px solid #22c55e;              /* Solid border (not dashed) */
+  background-color: rgba(34, 197, 94, 0.08); /* Slightly stronger green tint */
 }
 
 /* Upload icon */
@@ -897,6 +896,11 @@
   font-size: 0.875rem;
   font-weight: 500;
   color: var(--pet-selector-gray-700);
+}
+
+.pet-detail__upload-zone.has-files .pet-detail__upload-text {
+  font-weight: 600;        /* Semi-bold for "CHANGE IMAGE?" */
+  color: #16a34a;          /* Darker green for readability */
 }
 
 .pet-detail__upload-hint {
@@ -1351,72 +1355,40 @@
         }
       });
 
-      // Handle file selection (additive - doesn't replace existing files)
+      // Handle file selection (replacement - single file only)
       fileInput.addEventListener('change', (e) => {
         const newFiles = Array.from(e.target.files);
 
-        // Validation 1: File count
+        // Validation 1: File selection
         if (newFiles.length === 0) {
           return; // User cancelled
         }
 
-        // Check if adding new files would exceed max
-        const currentCount = petFiles[i].length;
-        const totalCount = currentCount + newFiles.length;
+        // Single file only (file input has no 'multiple' attribute)
+        const newFile = newFiles[0];
 
-        if (totalCount > maxFiles) {
-          alert(`You can only upload ${maxFiles} photo(s) total for this pet. You already have ${currentCount} file(s).`);
-          fileInput.value = ''; // Clear selection
+        // Validation 2: File size (max 50MB per Shopify)
+        if (newFile.size > 50 * 1024 * 1024) {
+          alert(`${newFile.name} is too large. Max 50MB per file.`);
+          fileInput.value = '';
           return;
         }
 
-        // Validation 2: File size (max 50MB per Shopify)
-        for (let j = 0; j < newFiles.length; j++) {
-          if (newFiles[j].size > 50 * 1024 * 1024) {
-            alert(`${newFiles[j].name} is too large. Max 50MB per file.`);
-            fileInput.value = '';
-            return;
-          }
-        }
-
         // Validation 3: File type (must be image)
-        for (let j = 0; j < newFiles.length; j++) {
-          if (!newFiles[j].type.startsWith('image/')) {
-            alert(`${newFiles[j].name} is not an image file. Please select JPG, PNG, or HEIC.`);
-            fileInput.value = '';
-            return;
-          }
+        if (!newFile.type.startsWith('image/')) {
+          alert(`${newFile.name} is not an image file. Please select JPG, PNG, or HEIC.`);
+          fileInput.value = '';
+          return;
         }
 
-        // Validation 4: Check for duplicates
-        let duplicatesSkipped = 0;
-        const filesToAdd = [];
-
-        for (let j = 0; j < newFiles.length; j++) {
-          const isDuplicate = petFiles[i].some(existingFile =>
-            existingFile.name === newFiles[j].name && existingFile.size === newFiles[j].size
-          );
-
-          if (!isDuplicate) {
-            filesToAdd.push(newFiles[j]);
-          } else {
-            duplicatesSkipped++;
-          }
-        }
-
-        if (duplicatesSkipped > 0) {
-          alert(`${duplicatesSkipped} duplicate file(s) skipped.`);
-        }
-
-        // Add new files to persistent storage
-        petFiles[i].push(...filesToAdd);
+        // Replace existing file (not additive)
+        petFiles[i] = [newFile];
 
         // Clear file input to allow re-uploading same files if deleted
         fileInput.value = '';
 
         // All validations passed - update UI
-        const count = petFiles[i].length;
-        uploadText.textContent = `${count}/${maxFiles} photos uploaded`;
+        uploadText.textContent = 'CHANGE IMAGE?';
         uploadZone.classList.add('has-files');
 
         // Show uploaded file names below pet name
@@ -1510,16 +1482,11 @@
 
         petFiles[petIndex].splice(fileIndex, 1);
 
-        // Update UI
+        // Update UI (single file - always returns to empty after delete)
         const uploadZone = container.querySelector(`[data-upload-zone="${petIndex}"]`);
         const uploadText = container.querySelector(`[data-upload-text="${petIndex}"]`);
-        const count = petFiles[petIndex].length;
-        if (count === 0) {
-          uploadText.textContent = 'Click or drag to upload';
-          uploadZone.classList.remove('has-files');
-        } else {
-          uploadText.textContent = `${count}/${maxFiles} photos uploaded`;
-        }
+        uploadText.textContent = 'Click or drag to upload';
+        uploadZone.classList.remove('has-files');
 
         // Re-render file list
         displayUploadedFiles(petIndex, petFiles[petIndex]);
@@ -1858,31 +1825,30 @@
           const fileInput = container.querySelector(`[data-pet-file-input="${i}"]`);
 
           if (uploadZone && fileInput) {
-            const maxFiles = parseInt(fileInput.dataset.maxFiles) || 3;
-            uploadText.textContent = `${pet.fileCount}/${maxFiles} photos uploaded`;
+            uploadText.textContent = 'CHANGE IMAGE?';
             uploadZone.classList.add('has-files');
 
-            // NEW: Restore from file metadata (complete list, not just preview)
+            // Restore from file metadata (single file only)
             const storedMetadata = localStorage.getItem(`pet_${i}_file_metadata`);
             if (storedMetadata) {
               try {
                 const fileMetadata = JSON.parse(storedMetadata);
 
-                // Reconstruct petFiles array with mock File objects for UI display
-                // Note: These are not real File objects (can't be re-uploaded)
-                // but have enough data (.name, .size, .type) for UI display
-                petFiles[i] = fileMetadata.map(meta => ({
-                  name: meta.name,
-                  size: meta.size,
-                  type: meta.type
-                }));
+                // Single file only - get first file from metadata
+                if (fileMetadata.length > 0) {
+                  petFiles[i] = [{
+                    name: fileMetadata[0].name,
+                    size: fileMetadata[0].size,
+                    type: fileMetadata[0].type
+                  }];
 
-                // Display files in UI (will now show all files, not just first)
-                displayUploadedFiles(i, petFiles[i]);
+                  // Display single file in UI
+                  displayUploadedFiles(i, petFiles[i]);
 
-                console.log(`✅ Restored ${petFiles[i].length} files for Pet ${i} from metadata`);
+                  console.log(`✅ Restored file for Pet ${i}: ${fileMetadata[0].name}`);
+                }
               } catch (error) {
-                console.error(`❌ Failed to restore files for Pet ${i}:`, error);
+                console.error(`❌ Failed to restore file for Pet ${i}:`, error);
               }
             }
           }
