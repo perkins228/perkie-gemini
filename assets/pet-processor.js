@@ -511,7 +511,7 @@ class PetProcessor {
       console.log('🔄 Attempting to restore session from localStorage');
 
       // === NEW: Check for pet selector uploaded images FIRST ===
-      const petSelectorImage = this.checkPetSelectorUploads();
+      const petSelectorImage = await this.checkPetSelectorUploads();
       if (petSelectorImage) {
         console.log('📸 Found uploaded image from pet selector, auto-loading...');
         await this.loadPetSelectorImage(petSelectorImage);
@@ -695,47 +695,85 @@ class PetProcessor {
 
   /**
    * Check for uploaded images from pet selector
-   * Pet selector stores images as: localStorage['pet_0_images'] = [{name, data, size, type}]
-   * @returns {Object|null} Image data if found, null otherwise
+   * Supports both GCS URLs (new server-first) and base64 data (legacy fallback)
+   * Pet selector stores images as: localStorage['pet_X_image_url'] or localStorage['pet_X_images']
+   * @returns {Promise<Object|null>} Image data if found, null otherwise
    */
-  checkPetSelectorUploads() {
+  async checkPetSelectorUploads() {
     try {
       // Check for active pet index from sessionStorage (set by pet selector)
       const activeIndex = parseInt(sessionStorage.getItem('pet_selector_active_index') || '0');
 
-      // First check the active index
-      const activeKey = `pet_${activeIndex}_images`;
-      const activeStored = localStorage.getItem(activeKey);
+      // Helper function to check a specific pet index
+      const checkPetIndex = async (i) => {
+        // NEW: Check for GCS URL first (server-first upload)
+        const urlKey = `pet_${i}_image_url`;
+        const imageUrl = localStorage.getItem(urlKey);
 
-      if (activeStored) {
-        const images = JSON.parse(activeStored);
-        if (Array.isArray(images) && images.length > 0) {
-          const img = images[0];
+        if (imageUrl) {
+          try {
+            console.log(`🌐 Found GCS URL for pet ${i}, fetching...`, imageUrl);
 
-          // Validate it's a proper image data structure
-          if (img.data && img.data.startsWith('data:image/')) {
-            console.log(`✅ Found pet selector upload: ${activeKey}`, {
-              name: img.name,
-              size: img.size,
-              type: img.type
+            // Fetch image from GCS URL
+            const response = await fetch(imageUrl);
+            if (!response.ok) {
+              throw new Error(`HTTP ${response.status}`);
+            }
+
+            const blob = await response.blob();
+
+            // Convert to base64 for compatibility with existing code
+            const base64 = await new Promise((resolve, reject) => {
+              const reader = new FileReader();
+              reader.onloadend = () => resolve(reader.result);
+              reader.onerror = reject;
+              reader.readAsDataURL(blob);
             });
 
-            // Clean up the active index marker
-            sessionStorage.removeItem('pet_selector_active_index');
+            // Get metadata from localStorage
+            const metadataKey = `pet_${i}_file_metadata`;
+            const metadata = localStorage.getItem(metadataKey);
+            let name = 'pet-image.jpg';
+            let size = blob.size;
+            let type = blob.type;
+
+            if (metadata) {
+              try {
+                const parsed = JSON.parse(metadata);
+                if (Array.isArray(parsed) && parsed[0]) {
+                  name = parsed[0].name || name;
+                  type = parsed[0].type || type;
+                }
+              } catch (e) {
+                console.warn('⚠️ Could not parse metadata:', e);
+              }
+            }
+
+            console.log(`✅ Loaded image from GCS URL for pet ${i}`, {
+              name,
+              size,
+              type,
+              source: 'gcs'
+            });
 
             return {
-              petIndex: activeIndex,
-              key: activeKey,
-              ...img
+              petIndex: i,
+              key: urlKey,
+              data: base64,
+              name,
+              size,
+              type,
+              source: 'gcs' // Mark source for debugging
             };
+          } catch (error) {
+            console.warn(`⚠️ Failed to fetch from GCS URL for pet ${i}:`, error.message);
+            // Fall through to base64 fallback below
           }
         }
-      }
 
-      // Fallback: Check pet_0, pet_1, pet_2 in order
-      for (let i = 0; i < 3; i++) {
-        const key = `pet_${i}_images`;
-        const stored = localStorage.getItem(key);
+        // LEGACY: Fall back to base64 localStorage (backward compatibility)
+        const base64Key = `pet_${i}_images`;
+        const stored = localStorage.getItem(base64Key);
 
         if (stored) {
           const images = JSON.parse(stored);
@@ -744,19 +782,39 @@ class PetProcessor {
 
             // Validate it's a proper image data structure
             if (img.data && img.data.startsWith('data:image/')) {
-              console.log(`✅ Found pet selector upload (fallback): ${key}`, {
+              console.log(`✅ Found base64 image for pet ${i} (legacy)`, {
                 name: img.name,
                 size: img.size,
-                type: img.type
+                type: img.type,
+                source: 'base64'
               });
 
               return {
                 petIndex: i,
-                key: key,
-                ...img
+                key: base64Key,
+                ...img,
+                source: 'base64' // Mark source for debugging
               };
             }
           }
+        }
+
+        return null;
+      };
+
+      // First check the active index
+      const activeResult = await checkPetIndex(activeIndex);
+      if (activeResult) {
+        // Clean up the active index marker
+        sessionStorage.removeItem('pet_selector_active_index');
+        return activeResult;
+      }
+
+      // Fallback: Check pet_0, pet_1, pet_2 in order
+      for (let i = 0; i < 3; i++) {
+        const result = await checkPetIndex(i);
+        if (result) {
+          return result;
         }
       }
 
