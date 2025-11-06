@@ -105,9 +105,9 @@
               </label>
 
               {% comment %} Native Shopify file upload - files uploaded to CDN on form submit {% endcomment %}
-              {% comment %} VISIBLE TO CUSTOMERS: Show image thumbnails in cart/checkout {% endcomment %}
+              {% comment %} HIDDEN FROM CUSTOMERS: Underscore prefix hides from cart/checkout {% endcomment %}
               <input type="file"
-                     name="properties[Pet {{ i }} Images]"
+                     name="properties[_pet_{{ i }}_images]"
                      accept="image/*"
                      style="display: none;"
                      form="{{ product_form_id }}"
@@ -134,11 +134,11 @@
         <div class="pet-detail__order-input"
              data-order-number-input="{{ i }}"
              style="display: none;">
-          {% comment %} VISIBLE TO CUSTOMERS: Show order reference in cart/checkout {% endcomment %}
+          {% comment %} HIDDEN FROM CUSTOMERS: Underscore prefix hides from cart/checkout {% endcomment %}
           <input type="text"
                  class="pet-detail__order-number"
                  placeholder="Enter previous order number"
-                 name="properties[Pet {{ i }} Order Number]"
+                 name="properties[_pet_{{ i }}_order_number]"
                  form="{{ product_form_id }}"
                  data-order-number-field="{{ i }}">
         </div>
