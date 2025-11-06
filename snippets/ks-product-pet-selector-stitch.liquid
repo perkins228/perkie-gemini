@@ -1856,7 +1856,17 @@
       previewBtn.addEventListener('click', (e) => {
         e.preventDefault();
 
-        // Get uploaded images for this pet
+        // Check for GCS URL first (NEW format - server-first upload)
+        const gcsUrl = localStorage.getItem(`pet_${i}_image_url`);
+
+        if (gcsUrl) {
+          // GCS URL exists - use server-first path
+          console.log(`🎨 Opening processor with GCS URL for Pet ${i}:`, gcsUrl);
+          openProcessorModal(gcsUrl, i);
+          return;
+        }
+
+        // Fallback: Check for base64 images (OLD format - offline mode)
         const storedImages = localStorage.getItem(`pet_${i}_images`);
         const images = storedImages ? JSON.parse(storedImages) : [];
 
@@ -1865,7 +1875,8 @@
           return;
         }
 
-        // Open modal with first image and processor
+        // Use base64 fallback
+        console.log(`🎨 Opening processor with base64 for Pet ${i} (offline mode)`);
         openProcessorModal(images[0].data, i);
       });
     }
