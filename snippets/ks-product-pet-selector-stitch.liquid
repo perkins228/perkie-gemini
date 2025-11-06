@@ -105,8 +105,9 @@
               </label>
 
               {% comment %} Native Shopify file upload - files uploaded to CDN on form submit {% endcomment %}
+              {% comment %} HIDDEN FROM CUSTOMERS: Underscore prefix hides from cart/checkout {% endcomment %}
               <input type="file"
-                     name="properties[Pet {{ i }} Images]"
+                     name="properties[_pet_{{ i }}_images]"
                      accept="image/*"
                      style="display: none;"
                      form="{{ product_form_id }}"
@@ -133,10 +134,11 @@
         <div class="pet-detail__order-input"
              data-order-number-input="{{ i }}"
              style="display: none;">
+          {% comment %} HIDDEN FROM CUSTOMERS: Underscore prefix hides from cart/checkout {% endcomment %}
           <input type="text"
                  class="pet-detail__order-number"
                  placeholder="Enter previous order number"
-                 name="properties[Pet {{ i }} Order Number]"
+                 name="properties[_pet_{{ i }}_order_number]"
                  form="{{ product_form_id }}"
                  data-order-number-field="{{ i }}">
         </div>
@@ -368,33 +370,33 @@
   </div>
   {% endif %}
 
-  {% comment %} Hidden order properties for upload tracking {% endcomment %}
+  {% comment %} HIDDEN FROM CUSTOMERS: Upload tracking metadata (underscore prefix) {% endcomment %}
   {% for i in (1..3) %}
-    <input type="hidden" id="order-type-{{ i }}" name="properties[Pet {{ i }} Order Type]" value="" form="{{ product_form_id }}">
-    <input type="hidden" id="processing-state-{{ i }}" name="properties[Pet {{ i }} Processing State]" value="" form="{{ product_form_id }}">
-    <input type="hidden" id="upload-timestamp-{{ i }}" name="properties[Pet {{ i }} Upload Timestamp]" value="" form="{{ product_form_id }}">
+    <input type="hidden" id="order-type-{{ i }}" name="properties[_pet_{{ i }}_order_type]" value="" form="{{ product_form_id }}">
+    <input type="hidden" id="processing-state-{{ i }}" name="properties[_pet_{{ i }}_processing_state]" value="" form="{{ product_form_id }}">
+    <input type="hidden" id="upload-timestamp-{{ i }}" name="properties[_pet_{{ i }}_upload_timestamp]" value="" form="{{ product_form_id }}">
   {% endfor %}
 
-  {% comment %} NEW: Hidden fields for selected style URLs and filenames (populated by JavaScript before form submit) {% endcomment %}
+  {% comment %} HIDDEN FROM CUSTOMERS: Fulfillment metadata (underscore prefix) {% endcomment %}
   {% for i in (1..3) %}
     <input type="hidden"
            id="pet-{{ i }}-processed-url"
-           name="properties[Pet {{ i }} Processed Image URL]"
+           name="properties[_pet_{{ i }}_processed_image_url]"
            value=""
            form="{{ product_form_id }}"
            data-pet-processed-url="{{ i }}">
     <input type="hidden"
            id="pet-{{ i }}-filename"
-           name="properties[Pet {{ i }} Filename]"
+           name="properties[_pet_{{ i }}_filename]"
            value=""
            form="{{ product_form_id }}"
            data-pet-filename="{{ i }}">
   {% endfor %}
 
-  {% comment %} NEW: Hidden field for artist notes (populated by JavaScript from pet processor) {% endcomment %}
+  {% comment %} HIDDEN FROM CUSTOMERS: Internal fulfillment notes (underscore prefix) {% endcomment %}
   <input type="hidden"
          id="artist-notes-field"
-         name="properties[Artist Notes]"
+         name="properties[_artist_notes]"
          value=""
          form="{{ product_form_id }}"
          data-artist-notes>
