@@ -1446,6 +1446,11 @@
       styleCards.forEach(c => c.classList.remove('style-card--active'));
       card.classList.add('style-card--active');
       savePetSelectorStateImmediate(); // Save immediately on selection
+
+      // Trigger validation to update Add to Cart button
+      if (window.CartPetIntegration && typeof window.CartPetIntegration.validateAndUpdateButton === 'function') {
+        window.CartPetIntegration.validateAndUpdateButton();
+      }
     });
   });
 
@@ -1456,6 +1461,33 @@
       fontCards.forEach(c => c.classList.remove('font-card--active'));
       card.classList.add('font-card--active');
       savePetSelectorStateImmediate(); // Save immediately on selection
+
+      // Trigger validation to update Add to Cart button
+      if (window.CartPetIntegration && typeof window.CartPetIntegration.validateAndUpdateButton === 'function') {
+        window.CartPetIntegration.validateAndUpdateButton();
+      }
+    });
+  });
+
+  // Style radio button change listeners (direct radio clicks)
+  const styleRadios = container.querySelectorAll('[data-style-radio]');
+  styleRadios.forEach(radio => {
+    radio.addEventListener('change', () => {
+      // Trigger validation to update Add to Cart button
+      if (window.CartPetIntegration && typeof window.CartPetIntegration.validateAndUpdateButton === 'function') {
+        window.CartPetIntegration.validateAndUpdateButton();
+      }
+    });
+  });
+
+  // Font radio button change listeners (direct radio clicks)
+  const fontRadios = container.querySelectorAll('[data-font-radio]');
+  fontRadios.forEach(radio => {
+    radio.addEventListener('change', () => {
+      // Trigger validation to update Add to Cart button
+      if (window.CartPetIntegration && typeof window.CartPetIntegration.validateAndUpdateButton === 'function') {
+        window.CartPetIntegration.validateAndUpdateButton();
+      }
     });
   });
 
