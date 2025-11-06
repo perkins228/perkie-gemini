@@ -37,8 +37,8 @@
   </div>
 </section>
 
-{% comment %} Simple Storage System {% endcomment %}
-<script src="{{ 'pet-storage.js' | asset_url }}" defer></script>
+{% comment %} Simple Storage System - Synchronous load to prevent race conditions {% endcomment %}
+<script src="{{ 'pet-storage.js' | asset_url }}"></script>
 
 {% comment %} Gemini AI Effects Integration - Load before pet processor {% endcomment %}
 <script src="{{ 'gemini-api-client.js' | asset_url }}"></script>
