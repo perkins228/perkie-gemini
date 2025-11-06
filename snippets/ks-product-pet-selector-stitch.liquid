@@ -2246,6 +2246,83 @@
   }
 
   /**
+   * Get N latest processed pets from localStorage (within last 10 minutes)
+   * @param {number} count - Number of pets to retrieve (1-3)
+   * @returns {Array<Object>} Array of pet data objects (newest first)
+   */
+  function getLatestProcessedPets(count = 1) {
+    try {
+      const allPets = PetStorage.getAll();
+
+      // Filter: Must have effects, must be recent
+      const recentPets = Object.values(allPets)
+        .filter(pet => {
+          // Must have processed effects
+          if (!pet.effects || Object.keys(pet.effects).length === 0) {
+            return false;
+          }
+
+          // Must have timestamp
+          if (!pet.timestamp) {
+            return false;
+          }
+
+          // Must be within last 10 minutes
+          const age = Date.now() - pet.timestamp;
+          if (age > 10 * 60 * 1000) {
+            return false;
+          }
+
+          return true;
+        })
+        .sort((a, b) => b.timestamp - a.timestamp); // Sort by timestamp, newest first
+
+      const result = recentPets.slice(0, count);
+
+      if (result.length > 0) {
+        console.log(`✅ Found ${result.length} recent processed pet(s)`);
+      } else {
+        console.log('ℹ️ No recent processed pets found (within 10 minutes)');
+      }
+
+      return result;
+
+    } catch (error) {
+      console.error('❌ Failed to get latest pets:', error);
+      return [];
+    }
+  }
+
+  /**
+   * Clean up stale pets (older than 60 minutes) to prevent localStorage bloat
+   */
+  function cleanupStalePets() {
+    try {
+      const allPets = PetStorage.getAll();
+      let removed = 0;
+
+      Object.keys(allPets).forEach(petId => {
+        const pet = allPets[petId];
+        if (pet.timestamp) {
+          const age = Date.now() - pet.timestamp;
+
+          // Remove pets older than 60 minutes
+          if (age > 60 * 60 * 1000) {
+            PetStorage.delete(petId);
+            removed++;
+          }
+        }
+      });
+
+      if (removed > 0) {
+        console.log(`🗑️ Cleaned up ${removed} stale pet(s) from localStorage`);
+      }
+    } catch (error) {
+      console.error('Failed to cleanup stale pets:', error);
+    }
+  }
+
+  /**
    * Populate selected style URLs and filenames before form submission
    * Reads selected style from radio button and fetches corresponding GCS URL from localStorage
    * @returns {boolean} True if successful, false if missing data
@@ -2273,7 +2350,75 @@
     const petCount = parseInt(selectedCountRadio.value);
     console.log(`✅ Active pets: ${petCount}`);
 
-    // For each active pet, populate processed URL and filename
+    // NEW: Try latest processed pets FIRST (processor → product page)
+    const latestPets = getLatestProcessedPets(petCount);
+
+    if (latestPets.length > 0) {
+      console.log(`🎨 Populating from ${latestPets.length} processed pet(s)`);
+
+      // Populate each available processed pet
+      for (let i = 0; i < latestPets.length; i++) {
+        const pet = latestPets[i];
+        const petNumber = i + 1;
+
+        // Populate artist notes (only for Pet 1)
+        if (petNumber === 1 && pet.artistNote) {
+          const artistNotesField = document.querySelector('[data-artist-notes]');
+          if (artistNotesField) {
+            // SECURITY: Sanitize artist notes (prevent XSS, limit length)
+            const sanitizedNotes = pet.artistNote
+              .substring(0, 200) // Limit to 200 chars
+              .replace(/<[^>]*>/g, '') // Strip HTML tags
+              .trim();
+
+            artistNotesField.value = sanitizedNotes;
+            console.log(`✅ Artist notes from processed Pet ${petNumber}: "${sanitizedNotes.substring(0, 50)}${sanitizedNotes.length > 50 ? '...' : ''}"`);
+          }
+        }
+
+        // Populate processed URL for selected style
+        if (pet.effects && pet.effects[selectedStyle]) {
+          const styleData = pet.effects[selectedStyle];
+          const gcsUrl = styleData.gcsUrl || styleData.dataUrl || '';
+
+          if (gcsUrl) {
+            // SECURITY: Validate URL before populating (prevent URL injection)
+            if (isValidGCSUrl(gcsUrl)) {
+              const urlField = document.querySelector(`[data-pet-processed-url="${petNumber}"]`);
+              if (urlField) {
+                urlField.value = gcsUrl;
+                console.log(`✅ Pet ${petNumber} processed URL [${selectedStyle}]: ${gcsUrl.substring(0, 60)}...`);
+              }
+            } else {
+              console.error(`❌ Invalid GCS URL for Pet ${petNumber}, skipping: ${gcsUrl.substring(0, 60)}...`);
+            }
+          }
+        }
+
+        // Extract original filename from processed pet data (if available)
+        if (pet.filename) {
+          const filenameField = document.querySelector(`[data-pet-filename="${petNumber}"]`);
+          if (filenameField) {
+            const sanitizedFilename = sanitizeFilename(pet.filename);
+            filenameField.value = sanitizedFilename;
+            console.log(`✅ Pet ${petNumber} filename from processor: ${sanitizedFilename}`);
+          }
+        }
+      }
+
+      // If user selected MORE pets than processed, remaining pets will use product page uploads
+      if (latestPets.length < petCount) {
+        console.log(`ℹ️ ${petCount - latestPets.length} pet(s) will use product page uploads`);
+      }
+
+      console.log('✅ Order properties populated from processed pets');
+      return true;
+    }
+
+    // FALLBACK: No recent processed pets, use name-based lookup
+    console.log('⚠️ No recent processed pets, trying name-based lookup');
+
+    // For each active pet, populate processed URL and filename (EXISTING FALLBACK LOGIC)
     for (let i = 1; i <= petCount; i++) {
       // Get pet name to construct localStorage key
       const petNameInput = container.querySelector(`[data-pet-name-input="${i}"]`);
@@ -2403,8 +2548,12 @@
   // === RESTORE STATE ON PAGE LOAD ===
   // Wait for DOM to be fully ready
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', restorePetSelectorState);
+    document.addEventListener('DOMContentLoaded', () => {
+      cleanupStalePets(); // Clean up before restoring
+      restorePetSelectorState();
+    });
   } else {
+    cleanupStalePets(); // Clean up before restoring
     restorePetSelectorState();
   }
 
@@ -2412,6 +2561,7 @@
   window.addEventListener('pageshow', (e) => {
     if (e.persisted) {
       console.log('📄 Page loaded from cache, reloading state...');
+      cleanupStalePets(); // Clean up before restoring
       restorePetSelectorState();
     }
   });
