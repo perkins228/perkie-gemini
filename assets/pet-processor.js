@@ -454,8 +454,9 @@ class PetProcessor {
     this.apiUrl = 'https://inspirenet-bg-removal-api-725543555429.us-central1.run.app';
     this.currentPet = null;
     this.isProcessing = false;
+    this.geminiGenerating = false;  // Track Gemini generation state separately
     this.selectedEffect = 'enhancedblackwhite';
-    
+
     // Initialize new features
     this.comparisonManager = null;
     this.sharing = null;
@@ -1277,6 +1278,10 @@ class PetProcessor {
     // Generate Gemini AI effects (Modern + Classic) if enabled
     if (this.geminiEnabled && this.geminiClient) {
       try {
+        // Set Gemini generation flag and reset main processing flag
+        this.geminiGenerating = true;
+        this.isProcessing = false;  // Main processing complete, allow UI interactions
+
         // Update progress for AI generation
         this.updateProgressWithTimer(85, '✨ Generating AI artistic styles...', null);
 
@@ -1328,7 +1333,13 @@ class PetProcessor {
           // Update button states - Modern and Sketch should now be enabled
           this.updateEffectButtonStates();
         }
+
+        // Reset Gemini generation flag
+        this.geminiGenerating = false;
       } catch (error) {
+        // Reset Gemini generation flag on error
+        this.geminiGenerating = false;
+
         console.error('🎨 Gemini generation failed (graceful degradation):', error);
 
         // Graceful degradation - don't fail the whole process
@@ -1532,8 +1543,8 @@ class PetProcessor {
           }
         }
 
-        // Priority 4: Check if currently processing
-        if (this.isProcessing) {
+        // Priority 4: Check if Gemini is currently generating
+        if (this.geminiGenerating) {
           btn.disabled = true;
           btn.classList.add('effect-btn--loading');
           btn.classList.remove('effect-btn--disabled', 'effect-btn--ready');

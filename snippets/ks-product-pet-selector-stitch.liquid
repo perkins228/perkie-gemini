@@ -2019,7 +2019,7 @@
 
       // 3. Restore style selection
       if (state.style) {
-        const styleRadio = container.querySelector(`[data-style-radio="${state.style}"]`);
+        const styleRadio = container.querySelector(`[data-style-radio][value="${state.style}"]`);
         if (styleRadio) {
           styleRadio.checked = true;
 
@@ -2033,7 +2033,7 @@
 
       // 4. Restore font selection
       if (state.font) {
-        const fontRadio = container.querySelector(`[data-font-radio="${state.font}"]`);
+        const fontRadio = container.querySelector(`[data-font-radio][value="${state.font}"]`);
         if (fontRadio) {
           fontRadio.checked = true;
 
