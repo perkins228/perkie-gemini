@@ -1406,6 +1406,35 @@
     if (checkbox && orderInput) {
       checkbox.addEventListener('change', () => {
         orderInput.style.display = checkbox.checked ? '' : 'none';
+
+        // Set order type to "Returning" when using existing print
+        const orderTypeField = document.getElementById(`order-type-${i}`);
+        const processingStateField = document.getElementById(`processing-state-${i}`);
+        const uploadTimestampField = document.getElementById(`upload-timestamp-${i}`);
+
+        if (checkbox.checked) {
+          // Using existing print - mark as returning customer
+          if (orderTypeField) {
+            orderTypeField.value = 'Returning';
+          }
+          if (processingStateField) {
+            processingStateField.value = 'existing_print';
+          }
+          if (uploadTimestampField) {
+            uploadTimestampField.value = new Date().toISOString();
+          }
+        } else {
+          // Unchecked - clear the fields (will be set on file upload)
+          if (orderTypeField) {
+            orderTypeField.value = '';
+          }
+          if (processingStateField) {
+            processingStateField.value = '';
+          }
+          if (uploadTimestampField) {
+            uploadTimestampField.value = '';
+          }
+        }
       });
     }
   }
@@ -1705,7 +1734,7 @@
         const uploadTimestampField = document.getElementById(`upload-timestamp-${petIndex}`);
 
         if (orderTypeField) {
-          orderTypeField.value = 'express_upload';
+          orderTypeField.value = 'Express Upload';
         }
 
         if (processingStateField) {
