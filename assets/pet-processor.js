@@ -941,13 +941,29 @@ class PetProcessor {
 
           // Start midnight quota reset checker
           this.geminiUI.checkQuotaReset();
+
+          // Update button states now that Gemini is initialized
+          // This ensures buttons reflect geminiEnabled = true for restored sessions
+          this.updateEffectButtonStates();
         }, 100);
       } else {
         console.log('🎨 Gemini AI effects disabled by feature flag');
+
+        // Update button states when Gemini is disabled
+        // This ensures Modern/Sketch buttons show correct disabled state
+        if (this.currentPet) {
+          this.updateEffectButtonStates();
+        }
       }
     } catch (error) {
       console.error('🎨 Failed to initialize Gemini:', error);
       this.geminiEnabled = false;
+
+      // Update button states on error
+      // Ensures buttons show disabled state if Gemini init fails
+      if (this.currentPet) {
+        this.updateEffectButtonStates();
+      }
     }
   }
   
