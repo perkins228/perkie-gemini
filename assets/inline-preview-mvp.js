@@ -385,12 +385,16 @@
         const modernUrl = await window.GeminiEffectsUI.generateEffect(processedUrl, 'modern');
         if (modernUrl && !this.processingCancelled) {
           this.currentPet.effects.modern = modernUrl;
+          // Update thumbnail immediately
+          this.populateEffectThumbnails();
         }
 
         // Generate Sketch effect
         const sketchUrl = await window.GeminiEffectsUI.generateEffect(processedUrl, 'sketch');
         if (sketchUrl && !this.processingCancelled) {
           this.currentPet.effects.sketch = sketchUrl;
+          // Update thumbnail immediately
+          this.populateEffectThumbnails();
         }
       } catch (error) {
         console.error('⚠️ AI effects generation failed:', error);
@@ -417,6 +421,42 @@
       }
 
       console.log('🎨 Effect selected:', effect);
+    }
+
+    /**
+     * Populate effect grid thumbnails with processed images
+     */
+    populateEffectThumbnails() {
+      if (!this.currentPet || !this.currentPet.effects) {
+        console.warn('🎨 No effects available for thumbnails');
+        return;
+      }
+
+      // Map effect names to data-effect attributes
+      const effectMapping = {
+        'enhancedblackwhite': 'enhancedblackwhite',
+        'color': 'color',
+        'modern': 'modern',
+        'sketch': 'sketch'
+      };
+
+      // Set thumbnail image for each available effect
+      Object.keys(this.currentPet.effects).forEach(effectName => {
+        const effectUrl = this.currentPet.effects[effectName];
+        const effectKey = effectMapping[effectName];
+
+        if (!effectUrl || !effectKey) return;
+
+        // Find the button and its image
+        const btn = this.modal.querySelector(`[data-effect="${effectKey}"]`);
+        if (btn) {
+          const thumbnail = btn.querySelector('.inline-effect-image');
+          if (thumbnail) {
+            thumbnail.src = effectUrl;
+            console.log(`🎨 Thumbnail set for ${effectName}`);
+          }
+        }
+      });
     }
 
     /**
@@ -447,6 +487,9 @@
       // Set initial image (default effect)
       const initialEffect = this.currentPet.effects[this.currentEffect];
       this.petImage.src = initialEffect;
+
+      // Populate effect grid thumbnails
+      this.populateEffectThumbnails();
 
       // Show result view
       this.showView('result');
