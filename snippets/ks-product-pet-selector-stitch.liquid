@@ -115,6 +115,18 @@
                      data-max-files="1"
                      aria-label="Upload pet {{ i }} photo">
 
+              {% comment %} Upload Progress Bar - shown during upload {% endcomment %}
+              <div class="pet-detail__upload-progress-wrapper"
+                   data-upload-progress-wrapper="{{ i }}"
+                   style="display: none;">
+                <div class="pet-detail__upload-progress-bar">
+                  <div class="pet-detail__upload-progress-fill"
+                       data-upload-progress-fill="{{ i }}"></div>
+                </div>
+                <div class="pet-detail__upload-progress-text"
+                     data-upload-progress-text="{{ i }}">Uploading...</div>
+              </div>
+
               {% comment %} File upload status with Preview button - shown after files selected {% endcomment %}
               <div class="pet-detail__upload-status-wrapper"
                    data-upload-status-wrapper="{{ i }}"
@@ -123,9 +135,13 @@
                      data-upload-status="{{ i }}"></div>
                 <button type="button"
                         class="pet-detail__preview-btn"
-                        data-pet-preview-btn="{{ i }}">
+                        data-pet-preview-btn="{{ i }}"
+                        disabled
+                        aria-label="Preview pet {{ i }} image with effects"
+                        aria-describedby="preview-status-{{ i }}">
                   Preview
                 </button>
+                <span id="preview-status-{{ i }}" class="sr-only" aria-live="polite">Upload image first</span>
               </div>
             </div>
           </div>
@@ -1215,7 +1231,145 @@
     height: 2.5rem;
     font-size: 1.5rem;
   }
+
+  .pet-detail__upload-progress-wrapper {
+    padding: 0.5rem;
+  }
+
+  .pet-detail__upload-progress-bar {
+    height: 6px;
+  }
+
+  .pet-detail__upload-progress-text {
+    font-size: 11px;
+  }
+
+  .pet-detail__preview-btn {
+    min-height: 48px; /* Larger tap target */
+    font-size: 18px;
+    padding: 14px 28px;
+  }
 }
+
+/* Upload Progress Bar */
+.pet-detail__upload-progress-wrapper {
+  margin-top: 0.5rem;
+  padding: 0.75rem;
+  background: #f8f9fa;
+  border-radius: 8px;
+}
+
+.pet-detail__upload-progress-bar {
+  width: 100%;
+  height: 8px;
+  background: #e9ecef;
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 0.5rem;
+}
+
+.pet-detail__upload-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #4CAF50, #66BB6A);
+  width: 0%;
+  transition: width 0.3s ease;
+  border-radius: 4px;
+}
+
+.pet-detail__upload-progress-text {
+  font-size: 12px;
+  color: #495057;
+  text-align: center;
+  font-weight: 500;
+}
+
+/* Preview Button States */
+.pet-detail__preview-btn {
+  transition: all 0.2s ease;
+  min-width: 120px;
+  min-height: 44px;
+  padding: 12px 24px;
+  font-size: 16px;
+  font-weight: 600;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.pet-detail__preview-btn:not([disabled]) {
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.pet-detail__preview-btn:not([disabled]):hover {
+  transform: scale(1.02);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+.pet-detail__preview-btn:not([disabled]):active {
+  transform: scale(0.98);
+}
+
+/* Disabled state (uploading or incomplete data) */
+.pet-detail__preview-btn[disabled] {
+  background-color: #E5E5E5;
+  color: #666666;
+  border: 1px solid #CCCCCC;
+  cursor: not-allowed;
+  opacity: 0.6;
+  pointer-events: none;
+  box-shadow: none;
+}
+
+/* Uploading animation */
+.pet-detail__preview-btn.uploading::after {
+  content: '';
+  animation: ellipsis 1.5s infinite;
+}
+
+@keyframes ellipsis {
+  0% { content: ''; }
+  33% { content: '.'; }
+  66% { content: '..'; }
+  100% { content: '...'; }
+}
+
+/* Unlock pulse animation */
+.pet-detail__preview-btn.just-unlocked {
+  animation: pulse-ready 0.6s ease-in-out 2;
+}
+
+@keyframes pulse-ready {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  }
+  50% {
+    transform: scale(1.05);
+    box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+  }
+}
+
+/* Offline mode indicator */
+.pet-detail__preview-btn.offline-mode {
+  background-color: #FF9800;
+  color: white;
+}
+
+/* Screen reader only content */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
 </style>
 
 {% comment %} EXIF orientation library for image rotation correction and compression {% endcomment %}
@@ -1593,6 +1747,79 @@
     });
   }
 
+  // Progress animation for upload (0% → 90% over estimated time)
+  function startProgressAnimation(petIndex) {
+    const progressFill = container.querySelector(`[data-upload-progress-fill="${petIndex}"]`);
+    const progressText = container.querySelector(`[data-upload-progress-text="${petIndex}"]`);
+
+    if (!progressFill || !progressText) return;
+
+    const startTime = Date.now();
+    const estimatedDuration = 8000; // 8 seconds estimated (conservative for 2-10s range)
+    const targetProgress = 90; // Stop at 90%, final 10% on actual completion
+
+    function updateProgress() {
+      const elapsed = Date.now() - startTime;
+      const progress = Math.min((elapsed / estimatedDuration) * targetProgress, targetProgress);
+
+      progressFill.style.width = `${progress}%`;
+
+      const remaining = Math.ceil((estimatedDuration - elapsed) / 1000);
+      if (remaining > 0 && progress < targetProgress) {
+        progressText.textContent = `Uploading... ${remaining}s remaining`;
+      } else if (progress >= targetProgress) {
+        progressText.textContent = 'Finalizing...';
+      }
+
+      // Continue animation until 90% or upload completes
+      if (progress < targetProgress) {
+        requestAnimationFrame(updateProgress);
+      }
+    }
+
+    requestAnimationFrame(updateProgress);
+  }
+
+  // Update preview button state (disabled/enabled based on conditions)
+  function updatePreviewButtonState(petIndex) {
+    const previewBtn = container.querySelector(`[data-pet-preview-btn="${petIndex}"]`);
+    const uploadZone = container.querySelector(`[data-upload-zone="${petIndex}"]`);
+    const statusText = document.getElementById(`preview-status-${petIndex}`);
+
+    if (!previewBtn) return;
+
+    // Check conditions
+    const isUploading = uploadZone?.classList.contains('uploading');
+    const hasImage = localStorage.getItem(`pet_${petIndex}_image_url`) ||
+                     (localStorage.getItem(`pet_${petIndex}_images`) &&
+                      JSON.parse(localStorage.getItem(`pet_${petIndex}_images`)).length > 0);
+
+    // State logic
+    if (isUploading) {
+      previewBtn.disabled = true;
+      previewBtn.textContent = 'Uploading...';
+      previewBtn.classList.add('uploading');
+      if (statusText) statusText.textContent = 'Image is uploading, please wait...';
+    } else if (!hasImage) {
+      previewBtn.disabled = true;
+      previewBtn.textContent = 'Upload Image First';
+      previewBtn.classList.remove('uploading');
+      if (statusText) statusText.textContent = 'Please upload an image first';
+    } else {
+      // All conditions met - enable button
+      previewBtn.disabled = false;
+      previewBtn.textContent = 'Preview';
+      previewBtn.classList.remove('uploading');
+      if (statusText) statusText.textContent = 'Ready to preview';
+
+      // Add unlock animation (once)
+      if (!previewBtn.classList.contains('unlocked-once')) {
+        previewBtn.classList.add('just-unlocked', 'unlocked-once');
+        setTimeout(() => previewBtn.classList.remove('just-unlocked'), 1200);
+      }
+    }
+  }
+
   // Server upload function with automatic retry and fallback
   async function uploadToServer(file, petIndex, retryCount = 0) {
     const maxRetries = 3;
@@ -1726,6 +1953,16 @@
         uploadText.textContent = 'Uploading...';
         uploadZone.classList.add('has-files', 'uploading');
 
+        // Show progress bar and disable preview button
+        const progressWrapper = container.querySelector(`[data-upload-progress-wrapper="${i}"]`);
+        const progressFill = container.querySelector(`[data-upload-progress-fill="${i}"]`);
+        if (progressWrapper && progressFill) {
+          progressWrapper.style.display = 'block';
+          progressFill.style.width = '0%';
+          startProgressAnimation(i); // Start 0-90% animation
+        }
+        updatePreviewButtonState(i); // Disable button during upload
+
         // Show uploaded file names below pet name
         displayUploadedFiles(i, petFiles[i]);
 
@@ -1746,8 +1983,23 @@
         if (uploadResult.success) {
           // SUCCESS: Store GCS URL (100 bytes instead of 3.4MB base64!)
           localStorage.setItem(`pet_${i}_image_url`, uploadResult.url);
+
+          // Complete progress bar (90% → 100%)
+          const progressText = container.querySelector(`[data-upload-progress-text="${i}"]`);
+          if (progressFill) progressFill.style.width = '100%';
+          if (progressText) progressText.textContent = '✓ Upload complete';
+
+          // Hide progress bar after 500ms
+          setTimeout(() => {
+            if (progressWrapper) progressWrapper.style.display = 'none';
+          }, 500);
+
           uploadText.textContent = 'CHANGE IMAGE?';
           uploadZone.classList.remove('uploading');
+
+          // Enable preview button with pulse animation
+          updatePreviewButtonState(i);
+
           console.log(`✅ Pet ${i} uploaded to server:`, uploadResult.url);
 
         } else {
@@ -1764,8 +2016,28 @@
             }];
             localStorage.setItem(`pet_${i}_images`, JSON.stringify(previewData));
 
+            // Complete progress bar for offline mode
+            if (progressFill) progressFill.style.width = '100%';
+            const progressText = container.querySelector(`[data-upload-progress-text="${i}"]`);
+            if (progressText) progressText.textContent = '✓ Saved offline';
+
+            // Hide progress bar after 500ms
+            setTimeout(() => {
+              if (progressWrapper) progressWrapper.style.display = 'none';
+            }, 500);
+
             uploadText.textContent = 'CHANGE IMAGE? (Offline)';
             uploadZone.classList.remove('uploading');
+
+            // Enable preview button (offline mode works)
+            const previewBtn = container.querySelector(`[data-pet-preview-btn="${i}"]`);
+            if (previewBtn) {
+              previewBtn.disabled = false;
+              previewBtn.textContent = 'Preview (Offline)';
+              previewBtn.classList.remove('uploading');
+              previewBtn.classList.add('offline-mode');
+            }
+
             console.log(`💾 Pet ${i} stored offline (compressed base64 fallback)`);
           };
           reader.readAsDataURL(compressedFile);
