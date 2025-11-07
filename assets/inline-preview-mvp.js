@@ -94,7 +94,7 @@
 
       // Buttons
       this.cancelBtn = this.modal.querySelector('[data-cancel-processing]');
-      this.addToCartBtn = this.modal.querySelector('.inline-add-to-cart-btn');
+      this.continueBtn = this.modal.querySelector('.inline-continue-btn');
       this.tryAgainBtn = this.modal.querySelector('.inline-try-again-btn');
 
       // Progress elements
@@ -143,9 +143,9 @@
         this.cancelBtn.addEventListener('click', () => this.cancelProcessing());
       }
 
-      // Add to cart
-      if (this.addToCartBtn) {
-        this.addToCartBtn.addEventListener('click', () => this.addToCart());
+      // Continue button - saves pet data and closes modal
+      if (this.continueBtn) {
+        this.continueBtn.addEventListener('click', () => this.savePetDataAndClose());
       }
 
       // Try again
@@ -270,6 +270,30 @@
     }
 
     /**
+     * Update modal header with pet name
+     * @param {number} petNumber - Pet number (1, 2, 3)
+     * @param {string} petName - Pet name
+     */
+    updateHeader(petNumber, petName) {
+      const titleElement = document.getElementById('inline-preview-title');
+      const subtitleElement = document.getElementById('inline-preview-subtitle');
+
+      if (titleElement) {
+        titleElement.textContent = `Preview Pet ${petNumber}: ${petName}'s Portrait`;
+      }
+
+      if (subtitleElement) {
+        // Get product title from page context
+        const productTitle = document.querySelector('.product__title')?.textContent ||
+                           document.querySelector('h1')?.textContent ||
+                           'this product';
+        subtitleElement.textContent = `See how ${petName} looks on ${productTitle}`;
+      }
+
+      console.log(`🎨 Header updated: Pet ${petNumber} - ${petName}`);
+    }
+
+    /**
      * Open modal with pre-populated pet data (called from pet-selector)
      * @param {Object} data - Pet data object
      * @param {number} data.petNumber - Pet number (1, 2, 3)
@@ -286,6 +310,9 @@
 
       // Open the modal
       this.openModal();
+
+      // Update header with pet name
+      this.updateHeader(data.petNumber, data.petName);
 
       // Hide upload zone since image is already uploaded
       if (this.uploadZone) {
@@ -837,65 +864,77 @@
     }
 
     /**
-     * Add to cart
+     * Save pet data to localStorage and close modal (Phase 2: Multi-Pet Storage)
+     * Stores pet preview data for later cart submission on product page
      */
-    async addToCart() {
+    async savePetDataAndClose() {
       try {
-        console.log('🛒 Adding to cart...');
+        console.log('💾 Saving pet data...');
 
-        // Get current product form
-        const productForm = document.querySelector('form[action="/cart/add"]');
-        if (!productForm) {
-          throw new Error('Product form not found');
-        }
-
-        // Get form data
-        const formData = new FormData(productForm);
-
-        // Add pet image properties
-        const currentEffectUrl = this.currentPet.effects[this.currentEffect];
-
-        formData.append('properties[_pet_1_processed_image_url]', currentEffectUrl);
-        formData.append('properties[_pet_1_style]', this.currentEffect);
-        formData.append('properties[_pet_1_original_image_url]', this.currentPet.originalImage);
-
-        // Add artist notes if provided
+        // Get artist notes if provided
+        let artistNotes = '';
         if (this.artistNotesInput && this.artistNotesInput.value.trim()) {
-          const sanitizedNotes = this.artistNotesInput.value
+          artistNotes = this.artistNotesInput.value
             .substring(0, 500) // Limit to 500 chars
             .replace(/<[^>]*>/g, '') // Strip HTML tags
             .trim();
-
-          if (sanitizedNotes) {
-            formData.append('properties[_artist_notes]', sanitizedNotes);
-            console.log(`✅ Artist notes: "${sanitizedNotes.substring(0, 50)}${sanitizedNotes.length > 50 ? '...' : ''}"`);
-          }
         }
 
-        // Submit to cart
-        const response = await fetch('/cart/add.js', {
-          method: 'POST',
-          body: formData
+        // Get original image URL from localStorage (set by pet-selector during upload)
+        const originalImageUrl = localStorage.getItem(`pet_${this.petNumber}_image_url`) || '';
+
+        // Create pet data object matching approved schema
+        const petData = {
+          petNumber: this.petNumber,
+          name: this.petName,
+          originalImageUrl: originalImageUrl,
+          processedImageUrl: this.currentPet.effects[this.currentEffect] || '',
+          selectedEffect: this.currentEffect,
+          effects: {
+            enhancedblackwhite: this.currentPet.effects.enhancedblackwhite || '',
+            color: this.currentPet.effects.color || '',
+            modern: this.currentPet.effects.modern || '',
+            sketch: this.currentPet.effects.sketch || ''
+          },
+          artistNotes: artistNotes,
+          previewed: true,
+          previewedAt: Date.now()
+        };
+
+        // Get existing previewed pets from localStorage
+        let previewedPets = {};
+        try {
+          const existingData = localStorage.getItem('perkie_previewed_pets');
+          if (existingData) {
+            previewedPets = JSON.parse(existingData);
+          }
+        } catch (e) {
+          console.warn('⚠️ Failed to parse existing previewed pets, starting fresh:', e);
+          previewedPets = {};
+        }
+
+        // Store this pet's data
+        previewedPets[`pet_${this.petNumber}`] = petData;
+
+        // Save back to localStorage
+        localStorage.setItem('perkie_previewed_pets', JSON.stringify(previewedPets));
+
+        console.log(`✅ Pet ${this.petNumber} (${this.petName}) preview data saved:`, {
+          effect: this.currentEffect,
+          artistNotes: artistNotes ? `"${artistNotes.substring(0, 30)}..."` : 'none',
+          effectsCount: Object.keys(petData.effects).filter(k => petData.effects[k]).length
         });
 
-        if (!response.ok) {
-          throw new Error('Failed to add to cart');
-        }
-
-        console.log('✅ Added to cart');
-
-        // Close modal and show success
+        // Close modal
         this.closeModal();
-        alert('Your custom pet portrait has been added to cart!');
 
-        // Refresh cart
-        if (window.theme && window.theme.cart) {
-          window.theme.cart.refresh();
-        }
+        // TODO: Phase 3 will add preview status display on product page
+        // For now, just show simple confirmation
+        console.log('💡 Phase 3: Preview status display will be added next');
 
       } catch (error) {
-        console.error('❌ Add to cart error:', error);
-        this.showError('Failed to add to cart. Please try again.');
+        console.error('❌ Save pet data error:', error);
+        this.showError('Failed to save pet data. Please try again.');
       }
     }
 

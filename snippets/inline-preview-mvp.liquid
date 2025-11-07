@@ -28,8 +28,8 @@
 
       <!-- Modal Header -->
       <div class="inline-preview-header">
-        <h2 class="inline-preview-title">Preview Your Pet Portrait</h2>
-        <p class="inline-preview-subtitle">Upload your pet's photo and see it on {{ product.title }}</p>
+        <h2 class="inline-preview-title" id="inline-preview-title">Preview Your Pet Portrait</h2>
+        <p class="inline-preview-subtitle" id="inline-preview-subtitle">Upload your pet's photo and see it on {{ product.title }}</p>
       </div>
 
       <!-- Modal Body (Two-column layout) -->
@@ -117,8 +117,8 @@
 
           <!-- Action Button (shown after processing) -->
           <div class="inline-action-buttons" hidden>
-            <button class="inline-btn-primary inline-add-to-cart-btn">
-              Add to Cart
+            <button class="inline-btn-primary inline-continue-btn">
+              Continue
             </button>
           </div>
 
@@ -147,19 +147,6 @@
         </div>
       </div>
     </div>
-  </div>
-
-  <!-- Preview Button (shown on product page) -->
-  <div class="inline-preview-trigger-container">
-    <button type="button" class="inline-preview-trigger-btn" data-open-preview>
-      <svg class="inline-preview-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-        <circle cx="8.5" cy="8.5" r="1.5"></circle>
-        <polyline points="21 15 16 10 5 21"></polyline>
-      </svg>
-      Preview with Your Pet
-    </button>
-    <p class="inline-preview-trigger-hint">See how your pet looks on {{ product.title }}</p>
   </div>
 
   <!-- Load Required Styles & Scripts -->
