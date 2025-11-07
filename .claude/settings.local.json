@@ -53,7 +53,9 @@
       "Bash(if [ -e \"nul\" ])",
       "Bash(then rm \"nul\")",
       "Bash(else echo \"''nul'' file not found\")",
-      "Bash(fi)"
+      "Bash(fi)",
+      "Bash(timeout 90 bash:*)",
+      "Bash(timeout 60 bash:*)"
     ],
     "deny": [],
     "ask": [],

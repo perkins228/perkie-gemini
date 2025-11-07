@@ -87,6 +87,11 @@
       this.effectBtns = this.modal.querySelectorAll('[data-effect]');
       this.petImage = this.modal.querySelector('.inline-pet-image');
 
+      // Artist notes
+      this.artistNotesSection = this.modal.querySelector('.inline-artist-notes-section');
+      this.artistNotesInput = this.modal.querySelector('#inline-artist-notes');
+      this.charCount = this.modal.querySelector('#inline-char-count');
+
       // Buttons
       this.cancelBtn = this.modal.querySelector('[data-cancel-processing]');
       this.addToCartBtn = this.modal.querySelector('.inline-add-to-cart-btn');
@@ -146,6 +151,13 @@
       // Try again
       if (this.tryAgainBtn) {
         this.tryAgainBtn.addEventListener('click', () => this.reset());
+      }
+
+      // Artist notes character counter
+      if (this.artistNotesInput && this.charCount) {
+        this.artistNotesInput.addEventListener('input', (e) => {
+          this.charCount.textContent = e.target.value.length;
+        });
       }
     }
 
@@ -681,6 +693,11 @@
       // Populate effect grid thumbnails
       this.populateEffectThumbnails();
 
+      // Show artist notes section
+      if (this.artistNotesSection) {
+        this.artistNotesSection.hidden = false;
+      }
+
       // Show result view
       this.showView('result');
 
@@ -709,6 +726,19 @@
         formData.append('properties[_pet_1_processed_image_url]', currentEffectUrl);
         formData.append('properties[_pet_1_style]', this.currentEffect);
         formData.append('properties[_pet_1_original_image_url]', this.currentPet.originalImage);
+
+        // Add artist notes if provided
+        if (this.artistNotesInput && this.artistNotesInput.value.trim()) {
+          const sanitizedNotes = this.artistNotesInput.value
+            .substring(0, 500) // Limit to 500 chars
+            .replace(/<[^>]*>/g, '') // Strip HTML tags
+            .trim();
+
+          if (sanitizedNotes) {
+            formData.append('properties[_artist_notes]', sanitizedNotes);
+            console.log(`✅ Artist notes: "${sanitizedNotes.substring(0, 50)}${sanitizedNotes.length > 50 ? '...' : ''}"`);
+          }
+        }
 
         // Submit to cart
         const response = await fetch('/cart/add.js', {
@@ -798,6 +828,14 @@
       // Reset file input
       if (this.fileInput) {
         this.fileInput.value = '';
+      }
+
+      // Reset artist notes
+      if (this.artistNotesInput) {
+        this.artistNotesInput.value = '';
+      }
+      if (this.charCount) {
+        this.charCount.textContent = '0';
       }
 
       // Reset active effect

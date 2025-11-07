@@ -1048,21 +1048,7 @@ class PetProcessor {
                      class="pet-name-input" 
                      placeholder="Enter your pet's name">
             </div>
-            
-            <!-- Artist Notes (shown in result view) -->
-            <div class="artist-notes-section" hidden>
-              <label for="artist-notes-${this.sectionId}">Note for the Artist (Optional)</label>
-              <textarea 
-                id="artist-notes-${this.sectionId}" 
-                class="artist-notes-input"
-                placeholder="Any special requests about your pet's personality or features"
-                rows="3"
-                maxlength="500"></textarea>
-              <div class="char-count">
-                <span id="char-count-${this.sectionId}">0</span>/500
-              </div>
-            </div>
-            
+
             <!-- Actions (shown in result view) -->
             <div class="action-buttons" hidden>
               <button class="btn-secondary process-another-btn">Process Another Pet</button>
@@ -1189,15 +1175,6 @@ class PetProcessor {
     this.container.querySelector('.process-another-btn')?.addEventListener('click', async () => await this.processAnother());
     this.container.querySelector('.add-to-cart-btn')?.addEventListener('click', () => this.saveToCart());
     this.container.querySelector('.try-again-btn')?.addEventListener('click', () => this.reset());
-    
-    // Artist notes character counter
-    const notesField = this.container.querySelector(`#artist-notes-${this.sectionId}`);
-    const charCount = this.container.querySelector(`#char-count-${this.sectionId}`);
-    if (notesField && charCount) {
-      notesField.addEventListener('input', (e) => {
-        charCount.textContent = e.target.value.length;
-      });
-    }
   }
   
   handleFileSelect(event) {
@@ -1658,7 +1635,7 @@ class PetProcessor {
       if (container) container.classList.add('has-result');
 
       // Show result elements in left column
-      const leftResultElements = this.container.querySelectorAll('.processor-controls .effect-grid-wrapper, .processor-controls .pet-name-section, .processor-controls .artist-notes-section, .processor-controls .action-buttons');
+      const leftResultElements = this.container.querySelectorAll('.processor-controls .effect-grid-wrapper, .processor-controls .pet-name-section, .processor-controls .action-buttons');
       leftResultElements.forEach(el => el.hidden = false);
 
       // Show result view in right column
@@ -1698,7 +1675,7 @@ class PetProcessor {
   
   hideAllViews() {
     // Hide all views in left column
-    const leftViews = this.container.querySelectorAll('.upload-zone, .processing-view, .error-view, .effect-grid-wrapper, .pet-name-section, .artist-notes-section, .action-buttons');
+    const leftViews = this.container.querySelectorAll('.upload-zone, .processing-view, .error-view, .effect-grid-wrapper, .pet-name-section, .action-buttons');
     leftViews.forEach(view => view.hidden = true);
     
     // Hide result view in right column
@@ -1834,11 +1811,6 @@ class PetProcessor {
     console.log('Processing cancelled by user');
   }
   
-  getArtistNote() {
-    const noteField = this.container.querySelector(`#artist-notes-${this.sectionId}`);
-    return noteField ? noteField.value.trim() : '';
-  }
-  
   // Save pet data without navigation (extracted from saveToCart)
   async savePetData() {
     if (!this.currentPet || !this.currentPet.effects) {
@@ -1847,7 +1819,6 @@ class PetProcessor {
     }
 
     const petName = this.container.querySelector('.pet-name-input')?.value || 'Pet';
-    const artistNote = this.getArtistNote();
     const selectedEffect = this.currentPet.selectedEffect || 'enhancedblackwhite';
     const effectData = this.currentPet.effects[selectedEffect];
 
@@ -1878,10 +1849,10 @@ class PetProcessor {
       }
     }
 
-    // Save only artistNote and effects GCS URLs
+    // Save only effects GCS URLs
     // Customer provides name, selects effect, and uploads image on product page
+    // Artist notes are now captured in the inline preview modal
     const petData = {
-      artistNote: artistNote,           // User-provided artist notes
       effects: this.currentPet.effects, // ALL generated effects with GCS URLs
       timestamp: Date.now()             // For cleanup/sorting
     };
