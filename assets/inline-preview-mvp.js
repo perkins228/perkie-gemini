@@ -43,6 +43,7 @@
       this.currentEffect = 'enhancedblackwhite';
       this.processingCancelled = false;
       this.geminiEnabled = false;
+      this.scrollPosition = 0; // Track scroll position for modal
 
       // Cache DOM elements
       this.cacheElements();
@@ -173,9 +174,19 @@
      * Open modal
      */
     openModal() {
+      // Store current scroll position
+      this.scrollPosition = window.pageYOffset;
+
+      // Lock background scroll using position:fixed trick
+      // This preserves scroll context for modal content
+      document.body.style.position = 'fixed';
+      document.body.style.top = `-${this.scrollPosition}px`;
+      document.body.style.width = '100%';
+      document.body.style.left = '0';
+      document.body.style.right = '0';
+
       this.modal.hidden = false;
-      document.body.style.overflow = 'hidden'; // Prevent background scrolling
-      console.log('🎨 Modal opened');
+      console.log('🎨 Modal opened, scroll locked at:', this.scrollPosition);
     }
 
     /**
@@ -183,8 +194,18 @@
      */
     closeModal() {
       this.modal.hidden = true;
-      document.body.style.overflow = ''; // Restore scrolling
-      console.log('🎨 Modal closed');
+
+      // Restore body position and scroll
+      document.body.style.position = '';
+      document.body.style.top = '';
+      document.body.style.width = '';
+      document.body.style.left = '';
+      document.body.style.right = '';
+
+      // Restore scroll position
+      window.scrollTo(0, this.scrollPosition);
+
+      console.log('🎨 Modal closed, scroll restored to:', this.scrollPosition);
     }
 
     /**
@@ -239,27 +260,18 @@
         // Show processing view
         this.showView('processing');
 
-        // Upload to GCS
-        console.log('📤 Uploading to GCS...');
-        this.updateProgress('Uploading image...', '⏱️ This may take a moment...');
-
-        const gcsUrl = await this.uploadToGCS(file);
-        if (this.processingCancelled) return;
-
-        console.log('✅ Uploaded to GCS:', gcsUrl);
-
-        // Process with effects (background removal + color)
+        // Process with effects directly (no GCS upload needed initially)
         console.log('🎨 Processing with AI...');
         this.updateProgress('Processing with AI...', '⏱️ 30-60 seconds...');
 
-        const effects = await this.removeBackground(gcsUrl);
+        const effects = await this.removeBackground(file);
         if (this.processingCancelled) return;
 
         console.log('✅ Processing complete:', effects);
 
-        // Store pet data
+        // Store pet data with data URLs initially
         this.currentPet = {
-          originalImage: gcsUrl,
+          originalImage: null, // Will set if we upload to GCS later
           processedImage: effects.enhancedblackwhite || effects.color,
           effects: {
             enhancedblackwhite: effects.enhancedblackwhite,
@@ -303,19 +315,22 @@
      * Remove background using InSPyReNet API
      * Uses /api/v2/process-with-effects endpoint like pet-processor.js
      */
-    async removeBackground(imageUrl) {
+    async removeBackground(file) {
       const API_URL = 'https://inspirenet-bg-removal-api-725543555429.us-central1.run.app/api/v2/process-with-effects';
 
       // Use FormData with POST like pet-processor.js does
       const formData = new FormData();
-      formData.append('image_url', imageUrl);
+      formData.append('file', file); // Changed from 'image_url' to 'file'
+      formData.append('effects', 'enhancedblackwhite,color');
 
-      const response = await fetch(`${API_URL}?return_all_effects=true&effects=enhancedblackwhite,color`, {
+      const response = await fetch(`${API_URL}?return_all_effects=true`, {
         method: 'POST',
         body: formData
       });
 
       if (!response.ok) {
+        const errorText = await response.text();
+        console.error('API Error:', errorText);
         throw new Error(`Background removal failed: ${response.status}`);
       }
 
