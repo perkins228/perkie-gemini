@@ -145,12 +145,26 @@
     async initializeGemini() {
       try {
         if (window.GeminiEffectsUI) {
-          await window.GeminiEffectsUI.initialize();
-          this.geminiEnabled = window.GeminiEffectsUI.isEnabled();
+          // Check if initialize method exists and is a function
+          if (typeof window.GeminiEffectsUI.initialize === 'function') {
+            await window.GeminiEffectsUI.initialize();
+          }
+
+          // Check if isEnabled method exists
+          if (typeof window.GeminiEffectsUI.isEnabled === 'function') {
+            this.geminiEnabled = window.GeminiEffectsUI.isEnabled();
+          } else {
+            // Fallback: check if it's already initialized
+            this.geminiEnabled = !!window.GeminiEffectsUI;
+          }
+
           console.log('🎨 Gemini AI effects:', this.geminiEnabled ? 'enabled' : 'disabled');
+        } else {
+          console.log('🎨 Gemini AI effects: not available');
+          this.geminiEnabled = false;
         }
       } catch (error) {
-        console.error('🎨 Failed to initialize Gemini:', error);
+        console.warn('🎨 Gemini initialization skipped:', error.message);
         this.geminiEnabled = false;
       }
     }

@@ -148,10 +148,11 @@
     <p class="inline-preview-trigger-hint">See how your pet looks on {{ product.title }}</p>
   </div>
 
-  <!-- Load Required Scripts -->
+  <!-- Load Required Styles & Scripts -->
   {{ 'inline-preview-mvp.css' | asset_url | stylesheet_tag }}
-  <script src="{{ 'pet-storage.js' | asset_url }}"></script>
-  <script src="{{ 'gemini-api-client.js' | asset_url }}"></script>
-  <script src="{{ 'gemini-effects-ui.js' | asset_url }}"></script>
+  {% comment %}
+    Note: pet-storage.js, gemini-api-client.js, and gemini-effects-ui.js
+    are already loaded by the product page, so we don't load them again
+  {% endcomment %}
   <script src="{{ 'inline-preview-mvp.js' | asset_url }}"></script>
 {% endif %}
