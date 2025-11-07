@@ -1,0 +1,562 @@
+/**
+ * Inline Preview MVP - Phase 1 Styles
+ * Mobile-first modal overlay for product page
+ * Performance target: <100ms open animation, 60fps
+ */
+
+/* ============================================================================
+   PREVIEW BUTTON (Product Page Trigger)
+   ============================================================================ */
+
+.inline-preview-trigger-container {
+  margin: 2rem 0;
+  padding: 1.5rem;
+  background: #f8f9fa;
+  border-radius: 8px;
+  text-align: center;
+}
+
+.inline-preview-trigger-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1rem 2rem;
+  background: #000;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  width: 100%;
+  max-width: 400px;
+  justify-content: center;
+}
+
+.inline-preview-trigger-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.inline-preview-trigger-btn:active {
+  transform: translateY(0);
+}
+
+.inline-preview-icon {
+  flex-shrink: 0;
+}
+
+.inline-preview-trigger-hint {
+  margin-top: 0.5rem;
+  font-size: 0.875rem;
+  color: #666;
+}
+
+/* ============================================================================
+   MODAL OVERLAY
+   ============================================================================ */
+
+.inline-preview-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 9999;
+  display: none;
+}
+
+.inline-preview-modal:not([hidden]) {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Backdrop */
+.inline-preview-backdrop {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(4px);
+  cursor: pointer;
+}
+
+/* Modal Content Container */
+.inline-preview-content {
+  position: relative;
+  width: 95%;
+  max-width: 1200px;
+  max-height: 90vh;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  animation: modalSlideUp 0.3s ease-out;
+}
+
+@keyframes modalSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ============================================================================
+   MODAL HEADER
+   ============================================================================ */
+
+.inline-preview-close {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  width: 40px;
+  height: 40px;
+  background: rgba(0, 0, 0, 0.05);
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  transition: background 0.2s ease;
+}
+
+.inline-preview-close:hover {
+  background: rgba(0, 0, 0, 0.1);
+}
+
+.inline-preview-header {
+  padding: 2rem 2rem 1rem;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.inline-preview-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 0 0 0.5rem 0;
+  color: #1a1a1a;
+}
+
+.inline-preview-subtitle {
+  margin: 0;
+  font-size: 0.95rem;
+  color: #666;
+}
+
+/* ============================================================================
+   MODAL BODY (Two-Column Layout)
+   ============================================================================ */
+
+.inline-preview-body {
+  display: grid;
+  grid-template-columns: 400px 1fr;
+  gap: 2rem;
+  padding: 2rem;
+  overflow-y: auto;
+  flex: 1;
+}
+
+/* Scrollbar styling */
+.inline-preview-body::-webkit-scrollbar {
+  width: 8px;
+}
+
+.inline-preview-body::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+.inline-preview-body::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 4px;
+}
+
+.inline-preview-body::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+/* ============================================================================
+   LEFT COLUMN: CONTROLS
+   ============================================================================ */
+
+.inline-preview-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* Upload Zone */
+.inline-upload-zone {
+  position: relative;
+}
+
+.inline-file-input {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.inline-upload-label {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 2rem;
+  border: 2px dashed #d1d5db;
+  border-radius: 8px;
+  background: #f9fafb;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.inline-upload-label:hover {
+  border-color: #9ca3af;
+  background: #f3f4f6;
+}
+
+.inline-upload-icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+
+.inline-upload-text {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin-bottom: 0.5rem;
+}
+
+.inline-upload-hint {
+  font-size: 0.875rem;
+  color: #6b7280;
+}
+
+/* Processing View */
+.inline-processing-view {
+  text-align: center;
+  padding: 2rem;
+}
+
+.inline-processing-spinner {
+  width: 60px;
+  height: 60px;
+  border: 4px solid #f3f4f6;
+  border-top-color: #000;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 1.5rem;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.inline-processing-text {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin-bottom: 0.5rem;
+}
+
+.inline-progress-timer {
+  font-size: 0.875rem;
+  color: #666;
+  margin-bottom: 1rem;
+}
+
+.inline-progress-stage-info {
+  font-size: 0.875rem;
+  color: #888;
+  margin-top: 1rem;
+}
+
+.inline-cancel-btn {
+  margin-top: 1.5rem;
+  padding: 0.75rem 1.5rem;
+  background: #f3f4f6;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.inline-cancel-btn:hover {
+  background: #e5e7eb;
+}
+
+/* Effect Grid */
+.inline-effect-grid-wrapper {
+  padding-top: 1rem;
+}
+
+.inline-effect-heading {
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin: 0 0 1rem 0;
+  color: #1a1a1a;
+}
+
+.inline-effect-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+}
+
+.inline-effect-btn {
+  position: relative;
+  cursor: pointer;
+  border-radius: 8px;
+  overflow: hidden;
+  transition: transform 0.2s ease;
+}
+
+.inline-effect-btn:hover {
+  transform: scale(1.02);
+}
+
+.inline-effect-btn.active .inline-effect-content {
+  border-color: #000;
+  box-shadow: 0 0 0 2px #000;
+}
+
+.inline-effect-content {
+  border: 2px solid transparent;
+  border-radius: 8px;
+  overflow: hidden;
+  transition: all 0.2s ease;
+}
+
+.inline-effect-image-wrapper {
+  aspect-ratio: 1;
+  overflow: hidden;
+  background: #f3f4f6;
+}
+
+.inline-effect-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.inline-effect-label {
+  padding: 0.75rem;
+  text-align: center;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #1a1a1a;
+  background: #fff;
+  margin: 0;
+}
+
+/* AI Effect Badge */
+.inline-effect-btn--ai .inline-effect-content::after {
+  content: "AI";
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  padding: 0.25rem 0.5rem;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #fff;
+  font-size: 0.625rem;
+  font-weight: 700;
+  border-radius: 4px;
+  z-index: 1;
+}
+
+/* Action Buttons */
+.inline-action-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding-top: 1rem;
+}
+
+.inline-btn-primary {
+  padding: 1rem 2rem;
+  background: #000;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.inline-btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.inline-btn-primary:active {
+  transform: translateY(0);
+}
+
+/* Error View */
+.inline-error-view {
+  text-align: center;
+  padding: 2rem;
+}
+
+.inline-error-icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+
+.inline-error-message {
+  font-size: 1rem;
+  color: #dc2626;
+  margin-bottom: 1.5rem;
+}
+
+/* ============================================================================
+   RIGHT COLUMN: PREVIEW IMAGE
+   ============================================================================ */
+
+.inline-preview-image-area {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f9fafb;
+  border-radius: 8px;
+  min-height: 400px;
+  position: relative;
+}
+
+.inline-result-view {
+  width: 100%;
+  height: 100%;
+}
+
+.inline-pet-image-container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+}
+
+.inline-pet-image {
+  max-width: 100%;
+  max-height: 600px;
+  object-fit: contain;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.inline-preview-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem;
+  text-align: center;
+}
+
+.inline-placeholder-icon {
+  font-size: 4rem;
+  opacity: 0.3;
+  margin-bottom: 1rem;
+}
+
+.inline-placeholder-text {
+  font-size: 1rem;
+  color: #9ca3af;
+}
+
+/* ============================================================================
+   MOBILE RESPONSIVE
+   ============================================================================ */
+
+@media (max-width: 768px) {
+  .inline-preview-content {
+    width: 100%;
+    max-height: 100vh;
+    border-radius: 0;
+  }
+
+  .inline-preview-body {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+    padding: 1.5rem;
+  }
+
+  .inline-preview-header {
+    padding: 1.5rem 1.5rem 1rem;
+  }
+
+  .inline-preview-title {
+    font-size: 1.25rem;
+  }
+
+  .inline-preview-subtitle {
+    font-size: 0.875rem;
+  }
+
+  .inline-effect-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+  }
+
+  .inline-preview-image-area {
+    min-height: 300px;
+  }
+
+  .inline-pet-image {
+    max-height: 400px;
+  }
+
+  .inline-upload-label {
+    padding: 2rem 1rem;
+  }
+
+  .inline-upload-icon {
+    font-size: 2.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .inline-preview-trigger-btn {
+    font-size: 0.95rem;
+    padding: 0.875rem 1.5rem;
+  }
+
+  .inline-effect-label {
+    font-size: 0.75rem;
+    padding: 0.5rem;
+  }
+
+  .inline-btn-primary {
+    font-size: 0.95rem;
+    padding: 0.875rem 1.5rem;
+  }
+}
+
+/* ============================================================================
+   PERFORMANCE OPTIMIZATIONS
+   ============================================================================ */
+
+/* Use hardware acceleration for animations */
+.inline-preview-modal,
+.inline-preview-backdrop,
+.inline-preview-content {
+  will-change: transform, opacity;
+}
+
+/* Prevent layout shift during modal open */
+.inline-preview-modal:not([hidden]) + * {
+  margin-top: 0;
+}

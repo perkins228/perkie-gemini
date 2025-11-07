@@ -1,0 +1,157 @@
+{% comment %}
+  Inline Preview MVP - Phase 1
+  Simple modal overlay for product page pet preview
+  Reuses existing processor code with minimal modifications
+{% endcomment %}
+
+<!-- Kill switch: Only render if URL parameter allows or missing -->
+{% assign show_inline_preview = true %}
+{% if request.query.inline_preview == 'false' %}
+  {% assign show_inline_preview = false %}
+{% endif %}
+
+{% if show_inline_preview %}
+  <!-- Inline Preview Modal Overlay -->
+  <div id="inline-preview-modal" class="inline-preview-modal" hidden>
+    <!-- Modal Backdrop -->
+    <div class="inline-preview-backdrop" data-modal-close></div>
+
+    <!-- Modal Content -->
+    <div class="inline-preview-content">
+      <!-- Close Button -->
+      <button class="inline-preview-close" data-modal-close aria-label="Close preview">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+
+      <!-- Modal Header -->
+      <div class="inline-preview-header">
+        <h2 class="inline-preview-title">Preview Your Pet Portrait</h2>
+        <p class="inline-preview-subtitle">Upload your pet's photo and see it on {{ product.title }}</p>
+      </div>
+
+      <!-- Modal Body (Two-column layout) -->
+      <div class="inline-preview-body">
+        <!-- Left Column: Controls -->
+        <div class="inline-preview-controls">
+          <!-- Upload Zone -->
+          <div class="inline-upload-zone" data-upload-zone>
+            <input type="file"
+                   id="inline-pet-upload"
+                   class="inline-file-input"
+                   accept="image/*">
+            <label for="inline-pet-upload" class="inline-upload-label">
+              <div class="inline-upload-icon">📷</div>
+              <div class="inline-upload-text">Tap to upload or take photo</div>
+              <div class="inline-upload-hint">JPG or PNG • Max 10MB</div>
+            </label>
+          </div>
+
+          <!-- Processing View -->
+          <div class="inline-processing-view" hidden>
+            <div class="inline-processing-spinner"></div>
+            <div class="inline-processing-status">
+              <div class="inline-processing-text">Processing your pet photo...</div>
+              <div class="inline-progress-timer">⏱️ Estimating time...</div>
+            </div>
+            <div class="inline-progress-stage-info"></div>
+            <button class="inline-cancel-btn" data-cancel-processing>
+              Cancel Upload
+            </button>
+          </div>
+
+          <!-- Effect Selection (shown after processing) -->
+          <div class="inline-effect-grid-wrapper" hidden>
+            <h3 class="inline-effect-heading">Choose Style</h3>
+            <div class="inline-effect-grid">
+              <label class="inline-effect-btn active" data-effect="enhancedblackwhite">
+                <div class="inline-effect-content">
+                  <div class="inline-effect-image-wrapper">
+                    <img src="" alt="Black & White" class="inline-effect-image" data-style-preview="bw">
+                  </div>
+                  <p class="inline-effect-label">Black & White</p>
+                </div>
+              </label>
+              <label class="inline-effect-btn" data-effect="color">
+                <div class="inline-effect-content">
+                  <div class="inline-effect-image-wrapper">
+                    <img src="" alt="Color" class="inline-effect-image" data-style-preview="color">
+                  </div>
+                  <p class="inline-effect-label">Color</p>
+                </div>
+              </label>
+              <label class="inline-effect-btn inline-effect-btn--ai" data-effect="modern">
+                <div class="inline-effect-content">
+                  <div class="inline-effect-image-wrapper">
+                    <img src="" alt="Modern" class="inline-effect-image" data-style-preview="modern">
+                  </div>
+                  <p class="inline-effect-label">Modern</p>
+                </div>
+              </label>
+              <label class="inline-effect-btn inline-effect-btn--ai" data-effect="sketch">
+                <div class="inline-effect-content">
+                  <div class="inline-effect-image-wrapper">
+                    <img src="" alt="Sketch" class="inline-effect-image" data-style-preview="sketch">
+                  </div>
+                  <p class="inline-effect-label">Sketch</p>
+                </div>
+              </label>
+            </div>
+          </div>
+
+          <!-- Action Button (shown after processing) -->
+          <div class="inline-action-buttons" hidden>
+            <button class="inline-btn-primary inline-add-to-cart-btn">
+              Add to Cart
+            </button>
+          </div>
+
+          <!-- Error View -->
+          <div class="inline-error-view" hidden>
+            <div class="inline-error-icon">⚠️</div>
+            <div class="inline-error-message"></div>
+            <button class="inline-btn-primary inline-try-again-btn">Try Again</button>
+          </div>
+        </div>
+
+        <!-- Right Column: Preview -->
+        <div class="inline-preview-image-area">
+          <!-- Result View -->
+          <div class="inline-result-view" hidden>
+            <div class="inline-pet-image-container">
+              <img class="inline-pet-image" alt="Your pet">
+            </div>
+          </div>
+
+          <!-- Placeholder (shown initially) -->
+          <div class="inline-preview-placeholder">
+            <div class="inline-placeholder-icon">🖼️</div>
+            <div class="inline-placeholder-text">Your processed image will appear here</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Preview Button (shown on product page) -->
+  <div class="inline-preview-trigger-container">
+    <button type="button" class="inline-preview-trigger-btn" data-open-preview>
+      <svg class="inline-preview-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+        <circle cx="8.5" cy="8.5" r="1.5"></circle>
+        <polyline points="21 15 16 10 5 21"></polyline>
+      </svg>
+      Preview with Your Pet
+    </button>
+    <p class="inline-preview-trigger-hint">See how your pet looks on {{ product.title }}</p>
+  </div>
+
+  <!-- Load Required Scripts -->
+  {{ 'inline-preview-mvp.css' | asset_url | stylesheet_tag }}
+  <script src="{{ 'pet-storage.js' | asset_url }}"></script>
+  <script src="{{ 'gemini-api-client.js' | asset_url }}"></script>
+  <script src="{{ 'gemini-effects-ui.js' | asset_url }}"></script>
+  <script src="{{ 'inline-preview-mvp.js' | asset_url }}"></script>
+{% endif %}

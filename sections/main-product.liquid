@@ -490,6 +490,15 @@
                   section_id: section.id,
                   show_pickup_availability: true
                 -%}
+
+                {%- comment -%}
+                  PHASE 1 MVP: Inline Preview for Black Frame Product Only
+                  Test URL: https://r27yma0ce20no386-2930573424.shopifypreview.com/collections/personalized-pet-portraits/products/personalized-pet-portrait-in-black-frame
+                  Kill switch: ?inline_preview=false
+                {%- endcomment -%}
+                {%- if product.handle == 'personalized-pet-portrait-in-black-frame' -%}
+                  {%- render 'inline-preview-mvp', product: product -%}
+                {%- endif -%}
               {%- when 'trust_indicators' -%}
                 <div class="product__trust-indicators" {{ block.shopify_attributes }}>
                   {% render 'product-trust-indicators' %}
