@@ -591,7 +591,11 @@
         if (error.quotaExhausted) {
           console.warn('⚠️ Gemini quota exhausted - only B&W and Color available today');
 
-          // Update UI to show quota exhausted state
+          // Render locked thumbnails for Modern and Sketch (prevents broken images)
+          this.renderLockedThumbnail('modern');
+          this.renderLockedThumbnail('sketch');
+
+          // Update UI to show quota exhausted state (buttons disabled, badges, etc.)
           if (this.geminiUI && typeof this.geminiUI.updateUI === 'function') {
             this.geminiUI.updateUI();
           }
@@ -659,6 +663,78 @@
           }
         }
       });
+    }
+
+    /**
+     * Render locked thumbnail when Gemini quota exhausted
+     * Replaces broken image with professional lock icon + helpful messaging
+     * @param {string} effectName - 'modern' or 'sketch'
+     */
+    renderLockedThumbnail(effectName) {
+      const btn = this.modal.querySelector(`[data-effect="${effectName}"]`);
+      if (!btn) {
+        console.warn(`🔒 Button not found for ${effectName}`);
+        return;
+      }
+
+      const thumbnail = btn.querySelector('.inline-effect-image');
+      if (!thumbnail) {
+        console.warn(`🔒 Thumbnail image not found for ${effectName}`);
+        return;
+      }
+
+      // Remove any existing locked overlay
+      const existingOverlay = btn.querySelector('.inline-thumbnail-locked-overlay');
+      if (existingOverlay) {
+        existingOverlay.remove();
+      }
+
+      // Hide the image element (prevents broken image icon)
+      thumbnail.style.display = 'none';
+
+      // Create lock overlay
+      const overlay = document.createElement('div');
+      overlay.className = 'inline-thumbnail-locked-overlay';
+      overlay.innerHTML = `
+        <svg class="lock-icon" width="40" height="40" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 2C9.243 2 7 4.243 7 7v3H6c-1.103 0-2 .897-2 2v8c0 1.103.897 2 2 2h12c1.103 0 2-.897 2-2v-8c0-1.103-.897-2-2-2h-1V7c0-2.757-2.243-5-5-5zm-3 5c0-1.654 1.346-3 3-3s3 1.346 3 3v3H9V7zm9 13H6v-8h12v8z" fill="currentColor"/>
+          <circle cx="12" cy="16" r="1.5" fill="currentColor"/>
+        </svg>
+        <span class="locked-primary-text">AI Limit</span>
+        <span class="locked-secondary-text">Try B&W/Color</span>
+      `;
+
+      // Add to thumbnail wrapper (parent of image)
+      const wrapper = thumbnail.parentElement;
+      if (wrapper) {
+        wrapper.appendChild(overlay);
+        wrapper.style.position = 'relative'; // Ensure positioning context
+      }
+
+      // Add click handler to show helpful message
+      overlay.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        this.showQuotaExhaustedMessage();
+      });
+
+      console.log(`🔒 ${effectName} thumbnail locked (quota exhausted)`);
+    }
+
+    /**
+     * Show helpful message when user clicks locked thumbnail
+     * Uses toast notification or alert fallback
+     */
+    showQuotaExhaustedMessage() {
+      const message = '💡 AI limit reached! Modern and Sketch reset at midnight UTC. Try B&W or Color now (unlimited)';
+
+      // Use Gemini UI toast if available
+      if (this.geminiUI && typeof this.geminiUI.showToast === 'function') {
+        this.geminiUI.showToast(message, 'exhausted', 5000);
+      } else {
+        // Fallback: simple alert
+        alert(message);
+      }
     }
 
     /**

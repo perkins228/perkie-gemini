@@ -609,3 +609,74 @@
 .inline-preview-modal:not([hidden]) + * {
   margin-top: 0;
 }
+
+/* ============================================================================
+   LOCKED THUMBNAIL OVERLAY (Quota Exhausted)
+   ============================================================================ */
+
+.inline-thumbnail-locked-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, #f9fafb 0%, #e5e7eb 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 12px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+  z-index: 2;
+}
+
+.inline-thumbnail-locked-overlay:hover {
+  background: linear-gradient(135deg, #f3f4f6 0%, #d1d5db 100%);
+}
+
+.inline-thumbnail-locked-overlay .lock-icon {
+  color: #9ca3af; /* Gray-400 */
+  opacity: 0.8;
+  flex-shrink: 0;
+}
+
+.inline-thumbnail-locked-overlay .locked-primary-text {
+  font-size: 0.75rem; /* 12px */
+  font-weight: 600;
+  color: #6b7280; /* Gray-500 */
+  text-align: center;
+  line-height: 1.2;
+  margin: 0;
+}
+
+.inline-thumbnail-locked-overlay .locked-secondary-text {
+  font-size: 0.7rem; /* 11px */
+  font-weight: 400;
+  color: #9ca3af; /* Gray-400 */
+  text-align: center;
+  line-height: 1.2;
+  margin: 0;
+}
+
+/* Mobile Optimization */
+@media (max-width: 480px) {
+  .inline-thumbnail-locked-overlay {
+    gap: 4px;
+    padding: 8px;
+  }
+
+  .inline-thumbnail-locked-overlay .lock-icon {
+    width: 32px;
+    height: 32px;
+  }
+
+  .inline-thumbnail-locked-overlay .locked-primary-text {
+    font-size: 0.7rem; /* 11px */
+  }
+
+  .inline-thumbnail-locked-overlay .locked-secondary-text {
+    font-size: 0.65rem; /* 10px */
+  }
+}
