@@ -149,7 +149,7 @@
   </div>
 
   {% comment %} Style Selector {% endcomment %}
-  <div class="pet-selector__section">
+  <div class="pet-selector__section" data-style-section hidden>
     <h2 class="pet-selector__section-heading">Choose Style</h2>
     <div class="style-selector__grid">
 
@@ -1250,6 +1250,7 @@
     });
 
     updateFontPreviews();
+    toggleStyleSection(); // Update style section visibility when pet count changes
   }
 
   // Update font previews with ampersand formatting (matches old font-selector)
@@ -1284,6 +1285,30 @@
         textSpan.textContent = previewText;
       }
     });
+  }
+
+  // Toggle style section visibility based on whether any pet has a name
+  function toggleStyleSection() {
+    const styleSection = container.querySelector('[data-style-section]');
+    if (!styleSection) return;
+
+    // Check if any visible pet has a name entered
+    const visiblePets = [...petDetailsContainer.querySelectorAll('.pet-detail')]
+      .filter(detail => detail.style.display !== 'none');
+
+    const hasAnyName = visiblePets.some(detail => {
+      const input = detail.querySelector('[data-pet-name-input]');
+      return input && input.value.trim().length > 0;
+    });
+
+    // Show/hide style section based on whether any pet has a name
+    if (hasAnyName) {
+      styleSection.hidden = false;
+      console.log('🎨 Style section shown (pet name entered)');
+    } else {
+      styleSection.hidden = true;
+      console.log('🎨 Style section hidden (no pet names)');
+    }
   }
 
   // NEW: Update variant selection based on pet count by triggering Shopify's variant selector
@@ -1394,6 +1419,7 @@
   nameInputs.forEach(input => {
     input.addEventListener('input', () => {
       updateFontPreviews();
+      toggleStyleSection(); // Show/hide style section based on pet names
       savePetSelectorState(); // Save with debounce on typing
     });
   });
@@ -2579,10 +2605,12 @@
     document.addEventListener('DOMContentLoaded', () => {
       cleanupStalePets(); // Clean up before restoring
       restorePetSelectorState();
+      toggleStyleSection(); // Set initial style section visibility
     });
   } else {
     cleanupStalePets(); // Clean up before restoring
     restorePetSelectorState();
+    toggleStyleSection(); // Set initial style section visibility
   }
 
   // Also handle pageshow (for mobile back/forward cache)
@@ -2591,6 +2619,7 @@
       console.log('📄 Page loaded from cache, reloading state...');
       cleanupStalePets(); // Clean up before restoring
       restorePetSelectorState();
+      toggleStyleSection(); // Update style section visibility
     }
   });
 })();
