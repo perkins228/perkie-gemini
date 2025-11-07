@@ -177,6 +177,9 @@
       // Store current scroll position
       this.scrollPosition = window.pageYOffset;
 
+      // Show modal first
+      this.modal.hidden = false;
+
       // Lock background scroll using position:fixed trick
       // This preserves scroll context for modal content
       document.body.style.position = 'fixed';
@@ -185,7 +188,10 @@
       document.body.style.left = '0';
       document.body.style.right = '0';
 
-      this.modal.hidden = false;
+      // Compensate modal position for body shift
+      // Modal is fixed, so we need to adjust its top to stay visible
+      this.modal.style.top = `${this.scrollPosition}px`;
+
       console.log('🎨 Modal opened, scroll locked at:', this.scrollPosition);
     }
 
@@ -194,6 +200,9 @@
      */
     closeModal() {
       this.modal.hidden = true;
+
+      // Reset modal position
+      this.modal.style.top = '';
 
       // Restore body position and scroll
       document.body.style.position = '';
