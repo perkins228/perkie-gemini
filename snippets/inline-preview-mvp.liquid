@@ -150,10 +150,14 @@
 
   <!-- Load Required Styles & Scripts -->
   {{ 'inline-preview-mvp.css' | asset_url | stylesheet_tag }}
-  {% comment %}
-    Note: pet-storage.js, gemini-api-client.js, and gemini-effects-ui.js
-    are already loaded by the product page, so we don't load them again
-  {% endcomment %}
+
+  {% comment %} Load dependencies in order {% endcomment %}
+  <script src="{{ 'pet-storage.js' | asset_url }}"></script>
+
+  {% comment %} Gemini AI Effects Integration - Required for Modern & Sketch styles {% endcomment %}
+  <script src="{{ 'gemini-api-client.js' | asset_url }}"></script>
+  <script src="{{ 'gemini-effects-ui.js' | asset_url }}"></script>
+
   <!-- EXIF orientation library for image rotation correction -->
   <script src="https://cdn.jsdelivr.net/npm/blueimp-load-image@5.16.0/js/load-image.all.min.js"></script>
   <script src="{{ 'inline-preview-mvp.js' | asset_url }}"></script>

@@ -408,9 +408,9 @@
       // Use FormData with POST like pet-processor.js does
       const formData = new FormData();
       formData.append('file', file); // Changed from 'image_url' to 'file'
-      formData.append('effects', 'enhancedblackwhite,color');
+      // Effects specified in URL query string (NOT in FormData - API expects query params)
 
-      const response = await fetch(`${API_URL}?return_all_effects=true`, {
+      const response = await fetch(`${API_URL}?return_all_effects=true&effects=enhancedblackwhite,color`, {
         method: 'POST',
         body: formData
       });
