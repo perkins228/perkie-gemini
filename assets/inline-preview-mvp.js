@@ -181,18 +181,16 @@
       this.modal.hidden = false;
 
       // Lock background scroll using position:fixed trick
-      // This preserves scroll context for modal content
+      // Modal stays centered via CSS flexbox (no manual positioning needed)
       document.body.style.position = 'fixed';
       document.body.style.top = `-${this.scrollPosition}px`;
       document.body.style.width = '100%';
       document.body.style.left = '0';
       document.body.style.right = '0';
 
-      // Compensate modal position for body shift
-      // Modal is fixed, so we need to adjust its top to stay visible
-      this.modal.style.top = `${this.scrollPosition}px`;
+      // NO modal position manipulation - CSS flexbox handles centering
 
-      console.log('🎨 Modal opened, scroll locked at:', this.scrollPosition);
+      console.log('🎨 Modal opened (centered), background scroll locked at:', this.scrollPosition);
     }
 
     /**
@@ -200,9 +198,6 @@
      */
     closeModal() {
       this.modal.hidden = true;
-
-      // Reset modal position
-      this.modal.style.top = '';
 
       // Restore body position and scroll
       document.body.style.position = '';
