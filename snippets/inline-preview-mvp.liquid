@@ -154,5 +154,7 @@
     Note: pet-storage.js, gemini-api-client.js, and gemini-effects-ui.js
     are already loaded by the product page, so we don't load them again
   {% endcomment %}
+  <!-- EXIF orientation library for image rotation correction -->
+  <script src="https://cdn.jsdelivr.net/npm/blueimp-load-image@5.16.0/js/load-image.all.min.js"></script>
   <script src="{{ 'inline-preview-mvp.js' | asset_url }}"></script>
 {% endif %}

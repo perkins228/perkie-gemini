@@ -272,6 +272,66 @@
     }
 
     /**
+     * Correct image orientation based on EXIF data
+     * Uses blueimp-load-image library to auto-rotate images
+     */
+    async correctImageOrientation(file) {
+      // Check if library is loaded
+      if (typeof loadImage === 'undefined') {
+        console.warn('🔄 blueimp-load-image not loaded, skipping orientation correction');
+        return file;
+      }
+
+      // Skip orientation correction for non-JPEG files (PNG/WebP don't have EXIF)
+      if (!file.type.includes('jpeg') && !file.type.includes('jpg')) {
+        console.log('🔄 Non-JPEG file, skipping orientation correction');
+        return file;
+      }
+
+      return new Promise((resolve, reject) => {
+        loadImage(
+          file,
+          (canvas) => {
+            // Check if canvas is valid
+            if (canvas.type === 'error') {
+              console.warn('🔄 Failed to load image for orientation correction');
+              resolve(file); // Return original file on error
+              return;
+            }
+
+            // Convert canvas to blob then to File
+            canvas.toBlob(
+              (blob) => {
+                if (!blob) {
+                  console.warn('🔄 Failed to convert canvas to blob');
+                  resolve(file);
+                  return;
+                }
+
+                // Create new File object with corrected orientation
+                const correctedFile = new File([blob], file.name, {
+                  type: 'image/jpeg',
+                  lastModified: Date.now()
+                });
+
+                console.log('✅ Image orientation corrected');
+                resolve(correctedFile);
+              },
+              'image/jpeg',
+              0.95
+            );
+          },
+          {
+            orientation: true,  // Auto-orient based on EXIF
+            canvas: true,       // Return canvas (not img element)
+            maxWidth: 3000,     // Limit size to prevent memory issues
+            maxHeight: 3000
+          }
+        );
+      });
+    }
+
+    /**
      * Process uploaded image
      */
     async processImage(file) {
@@ -281,11 +341,17 @@
         // Show processing view
         this.showView('processing');
 
+        // Correct image orientation based on EXIF metadata
+        console.log('🔄 Correcting image orientation...');
+        this.updateProgress('Preparing image...', '⏱️ A few seconds...');
+        const correctedFile = await this.correctImageOrientation(file);
+        if (this.processingCancelled) return;
+
         // Process with effects directly (no GCS upload needed initially)
         console.log('🎨 Processing with AI...');
         this.updateProgress('Processing with AI...', '⏱️ 30-60 seconds...');
 
-        const effects = await this.removeBackground(file);
+        const effects = await this.removeBackground(correctedFile);
         if (this.processingCancelled) return;
 
         console.log('✅ Processing complete:', effects);
