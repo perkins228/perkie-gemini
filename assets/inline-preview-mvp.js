@@ -42,8 +42,13 @@
       this.currentPet = null;
       this.currentEffect = 'enhancedblackwhite';
       this.processingCancelled = false;
-      this.geminiEnabled = false;
       this.scrollPosition = 0; // Track scroll position for modal
+
+      // Gemini AI integration (matches pet-processor.js pattern)
+      this.geminiClient = null;
+      this.geminiUI = null;
+      this.geminiEnabled = false;
+      this.geminiGenerating = false;
 
       // Store original modal position for restoration
       this.originalParent = modal.parentElement;
@@ -145,32 +150,55 @@
     }
 
     /**
-     * Initialize Gemini AI effects
+     * Initialize Gemini AI effects integration
+     * Pattern extracted from pet-processor.js (lines 922-968)
      */
-    async initializeGemini() {
+    initializeGemini() {
       try {
-        if (window.GeminiEffectsUI) {
-          // Check if initialize method exists and is a function
-          if (typeof window.GeminiEffectsUI.initialize === 'function') {
-            await window.GeminiEffectsUI.initialize();
-          }
+        // Check if Gemini modules are available in global scope
+        if (typeof GeminiAPIClient === 'undefined' || typeof GeminiEffectsUI === 'undefined') {
+          console.log('🎨 Gemini modules not loaded - AI effects disabled');
+          this.geminiEnabled = false;
+          return;
+        }
 
-          // Check if isEnabled method exists
-          if (typeof window.GeminiEffectsUI.isEnabled === 'function') {
-            this.geminiEnabled = window.GeminiEffectsUI.isEnabled();
-          } else {
-            // Fallback: check if it's already initialized
-            this.geminiEnabled = !!window.GeminiEffectsUI;
-          }
+        // Initialize Gemini client (constructor checks localStorage 'gemini_enabled' flag)
+        this.geminiClient = new GeminiAPIClient();
+        this.geminiEnabled = this.geminiClient.enabled;
 
-          console.log('🎨 Gemini AI effects:', this.geminiEnabled ? 'enabled' : 'disabled');
+        if (this.geminiEnabled) {
+          console.log('🎨 Gemini AI effects enabled - Modern and Sketch styles available');
+
+          // Initialize UI after modal container is rendered
+          // Delay ensures DOM is ready for banner/UI elements
+          setTimeout(() => {
+            if (!this.modal) {
+              console.warn('🎨 Modal not ready for Gemini UI initialization');
+              return;
+            }
+
+            // Create UI manager with client instance
+            this.geminiUI = new GeminiEffectsUI(this.geminiClient);
+
+            // Initialize UI elements (banner, quota display, etc.)
+            this.geminiUI.initialize(this.modal);
+
+            // Start midnight quota reset checker (24h interval)
+            if (typeof this.geminiUI.checkQuotaReset === 'function') {
+              this.geminiUI.checkQuotaReset();
+            }
+
+            console.log('🎨 Gemini UI initialized successfully');
+          }, 100);
         } else {
-          console.log('🎨 Gemini AI effects: not available');
+          console.log('🎨 Gemini AI effects disabled by feature flag (localStorage.gemini_enabled = false)');
           this.geminiEnabled = false;
         }
       } catch (error) {
-        console.warn('🎨 Gemini initialization skipped:', error.message);
+        console.error('🎨 Failed to initialize Gemini:', error);
         this.geminiEnabled = false;
+        this.geminiClient = null;
+        this.geminiUI = null;
       }
     }
 
@@ -437,34 +465,130 @@
     }
 
     /**
-     * Generate AI effects (Modern, Sketch)
+     * Generate AI effects (Modern + Sketch) using Gemini API
+     * Pattern extracted from pet-processor.js (lines 1352-1430)
+     * Uses batch generation for efficiency (both effects in ~10s vs 20s sequential)
      */
     async generateAIEffects(processedUrl) {
-      if (!this.geminiEnabled || !window.GeminiEffectsUI) {
+      // Guard: Check if Gemini is enabled and client exists
+      if (!this.geminiEnabled || !this.geminiClient) {
+        console.log('🎨 Gemini disabled or not initialized - skipping AI effects');
         return;
       }
 
-      this.updateProgress('Generating AI styles...', '⏱️ 10-15 seconds per style...');
-
       try {
-        // Generate Modern effect
-        const modernUrl = await window.GeminiEffectsUI.generateEffect(processedUrl, 'modern');
-        if (modernUrl && !this.processingCancelled) {
-          this.currentPet.effects.modern = modernUrl;
+        // Set generation flag (allows tracking in-progress state)
+        this.geminiGenerating = true;
+
+        // Update progress UI
+        this.updateProgress('Generating AI styles...', '⏱️ ~10 seconds for both styles...');
+        console.log('🎨 Starting Gemini batch generation for Modern + Sketch styles');
+
+        // Ensure processedUrl is a data URL (Gemini API requires base64 data URLs)
+        let imageDataUrl = processedUrl;
+        if (!processedUrl.startsWith('data:image/')) {
+          // If it's a base64 string without prefix, add it
+          imageDataUrl = `data:image/png;base64,${processedUrl}`;
+        }
+
+        // Generate session ID for caching/deduplication
+        // Uses timestamp + random string for uniqueness
+        const sessionId = `inline-preview-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+
+        // Batch generate both Modern and Sketch styles (single API call)
+        // Returns: {modern: {url, cacheHit, processingTime}, sketch: {...}, quota: {...}}
+        const geminiResults = await this.geminiClient.batchGenerate(imageDataUrl, {
+          sessionId: sessionId
+        });
+
+        // Store Modern effect with full metadata
+        if (geminiResults.modern && geminiResults.modern.url) {
+          this.currentPet.effects.modern = geminiResults.modern.url;
+
+          // Store metadata if needed for analytics
+          if (!this.currentPet.effectsMeta) {
+            this.currentPet.effectsMeta = {};
+          }
+          this.currentPet.effectsMeta.modern = {
+            cacheHit: geminiResults.modern.cacheHit,
+            processingTime: geminiResults.modern.processingTime
+          };
+
+          console.log('🎨 Modern effect generated:',
+            geminiResults.modern.cacheHit ? 'cache hit' : 'newly generated',
+            `(${geminiResults.modern.processingTime}ms)`
+          );
+
+          // Update thumbnail immediately (progressive enhancement)
+          this.populateEffectThumbnails();
+        }
+
+        // Store Sketch effect with full metadata
+        if (geminiResults.sketch && geminiResults.sketch.url) {
+          this.currentPet.effects.sketch = geminiResults.sketch.url;
+
+          // Store metadata
+          if (!this.currentPet.effectsMeta) {
+            this.currentPet.effectsMeta = {};
+          }
+          this.currentPet.effectsMeta.sketch = {
+            cacheHit: geminiResults.sketch.cacheHit,
+            processingTime: geminiResults.sketch.processingTime
+          };
+
+          console.log('🎨 Sketch effect generated:',
+            geminiResults.sketch.cacheHit ? 'cache hit' : 'newly generated',
+            `(${geminiResults.sketch.processingTime}ms)`
+          );
+
           // Update thumbnail immediately
           this.populateEffectThumbnails();
         }
 
-        // Generate Sketch effect
-        const sketchUrl = await window.GeminiEffectsUI.generateEffect(processedUrl, 'sketch');
-        if (sketchUrl && !this.processingCancelled) {
-          this.currentPet.effects.sketch = sketchUrl;
-          // Update thumbnail immediately
-          this.populateEffectThumbnails();
+        // Update quota state if returned
+        if (geminiResults.quota && this.geminiUI) {
+          console.log('🎨 Gemini quota updated:', geminiResults.quota);
+
+          // Update UI with new quota (banner, counter, etc.)
+          if (typeof this.geminiUI.updateUI === 'function') {
+            this.geminiUI.updateUI();
+          }
         }
+
+        // Success logging
+        console.log('✅ Gemini AI effects generation complete:', {
+          modern: geminiResults.modern?.cacheHit ? 'cached' : 'generated',
+          sketch: geminiResults.sketch?.cacheHit ? 'cached' : 'generated',
+          totalTime: (geminiResults.modern?.processingTime || 0) + (geminiResults.sketch?.processingTime || 0),
+          quota: geminiResults.quota
+        });
+
+        // Reset generation flag
+        this.geminiGenerating = false;
+
       } catch (error) {
-        console.error('⚠️ AI effects generation failed:', error);
-        // Continue even if AI effects fail
+        // Reset generation flag on error
+        this.geminiGenerating = false;
+
+        console.error('🎨 Gemini generation failed (graceful degradation):', error);
+
+        // Graceful degradation - users still have B&W and Color effects
+        // Don't throw error, just log it
+
+        // Check if quota was exhausted
+        if (error.quotaExhausted) {
+          console.warn('⚠️ Gemini quota exhausted - only B&W and Color available today');
+
+          // Update UI to show quota exhausted state
+          if (this.geminiUI && typeof this.geminiUI.updateUI === 'function') {
+            this.geminiUI.updateUI();
+          }
+        }
+
+        // Check if it's a network error
+        if (error.message && error.message.includes('network')) {
+          console.warn('⚠️ Network error during Gemini generation - check connectivity');
+        }
       }
     }
 
