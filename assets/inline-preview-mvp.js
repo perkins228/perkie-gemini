@@ -248,28 +248,28 @@
 
         console.log('✅ Uploaded to GCS:', gcsUrl);
 
-        // Remove background
-        console.log('🎨 Removing background...');
+        // Process with effects (background removal + color)
+        console.log('🎨 Processing with AI...');
         this.updateProgress('Processing with AI...', '⏱️ 30-60 seconds...');
 
-        const processedUrl = await this.removeBackground(gcsUrl);
+        const effects = await this.removeBackground(gcsUrl);
         if (this.processingCancelled) return;
 
-        console.log('✅ Background removed:', processedUrl);
+        console.log('✅ Processing complete:', effects);
 
         // Store pet data
         this.currentPet = {
           originalImage: gcsUrl,
-          processedImage: processedUrl,
+          processedImage: effects.enhancedblackwhite || effects.color,
           effects: {
-            enhancedblackwhite: processedUrl,
-            color: gcsUrl // Original for color
+            enhancedblackwhite: effects.enhancedblackwhite,
+            color: effects.color
           }
         };
 
         // Generate AI effects if enabled
         if (this.geminiEnabled) {
-          await this.generateAIEffects(processedUrl);
+          await this.generateAIEffects(this.currentPet.processedImage);
         }
 
         // Show result
@@ -301,19 +301,18 @@
 
     /**
      * Remove background using InSPyReNet API
+     * Uses /api/v2/process-with-effects endpoint like pet-processor.js
      */
     async removeBackground(imageUrl) {
-      const API_URL = 'https://inspirenet-bg-removal-api-725543555429.us-central1.run.app/remove-background';
+      const API_URL = 'https://inspirenet-bg-removal-api-725543555429.us-central1.run.app/api/v2/process-with-effects';
 
-      const response = await fetch(API_URL, {
+      // Use FormData with POST like pet-processor.js does
+      const formData = new FormData();
+      formData.append('image_url', imageUrl);
+
+      const response = await fetch(`${API_URL}?return_all_effects=true&effects=enhancedblackwhite,color`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          image_url: imageUrl,
-          output_format: 'png'
-        })
+        body: formData
       });
 
       if (!response.ok) {
@@ -322,11 +321,17 @@
 
       const result = await response.json();
 
-      if (!result.processed_image_url) {
-        throw new Error('No processed image returned');
+      if (!result.success || !result.effects) {
+        throw new Error('No processed effects returned');
       }
 
-      return result.processed_image_url;
+      // API returns base64 data for each effect
+      const effects = {};
+      for (const [effectName, base64Data] of Object.entries(result.effects)) {
+        effects[effectName] = `data:image/png;base64,${base64Data}`;
+      }
+
+      return effects;
     }
 
     /**
