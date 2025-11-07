@@ -270,6 +270,62 @@
     }
 
     /**
+     * Open modal with pre-populated pet data (called from pet-selector)
+     * @param {Object} data - Pet data object
+     * @param {number} data.petNumber - Pet number (1, 2, 3)
+     * @param {string} data.petName - Pet name
+     * @param {string} data.imageUrl - Image URL (GCS or data URL)
+     * @param {boolean} data.isGcsUrl - Whether imageUrl is a GCS URL
+     */
+    async openWithData(data) {
+      console.log('🎨 Opening inline preview with data:', data);
+
+      // Store pet metadata
+      this.petNumber = data.petNumber;
+      this.petName = data.petName;
+
+      // Open the modal
+      this.openModal();
+
+      // Hide upload zone since image is already uploaded
+      if (this.uploadZone) {
+        this.uploadZone.hidden = true;
+      }
+
+      try {
+        // Convert URL to File object for processing
+        const file = await this.urlToFile(data.imageUrl, `pet-${data.petNumber}.jpg`);
+
+        // Start processing
+        await this.processImage(file);
+
+      } catch (error) {
+        console.error('❌ Failed to load image:', error);
+        this.showError('Failed to load pet image. Please try again.');
+      }
+    }
+
+    /**
+     * Convert URL (GCS or data URL) to File object
+     */
+    async urlToFile(url, filename) {
+      // If it's a data URL, convert directly
+      if (url.startsWith('data:')) {
+        const res = await fetch(url);
+        const blob = await res.blob();
+        return new File([blob], filename, { type: blob.type });
+      }
+
+      // If it's a GCS URL, fetch it
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error(`Failed to fetch image: ${response.statusText}`);
+      }
+      const blob = await response.blob();
+      return new File([blob], filename, { type: blob.type });
+    }
+
+    /**
      * Handle file selection
      */
     async handleFileSelect(event) {

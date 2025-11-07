@@ -1882,8 +1882,36 @@
     }
   }
 
+  // Get pet name from input field
+  function getPetName(petIndex) {
+    const nameInput = document.querySelector(`[data-pet-name-input="${petIndex}"]`);
+    if (nameInput && nameInput.value.trim()) {
+      return nameInput.value.trim();
+    }
+    return `Pet ${petIndex}`; // Fallback name if not provided
+  }
+
   // Create and show processor modal
   function openProcessorModal(imageDataUrl, petIndex) {
+    // NEW: Try inline modal first (Phase 1 Integration)
+    if (window.inlinePreview && typeof window.inlinePreview.openWithData === 'function') {
+      console.log(`🎨 Opening inline preview modal for Pet ${petIndex}`);
+      const petName = getPetName(petIndex);
+      const gcsUrl = localStorage.getItem(`pet_${petIndex}_image_url`);
+      const isGcsUrl = imageDataUrl.startsWith('https://storage.googleapis.com');
+
+      window.inlinePreview.openWithData({
+        petNumber: petIndex,
+        petName: petName,
+        imageUrl: isGcsUrl ? imageDataUrl : gcsUrl || imageDataUrl,
+        isGcsUrl: isGcsUrl || !!gcsUrl
+      });
+      return;
+    }
+
+    // FALLBACK: Original processor page navigation
+    console.log(`🎨 Inline preview not available, using processor page for Pet ${petIndex}`);
+
     // Image data already stored in localStorage by file upload handler (line 1273)
     // Store return URL and scroll position for back navigation
     sessionStorage.setItem('pet_selector_return_url', window.location.href);
