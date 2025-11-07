@@ -45,6 +45,10 @@
       this.geminiEnabled = false;
       this.scrollPosition = 0; // Track scroll position for modal
 
+      // Store original modal position for restoration
+      this.originalParent = modal.parentElement;
+      this.originalNextSibling = modal.nextSibling;
+
       // Cache DOM elements
       this.cacheElements();
 
@@ -177,7 +181,11 @@
       // Store current scroll position
       this.scrollPosition = window.pageYOffset;
 
-      // Show modal first
+      // CRITICAL: Move modal to be direct child of body
+      // This ensures position:fixed works relative to viewport, not nested container
+      document.body.appendChild(this.modal);
+
+      // Show modal
       this.modal.hidden = false;
 
       // Lock background scroll using position:fixed trick
@@ -208,6 +216,15 @@
 
       // Restore scroll position
       window.scrollTo(0, this.scrollPosition);
+
+      // Restore modal to original position in DOM
+      if (this.originalParent) {
+        if (this.originalNextSibling) {
+          this.originalParent.insertBefore(this.modal, this.originalNextSibling);
+        } else {
+          this.originalParent.appendChild(this.modal);
+        }
+      }
 
       console.log('🎨 Modal closed, scroll restored to:', this.scrollPosition);
     }
