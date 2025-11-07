@@ -70,7 +70,7 @@
     cacheElements() {
       // Modal controls
       this.triggerBtn = document.querySelector('[data-open-preview]');
-      this.closeBtn = this.modal.querySelector('[data-modal-close]');
+      this.closeBtn = this.modal.querySelector('.inline-preview-close');
       this.backdrop = this.modal.querySelector('.inline-preview-backdrop');
 
       // Views
