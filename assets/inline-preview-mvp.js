@@ -928,14 +928,102 @@
         // Close modal
         this.closeModal();
 
-        // TODO: Phase 3 will add preview status display on product page
-        // For now, just show simple confirmation
-        console.log('💡 Phase 3: Preview status display will be added next');
+        // Phase 3: Auto-select style button and show confirmation
+        this.autoSelectStyleButton();
+        this.showConfirmationToast();
 
       } catch (error) {
         console.error('❌ Save pet data error:', error);
         this.showError('Failed to save pet data. Please try again.');
       }
+    }
+
+    /**
+     * Auto-select the style radio button matching the previewed effect
+     * This eliminates confusion by making the preview selection "stick"
+     */
+    autoSelectStyleButton() {
+      try {
+        // Map effect names to Shopify property values
+        const styleMap = {
+          'enhancedblackwhite': 'Black & White',
+          'color': 'Color',
+          'modern': 'Modern',
+          'sketch': 'Sketch'
+        };
+
+        const styleValue = styleMap[this.currentEffect];
+        if (!styleValue) {
+          console.warn(`⚠️ Unknown effect type: ${this.currentEffect}`);
+          return;
+        }
+
+        // Find and check the matching radio button
+        const radioButton = document.querySelector(
+          `input[name="properties[Style]"][value="${styleValue}"]`
+        );
+
+        if (radioButton) {
+          radioButton.checked = true;
+          radioButton.dispatchEvent(new Event('change', { bubbles: true }));
+          console.log(`✅ Auto-selected "${styleValue}" style button`);
+        } else {
+          console.warn(`⚠️ Style radio button not found for "${styleValue}"`);
+        }
+      } catch (error) {
+        console.error('❌ Auto-select error:', error);
+      }
+    }
+
+    /**
+     * Show toast confirmation when style is selected
+     * Provides visual feedback that the selection was successful
+     */
+    showConfirmationToast() {
+      try {
+        const styleName = this.getStyleDisplayName(this.currentEffect);
+
+        // Create toast element
+        const toast = document.createElement('div');
+        toast.className = 'pet-style-toast';
+        toast.innerHTML = `
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" style="display: inline-block; vertical-align: middle; margin-right: 8px;">
+            <circle cx="10" cy="10" r="9" stroke="currentColor" stroke-width="2" fill="none"/>
+            <path d="M6 10l3 3 5-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+          </svg>
+          <span style="vertical-align: middle;">${styleName} style selected for ${this.petName}</span>
+        `;
+
+        document.body.appendChild(toast);
+
+        // Animate in
+        setTimeout(() => toast.classList.add('show'), 10);
+
+        // Animate out and remove
+        setTimeout(() => {
+          toast.classList.remove('show');
+          setTimeout(() => toast.remove(), 300);
+        }, 3000);
+
+        console.log(`📢 Toast: ${styleName} style selected for ${this.petName}`);
+      } catch (error) {
+        console.error('❌ Toast error:', error);
+      }
+    }
+
+    /**
+     * Get display name for effect
+     * @param {string} effect - Effect key (e.g., 'enhancedblackwhite')
+     * @returns {string} Display name (e.g., 'Black & White')
+     */
+    getStyleDisplayName(effect) {
+      const displayNames = {
+        'enhancedblackwhite': 'Black & White',
+        'color': 'Color',
+        'modern': 'Modern',
+        'sketch': 'Sketch'
+      };
+      return displayNames[effect] || effect;
     }
 
     /**
