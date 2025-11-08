@@ -978,10 +978,17 @@
     /**
      * Show toast confirmation when style is selected
      * Provides visual feedback that the selection was successful
+     * Note: Style is product-level (not per-pet), so message doesn't include pet name
      */
     showConfirmationToast() {
       try {
         const styleName = this.getStyleDisplayName(this.currentEffect);
+
+        // Remove any existing toast to prevent overlap
+        const existingToast = document.querySelector('.pet-style-toast');
+        if (existingToast) {
+          existingToast.remove();
+        }
 
         // Create toast element
         const toast = document.createElement('div');
@@ -991,7 +998,7 @@
             <circle cx="10" cy="10" r="9" stroke="currentColor" stroke-width="2" fill="none"/>
             <path d="M6 10l3 3 5-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
           </svg>
-          <span style="vertical-align: middle;">${styleName} style selected for ${this.petName}</span>
+          <span style="vertical-align: middle;">${styleName} style selected</span>
         `;
 
         document.body.appendChild(toast);
@@ -1005,7 +1012,7 @@
           setTimeout(() => toast.remove(), 300);
         }, 3000);
 
-        console.log(`📢 Toast: ${styleName} style selected for ${this.petName}`);
+        console.log(`📢 Toast: ${styleName} style selected`);
       } catch (error) {
         console.error('❌ Toast error:', error);
       }
