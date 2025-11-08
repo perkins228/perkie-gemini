@@ -64,3 +64,39 @@ class BatchGenerateResponse(BaseModel):
     quota_limit: int
     total_processing_time_ms: int
     warning_level: int = Field(1, description="Warning level: 1=silent, 2=reminder, 3=warning, 4=exhausted")
+
+
+class SignedUrlRequest(BaseModel):
+    """Request for signed upload URL"""
+    customer_id: Optional[str] = Field(None, description="Customer ID")
+    session_id: Optional[str] = Field(None, description="Session ID")
+    file_type: str = Field("image/jpeg", description="File content type")
+
+
+class SignedUrlResponse(BaseModel):
+    """Response with signed URL for upload"""
+    signed_url: str = Field(..., description="Signed URL for PUT upload")
+    public_url: str = Field(..., description="Public URL after upload completes")
+    upload_id: str = Field(..., description="Unique identifier for this upload")
+    blob_path: str = Field(..., description="GCS blob path")
+    expires_in: int = Field(..., description="URL expiry in seconds")
+    method: str = Field("PUT", description="HTTP method to use")
+    content_type: str = Field(..., description="Content type for upload")
+
+
+class ConfirmUploadRequest(BaseModel):
+    """Request to confirm successful upload"""
+    upload_id: str = Field(..., description="Upload ID from signed URL response")
+    blob_path: str = Field(..., description="GCS blob path")
+    customer_id: Optional[str] = Field(None, description="Customer ID")
+    session_id: Optional[str] = Field(None, description="Session ID")
+
+
+class ConfirmUploadResponse(BaseModel):
+    """Response confirming upload"""
+    success: bool
+    upload_id: str
+    size: int = Field(..., description="File size in bytes")
+    content_type: str
+    public_url: str
+    created: str = Field(..., description="Creation timestamp")

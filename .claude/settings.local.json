@@ -55,7 +55,10 @@
       "Bash(else echo \"''nul'' file not found\")",
       "Bash(fi)",
       "Bash(timeout 90 bash:*)",
-      "Bash(timeout 60 bash:*)"
+      "Bash(timeout 60 bash:*)",
+      "Bash(gsutil mb:*)",
+      "Bash(gsutil lifecycle:*)",
+      "Bash(gsutil cors set:*)"
     ],
     "deny": [],
     "ask": [],

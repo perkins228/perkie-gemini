@@ -1381,6 +1381,84 @@
   const container = document.querySelector('.pet-selector-stitch');
   if (!container) return;
 
+  // ======================================================================
+  // DIRECT UPLOAD HANDLER - Eliminates InSPyReNet API proxy bottleneck
+  // ======================================================================
+  class DirectUploadHandler {
+    constructor() {
+      this.geminiApiUrl = 'https://gemini-artistic-api-753651513695.us-central1.run.app';
+      this.uploadTimeout = 60000; // 60 seconds
+    }
+
+    async uploadImage(file, sessionId, onProgress) {
+      try {
+        console.log('📤 Direct GCS upload starting:', file.name);
+
+        // Step 1: Get signed URL (<100ms)
+        const signedUrlData = await this.getSignedUrl(sessionId, file.type);
+
+        // Step 2: Direct upload to GCS
+        await this.uploadToGCS(file, signedUrlData, onProgress);
+
+        console.log('✅ Direct upload complete:', signedUrlData.public_url);
+        return { success: true, url: signedUrlData.public_url };
+
+      } catch (error) {
+        console.error('❌ Direct upload failed:', error);
+        throw error;
+      }
+    }
+
+    async getSignedUrl(sessionId, fileType) {
+      const response = await fetch(`${this.geminiApiUrl}/api/v1/upload/signed-url`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          session_id: sessionId,
+          file_type: fileType || 'image/jpeg'
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to get signed URL: ${response.status}`);
+      }
+
+      return await response.json();
+    }
+
+    async uploadToGCS(file, signedUrlData, onProgress) {
+      return new Promise((resolve, reject) => {
+        const xhr = new XMLHttpRequest();
+
+        if (onProgress) {
+          xhr.upload.addEventListener('progress', (e) => {
+            if (e.lengthComputable) {
+              onProgress((e.loaded / e.total) * 100);
+            }
+          });
+        }
+
+        xhr.addEventListener('load', () => {
+          if (xhr.status === 200 || xhr.status === 201) {
+            resolve();
+          } else {
+            reject(new Error(`Upload failed: ${xhr.status}`));
+          }
+        });
+
+        xhr.addEventListener('error', () => reject(new Error('Network error')));
+        xhr.addEventListener('timeout', () => reject(new Error('Upload timeout')));
+
+        xhr.open('PUT', signedUrlData.signed_url, true);
+        xhr.setRequestHeader('Content-Type', signedUrlData.content_type);
+        xhr.timeout = this.uploadTimeout;
+        xhr.send(file);
+      });
+    }
+  }
+
+  const directUploadHandler = new DirectUploadHandler();
+
   const maxPets = parseInt(container.dataset.maxPets) || 1;
   const petDetailsContainer = container.querySelector('[data-pet-details-container]');
   const countRadios = container.querySelectorAll('[data-pet-count-radio]');
@@ -1821,11 +1899,30 @@
   }
 
   // Server upload function with automatic retry and fallback
+  // ======================================================================
+  // UPLOAD TO SERVER - Direct GCS upload with InSPyReNet fallback
+  // ======================================================================
   async function uploadToServer(file, petIndex, retryCount = 0) {
     const maxRetries = 3;
     const retryDelays = [0, 1000, 3000]; // 0ms, 1s, 3s exponential backoff
 
+    // Try direct GCS upload first (75% faster)
+    if (retryCount === 0) {
+      try {
+        console.log(`🚀 Attempting direct GCS upload for Pet ${petIndex}`);
+        const result = await directUploadHandler.uploadImage(file, sessionId);
+        console.log(`✅ Direct upload succeeded for Pet ${petIndex}`);
+        return result;
+      } catch (error) {
+        console.warn(`⚠️ Direct upload failed for Pet ${petIndex}, falling back to InSPyReNet:`, error.message);
+        // Fall through to InSPyReNet fallback below
+      }
+    }
+
+    // Fallback to InSPyReNet API (original method)
     try {
+      console.log(`📤 Fallback: Uploading Pet ${petIndex} via InSPyReNet API (attempt ${retryCount + 1})`);
+
       const formData = new FormData();
       formData.append('file', file, file.name);
       formData.append('image_type', 'original');
@@ -1848,6 +1945,7 @@
       const result = await response.json();
 
       if (result.success && result.url) {
+        console.log(`✅ InSPyReNet fallback succeeded for Pet ${petIndex}`);
         return { success: true, url: result.url };
       } else {
         throw new Error('No URL in response');

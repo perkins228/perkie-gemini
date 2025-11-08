@@ -4,11 +4,16 @@ from fastapi.middleware.cors import CORSMiddleware
 import logging
 import time
 import asyncio
+import uuid
+from datetime import datetime, timedelta
+from google.cloud import storage
 from src.config import settings
 from src.models.schemas import (
     GenerateRequest, GenerateResponse,
     BatchGenerateRequest, BatchGenerateResponse,
-    QuotaStatus, StyleResult, ArtisticStyle
+    QuotaStatus, StyleResult, ArtisticStyle,
+    SignedUrlRequest, SignedUrlResponse,
+    ConfirmUploadRequest, ConfirmUploadResponse
 )
 from src.core.gemini_client import gemini_client
 from src.core.rate_limiter import rate_limiter
@@ -302,6 +307,135 @@ async def batch_generate_styles(request: Request, req: BatchGenerateRequest):
         raise
     except Exception as e:
         logger.error(f"Error in batch generation: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/api/v1/upload/signed-url", response_model=SignedUrlResponse)
+async def generate_signed_upload_url(request: Request, req: SignedUrlRequest):
+    """
+    Generate signed URL for direct GCS upload
+
+    This allows clients to upload images directly to GCS without proxying through this API,
+    reducing latency and eliminating cold start issues.
+
+    Returns:
+        - signed_url: URL for direct upload (PUT method)
+        - public_url: Final public URL after upload
+        - upload_id: Unique identifier for this upload
+    """
+    client_ip = request.client.host
+    identifiers = {
+        "customer_id": req.customer_id,
+        "session_id": req.session_id,
+        "ip_address": client_ip
+    }
+
+    try:
+        # Rate limiting (prevent abuse) - 100 uploads per day per IP/customer
+        quota = await rate_limiter.check_rate_limit(**identifiers)
+        if quota.remaining < 1:
+            raise HTTPException(
+                status_code=429,
+                detail=f"Upload rate limit exceeded. Resets at {quota.reset_time}"
+            )
+
+        # Generate unique path
+        upload_id = str(uuid.uuid4())
+        timestamp = int(time.time())
+
+        # Determine blob path based on identifiers
+        if req.customer_id:
+            blob_path = f"originals/customers/{req.customer_id}/{timestamp}_{upload_id}.jpg"
+        elif req.session_id:
+            blob_path = f"originals/sessions/{req.session_id}/{timestamp}_{upload_id}.jpg"
+        else:
+            # Anonymous uploads to temp folder
+            date = datetime.utcnow().strftime('%Y%m%d')
+            blob_path = f"temp/uploads/{date}/{req.session_id or 'anon'}_{timestamp}.jpg"
+
+        # Create signed URL
+        storage_client = storage.Client(project=settings.project_id)
+        bucket = storage_client.bucket("perkieprints-test-uploads")
+        blob = bucket.blob(blob_path)
+
+        # Generate signed URL for PUT (upload)
+        signed_url = blob.generate_signed_url(
+            version="v4",
+            expiration=timedelta(minutes=15),  # URL expires in 15 minutes
+            method="PUT",
+            content_type=req.file_type,
+        )
+
+        # Public URL (after upload completes)
+        public_url = f"https://storage.googleapis.com/perkieprints-test-uploads/{blob_path}"
+
+        logger.info(f"Generated signed URL for upload: {upload_id}")
+
+        return SignedUrlResponse(
+            signed_url=signed_url,
+            public_url=public_url,
+            upload_id=upload_id,
+            blob_path=blob_path,
+            expires_in=900,  # 15 minutes in seconds
+            method="PUT",
+            content_type=req.file_type
+        )
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error generating signed URL: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/api/v1/upload/confirm", response_model=ConfirmUploadResponse)
+async def confirm_upload(req: ConfirmUploadRequest):
+    """
+    Confirm successful upload and update metadata
+
+    This endpoint is optional - it allows verification that the file exists
+    and updates metadata for tracking purposes.
+    """
+    try:
+        storage_client = storage.Client(project=settings.project_id)
+        bucket = storage_client.bucket("perkieprints-test-uploads")
+        blob = bucket.blob(req.blob_path)
+
+        # Check if blob exists
+        if not blob.exists():
+            raise HTTPException(
+                status_code=404,
+                detail="Upload not found. File may not have been uploaded successfully."
+            )
+
+        # Update metadata
+        metadata = {
+            "upload_id": req.upload_id,
+            "customer_id": req.customer_id or "anonymous",
+            "session_id": req.session_id or "none",
+            "confirmed_at": datetime.utcnow().isoformat(),
+        }
+        blob.metadata = metadata
+        blob.patch()
+
+        # Reload to get updated info
+        blob.reload()
+
+        logger.info(f"Upload confirmed: {req.upload_id}")
+
+        return ConfirmUploadResponse(
+            success=True,
+            upload_id=req.upload_id,
+            size=blob.size,
+            content_type=blob.content_type,
+            public_url=blob.public_url,
+            created=blob.time_created.isoformat()
+        )
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error confirming upload: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
 
