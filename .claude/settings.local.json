@@ -58,7 +58,13 @@
       "Bash(timeout 60 bash:*)",
       "Bash(gsutil mb:*)",
       "Bash(gsutil lifecycle:*)",
-      "Bash(gsutil cors set:*)"
+      "Bash(gsutil cors set:*)",
+      "Bash(gsutil ls:*)",
+      "Bash(for bucket in gemini-artistic-753651513695 gen-lang-client-0601138686_cloudbuild perkieprints-nanobanana-cache perkieprints-nanobanana-customer-images perkieprints-test-uploads run-sources-gen-lang-client-0601138686-us-central1)",
+      "Bash(do echo '=== Bucket: gs://$bucket ===')",
+      "Bash(gsutil du:*)",
+      "Bash(for bucket in perkieprints-customer-images perkieprints-processing-cache)",
+      "Bash(gsutil rm:*)"
     ],
     "deny": [],
     "ask": [],

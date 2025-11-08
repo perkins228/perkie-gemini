@@ -355,7 +355,7 @@ async def generate_signed_upload_url(request: Request, req: SignedUrlRequest):
 
         # Create signed URL
         storage_client = storage.Client(project=settings.project_id)
-        bucket = storage_client.bucket("perkieprints-test-uploads")
+        bucket = storage_client.bucket("perkieprints-uploads")
         blob = bucket.blob(blob_path)
 
         # Generate signed URL for PUT (upload)
@@ -367,7 +367,7 @@ async def generate_signed_upload_url(request: Request, req: SignedUrlRequest):
         )
 
         # Public URL (after upload completes)
-        public_url = f"https://storage.googleapis.com/perkieprints-test-uploads/{blob_path}"
+        public_url = f"https://storage.googleapis.com/perkieprints-uploads/{blob_path}"
 
         logger.info(f"Generated signed URL for upload: {upload_id}")
 
@@ -398,7 +398,7 @@ async def confirm_upload(req: ConfirmUploadRequest):
     """
     try:
         storage_client = storage.Client(project=settings.project_id)
-        bucket = storage_client.bucket("perkieprints-test-uploads")
+        bucket = storage_client.bucket("perkieprints-uploads")
         blob = bucket.blob(req.blob_path)
 
         # Check if blob exists
