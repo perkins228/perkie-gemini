@@ -1825,37 +1825,20 @@
     });
   }
 
-  // Progress animation for upload (0% → 90% over estimated time)
-  function startProgressAnimation(petIndex) {
+  // Real-time upload progress tracking (removed fake animation)
+  function updateUploadProgress(petIndex, percentComplete) {
     const progressFill = container.querySelector(`[data-upload-progress-fill="${petIndex}"]`);
     const progressText = container.querySelector(`[data-upload-progress-text="${petIndex}"]`);
 
     if (!progressFill || !progressText) return;
 
-    const startTime = Date.now();
-    const estimatedDuration = 8000; // 8 seconds estimated (conservative for 2-10s range)
-    const targetProgress = 90; // Stop at 90%, final 10% on actual completion
+    progressFill.style.width = `${percentComplete}%`;
 
-    function updateProgress() {
-      const elapsed = Date.now() - startTime;
-      const progress = Math.min((elapsed / estimatedDuration) * targetProgress, targetProgress);
-
-      progressFill.style.width = `${progress}%`;
-
-      const remaining = Math.ceil((estimatedDuration - elapsed) / 1000);
-      if (remaining > 0 && progress < targetProgress) {
-        progressText.textContent = `Uploading... ${remaining}s remaining`;
-      } else if (progress >= targetProgress) {
-        progressText.textContent = 'Finalizing...';
-      }
-
-      // Continue animation until 90% or upload completes
-      if (progress < targetProgress) {
-        requestAnimationFrame(updateProgress);
-      }
+    if (percentComplete < 100) {
+      progressText.textContent = `Uploading... ${Math.round(percentComplete)}%`;
+    } else {
+      progressText.textContent = '✓ Upload complete';
     }
-
-    requestAnimationFrame(updateProgress);
   }
 
   // Update preview button state (disabled/enabled based on conditions)
@@ -1906,11 +1889,15 @@
     const maxRetries = 3;
     const retryDelays = [0, 1000, 3000]; // 0ms, 1s, 3s exponential backoff
 
-    // Try direct GCS upload first (75% faster)
+    // Try direct GCS upload first (75% faster) with real-time progress
     if (retryCount === 0) {
       try {
         console.log(`🚀 Attempting direct GCS upload for Pet ${petIndex}`);
-        const result = await directUploadHandler.uploadImage(file, sessionId);
+        const result = await directUploadHandler.uploadImage(
+          file,
+          sessionId,
+          (percent) => updateUploadProgress(petIndex, percent)
+        );
         console.log(`✅ Direct upload succeeded for Pet ${petIndex}`);
         return result;
       } catch (error) {
@@ -2057,7 +2044,7 @@
         if (progressWrapper && progressFill) {
           progressWrapper.style.display = 'block';
           progressFill.style.width = '0%';
-          startProgressAnimation(i); // Start 0-90% animation
+          updateUploadProgress(i, 0); // Initialize at 0%
         }
         updatePreviewButtonState(i); // Disable button during upload
 
@@ -2082,10 +2069,8 @@
           // SUCCESS: Store GCS URL (100 bytes instead of 3.4MB base64!)
           localStorage.setItem(`pet_${i}_image_url`, uploadResult.url);
 
-          // Complete progress bar (90% → 100%)
-          const progressText = container.querySelector(`[data-upload-progress-text="${i}"]`);
-          if (progressFill) progressFill.style.width = '100%';
-          if (progressText) progressText.textContent = '✓ Upload complete';
+          // Complete progress bar (real-time progress automatically reaches 100%)
+          updateUploadProgress(i, 100);
 
           // Hide progress bar after 500ms
           setTimeout(() => {
