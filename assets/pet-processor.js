@@ -1051,8 +1051,44 @@ class PetProcessor {
 
             <!-- Actions (shown in result view) -->
             <div class="action-buttons" hidden>
-              <button class="btn-secondary process-another-btn">Process Another Pet</button>
-              <button class="btn-primary add-to-cart-btn">Add to Product</button>
+              <!-- Dual Primary CTAs -->
+              <div class="cta-group-primary">
+                <button class="btn-primary-download download-free-btn"
+                        aria-label="Download your free pet art via email">
+                  <span class="btn-text">Get Your FREE Pet Art</span>
+                  <span class="btn-subtext">All 4 styles via email</span>
+                </button>
+
+                <div class="cta-divider" role="presentation">
+                  <span class="cta-divider-text">OR</span>
+                </div>
+
+                <button class="btn-primary-shop shop-products-btn"
+                        aria-label="Shop canvas prints, mugs, and more personalized products">
+                  <span class="btn-text">Shop Canvas Prints, Mugs & More</span>
+                  <span class="btn-subtext">Turn this into a product</span>
+                </button>
+              </div>
+
+              <!-- Share Section (collapsible on mobile) -->
+              <div class="share-section">
+                <button class="share-toggle" aria-expanded="false" aria-controls="share-buttons-expanded">
+                  <span class="share-icon">📤</span>
+                  <span class="share-text">Share Your Pet Art</span>
+                  <span class="share-arrow" aria-hidden="true">▼</span>
+                </button>
+                <div id="share-buttons-expanded" class="share-buttons-expanded" hidden>
+                  <!-- Share buttons will be populated by pet-social-sharing-simple.js -->
+                  <div class="share-buttons-grid"></div>
+                </div>
+              </div>
+
+              <!-- Tertiary CTA (text link style) -->
+              <div class="cta-tertiary">
+                <button class="btn-link process-another-btn" aria-label="Process another pet image">
+                  Try Another Pet
+                </button>
+              </div>
             </div>
             
             <!-- Error View -->
@@ -1172,9 +1208,13 @@ class PetProcessor {
     });
     
     // Action buttons
+    this.container.querySelector('.download-free-btn')?.addEventListener('click', () => this.handleDownloadFree());
+    this.container.querySelector('.shop-products-btn')?.addEventListener('click', () => this.handleShopProducts());
     this.container.querySelector('.process-another-btn')?.addEventListener('click', async () => await this.processAnother());
-    this.container.querySelector('.add-to-cart-btn')?.addEventListener('click', () => this.saveToCart());
     this.container.querySelector('.try-again-btn')?.addEventListener('click', () => this.reset());
+
+    // Share toggle
+    this.container.querySelector('.share-toggle')?.addEventListener('click', () => this.toggleShareButtons());
   }
   
   handleFileSelect(event) {
@@ -1881,6 +1921,112 @@ class PetProcessor {
     }));
 
     return true;  // Success
+  }
+
+  /**
+   * Handle Download FREE button click
+   * Phase 3: Will open email capture modal
+   * For now: Placeholder with console log
+   */
+  handleDownloadFree() {
+    console.log('📥 Download FREE button clicked');
+
+    // TODO Phase 3: Open email capture modal
+    // For now, show alert
+    alert('Email capture modal coming in Phase 3!\n\nThis will allow users to download all 4 styles for FREE via email.');
+  }
+
+  /**
+   * Handle Shop Products button click
+   * Saves pet data and redirects to products
+   * Phase 4: Will add session bridge for seamless transition
+   */
+  async handleShopProducts() {
+    console.log('🛒 Shop Products button clicked');
+
+    // Save pet data first
+    const saved = await this.savePetData();
+    if (!saved) {
+      console.error('❌ Failed to save pet data');
+      return;
+    }
+
+    const btn = this.container.querySelector('.shop-products-btn');
+    if (btn) {
+      btn.disabled = true;
+
+      // Smart redirect based on selected effect/style
+      let redirectUrl = '/collections/personalized-pet-products-gifts'; // Default fallback
+
+      try {
+        // Get current effect for smart routing
+        const currentEffect = this.currentData?.selectedEffect || null;
+
+        // Map effects to collection URLs with UTM tracking
+        const effectCollections = {
+          'modern': '/collections/canvas-prints?style=modern&utm_source=processor&utm_medium=cta',
+          'sketch': '/collections/canvas-prints?style=sketch&utm_source=processor&utm_medium=cta',
+          'blackwhite': '/collections/canvas-prints?style=blackwhite&utm_source=processor&utm_medium=cta',
+          'watercolor': '/collections/canvas-prints?style=watercolor&utm_source=processor&utm_medium=cta'
+        };
+
+        // Use style-filtered collection if available
+        if (currentEffect && effectCollections[currentEffect]) {
+          redirectUrl = effectCollections[currentEffect];
+          console.log(`✅ Smart routing to ${currentEffect} collection: ${redirectUrl}`);
+        } else {
+          // Fallback: Check referrer for product page
+          const referrer = document.referrer;
+          if (referrer && referrer.includes('/products/')) {
+            redirectUrl = referrer;
+            console.log(`✅ Returning to product referrer: ${redirectUrl}`);
+          } else {
+            console.log('ℹ️ Using generic collections fallback');
+          }
+        }
+
+        // TODO Phase 4: Create session bridge before redirect
+        // sessionStorage.setItem('processor_to_product_bridge', JSON.stringify(bridgeData));
+
+      } catch (error) {
+        console.warn('⚠️ Error in smart routing, using fallback:', error);
+      }
+
+      // Update button text
+      btn.innerHTML = '<span class="btn-text">✓ Taking you to products...</span>';
+
+      // Redirect after brief success message
+      setTimeout(() => {
+        window.location.href = redirectUrl;
+      }, 800); // Shorter delay (800ms vs 1500ms)
+    }
+  }
+
+  /**
+   * Toggle share buttons section (mobile optimization)
+   */
+  toggleShareButtons() {
+    const toggle = this.container.querySelector('.share-toggle');
+    const expanded = this.container.querySelector('.share-buttons-expanded');
+    const arrow = toggle?.querySelector('.share-arrow');
+
+    if (!toggle || !expanded) return;
+
+    const isExpanded = toggle.getAttribute('aria-expanded') === 'true';
+
+    if (isExpanded) {
+      // Collapse
+      toggle.setAttribute('aria-expanded', 'false');
+      expanded.hidden = true;
+      if (arrow) arrow.textContent = '▼';
+      console.log('📤 Share section collapsed');
+    } else {
+      // Expand
+      toggle.setAttribute('aria-expanded', 'true');
+      expanded.hidden = false;
+      if (arrow) arrow.textContent = '▲';
+      console.log('📤 Share section expanded');
+    }
   }
 
   async saveToCart() {
