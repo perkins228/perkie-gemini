@@ -52,11 +52,21 @@
           <!-- Processing View -->
           <div class="inline-processing-view" hidden>
             <div class="inline-processing-spinner"></div>
+
+            <!-- Visual progress bar -->
+            <div class="inline-progress-bar-wrapper">
+              <div class="inline-progress-bar">
+                <div class="inline-progress-fill" data-progress-fill></div>
+              </div>
+              <div class="inline-progress-percentage" data-progress-percentage>0%</div>
+            </div>
+
             <div class="inline-processing-status">
               <div class="inline-processing-text">Processing your pet photo...</div>
               <div class="inline-progress-timer">⏱️ Estimating time...</div>
+              <div class="inline-progress-stage-info"></div>
             </div>
-            <div class="inline-progress-stage-info"></div>
+
             <button class="inline-cancel-btn" data-cancel-processing>
               Cancel Upload
             </button>

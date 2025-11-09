@@ -463,18 +463,19 @@
 
         // Correct image orientation based on EXIF metadata
         console.log('🔄 Correcting image orientation...');
-        this.updateProgress('Preparing image...', '⏱️ A few seconds...');
+        this.updateProgress('Preparing image...', '⏱️ A few seconds...', 10);
         const correctedFile = await this.correctImageOrientation(file);
         if (this.processingCancelled) return;
 
         // Process with effects directly (no GCS upload needed initially)
         console.log('🎨 Processing with AI...');
-        this.updateProgress('Processing with AI...', '⏱️ 30-60 seconds...');
+        this.updateProgress('Removing background...', '⏱️ 30-60 seconds...', 33);
 
         const effects = await this.removeBackground(correctedFile);
         if (this.processingCancelled) return;
 
         console.log('✅ Processing complete:', effects);
+        this.updateProgress('Complete!', '✅ Ready to preview', 100);
 
         // Store pet data with data URLs initially
         this.currentPet = {
@@ -818,14 +819,32 @@
     }
 
     /**
-     * Update progress display
+     * Update progress display with percentage
+     * @param {string} text - Main status message
+     * @param {string} timer - Time estimate (optional)
+     * @param {number} percentage - Progress percentage 0-100 (optional)
      */
-    updateProgress(text, timer = '') {
+    updateProgress(text, timer = '', percentage = null) {
+      // Update main status text
       if (this.processingText) {
         this.processingText.textContent = text;
       }
+
+      // Update timer
       if (this.progressTimer && timer) {
         this.progressTimer.textContent = timer;
+      }
+
+      // Update progress bar
+      const progressFill = this.modal.querySelector('[data-progress-fill]');
+      const progressPercentage = this.modal.querySelector('[data-progress-percentage]');
+
+      if (progressFill && percentage !== null) {
+        progressFill.style.width = `${percentage}%`;
+      }
+
+      if (progressPercentage && percentage !== null) {
+        progressPercentage.textContent = `${Math.round(percentage)}%`;
       }
     }
 
