@@ -353,17 +353,21 @@ async def generate_signed_upload_url(request: Request, req: SignedUrlRequest):
             date = datetime.utcnow().strftime('%Y%m%d')
             blob_path = f"temp/uploads/{date}/{req.session_id or 'anon'}_{timestamp}.jpg"
 
-        # Create signed URL
+        # Create signed URL using IAM signBlob (works with Cloud Run default credentials)
         storage_client = storage.Client(project=settings.project_id)
         bucket = storage_client.bucket("perkieprints-uploads")
         blob = bucket.blob(blob_path)
 
-        # Generate signed URL for PUT (upload)
+        # Use service_account_email for signing (Cloud Run default service account)
+        service_account_email = f"{settings.project_number}-compute@developer.gserviceaccount.com"
+
+        # Generate signed URL for PUT (upload) - uses IAM signBlob API
         signed_url = blob.generate_signed_url(
             version="v4",
             expiration=timedelta(minutes=15),  # URL expires in 15 minutes
             method="PUT",
             content_type=req.file_type,
+            service_account_email=service_account_email,
         )
 
         # Public URL (after upload completes)
