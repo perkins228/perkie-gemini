@@ -223,6 +223,14 @@
      * Open modal
      */
     openModal() {
+      // Initialize pet metadata with defaults if not already set (e.g., direct upload)
+      if (!this.petNumber) {
+        this.petNumber = 1; // Default to Pet 1
+      }
+      if (!this.petName) {
+        this.petName = 'Your Pet'; // Default name
+      }
+
       // Store current scroll position
       this.scrollPosition = window.pageYOffset;
 
