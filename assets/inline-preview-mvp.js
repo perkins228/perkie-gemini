@@ -981,49 +981,51 @@
             .trim();
         }
 
-        // Get original image URL from localStorage (set by pet-selector during upload)
-        const originalImageUrl = localStorage.getItem(`pet_${this.petNumber}_image_url`) || '';
+        // Generate unique session key for PetStorage compatibility
+        // Format: pet_{number}_{timestamp} for uniqueness across sessions
+        const sessionKey = `pet_${this.petNumber}_${Date.now()}`;
 
-        // Create pet data object matching approved schema
-        const petData = {
-          petNumber: this.petNumber,
-          name: this.petName,
-          originalImageUrl: originalImageUrl,
-          processedImageUrl: this.currentPet.effects[this.currentEffect] || '',
-          selectedEffect: this.currentEffect,
-          effects: {
-            enhancedblackwhite: this.currentPet.effects.enhancedblackwhite || '',
-            color: this.currentPet.effects.color || '',
-            modern: this.currentPet.effects.modern || '',
-            sketch: this.currentPet.effects.sketch || ''
-          },
-          artistNotes: artistNotes,
-          previewed: true,
-          previewedAt: Date.now()
-        };
+        // Build effects data in PetStorage format
+        // PetStorage expects: { effectName: { gcsUrl, timestamp } }
+        const effects = {};
+        const effectsList = ['enhancedblackwhite', 'color', 'modern', 'sketch'];
 
-        // Get existing previewed pets from localStorage
-        let previewedPets = {};
-        try {
-          const existingData = localStorage.getItem('perkie_previewed_pets');
-          if (existingData) {
-            previewedPets = JSON.parse(existingData);
+        for (const effectName of effectsList) {
+          const effectUrl = this.currentPet.effects[effectName];
+          if (effectUrl) {
+            effects[effectName] = {
+              gcsUrl: effectUrl,
+              timestamp: Date.now()
+            };
           }
-        } catch (e) {
-          console.warn('⚠️ Failed to parse existing previewed pets, starting fresh:', e);
-          previewedPets = {};
         }
 
-        // Store this pet's data
-        previewedPets[`pet_${this.petNumber}`] = petData;
+        // Build pet data for PetStorage
+        const petData = {
+          artistNote: artistNotes, // PetStorage uses singular 'artistNote'
+          effects: effects,
+          filename: `pet_${this.petNumber}.jpg`,
+          timestamp: Date.now()
+        };
 
-        // Save back to localStorage
-        localStorage.setItem('perkie_previewed_pets', JSON.stringify(previewedPets));
+        // Check if PetStorage is available
+        if (!window.PetStorage) {
+          throw new Error('PetStorage not available. Please ensure pet-storage.js is loaded.');
+        }
 
-        console.log(`✅ Pet ${this.petNumber} (${this.petName}) preview data saved:`, {
-          effect: this.currentEffect,
+        // Save using PetStorage (ensures add-to-cart compatibility)
+        const saved = await window.PetStorage.save(sessionKey, petData);
+
+        if (!saved) {
+          throw new Error('PetStorage.save() returned false');
+        }
+
+        console.log(`✅ Pet ${this.petNumber} (${this.petName}) saved to PetStorage:`, {
+          sessionKey: sessionKey,
+          selectedEffect: this.currentEffect,
           artistNotes: artistNotes ? `"${artistNotes.substring(0, 30)}..."` : 'none',
-          effectsCount: Object.keys(petData.effects).filter(k => petData.effects[k]).length
+          effectsCount: Object.keys(effects).length,
+          storageFormat: 'PetStorage (add-to-cart compatible)'
         });
 
         // Close modal
