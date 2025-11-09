@@ -556,7 +556,7 @@ class PetStorageCompatibilityLayer {
     const match = sessionKey.match(/^pet_(\d+)/);
     const petIndex = match ? parseInt(match[1]) : 1;
 
-    return manager.updatePet(petIndex, {
+    const success = manager.updatePet(petIndex, {
       name: petData.name || '',
       artistNote: petData.artistNote || '',
       previews: petData.effects || {},
@@ -565,6 +565,14 @@ class PetStorageCompatibilityLayer {
         uploadedAt: petData.timestamp || Date.now()
       }
     });
+
+    // Auto-update global pets for multi-tab synchronization
+    if (success) {
+      this.updateGlobalPets();
+    }
+
+    // Return Promise for semantic consistency (old code uses await)
+    return Promise.resolve(success);
   }
 
   static get(sessionKey) {
@@ -573,12 +581,37 @@ class PetStorageCompatibilityLayer {
     const match = sessionKey.match(/^pet_(\d+)/);
     const petIndex = match ? parseInt(match[1]) : 1;
 
-    return manager.getPet(petIndex);
+    const pet = manager.getPet(petIndex);
+
+    // Transform to old format: { effects, timestamp, name, artistNote }
+    return {
+      effects: pet.previews || {},                    // previews → effects
+      timestamp: pet.metadata?.uploadedAt || Date.now(), // metadata.uploadedAt → timestamp
+      name: pet.name || '',
+      artistNote: pet.artistNote || ''
+    };
   }
 
   static getAll() {
     const manager = PetStateManager.getInstance();
-    return manager.getAllPets();
+    const pets = manager.getAllPets();
+
+    // Transform to old format: { 'sessionKey': { effects, timestamp, name, artistNote } }
+    const result = {};
+
+    for (const petId in pets) {
+      const pet = pets[petId];
+      const sessionKey = pet.metadata?.sessionKey || `pet_${petId}`;
+
+      result[sessionKey] = {
+        effects: pet.previews || {},                    // previews → effects
+        timestamp: pet.metadata?.uploadedAt || Date.now(), // metadata.uploadedAt → timestamp
+        name: pet.name || '',
+        artistNote: pet.artistNote || ''
+      };
+    }
+
+    return result;
   }
 
   static delete(sessionKey) {
