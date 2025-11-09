@@ -282,12 +282,9 @@
         titleElement.textContent = `Preview Pet ${petNumber}: ${petName}'s Portrait`;
       }
 
+      // Hide subtitle - removed redundant product title display
       if (subtitleElement) {
-        // Get product title from page context
-        const productTitle = document.querySelector('.product__title')?.textContent ||
-                           document.querySelector('h1')?.textContent ||
-                           'this product';
-        subtitleElement.textContent = `See how ${petName} looks on ${productTitle}`;
+        subtitleElement.style.display = 'none';
       }
 
       console.log(`🎨 Header updated: Pet ${petNumber} - ${petName}`);
