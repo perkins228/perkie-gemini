@@ -722,50 +722,9 @@
 }
 
 /* ========================================
-   Progress Bar Styles
+   Progress Bar Styles (HIDDEN - using countdown timer instead)
    ======================================== */
 
 .inline-progress-bar-wrapper {
-  width: 100%;
-  margin: 1rem 0;
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-}
-
-.inline-progress-bar {
-  flex: 1;
-  height: 8px;
-  background-color: #e5e7eb;
-  border-radius: 4px;
-  overflow: hidden;
-}
-
-.inline-progress-fill {
-  height: 100%;
-  background: linear-gradient(90deg, #ff5964, #ff8a8f);
-  border-radius: 4px;
-  transition: width 0.3s ease-out;
-  width: 0%;
-}
-
-.inline-progress-percentage {
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: #374151;
-  min-width: 3rem;
-  text-align: right;
-}
-
-/* Mobile: Stack percentage below bar */
-@media (max-width: 640px) {
-  .inline-progress-bar-wrapper {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 0.5rem;
-  }
-
-  .inline-progress-percentage {
-    text-align: center;
-  }
+  display: none !important; /* Hidden - using countdown timer for better UX */
 }

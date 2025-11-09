@@ -44,6 +44,11 @@
       this.processingCancelled = false;
       this.scrollPosition = 0; // Track scroll position for modal
 
+      // Countdown timer properties
+      this.countdownTimer = null;
+      this.startTime = null;
+      this.estimatedTime = null;
+
       // Gemini AI integration (matches pet-processor.js pattern)
       this.geminiClient = null;
       this.geminiUI = null;
@@ -463,19 +468,21 @@
 
         // Correct image orientation based on EXIF metadata
         console.log('🔄 Correcting image orientation...');
-        this.updateProgress('Preparing image...', '⏱️ A few seconds...', 10);
+        this.updateProgress('Preparing image...', '⏱️ A few seconds...');
         const correctedFile = await this.correctImageOrientation(file);
         if (this.processingCancelled) return;
 
         // Process with effects directly (no GCS upload needed initially)
         console.log('🎨 Processing with AI...');
-        this.updateProgress('Removing background...', '⏱️ 30-60 seconds...', 33);
+        this.updateProgress('Removing background...');
+        this.startProgressTimer(45000); // 45 seconds (middle of 30-60 range)
 
         const effects = await this.removeBackground(correctedFile);
         if (this.processingCancelled) return;
 
         console.log('✅ Processing complete:', effects);
-        this.updateProgress('Complete!', '✅ Ready to preview', 100);
+        this.stopProgressTimer();
+        this.updateProgress('Complete!', '✅ Ready to preview');
 
         // Store pet data with data URLs initially
         this.currentPet = {
@@ -497,6 +504,7 @@
 
       } catch (error) {
         console.error('❌ Processing error:', error);
+        this.stopProgressTimer();
         this.showError(error.message || 'Failed to process image. Please try again.');
       }
     }
@@ -819,32 +827,64 @@
     }
 
     /**
-     * Update progress display with percentage
+     * Update progress display (simplified - no percentage)
      * @param {string} text - Main status message
      * @param {string} timer - Time estimate (optional)
-     * @param {number} percentage - Progress percentage 0-100 (optional)
      */
-    updateProgress(text, timer = '', percentage = null) {
+    updateProgress(text, timer = '') {
       // Update main status text
       if (this.processingText) {
         this.processingText.textContent = text;
       }
 
-      // Update timer
-      if (this.progressTimer && timer) {
+      // Update timer (only if provided and not using countdown)
+      if (this.progressTimer && timer && !this.countdownTimer) {
         this.progressTimer.textContent = timer;
       }
+    }
 
-      // Update progress bar
-      const progressFill = this.modal.querySelector('[data-progress-fill]');
-      const progressPercentage = this.modal.querySelector('[data-progress-percentage]');
+    /**
+     * Start countdown timer (similar to pet-processor.js)
+     * @param {number} estimatedTimeMs - Estimated processing time in milliseconds
+     */
+    startProgressTimer(estimatedTimeMs) {
+      // Stop any existing timer
+      this.stopProgressTimer();
 
-      if (progressFill && percentage !== null) {
-        progressFill.style.width = `${percentage}%`;
-      }
+      this.startTime = Date.now();
+      this.estimatedTime = estimatedTimeMs;
 
-      if (progressPercentage && percentage !== null) {
-        progressPercentage.textContent = `${Math.round(percentage)}%`;
+      // Update countdown every second
+      this.countdownTimer = setInterval(() => {
+        if (this.processingCancelled) {
+          this.stopProgressTimer();
+          return;
+        }
+
+        const elapsed = Date.now() - this.startTime;
+        const remaining = Math.max(0, this.estimatedTime - elapsed);
+        const remainingSeconds = Math.ceil(remaining / 1000);
+
+        if (this.progressTimer) {
+          if (remainingSeconds > 0) {
+            this.progressTimer.textContent = `⏱️ ${remainingSeconds} seconds remaining`;
+          } else {
+            this.progressTimer.textContent = '⏱️ Almost done...';
+          }
+        }
+      }, 1000);
+
+      console.log(`⏱️ Countdown timer started: ${estimatedTimeMs / 1000}s`);
+    }
+
+    /**
+     * Stop countdown timer
+     */
+    stopProgressTimer() {
+      if (this.countdownTimer) {
+        clearInterval(this.countdownTimer);
+        this.countdownTimer = null;
+        console.log('⏱️ Countdown timer stopped');
       }
     }
 
@@ -853,6 +893,7 @@
      */
     cancelProcessing() {
       this.processingCancelled = true;
+      this.stopProgressTimer();
       this.reset();
       console.log('❌ Processing cancelled');
     }
