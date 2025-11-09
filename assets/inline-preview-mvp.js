@@ -231,6 +231,14 @@
         this.petName = 'Your Pet'; // Default name
       }
 
+      // Clear artist notes from previous pet (prevent carryover)
+      if (this.artistNotesInput) {
+        this.artistNotesInput.value = '';
+        if (this.charCount) {
+          this.charCount.textContent = '0';
+        }
+      }
+
       // Store current scroll position
       this.scrollPosition = window.pageYOffset;
 
