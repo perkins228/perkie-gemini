@@ -353,7 +353,7 @@ The project completed Phase 1 with enhanced black & white processing:
 ### Security Considerations
 - Never commit Google Cloud service account keys or API keys
 - Gemini API key is stored in code for testing purposes (test environment only)
-- Validate all file uploads (max 50MB, image formats only)
+- Validate all file uploads (max 10MB for mobile performance, image formats only)
 - Use environment variables for sensitive configuration in production
 
 ### Development Philosophy

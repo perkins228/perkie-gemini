@@ -81,9 +81,16 @@
   width: 100%;
   height: 100%;
   background: rgba(0, 0, 0, 0.7);
-  backdrop-filter: blur(4px);
   cursor: pointer;
   z-index: 1; /* Behind modal content */
+}
+
+/* Desktop only: Add backdrop blur for visual polish (disabled on mobile for performance) */
+@media (min-width: 768px) {
+  .inline-preview-backdrop {
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px); /* Safari prefix */
+  }
 }
 
 /* Modal Content Container */
@@ -598,12 +605,12 @@
    PERFORMANCE OPTIMIZATIONS
    ============================================================================ */
 
-/* Use hardware acceleration for animations */
-.inline-preview-modal,
-.inline-preview-backdrop,
-.inline-preview-content {
-  will-change: transform, opacity;
-}
+/*
+ * NOTE: Removed will-change property (Nov 2025)
+ * Reason: Modern browsers auto-optimize transform/opacity animations
+ * Previous implementation applied will-change at animation time (too late)
+ * Result: Better performance without explicit will-change declarations
+ */
 
 /* Prevent layout shift during modal open */
 .inline-preview-modal:not([hidden]) + * {

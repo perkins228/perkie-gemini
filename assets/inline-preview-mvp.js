@@ -753,11 +753,22 @@
      * Handle effect selection
      */
     handleEffectSelect(btn) {
+      // Defensive coding: Validate inputs
+      if (!btn || !this.effectBtns) {
+        console.warn('🎨 Invalid effect button or buttons not initialized');
+        return;
+      }
+
       const effect = btn.dataset.effect;
 
-      // Update active state
-      this.effectBtns.forEach(b => b.classList.remove('active'));
+      // Update active state and ARIA attributes for screen readers
+      this.effectBtns.forEach(b => {
+        b.classList.remove('active');
+        b.setAttribute('aria-checked', 'false'); // Screen reader accessibility
+      });
+
       btn.classList.add('active');
+      btn.setAttribute('aria-checked', 'true'); // Screen reader accessibility
 
       // Update preview image
       this.currentEffect = effect;
