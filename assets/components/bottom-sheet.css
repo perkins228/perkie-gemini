@@ -1,0 +1,233 @@
+/**
+ * Shared Bottom Sheet Component Styles
+ * Mobile-first drawer pattern
+ *
+ * Features:
+ * - GPU-accelerated animations
+ * - Responsive design (mobile/desktop)
+ * - Accessible focus styles
+ * - Touch-friendly hit targets
+ */
+
+/* ============================================================================
+   BASE CONTAINER
+   ============================================================================ */
+
+.bottom-sheet {
+  /* Positioning handled by JavaScript */
+  box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.15);
+  display: flex;
+  flex-direction: column;
+}
+
+/* ============================================================================
+   OVERLAY/BACKDROP
+   ============================================================================ */
+
+.bottom-sheet-overlay {
+  /* Positioning handled by JavaScript */
+  cursor: pointer;
+}
+
+/* Desktop only: backdrop blur for visual polish */
+@media (min-width: 768px) {
+  .bottom-sheet-overlay {
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+  }
+}
+
+/* ============================================================================
+   HANDLE (SWIPE AFFORDANCE)
+   ============================================================================ */
+
+.bottom-sheet-handle {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 12px 0 8px;
+  cursor: grab;
+  flex-shrink: 0;
+}
+
+.bottom-sheet-handle:active {
+  cursor: grabbing;
+}
+
+.bottom-sheet-handle-bar {
+  width: 40px;
+  height: 4px;
+  background: #d1d5db; /* Gray-300 */
+  border-radius: 2px;
+}
+
+/* ============================================================================
+   CLOSE BUTTON
+   ============================================================================ */
+
+.bottom-sheet-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  min-width: 48px;
+  min-height: 48px;
+  padding: 12px;
+  background: transparent;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #6b7280; /* Gray-500 */
+  transition: background-color 0.2s ease, color 0.2s ease;
+  z-index: 10;
+}
+
+.bottom-sheet-close:hover {
+  background: #f3f4f6; /* Gray-100 */
+  color: #111827; /* Gray-900 */
+}
+
+.bottom-sheet-close:focus {
+  outline: 2px solid #3b82f6; /* Blue-500 */
+  outline-offset: 2px;
+}
+
+.bottom-sheet-close:active {
+  background: #e5e7eb; /* Gray-200 */
+}
+
+/* ============================================================================
+   CONTENT AREA
+   ============================================================================ */
+
+.bottom-sheet-content {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 0 24px 24px;
+  -webkit-overflow-scrolling: touch; /* iOS momentum scrolling */
+}
+
+/* Custom scrollbar for better UX */
+.bottom-sheet-content::-webkit-scrollbar {
+  width: 8px;
+}
+
+.bottom-sheet-content::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.bottom-sheet-content::-webkit-scrollbar-thumb {
+  background: #d1d5db; /* Gray-300 */
+  border-radius: 4px;
+}
+
+.bottom-sheet-content::-webkit-scrollbar-thumb:hover {
+  background: #9ca3af; /* Gray-400 */
+}
+
+/* ============================================================================
+   RESPONSIVE DESIGN
+   ============================================================================ */
+
+/* Mobile: Full screen drawer */
+@media (max-width: 767px) {
+  .bottom-sheet {
+    max-height: 90vh; /* Leave room for browser UI */
+  }
+
+  .bottom-sheet-content {
+    padding: 0 16px 16px; /* Smaller padding on mobile */
+  }
+}
+
+/* Tablet and up: Fixed height drawer */
+@media (min-width: 768px) {
+  .bottom-sheet {
+    max-height: 80vh;
+    left: 50%;
+    transform: translateX(-50%) translateY(100%); /* Center horizontally */
+    max-width: 600px;
+    border-radius: 16px; /* Rounded on all corners for desktop */
+  }
+
+  .bottom-sheet.bottom-sheet--open {
+    transform: translateX(-50%) translateY(0); /* Maintain centering when open */
+  }
+}
+
+/* ============================================================================
+   ACCESSIBILITY
+   ============================================================================ */
+
+/* Reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  .bottom-sheet,
+  .bottom-sheet-overlay {
+    transition: none !important;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .bottom-sheet {
+    border: 2px solid currentColor;
+  }
+
+  .bottom-sheet-handle-bar {
+    background: currentColor;
+  }
+}
+
+/* Focus visible for keyboard navigation */
+.bottom-sheet *:focus-visible {
+  outline: 2px solid #3b82f6; /* Blue-500 */
+  outline-offset: 2px;
+}
+
+/* ============================================================================
+   UTILITY CLASSES
+   ============================================================================ */
+
+/* Hide visually but keep accessible to screen readers */
+.bottom-sheet .sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* Prevent text selection during drag */
+.bottom-sheet--dragging {
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* ============================================================================
+   PERFORMANCE OPTIMIZATIONS
+   ============================================================================ */
+
+/* GPU acceleration hints */
+.bottom-sheet,
+.bottom-sheet-overlay {
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  perspective: 1000px;
+  -webkit-perspective: 1000px;
+}
+
+/* Low-end device optimizations */
+@media (max-device-width: 767px) and (max-device-height: 896px) {
+  /* Disable backdrop blur on low-end devices for performance */
+  .bottom-sheet-overlay {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+}
