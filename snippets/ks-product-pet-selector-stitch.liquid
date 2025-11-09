@@ -2009,11 +2009,17 @@
         savePetSelectorStateImmediate();
 
         // COMPRESS IMAGE: Reduce file size before upload (5-8MB → 500KB-1MB)
+        const compressionStart = performance.now();
         console.log(`🔄 Compressing image for Pet ${i}...`);
         const compressedFile = await correctImageOrientation(newFile);
+        const compressionTime = performance.now() - compressionStart;
+        console.log(`⏱️ Compression took ${compressionTime.toFixed(0)}ms`);
 
         // SERVER UPLOAD: Upload compressed file to server (much faster!)
+        const uploadStart = performance.now();
         const uploadResult = await uploadToServer(compressedFile, i);
+        const uploadTime = performance.now() - uploadStart;
+        console.log(`⏱️ Upload took ${uploadTime.toFixed(0)}ms (${(uploadTime/1000).toFixed(1)}s)`);
 
         if (uploadResult.success) {
           // SUCCESS: Store GCS URL (100 bytes instead of 3.4MB base64!)
