@@ -1039,9 +1039,18 @@
         // Close modal
         this.closeModal();
 
-        // Phase 3: Auto-select style button and show confirmation
-        this.autoSelectStyleButton();
-        this.showConfirmationToast();
+        // Phase 3: Auto-select style button (only for single-pet orders)
+        const petCount = this.getSelectedPetCount();
+
+        if (petCount === 1) {
+          // Single pet: Auto-select for convenience
+          this.autoSelectStyleButton();
+          this.showConfirmationToast();
+          console.log('✅ Single-pet order: Style auto-selected');
+        } else {
+          // Multi-pet: Customer chooses style manually to avoid confusion
+          console.log(`ℹ️ Multi-pet order (${petCount} pets): Skipping auto-select (customer will choose in "Choose Style" section)`);
+        }
 
       } catch (error) {
         console.error('❌ Save pet data error:', error);
@@ -1142,6 +1151,34 @@
         'sketch': 'Sketch'
       };
       return displayNames[effect] || effect;
+    }
+
+    /**
+     * Get the number of pets selected in the pet count radio buttons
+     * @returns {number} Selected pet count (1, 2, or 3)
+     */
+    getSelectedPetCount() {
+      try {
+        // Find checked pet count radio button
+        const checkedRadio = document.querySelector('[data-pet-count-radio]:checked');
+
+        if (!checkedRadio) {
+          console.warn('⚠️ No pet count selected, defaulting to 1');
+          return 1;
+        }
+
+        const count = parseInt(checkedRadio.value);
+
+        if (isNaN(count) || count < 1 || count > 3) {
+          console.warn('⚠️ Invalid pet count: ' + count + ', defaulting to 1');
+          return 1;
+        }
+
+        return count;
+      } catch (error) {
+        console.error('❌ Error getting pet count:', error);
+        return 1; // Safe default
+      }
     }
 
     /**
