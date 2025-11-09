@@ -470,6 +470,10 @@
     async processImage(file) {
       this.processingCancelled = false;
 
+      // Initialize warmth tracker outside try block for error recording
+      const warmthTracker = new window.APIWarmthTracker();
+      let startTime = null;
+
       try {
         // Show processing view
         this.showView('processing');
@@ -480,17 +484,42 @@
         const correctedFile = await this.correctImageOrientation(file);
         if (this.processingCancelled) return;
 
+        // Detect API warmth for accurate countdown
+        const warmthState = warmthTracker.getWarmthState();
+        const isFirstTime = warmthTracker.isFirstTimeUser();
+
+        // Select appropriate timer based on warmth detection
+        let estimatedTime;
+        if (warmthState === 'warm') {
+          // Warm API: 12-15 seconds
+          estimatedTime = 15000;
+          console.log('⚡ Fast processing mode (warm API)');
+        } else if (warmthState === 'cold' || isFirstTime) {
+          // Cold API or first-time user: 75-85 seconds
+          estimatedTime = 80000;
+          console.log('🧠 Standard processing mode (cold API)');
+        } else {
+          // Unknown state: Conservative estimate
+          estimatedTime = 45000;
+          console.log('📤 Processing mode (unknown warmth)');
+        }
+
         // Process with effects directly (no GCS upload needed initially)
         console.log('🎨 Processing with AI...');
         this.updateProgress('Removing background...');
-        this.startProgressTimer(45000); // 45 seconds (middle of 30-60 range)
+        startTime = Date.now();
+        this.startProgressTimer(estimatedTime);
 
         const effects = await this.removeBackground(correctedFile);
         if (this.processingCancelled) return;
 
+        const totalTime = Date.now() - startTime;
         console.log('✅ Processing complete:', effects);
         this.stopProgressTimer();
         this.updateProgress('Complete!', '✅ Ready to preview');
+
+        // Record API call for future warmth detection
+        warmthTracker.recordAPICall(true, totalTime);
 
         // Store pet data with data URLs initially
         this.currentPet = {
@@ -513,6 +542,13 @@
       } catch (error) {
         console.error('❌ Processing error:', error);
         this.stopProgressTimer();
+
+        // Record failed API call if processing was started
+        if (startTime) {
+          const totalTime = Date.now() - startTime;
+          warmthTracker.recordAPICall(false, totalTime);
+        }
+
         this.showError(error.message || 'Failed to process image. Please try again.');
       }
     }
@@ -1178,5 +1214,151 @@
       this.showView('upload');
     }
   }
+
+  /**
+   * API Warmth Tracker
+   * Detects whether the InSPyReNet API is warm (recently used) or cold (needs startup)
+   * Used to provide accurate countdown timers
+   */
+  class APIWarmthTracker {
+    constructor() {
+      this.storageKey = 'perkie_api_warmth';
+      this.warmthTimeout = 10 * 60 * 1000; // 10 minutes
+      this.sessionKey = 'perkie_api_session';
+    }
+
+    getWarmthState() {
+      try {
+        // Check session storage first (most reliable for current session)
+        const sessionData = sessionStorage.getItem(this.sessionKey);
+        if (sessionData) {
+          const session = JSON.parse(sessionData);
+          const timeSinceLastCall = Date.now() - session.lastCall;
+
+          // If called within same session and < 10 minutes, it's warm
+          if (timeSinceLastCall < this.warmthTimeout) {
+            console.log('🔥 API detected as WARM (recent session activity)');
+            return 'warm';
+          }
+        }
+
+        // Check localStorage for cross-session warmth
+        const storedData = localStorage.getItem(this.storageKey);
+        if (!storedData) {
+          console.log('❄️ API detected as COLD (no previous usage)');
+          return 'cold';
+        }
+
+        const data = JSON.parse(storedData);
+        const timeSinceLastCall = Date.now() - data.lastCall;
+
+        // Determine warmth based on time since last call
+        if (timeSinceLastCall < this.warmthTimeout) {
+          console.log('🔥 API detected as WARM (recent activity)');
+          return 'warm';
+        } else if (timeSinceLastCall < this.warmthTimeout * 2) {
+          console.log('🤔 API warmth UNKNOWN (possibly cooling)');
+          return 'unknown';
+        } else {
+          console.log('❄️ API detected as COLD (inactive > 20 minutes)');
+          return 'cold';
+        }
+      } catch (error) {
+        console.warn('Failed to detect API warmth:', error);
+        return 'unknown';
+      }
+    }
+
+    isFirstTimeUser() {
+      try {
+        // Check if user has ever used the API
+        const hasLocalData = localStorage.getItem(this.storageKey);
+        const hasSessionData = sessionStorage.getItem(this.sessionKey);
+        const hasProcessedCount = localStorage.getItem('perkie_processed_count');
+
+        const isFirstTime = !hasLocalData && !hasSessionData && !hasProcessedCount;
+
+        if (isFirstTime) {
+          console.log('👋 First-time user detected');
+        }
+
+        return isFirstTime;
+      } catch (error) {
+        console.warn('Failed to detect first-time user:', error);
+        return false;
+      }
+    }
+
+    recordAPICall(success, duration) {
+      try {
+        // Update session storage (immediate warmth)
+        const sessionData = {
+          lastCall: Date.now(),
+          callCount: 1,
+          averageDuration: duration
+        };
+
+        const existingSession = sessionStorage.getItem(this.sessionKey);
+        if (existingSession) {
+          const session = JSON.parse(existingSession);
+          sessionData.callCount = (session.callCount || 0) + 1;
+          sessionData.averageDuration = Math.round(
+            ((session.averageDuration || duration) + duration) / 2
+          );
+        }
+
+        sessionStorage.setItem(this.sessionKey, JSON.stringify(sessionData));
+
+        // Update localStorage (cross-session tracking)
+        let data = {
+          lastCall: Date.now(),
+          callHistory: [],
+          warmthConfidence: 0.5
+        };
+
+        const stored = localStorage.getItem(this.storageKey);
+        if (stored) {
+          data = JSON.parse(stored);
+        }
+
+        // Determine if this was a warm or cold start based on duration
+        const wasWarm = duration < 20000; // Less than 20s = warm
+
+        // Add to history (keep last 10 calls)
+        data.callHistory.push({
+          timestamp: Date.now(),
+          duration: duration,
+          wasWarm: wasWarm,
+          success: success
+        });
+
+        // Keep only last 10 calls
+        if (data.callHistory.length > 10) {
+          data.callHistory = data.callHistory.slice(-10);
+        }
+
+        // Update warmth confidence based on recent patterns
+        const recentCalls = data.callHistory.slice(-5);
+        const warmCalls = recentCalls.filter(c => c.wasWarm).length;
+        data.warmthConfidence = warmCalls / recentCalls.length;
+
+        // Update last call time
+        data.lastCall = Date.now();
+
+        localStorage.setItem(this.storageKey, JSON.stringify(data));
+
+        // Update processed count
+        const processedCount = parseInt(localStorage.getItem('perkie_processed_count') || '0');
+        localStorage.setItem('perkie_processed_count', String(processedCount + 1));
+
+        console.log(`📊 API call recorded: ${Math.round(duration/1000)}s (${wasWarm ? 'warm' : 'cold'})`);
+      } catch (error) {
+        console.warn('Failed to record API call:', error);
+      }
+    }
+  }
+
+  // Make APIWarmthTracker available to InlinePreview class
+  window.APIWarmthTracker = APIWarmthTracker;
 
 })();
