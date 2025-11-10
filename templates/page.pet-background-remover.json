@@ -63,7 +63,7 @@
           "settings": {
             "icon_svg": "<text x=\"24\" y=\"36\" font-size=\"48\" text-anchor=\"middle\">🎨</text>",
             "title": "3. Select Your Style",
-            "desc": "Preview 4 beautiful effects: Black & White, Color, Modern, and Sketch"
+            "desc": "Choose between 4 beautiful effects: Black & White, Color, Modern, and Sketch"
           }
         },
         "step_3": {
