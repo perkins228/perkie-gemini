@@ -2021,7 +2021,7 @@ class PetProcessor {
   /**
    * Handle inline email form submission
    */
-  handleInlineEmailSubmit(event) {
+  async handleInlineEmailSubmit(event) {
     event.preventDefault();
 
     var form = this.container.querySelector('.email-form-inline');
@@ -2049,6 +2049,16 @@ class PetProcessor {
       return;
     }
 
+    // Check if we have processed images to send
+    if (!this.currentPet || !this.currentPet.effects) {
+      emailInput.classList.add('error');
+      if (errorEl) {
+        errorEl.textContent = 'No processed images available to send';
+        errorEl.hidden = false;
+      }
+      return;
+    }
+
     // Clear errors
     emailInput.classList.remove('error');
     if (errorEl) {
@@ -2060,9 +2070,9 @@ class PetProcessor {
     submitBtn.disabled = true;
     submitBtn.classList.add('loading');
 
-    console.log('📧 Email submitted:', email);
+    console.log('📧 Sending email to:', email);
 
-    // Save to localStorage (frontend-only for now)
+    // Save to localStorage
     try {
       var emailData = {
         email: email,
@@ -2075,24 +2085,94 @@ class PetProcessor {
       console.error('❌ Failed to save email data:', error);
     }
 
-    // Simulate API call (replace with actual Shopify Email API later)
-    var self = this;
-    setTimeout(function() {
-      // Show success state
-      if (successEl) successEl.hidden = false;
+    // Build image URLs from currentPet.effects
+    // Frontend uses: 'color', 'modern', 'sketch'
+    // Backend expects: 'original_url', 'ink_wash_url', 'pen_marker_url'
+    var imageUrls = {};
 
-      // Reset button state and form
+    if (this.currentPet.effects.color && this.currentPet.effects.color.gcsUrl) {
+      imageUrls.original_url = this.currentPet.effects.color.gcsUrl;
+    }
+
+    if (this.currentPet.effects.modern && this.currentPet.effects.modern.gcsUrl) {
+      imageUrls.ink_wash_url = this.currentPet.effects.modern.gcsUrl;
+    }
+
+    if (this.currentPet.effects.sketch && this.currentPet.effects.sketch.gcsUrl) {
+      imageUrls.pen_marker_url = this.currentPet.effects.sketch.gcsUrl;
+    }
+
+    // Also include enhancedblackwhite if available
+    if (this.currentPet.effects.enhancedblackwhite && this.currentPet.effects.enhancedblackwhite.gcsUrl) {
+      imageUrls.blackwhite_url = this.currentPet.effects.enhancedblackwhite.gcsUrl;
+    }
+
+    // Check if we have at least one image URL
+    if (Object.keys(imageUrls).length === 0) {
+      console.error('❌ No GCS URLs available in effects');
+      emailInput.classList.add('error');
+      if (errorEl) {
+        errorEl.textContent = 'Images are not ready yet. Please wait for processing to complete.';
+        errorEl.hidden = false;
+      }
       submitBtn.disabled = false;
       submitBtn.classList.remove('loading');
-      form.reset();
+      return;
+    }
 
-      console.log('✅ Email capture successful');
+    console.log('📤 Sending images:', imageUrls);
 
-      // Hide success message after 5 seconds
-      setTimeout(function() {
-        if (successEl) successEl.hidden = true;
-      }, 5000);
-    }, 1500);
+    // Call real email API
+    try {
+      var response = await fetch('https://gemini-artistic-api-753651513695.us-central1.run.app/api/v1/send-email', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          to_email: email,
+          to_name: email.split('@')[0],
+          session_id: this.currentPet.id,
+          image_urls: imageUrls,
+          subject: 'Your Pet Images from Perkie Prints'
+        })
+      });
+
+      var data = await response.json();
+
+      if (response.ok && data.success) {
+        // Show success state
+        console.log('✅ Email sent successfully:', data.message_id);
+        if (successEl) successEl.hidden = false;
+
+        // Reset form
+        form.reset();
+
+        // Hide success message after 5 seconds
+        setTimeout(function() {
+          if (successEl) successEl.hidden = true;
+        }, 5000);
+      } else {
+        // Show error
+        throw new Error(data.error || data.detail || 'Failed to send email');
+      }
+    } catch (error) {
+      console.error('❌ Email send failed:', error);
+      emailInput.classList.add('error');
+      if (errorEl) {
+        var errorMsg = error.message || 'Failed to send email. Please try again.';
+        // Handle rate limit error
+        if (errorMsg.includes('rate limit') || errorMsg.includes('quota')) {
+          errorMsg = 'Daily email limit reached. Please try again tomorrow.';
+        }
+        errorEl.textContent = errorMsg;
+        errorEl.hidden = false;
+      }
+    } finally {
+      // Reset button state
+      submitBtn.disabled = false;
+      submitBtn.classList.remove('loading');
+    }
   }
 
   /**
