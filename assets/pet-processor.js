@@ -2260,8 +2260,19 @@ class PetProcessor {
           }
         }
 
-        // TODO Phase 4: Create session bridge before redirect
-        // sessionStorage.setItem('processor_to_product_bridge', JSON.stringify(bridgeData));
+        // Phase 4: Create session bridge before redirect
+        const bridgeData = {
+          sessionKey: this.currentPet.id,
+          artistNote: '', // Collected on product page
+          effects: this.currentPet.effects,
+          selectedEffect: this.currentPet.selectedEffect || 'enhancedblackwhite',
+          timestamp: Date.now(),
+          redirectUrl: redirectUrl
+        };
+
+        // Save to sessionStorage (cleared after page load)
+        sessionStorage.setItem('processor_to_product_bridge', JSON.stringify(bridgeData));
+        console.log('🌉 Bridge data saved for product page redirect:', bridgeData);
 
       } catch (error) {
         console.warn('⚠️ Error in smart routing, using fallback:', error);
