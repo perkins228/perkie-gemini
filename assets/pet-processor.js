@@ -2100,8 +2100,8 @@ class PetProcessor {
       'enhancedblackwhite': 'blackwhite_url'
     };
 
-    // Check if selected effect has a GCS URL
-    if (!effectData || !effectData.gcsUrl) {
+    // Check if selected effect has a GCS URL or data URL
+    if (!effectData || (!effectData.gcsUrl && !effectData.dataUrl)) {
       console.error('❌ Selected effect not ready:', selectedEffect);
       emailInput.classList.add('error');
       if (errorEl) {
@@ -2113,11 +2113,11 @@ class PetProcessor {
       return;
     }
 
-    // Send only the selected style
+    // Send only the selected style (prefer GCS URL, fall back to data URL)
     var emailKey = effectMapping[selectedEffect];
     if (emailKey) {
-      imageUrls[emailKey] = effectData.gcsUrl;
-      console.log('📤 Sending selected style:', selectedEffect, '→', emailKey);
+      imageUrls[emailKey] = effectData.gcsUrl || effectData.dataUrl;
+      console.log('📤 Sending selected style:', selectedEffect, '→', emailKey, 'URL type:', effectData.gcsUrl ? 'GCS' : 'dataURL');
     } else {
       console.error('❌ Unknown effect type:', selectedEffect);
       emailInput.classList.add('error');
