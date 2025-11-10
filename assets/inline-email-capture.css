@@ -41,6 +41,8 @@
   gap: 16px; /* Spacing between buttons */
   width: 100%;
   margin-top: 0; /* Email section provides margin-bottom */
+  padding-left: 0;
+  padding-right: 0;
 }
 
 /* Desktop: Constrain width and center */
@@ -48,6 +50,8 @@
   .action-buttons {
     max-width: 540px; /* Prevent buttons from being too wide */
     margin: 0 auto; /* Center container */
+    padding-left: 0;
+    padding-right: 0;
   }
 }
 
@@ -55,6 +59,8 @@
 @media (max-width: 639px) {
   .action-buttons {
     flex-direction: column !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
   }
 
   .btn-primary-shop,
