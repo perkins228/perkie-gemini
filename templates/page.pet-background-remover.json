@@ -41,20 +41,11 @@
     "how_it_works": {
       "type": "how-it-works",
       "blocks": {
-        "step_AcWh4f": {
-          "type": "step",
-          "settings": {
-            "icon_svg": "<text x=\"24\" y=\"36\" font-size=\"48\" text-anchor=\"middle\">🖼️</text>",
-            "icon_image": "shopify://shop_images/t-shirt-icon.png",
-            "title": "1. Choose a Product",
-            "desc": "Pick a product to showcase your pet photo."
-          }
-        },
         "step_1": {
           "type": "step",
           "settings": {
             "icon_svg": "<text x=\"24\" y=\"36\" font-size=\"48\" text-anchor=\"middle\">📤</text>",
-            "title": "2. Upload Your Photo",
+            "title": "1. Upload Your Photo",
             "desc": "Choose a well-lit, high-resolution photo of your pet (JPG/PNG, max 10MB)"
           }
         },
@@ -62,29 +53,28 @@
           "type": "step",
           "settings": {
             "icon_svg": "<text x=\"24\" y=\"36\" font-size=\"48\" text-anchor=\"middle\">🎨</text>",
-            "title": "3. Select Your Style",
+            "title": "2. Select Your Style",
             "desc": "Choose between 4 beautiful effects: Black & White, Color, Modern, and Sketch"
           }
         },
         "step_3": {
           "type": "step",
           "settings": {
-            "icon_svg": "<text x=\"24\" y=\"36\" font-size=\"48\" text-anchor=\"middle\">📝</text>",
-            "title": "4. Add Artist Notes",
-            "desc": "Leave special requests for our artist to perfect your custom artwork"
+            "icon_svg": "<text x=\"24\" y=\"36\" font-size=\"48\" text-anchor=\"middle\">🖼️</text>",
+            "title": "3. Choose A Product",
+            "desc": "Pick a product to showcase your artwork"
           }
         },
         "step_4": {
           "type": "step",
           "settings": {
             "icon_svg": "<text x=\"24\" y=\"36\" font-size=\"48\" text-anchor=\"middle\">🛒</text>",
-            "title": "5. Add to Cart & Order",
+            "title": "4. Add to Cart & Order",
             "desc": "Choose your product and our artists will create your custom print"
           }
         }
       },
       "block_order": [
-        "step_AcWh4f",
         "step_1",
         "step_2",
         "step_3",
@@ -92,7 +82,7 @@
       ],
       "settings": {
         "heading": "How It Works",
-        "subheading": "Get your Perkie Print in 5 simple steps",
+        "subheading": "Get your Perkie Print in 4 simple steps",
         "color_scheme": "scheme-f318d737-2be2-4346-8605-b2fbd6208608",
         "padding_top": 0,
         "padding_bottom": 0
