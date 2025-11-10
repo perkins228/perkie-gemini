@@ -8,8 +8,8 @@
 {{ 'effect-comparison.css' | asset_url | stylesheet_tag }}
 {%- comment -%} Simple social sharing replaces complex 38KB implementation {%- endcomment -%}
 {{ 'pet-social-sharing-simple.css' | asset_url | stylesheet_tag }}
-{%- comment -%} Email capture modal for FREE download flow {%- endcomment -%}
-{{ 'email-capture-modal.css' | asset_url | stylesheet_tag }}
+{%- comment -%} Inline email capture for FREE download flow {%- endcomment -%}
+{{ 'inline-email-capture.css' | asset_url | stylesheet_tag }}
 
 <section id="ks-pet-bg-remover-{{ section.id }}" class="ks-pet-processor-section color-{{ section.settings.color_scheme }}"
          data-section-type="ks-pet-processor-v5"

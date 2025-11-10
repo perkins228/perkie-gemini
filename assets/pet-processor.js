@@ -1042,124 +1042,61 @@ class PetProcessor {
 
             <!-- Actions (shown in result view) -->
             <div class="action-buttons" hidden>
-              <!-- Dual Primary CTAs -->
-              <div class="cta-group-primary">
-                <button class="btn-primary-download download-free-btn"
-                        aria-label="Download your free pet art via email">
-                  <span class="btn-text">Get Your FREE Pet Art</span>
-                  <span class="btn-subtext">All 4 styles via email</span>
-                </button>
 
-                <div class="cta-divider" role="presentation">
-                  <span class="cta-divider-text">OR</span>
+              <!-- Inline Email Capture Section -->
+              <div class="email-capture-inline" role="region" aria-label="Email capture for free download">
+                <div class="email-capture-header">
+                  <h3 class="email-heading">Like what you see?</h3>
+                  <p class="email-subtext">Enter your email to download this image and get updates on new styles and offers</p>
                 </div>
 
-                <button class="btn-primary-shop shop-products-btn"
-                        aria-label="Shop canvas prints, mugs, and more personalized products">
-                  <span class="btn-text">Shop Canvas Prints, Mugs & More</span>
-                  <span class="btn-subtext">Turn this into a product</span>
-                </button>
-              </div>
-
-              <!-- Share Section (collapsible on mobile) -->
-              <div class="share-section">
-                <button class="share-toggle" aria-expanded="false" aria-controls="share-buttons-expanded">
-                  <span class="share-icon">📤</span>
-                  <span class="share-text">Share Your Pet Art</span>
-                  <span class="share-arrow" aria-hidden="true">▼</span>
-                </button>
-                <div id="share-buttons-expanded" class="share-buttons-expanded" hidden>
-                  <!-- Share buttons will be populated by pet-social-sharing-simple.js -->
-                  <div class="share-buttons-grid"></div>
-                </div>
-              </div>
-
-              <!-- Tertiary CTA (text link style) -->
-              <div class="cta-tertiary">
-                <button class="btn-link process-another-btn" aria-label="Process another pet image">
-                  Try Another Pet
-                </button>
-              </div>
-            </div>
-
-            <!-- Email Capture Modal -->
-            <div class="email-modal-overlay" id="emailCaptureModal-${this.sectionId}" role="dialog" aria-modal="true" aria-labelledby="email-modal-heading-${this.sectionId}">
-              <div class="email-modal-content">
-                <!-- Header -->
-                <div class="email-modal-header">
-                  <button class="modal-close" aria-label="Close modal" type="button">✕</button>
-                  <div class="modal-icon">📥</div>
-                  <h2 class="modal-heading" id="email-modal-heading-${this.sectionId}">
-                    Get Your FREE Pet Art Downloads
-                  </h2>
-                  <p class="modal-subtitle">
-                    Enter your email to receive high-res download links for all 4 styles
-                  </p>
-                </div>
-
-                <!-- Form -->
-                <form class="email-capture-form" id="email-capture-form-${this.sectionId}">
-                  <!-- Email input -->
-                  <div class="form-field">
-                    <label for="email-input-${this.sectionId}">Email Address</label>
+                <form class="email-form-inline" id="email-form-inline-${this.sectionId}">
+                  <div class="email-input-group">
                     <input type="email"
-                           id="email-input-${this.sectionId}"
+                           class="email-input-inline"
+                           id="email-input-inline-${this.sectionId}"
                            name="email"
                            placeholder="your@email.com"
-                           required
                            autocomplete="email"
-                           aria-describedby="email-note-${this.sectionId}">
-                    <p class="field-note" id="email-note-${this.sectionId}">✉️ Instant access + download links sent to your inbox</p>
-                    <p class="field-error" id="email-error-${this.sectionId}"></p>
+                           autocorrect="off"
+                           autocapitalize="off"
+                           spellcheck="false"
+                           aria-label="Email address for download links"
+                           required>
+
+                    <button type="submit" class="btn-email-submit" aria-label="Submit email to get free download link">
+                      <span class="btn-text">Get Image</span>
+                      <span class="btn-icon">📥</span>
+                    </button>
                   </div>
 
-                  <!-- Checkboxes -->
-                  <div class="form-checkbox-group">
-                    <!-- Required checkbox -->
-                    <div class="checkbox-field">
-                      <input type="checkbox"
-                             id="download-consent-${this.sectionId}"
-                             name="download_consent"
-                             required
-                             checked
-                             disabled>
-                      <label for="download-consent-${this.sectionId}">
-                        <strong>Send me download links</strong> (required to unlock styles)
-                      </label>
-                    </div>
-
-                    <!-- Optional checkbox -->
-                    <div class="checkbox-field">
-                      <input type="checkbox"
-                             id="marketing-consent-${this.sectionId}"
-                             name="marketing_consent">
-                      <label for="marketing-consent-${this.sectionId}">
-                        Yes, send me weekly product deals and pet photography tips
-                      </label>
-                    </div>
-                  </div>
-
-                  <!-- Submit button -->
-                  <button type="submit" class="btn-submit">
-                    Send Me Download Links
-                  </button>
-
-                  <!-- Privacy note -->
-                  <p class="privacy-note">
-                    🔒 We respect your privacy. Download links instant, weekly deals optional, opt-out anytime.
+                  <p class="email-privacy-note">
+                    We respect your privacy. Unsubscribe anytime.
+                    <a href="/policies/privacy-policy" target="_blank">Privacy Policy</a>
                   </p>
-                </form>
 
-                <!-- Success state (hidden initially) -->
-                <div class="email-success-state" id="email-success-${this.sectionId}">
-                  <svg class="success-checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
-                    <circle class="success-checkmark-circle" cx="26" cy="26" r="25" fill="none"/>
-                    <path class="success-checkmark-check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/>
-                  </svg>
-                  <h3 class="success-heading">Check Your Inbox!</h3>
-                  <p class="success-message">Download links sent to your email</p>
-                </div>
+                  <div class="email-error-inline" role="alert" aria-live="polite" hidden></div>
+                  <div class="email-success-inline" role="status" aria-live="polite" hidden>
+                    <span class="success-icon">✓</span>
+                    <span class="success-message">Download link sent to your email!</span>
+                  </div>
+                </form>
               </div>
+
+              <!-- OR Divider -->
+              <div class="cta-divider" role="presentation">
+                <span class="cta-divider-text">OR</span>
+              </div>
+
+              <!-- Primary CTA: Add to Product -->
+              <button class="btn-primary-shop add-to-product-btn" aria-label="Add to product page">
+                🛍️ Add to Product
+              </button>
+
+              <!-- Tertiary CTA: Try Another Pet -->
+              <button class="btn-link process-another-btn" aria-label="Process another pet image">
+                ↻ Try Another Pet
+              </button>
             </div>
 
             <!-- Error View -->
@@ -1279,46 +1216,14 @@ class PetProcessor {
     });
     
     // Action buttons
-    this.container.querySelector('.download-free-btn')?.addEventListener('click', () => this.handleDownloadFree());
-    this.container.querySelector('.shop-products-btn')?.addEventListener('click', () => this.handleShopProducts());
+    this.container.querySelector('.add-to-product-btn')?.addEventListener('click', () => this.handleAddToProduct());
     this.container.querySelector('.process-another-btn')?.addEventListener('click', async () => await this.processAnother());
     this.container.querySelector('.try-again-btn')?.addEventListener('click', () => this.reset());
 
-    // Share toggle
-    this.container.querySelector('.share-toggle')?.addEventListener('click', () => this.toggleShareButtons());
-
-    // Email modal event listeners
-    const modalCloseBtn = this.container.querySelector('.modal-close');
-    const modalOverlay = this.container.querySelector('.email-modal-overlay');
-    const emailForm = this.container.querySelector('.email-capture-form');
-
-    // Close button
-    if (modalCloseBtn) {
-      modalCloseBtn.addEventListener('click', () => this.closeEmailModal());
-    }
-
-    // Backdrop click (click outside modal content)
-    if (modalOverlay) {
-      modalOverlay.addEventListener('click', (e) => {
-        if (e.target === modalOverlay) {
-          this.closeEmailModal();
-        }
-      });
-    }
-
-    // ESC key to close modal
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape') {
-        const modal = this.container.querySelector('.email-modal-overlay');
-        if (modal && modal.classList.contains('show')) {
-          this.closeEmailModal();
-        }
-      }
-    });
-
-    // Form submit
-    if (emailForm) {
-      emailForm.addEventListener('submit', (e) => this.handleEmailSubmit(e));
+    // Inline email capture form
+    const emailFormInline = this.container.querySelector('.email-form-inline');
+    if (emailFormInline) {
+      emailFormInline.addEventListener('submit', (e) => this.handleInlineEmailSubmit(e));
     }
   }
   
@@ -2033,94 +1938,6 @@ class PetProcessor {
    * Handle Download FREE button click
    * Opens email capture modal to collect email for download links
    */
-  handleDownloadFree() {
-    console.log('📥 Download FREE button clicked');
-    this.openEmailModal();
-  }
-
-  /**
-   * Open email capture modal
-   */
-  openEmailModal() {
-    var modal = this.container.querySelector('.email-modal-overlay');
-    var form = this.container.querySelector('.email-capture-form');
-    var successState = this.container.querySelector('.email-success-state');
-
-    if (!modal) {
-      console.error('❌ Email modal not found');
-      return;
-    }
-
-    // Reset form and hide success state
-    if (form) {
-      form.style.display = '';
-      form.reset();
-      var errorEl = this.container.querySelector('.field-error');
-      if (errorEl) {
-        errorEl.textContent = '';
-        errorEl.classList.remove('show');
-      }
-      var emailInput = this.container.querySelector('input[type="email"]');
-      if (emailInput) {
-        emailInput.classList.remove('error');
-      }
-    }
-    if (successState) {
-      successState.classList.remove('show');
-    }
-
-    // Show modal with animation
-    modal.style.display = 'flex';
-    setTimeout(function() {
-      modal.classList.add('show');
-    }, 10);
-
-    // Focus email input for accessibility
-    var emailInput = this.container.querySelector('input[type="email"]');
-    if (emailInput) {
-      setTimeout(function() {
-        emailInput.focus();
-      }, 300);
-    }
-
-    console.log('📧 Email capture modal opened');
-  }
-
-  /**
-   * Close email capture modal
-   */
-  closeEmailModal() {
-    var modal = this.container.querySelector('.email-modal-overlay');
-    if (!modal) return;
-
-    // Animate out
-    modal.classList.remove('show');
-
-    // Hide after animation
-    var self = this;
-    setTimeout(function() {
-      modal.style.display = 'none';
-
-      // Reset form
-      var form = self.container.querySelector('.email-capture-form');
-      if (form) form.reset();
-
-      // Hide success state
-      var successState = self.container.querySelector('.email-success-state');
-      if (successState) successState.classList.remove('show');
-
-      // Clear errors
-      var errorEl = self.container.querySelector('.field-error');
-      if (errorEl) {
-        errorEl.textContent = '';
-        errorEl.classList.remove('show');
-      }
-      var emailInput = self.container.querySelector('input[type="email"]');
-      if (emailInput) emailInput.classList.remove('error');
-    }, 300);
-
-    console.log('📧 Email capture modal closed');
-  }
 
   /**
    * Validate email address
@@ -2150,17 +1967,16 @@ class PetProcessor {
   }
 
   /**
-   * Handle email form submission
+   * Handle inline email form submission
    */
-  handleEmailSubmit(event) {
+  handleInlineEmailSubmit(event) {
     event.preventDefault();
 
-    var form = this.container.querySelector('.email-capture-form');
-    var emailInput = this.container.querySelector('input[type="email"]');
-    var marketingCheckbox = this.container.querySelector('input[name="marketing_consent"]');
-    var submitBtn = form.querySelector('.btn-submit');
-    var errorEl = this.container.querySelector('.field-error');
-    var successState = this.container.querySelector('.email-success-state');
+    var form = this.container.querySelector('.email-form-inline');
+    var emailInput = this.container.querySelector('.email-input-inline');
+    var submitBtn = form.querySelector('.btn-email-submit');
+    var errorEl = this.container.querySelector('.email-error-inline');
+    var successEl = this.container.querySelector('.email-success-inline');
 
     if (!emailInput || !submitBtn) {
       console.error('❌ Form elements not found');
@@ -2168,7 +1984,6 @@ class PetProcessor {
     }
 
     var email = emailInput.value.trim();
-    var marketingConsent = marketingCheckbox ? marketingCheckbox.checked : false;
 
     // Validate email
     var validation = this.validateEmail(email);
@@ -2176,7 +1991,7 @@ class PetProcessor {
       emailInput.classList.add('error');
       if (errorEl) {
         errorEl.textContent = validation.error;
-        errorEl.classList.add('show');
+        errorEl.hidden = false;
       }
       emailInput.focus();
       return;
@@ -2186,20 +2001,19 @@ class PetProcessor {
     emailInput.classList.remove('error');
     if (errorEl) {
       errorEl.textContent = '';
-      errorEl.classList.remove('show');
+      errorEl.hidden = true;
     }
 
     // Show loading state
     submitBtn.disabled = true;
     submitBtn.classList.add('loading');
 
-    console.log('📧 Email submitted:', email, '| Marketing consent:', marketingConsent);
+    console.log('📧 Email submitted:', email);
 
     // Save to localStorage (frontend-only for now)
     try {
       var emailData = {
         email: email,
-        marketingConsent: marketingConsent,
         timestamp: new Date().toISOString(),
         sessionId: this.currentPet ? this.currentPet.sessionId : null
       };
@@ -2212,32 +2026,30 @@ class PetProcessor {
     // Simulate API call (replace with actual Shopify Email API later)
     var self = this;
     setTimeout(function() {
-      // Hide form
-      form.style.display = 'none';
-
       // Show success state
-      successState.classList.add('show');
+      if (successEl) successEl.hidden = false;
 
-      // Reset button state
+      // Reset button state and form
       submitBtn.disabled = false;
       submitBtn.classList.remove('loading');
+      form.reset();
 
       console.log('✅ Email capture successful');
 
-      // Auto-close after 3 seconds
+      // Hide success message after 5 seconds
       setTimeout(function() {
-        self.closeEmailModal();
-      }, 3000);
+        if (successEl) successEl.hidden = true;
+      }, 5000);
     }, 1500);
   }
 
   /**
-   * Handle Shop Products button click
+   * Handle Add to Product button click
    * Saves pet data and redirects to products
    * Phase 4: Will add session bridge for seamless transition
    */
-  async handleShopProducts() {
-    console.log('🛒 Shop Products button clicked');
+  async handleAddToProduct() {
+    console.log('🛍️ Add to Product button clicked');
 
     // Save pet data first
     const saved = await this.savePetData();
@@ -2246,7 +2058,7 @@ class PetProcessor {
       return;
     }
 
-    const btn = this.container.querySelector('.shop-products-btn');
+    const btn = this.container.querySelector('.add-to-product-btn');
     if (btn) {
       btn.disabled = true;
 
@@ -2297,32 +2109,6 @@ class PetProcessor {
     }
   }
 
-  /**
-   * Toggle share buttons section (mobile optimization)
-   */
-  toggleShareButtons() {
-    const toggle = this.container.querySelector('.share-toggle');
-    const expanded = this.container.querySelector('.share-buttons-expanded');
-    const arrow = toggle?.querySelector('.share-arrow');
-
-    if (!toggle || !expanded) return;
-
-    const isExpanded = toggle.getAttribute('aria-expanded') === 'true';
-
-    if (isExpanded) {
-      // Collapse
-      toggle.setAttribute('aria-expanded', 'false');
-      expanded.hidden = true;
-      if (arrow) arrow.textContent = '▼';
-      console.log('📤 Share section collapsed');
-    } else {
-      // Expand
-      toggle.setAttribute('aria-expanded', 'true');
-      expanded.hidden = false;
-      if (arrow) arrow.textContent = '▲';
-      console.log('📤 Share section expanded');
-    }
-  }
 
   async saveToCart() {
     // Use the extracted save logic
