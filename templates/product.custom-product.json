@@ -153,7 +153,7 @@
         "ks_sticky_atc_cDERJ9"
       ],
       "settings": {
-        "enable_sticky_info": false,
+        "enable_sticky_info": true,
         "color_scheme": "scheme-f318d737-2be2-4346-8605-b2fbd6208608",
         "media_size": "medium",
         "constrain_to_viewport": true,
