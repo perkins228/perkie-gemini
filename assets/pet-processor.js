@@ -1039,15 +1039,6 @@ class PetProcessor {
                 </label>
               </div>
             </div>
-            
-            <!-- Pet Name (shown in result view) -->
-            <div class="pet-name-section" hidden>
-              <label for="pet-name-${this.sectionId}">Pet Name (Optional)</label>
-              <input type="text" 
-                     id="pet-name-${this.sectionId}" 
-                     class="pet-name-input" 
-                     placeholder="Enter your pet's name">
-            </div>
 
             <!-- Actions (shown in result view) -->
             <div class="action-buttons" hidden>
@@ -1675,7 +1666,7 @@ class PetProcessor {
       if (container) container.classList.add('has-result');
 
       // Show result elements in left column
-      const leftResultElements = this.container.querySelectorAll('.processor-controls .effect-grid-wrapper, .processor-controls .pet-name-section, .processor-controls .action-buttons');
+      const leftResultElements = this.container.querySelectorAll('.processor-controls .effect-grid-wrapper, .processor-controls .action-buttons');
       leftResultElements.forEach(el => el.hidden = false);
 
       // Show result view in right column
@@ -1715,7 +1706,7 @@ class PetProcessor {
   
   hideAllViews() {
     // Hide all views in left column
-    const leftViews = this.container.querySelectorAll('.upload-zone, .processing-view, .error-view, .effect-grid-wrapper, .pet-name-section, .action-buttons');
+    const leftViews = this.container.querySelectorAll('.upload-zone, .processing-view, .error-view, .effect-grid-wrapper, .action-buttons');
     leftViews.forEach(view => view.hidden = true);
     
     // Hide result view in right column
@@ -1858,7 +1849,8 @@ class PetProcessor {
       return false;
     }
 
-    const petName = this.container.querySelector('.pet-name-input')?.value || 'Pet';
+    // Pet name is not collected on processor page (collected on product page instead)
+    const petName = '';
     const selectedEffect = this.currentPet.selectedEffect || 'enhancedblackwhite';
     const effectData = this.currentPet.effects[selectedEffect];
 
@@ -2375,11 +2367,10 @@ class PetProcessor {
     const fileInput = this.container.querySelector('.file-input');
     if (fileInput) fileInput.value = '';
 
-    // Clear pet name input
-    const petNameInput = this.container.querySelector('.pet-name-input');
-    if (petNameInput) petNameInput.value = '';
+    // Note: Pet name and artist notes are not collected on processor page
+    // They are collected on product page instead
 
-    // Clear artist notes textarea
+    // Clear artist notes textarea (if it exists for backward compatibility)
     const artistNotesInput = this.container.querySelector('.artist-notes-input');
     if (artistNotesInput) artistNotesInput.value = '';
   }
