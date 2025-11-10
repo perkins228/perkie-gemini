@@ -549,7 +549,7 @@
   }
   
   .effect-grid {
-    grid-template-columns: repeat(4, 1fr);
+    /* Mobile-first 2x2 grid applies - only override spacing */
     gap: 2vw;
     max-width: 100%;
   }
@@ -612,7 +612,7 @@
 /* Tablet - Larger viewport but not desktop */
 @media screen and (min-width: 751px) and (max-width: 1023px) {
   .effect-grid {
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(2, 1fr); /* 2x2 grid for touch-optimized UX */
     gap: 1rem;
   }
   

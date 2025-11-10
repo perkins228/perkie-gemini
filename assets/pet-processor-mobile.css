@@ -168,8 +168,7 @@
 
 /* Effect Grid - Mobile Optimized */
 .effect-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  /* Grid columns inherited from pet-processor-v5.css (2x2 mobile-first) */
   gap: 0.5rem;
   margin: 0 auto 1.5rem;
   max-width: 280px; /* Match image container width */
@@ -378,7 +377,7 @@
   }
   
   .effect-grid {
-    grid-template-columns: repeat(4, 1fr);
+    /* Desktop 1x4 layout inherited from pet-processor-v5.css */
     gap: 1rem;
   }
   
