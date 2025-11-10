@@ -22,9 +22,16 @@ class Settings(BaseSettings):
     rate_limit_daily: int = 10      # Customer/IP daily limit for Gemini artistic effects (generous for testing)
     rate_limit_burst: int = 10      # Session daily limit (kept same for consistency)
 
+    # Email Rate Limits (separate from image generation)
+    email_rate_limit_daily: int = 3     # Emails per day per customer/IP (1 send + 2 retries)
+    email_rate_limit_burst: int = 2     # Emails per session (1 send + 1 retry)
+
     # Storage Configuration
     storage_bucket: str = "perkieprints-processing-cache"
     cache_ttl_seconds: int = 604800  # 7 days
+
+    # Signed URL Configuration
+    signed_url_expiry_hours: int = 24  # URL expiry time for email downloads
 
     # Cost Controls
     daily_cost_cap: float = 10.0
