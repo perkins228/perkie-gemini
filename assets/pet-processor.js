@@ -1046,9 +1046,23 @@ class PetProcessor {
               <!-- Inline Email Capture Section -->
               <div class="email-capture-inline" role="region" aria-label="Email capture for free download">
                 <div class="email-capture-header">
-                  <h3 class="email-heading">Like what you see?</h3>
-                  <p class="email-subtext">Enter your email to download this image and get updates on new styles and offers</p>
+                  <h3 class="email-heading">Love it?</h3>
                 </div>
+
+                <!-- Primary CTA: Add to Product (moved inside container) -->
+                <button class="btn-primary-shop add-to-product-btn" aria-label="Add to product page">
+                  🛍️ Add to Product
+                </button>
+
+                <!-- OR Separator -->
+                <div class="cta-separator">
+                  <span class="separator-line"></span>
+                  <span class="separator-text">or</span>
+                  <span class="separator-line"></span>
+                </div>
+
+                <!-- Email prompt text -->
+                <p class="email-prompt-text">Email your email for download + updates.</p>
 
                 <form class="email-form-inline" id="email-form-inline-${this.sectionId}">
                   <div class="email-input-group">
@@ -1082,11 +1096,6 @@ class PetProcessor {
                   </div>
                 </form>
               </div>
-
-              <!-- Primary CTA: Add to Product -->
-              <button class="btn-primary-shop add-to-product-btn" aria-label="Add to product page">
-                🛍️ Add to Product
-              </button>
 
               <!-- Tertiary CTA: Try Another Pet -->
               <button class="btn-link process-another-btn" aria-label="Process another pet image">

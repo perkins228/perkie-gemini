@@ -69,19 +69,41 @@
 }
 
 .email-heading {
-  font-size: 20px;
+  font-size: 18px;
   font-weight: 700;
   color: #111827; /* Gray-900 */
   line-height: 1.3;
-  margin: 0 0 8px;
+  margin: 0 0 16px;
   text-align: left;
 }
 
-.email-subtext {
+/* OR Separator */
+.cta-separator {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 16px 0;
+}
+
+.separator-line {
+  flex: 1;
+  height: 1px;
+  background: #d1d5db; /* Gray-300 */
+}
+
+.separator-text {
   font-size: 14px;
+  font-weight: 500;
+  color: #6b7280; /* Gray-600 */
+  text-transform: lowercase;
+}
+
+/* Email Prompt Text */
+.email-prompt-text {
+  font-size: 12px;
   color: #6b7280; /* Gray-600 */
   line-height: 1.5;
-  margin: 0;
+  margin: 0 0 12px;
   text-align: left;
 }
 
@@ -126,14 +148,14 @@
   border-color: #ef4444; /* Red-500 */
 }
 
-/* Email Submit Button (Purple Gradient) */
+/* Email Submit Button (Pink Gradient) */
 .btn-email-submit {
   height: 64px; /* WCAG AAA touch target */
   padding: 18px 24px;
   font-size: 18px;
   font-weight: 600;
   color: #ffffff;
-  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  background: linear-gradient(135deg, #FFA4AA 0%, #FF5964 100%);
   border: none;
   border-radius: 8px;
   cursor: pointer;
@@ -154,9 +176,9 @@
 }
 
 .btn-email-submit:hover {
-  background: linear-gradient(135deg, #5558d3 0%, #7c3aed 100%);
+  background: linear-gradient(135deg, #FF8A92 0%, #FF3D4A 100%);
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+  box-shadow: 0 4px 12px rgba(255, 89, 100, 0.3);
 }
 
 .btn-email-submit:active {
@@ -270,7 +292,7 @@
 }
 
 /* ============================================================================
-   ADD TO PRODUCT BUTTON (Green Gradient)
+   ADD TO PRODUCT BUTTON (Pink Gradient - Inside Email Container)
    ============================================================================ */
 
 .btn-primary-shop {
@@ -279,7 +301,7 @@
   font-size: 18px;
   font-weight: 600;
   color: #ffffff;
-  background: linear-gradient(135deg, #10b981 0%, #14b8a6 100%);
+  background: linear-gradient(135deg, #FFA4AA 0%, #FF5964 100%);
   border: none;
   border-radius: 8px;
   cursor: pointer;
@@ -288,20 +310,20 @@
   align-items: center;
   justify-content: center;
   gap: 8px;
-  margin-bottom: 16px;
+  margin-bottom: 0;
   transition: all 0.2s ease;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
 .btn-primary-shop:hover {
-  background: linear-gradient(135deg, #0ea872 0%, #0f9b8e 100%);
+  background: linear-gradient(135deg, #FF8A92 0%, #FF3D4A 100%);
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+  box-shadow: 0 4px 12px rgba(255, 89, 100, 0.3);
 }
 
 .btn-primary-shop:active {
   transform: translateY(0);
-  box-shadow: 0 2px 6px rgba(16, 185, 129, 0.2);
+  box-shadow: 0 2px 6px rgba(255, 89, 100, 0.2);
 }
 
 .btn-primary-shop:disabled {
@@ -311,7 +333,7 @@
 }
 
 .btn-primary-shop:focus-visible {
-  outline: 3px solid #10b981; /* Green-500 */
+  outline: 3px solid #FF5964;
   outline-offset: 2px;
 }
 
