@@ -27,6 +27,42 @@
   }
 }
 
+/* ============================================================================
+   ACTION BUTTONS CONTAINER
+   ============================================================================ */
+
+/**
+ * Container for all CTA buttons below email capture section
+ * Mobile-first: Stack vertically on all screen sizes
+ */
+.action-buttons {
+  display: flex;
+  flex-direction: column; /* Stack vertically (mobile-first) */
+  gap: 16px; /* Spacing between buttons */
+  width: 100%;
+  margin-top: 0; /* Email section provides margin-bottom */
+}
+
+/* Desktop: Constrain width and center */
+@media (min-width: 640px) {
+  .action-buttons {
+    max-width: 540px; /* Prevent buttons from being too wide */
+    margin: 0 auto; /* Center container */
+  }
+}
+
+/* Force vertical stacking on mobile (redundant but explicit) */
+@media (max-width: 639px) {
+  .action-buttons {
+    flex-direction: column !important;
+  }
+
+  .btn-primary-shop,
+  .btn-link {
+    width: 100% !important;
+  }
+}
+
 /* Email Capture Header */
 .email-capture-header {
   margin-bottom: 16px;

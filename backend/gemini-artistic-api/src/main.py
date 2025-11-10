@@ -5,8 +5,10 @@ import logging
 import time
 import asyncio
 import uuid
+import json
 from datetime import datetime, timedelta
-from google.cloud import storage
+from google.cloud import storage, secretmanager
+from google.oauth2 import service_account
 from src.config import settings
 from src.models.schemas import (
     GenerateRequest, GenerateResponse,
@@ -25,6 +27,25 @@ logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
+
+# Load GCS signer credentials from Secret Manager
+def load_signer_credentials():
+    """Load service account credentials for signing GCS URLs from Secret Manager"""
+    try:
+        client = secretmanager.SecretManagerServiceClient()
+        secret_name = f"projects/{settings.project_id}/secrets/gcs-signer-key/versions/latest"
+        response = client.access_secret_version(request={"name": secret_name})
+        key_json = response.payload.data.decode("UTF-8")
+        credentials_info = json.loads(key_json)
+        credentials = service_account.Credentials.from_service_account_info(credentials_info)
+        logger.info("✅ GCS signer credentials loaded from Secret Manager")
+        return credentials
+    except Exception as e:
+        logger.error(f"❌ Failed to load GCS signer credentials: {e}")
+        raise
+
+# Load credentials at startup
+gcs_signer_credentials = load_signer_credentials()
 
 # Create FastAPI app
 app = FastAPI(
@@ -353,21 +374,20 @@ async def generate_signed_upload_url(request: Request, req: SignedUrlRequest):
             date = datetime.utcnow().strftime('%Y%m%d')
             blob_path = f"temp/uploads/{date}/{req.session_id or 'anon'}_{timestamp}.jpg"
 
-        # Create signed URL using IAM signBlob (works with Cloud Run default credentials)
-        storage_client = storage.Client(project=settings.project_id)
+        # Create signed URL using dedicated service account credentials
+        storage_client = storage.Client(
+            project=settings.project_id,
+            credentials=gcs_signer_credentials
+        )
         bucket = storage_client.bucket("perkieprints-uploads")
         blob = bucket.blob(blob_path)
 
-        # Use service_account_email for signing (Cloud Run default service account)
-        service_account_email = f"{settings.project_number}-compute@developer.gserviceaccount.com"
-
-        # Generate signed URL for PUT (upload) - uses IAM signBlob API
+        # Generate signed URL for PUT (upload) using service account key
         signed_url = blob.generate_signed_url(
             version="v4",
             expiration=timedelta(minutes=15),  # URL expires in 15 minutes
             method="PUT",
             content_type=req.file_type,
-            service_account_email=service_account_email,
         )
 
         # Public URL (after upload completes)

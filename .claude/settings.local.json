@@ -64,7 +64,15 @@
       "Bash(do echo '=== Bucket: gs://$bucket ===')",
       "Bash(gsutil du:*)",
       "Bash(for bucket in perkieprints-customer-images perkieprints-processing-cache)",
-      "Bash(gsutil rm:*)"
+      "Bash(gsutil rm:*)",
+      "Bash(gsutil -m cp:*)",
+      "Bash(gcloud iam service-accounts add-iam-policy-binding:*)",
+      "Bash(gcloud iam service-accounts get-iam-policy:*)",
+      "Bash(gsutil cors get:*)",
+      "Bash(gcloud storage buckets:*)",
+      "Bash(gcloud iam service-accounts create:*)",
+      "Bash(/tmp/test-upload.jpg)",
+      "Bash(SIGNED_URL=\"https://storage.googleapis.com/perkieprints-uploads/originals/sessions/test-session-789/1762705668_6bdd8abd-fdbc-4f8d-831c-77a2db2b1c64.jpg?X-Goog-Algorithm=GOOG4-RSA-SHA256&X-Goog-Credential=gcs-signer%40gen-lang-client-0601138686.iam.gserviceaccount.com%2F20251109%2Fauto%2Fstorage%2Fgoog4_request&X-Goog-Date=20251109T162748Z&X-Goog-Expires=900&X-Goog-SignedHeaders=content-type%3Bhost&X-Goog-Signature=4fd082809bb7ba8df1badbd855177323556103b143431ab564649ed59125b05066f214f2db34dd324b3e152f5167f8fd7039e2aef58d9ec11d3fa42abd01ce9d9a63dd5006dce1c025b9840b8e69fb16a104e7bd47858716bf4f2f7ddfb6f57c6d6935997e9347b70c4a0b30f1e636cb196faabdb759f600585f48b29697a10ec4d68263cbd91115beff43c0ed71fa4d846bd38d5b92614aeb3ffe4f73199492e38401993edec0d18a185cae07a2f76414cbdd567d0a66459c399e52049be5cba8f7019d658310d0905e871bb5b961694fcb0f1a921a3b97f21df8e861a8be2168403b026870037d441bb21bb1533460d557837688cfa6371f9bdbe927afa4d2\")"
     ],
     "deny": [],
     "ask": [],

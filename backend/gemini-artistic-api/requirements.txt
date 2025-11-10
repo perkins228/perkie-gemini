@@ -11,6 +11,7 @@ pydantic-settings==2.6.1  # Updated for compatibility
 google-genai==1.47.0  # New SDK - replaces deprecated google-generativeai
 google-cloud-firestore==2.19.0  # Updated for compatibility
 google-cloud-storage==2.19.0  # Updated for compatibility
+google-cloud-secret-manager==2.21.1  # For loading GCS signer credentials
 
 # Image processing
 pillow==11.1.0  # Updated to latest stable
