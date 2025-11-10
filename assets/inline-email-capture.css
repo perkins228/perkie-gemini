@@ -150,7 +150,8 @@
 
 /* Email Submit Button (Pink Gradient) */
 .btn-email-submit {
-  height: 45px;
+  height: 48px;
+  min-height: 48px;
   padding: 12px 24px;
   font-size: 16px;
   font-weight: 600;
@@ -296,7 +297,8 @@
    ============================================================================ */
 
 .btn-primary-shop {
-  height: 45px;
+  height: 48px;
+  min-height: 48px;
   padding: 12px 24px;
   font-size: 16px;
   font-weight: 600;
@@ -451,5 +453,45 @@
   .btn-primary-shop,
   .btn-link {
     -webkit-tap-highlight-color: transparent;
+  }
+}
+
+/* ============================================================================
+   iOS SAFE AREA SUPPORT
+   ============================================================================ */
+
+/**
+ * Handle iPhone X/11/12/13/14/15 notch and home indicator
+ * Prevents content clipping on modern iPhones (40% of mobile traffic)
+ */
+
+/* Email capture container - handle bottom spacing for home indicator */
+.email-capture-inline {
+  padding-bottom: max(20px, env(safe-area-inset-bottom));
+}
+
+/* Action buttons container - handle all safe areas */
+.action-buttons {
+  padding-left: max(0px, env(safe-area-inset-left));
+  padding-right: max(0px, env(safe-area-inset-right));
+  padding-bottom: max(16px, env(safe-area-inset-bottom));
+}
+
+/* Last button (Try Another Pet) - additional bottom spacing */
+.btn-link {
+  margin-bottom: max(0px, env(safe-area-inset-bottom));
+}
+
+/* Landscape mode adjustments - handle notch on left/right */
+@media (orientation: landscape) {
+  .email-capture-inline {
+    padding-left: max(20px, env(safe-area-inset-left));
+    padding-right: max(20px, env(safe-area-inset-right));
+  }
+
+  .action-buttons {
+    padding-left: max(16px, env(safe-area-inset-left));
+    padding-right: max(16px, env(safe-area-inset-right));
+    padding-bottom: max(12px, env(safe-area-inset-bottom)); /* Smaller home indicator in landscape */
   }
 }
