@@ -153,11 +153,15 @@
 /* Result View */
 .pet-image-container {
   margin: 0 auto 1.5rem;
-  max-width: 280px; /* Mobile-optimized size */
+  max-width: calc(100vw - 32px); /* Mobile: 95% viewport (16px margins) */
+  width: 100%;
   border-radius: 12px;
   overflow: hidden;
   background: rgba(var(--color-foreground), 0.05);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+
+  /* iOS Safe Area support (notch, home indicator) */
+  max-width: calc(100vw - 32px - env(safe-area-inset-left) - env(safe-area-inset-right));
 }
 
 .pet-image {
@@ -171,7 +175,11 @@
   /* Grid columns inherited from pet-processor-v5.css (2x2 mobile-first) */
   gap: 0.5rem;
   margin: 0 auto 1.5rem;
-  max-width: 280px; /* Match image container width */
+  max-width: calc(100vw - 32px); /* Mobile: 95% viewport (16px margins) */
+  width: 100%;
+
+  /* iOS Safe Area support (notch, home indicator) */
+  max-width: calc(100vw - 32px - env(safe-area-inset-left) - env(safe-area-inset-right));
 }
 
 .effect-btn {
@@ -223,7 +231,11 @@
 /* Pet Name Section */
 .pet-name-section {
   margin: 0 auto 1.5rem;
-  max-width: 280px; /* Match image container width */
+  max-width: calc(100vw - 32px); /* Mobile: 95% viewport (16px margins) */
+  width: 100%;
+
+  /* iOS Safe Area support */
+  max-width: calc(100vw - 32px - env(safe-area-inset-left) - env(safe-area-inset-right));
 }
 
 .pet-name-section label {
@@ -246,12 +258,16 @@
 /* Artist Notes Section - Redesigned */
 .artist-notes-section {
   margin: 0 auto 1.5rem;
-  max-width: 280px;
+  max-width: calc(100vw - 32px); /* Mobile: 95% viewport (16px margins) */
+  width: 100%;
   background: rgba(var(--color-foreground), 0.03);
   border: 1px solid rgba(var(--color-foreground), 0.1);
   border-radius: 12px;
   padding: 1rem;
   transition: all 0.3s ease;
+
+  /* iOS Safe Area support */
+  max-width: calc(100vw - 32px - env(safe-area-inset-left) - env(safe-area-inset-right));
 }
 
 .artist-notes-section:focus-within {
@@ -298,9 +314,13 @@
   grid-template-columns: 1fr 1fr;
   gap: 0.75rem;
   margin: 0 auto;
-  max-width: 280px;
+  max-width: calc(100vw - 32px); /* Mobile: 95% viewport (16px margins) */
+  width: 100%;
   padding-left: 0;
   padding-right: 0;
+
+  /* iOS Safe Area support */
+  max-width: calc(100vw - 32px - env(safe-area-inset-left) - env(safe-area-inset-right));
 }
 
 .btn-primary,
