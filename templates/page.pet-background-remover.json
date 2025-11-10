@@ -44,7 +44,7 @@
         "step_AcWh4f": {
           "type": "step",
           "settings": {
-            "icon_svg": "<svg viewbox=\"0 0 48 48\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\"><rect x=\"20\" y=\"10\" width=\"8\" height=\"28\" rx=\"4\" fill=\"#A3D9A5\"></rect><rect x=\"14\" y=\"28\" width=\"20\" height=\"8\" rx=\"4\" fill=\"#F7C873\"></rect></svg>",
+            "icon_svg": "<text x=\"24\" y=\"36\" font-size=\"48\" text-anchor=\"middle\">🖼️</text>",
             "icon_image": "shopify://shop_images/t-shirt-icon.png",
             "title": "1. Choose a Product",
             "desc": "Pick a product to showcase your pet photo."
@@ -55,7 +55,7 @@
           "settings": {
             "icon_svg": "<text x=\"24\" y=\"36\" font-size=\"48\" text-anchor=\"middle\">📤</text>",
             "title": "2. Upload Your Photo",
-            "desc": "Choose a well-lit, high-resolution photo of your pet (JPG/PNG, max 50MB)"
+            "desc": "Choose a well-lit, high-resolution photo of your pet (JPG/PNG, max 10MB)"
           }
         },
         "step_2": {
