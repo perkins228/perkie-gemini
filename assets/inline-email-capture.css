@@ -90,19 +90,12 @@
   width: 100%;
 }
 
-/* Email Input Group (stacked on mobile, side-by-side on desktop) */
+/* Email Input Group (stacked vertically on all breakpoints) */
 .email-input-group {
   display: flex;
-  flex-direction: column;
+  flex-direction: column; /* Keep vertical stacking on all screens */
   gap: 12px;
   margin-bottom: 12px;
-}
-
-@media (min-width: 640px) {
-  .email-input-group {
-    flex-direction: row;
-    gap: 8px;
-  }
 }
 
 /* Email Input */
@@ -115,14 +108,8 @@
   background: #ffffff;
   border: 1px solid #d1d5db; /* Gray-300 */
   border-radius: 8px;
-  width: 100%;
+  width: 100%; /* Full-width on all screens for better usability */
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
-}
-
-@media (min-width: 640px) {
-  .email-input-inline {
-    flex: 1; /* Takes 70% of width */
-  }
 }
 
 .email-input-inline:focus {
