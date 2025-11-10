@@ -251,12 +251,19 @@
 
 .effect-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(2, 1fr); /* 2x2 grid for better mobile UX */
   gap: 0.75rem;
   margin-bottom: 2rem;
   max-width: 600px;
   margin-left: auto;
   margin-right: auto;
+}
+
+/* Desktop: Can show 4 columns if screen is wide enough */
+@media (min-width: 768px) {
+  .effect-grid {
+    grid-template-columns: repeat(4, 1fr); /* 1x4 on desktop */
+  }
 }
 
 /* Desktop: Keep buttons in separate rows but match heights */
