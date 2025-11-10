@@ -18,7 +18,7 @@
   border: 1px solid #e5e7eb; /* Gray-200 */
   border-radius: 12px;
   padding: 20px;
-  margin-bottom: 24px;
+  margin-bottom: 20px; /* Spacing before Add to Product button */
 }
 
 @media (min-width: 640px) {
@@ -244,35 +244,6 @@
 
 @keyframes spin {
   to { transform: rotate(360deg); }
-}
-
-/* ============================================================================
-   OR DIVIDER
-   ============================================================================ */
-
-.cta-divider {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: 24px 0;
-  position: relative;
-}
-
-.cta-divider::before,
-.cta-divider::after {
-  content: '';
-  flex: 1;
-  height: 1px;
-  background: #e5e7eb; /* Gray-200 */
-}
-
-.cta-divider-text {
-  padding: 0 16px;
-  font-size: 14px;
-  font-weight: 500;
-  color: #9ca3af; /* Gray-400 */
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
 }
 
 /* ============================================================================

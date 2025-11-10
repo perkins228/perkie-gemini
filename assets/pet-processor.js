@@ -1083,11 +1083,6 @@ class PetProcessor {
                 </form>
               </div>
 
-              <!-- OR Divider -->
-              <div class="cta-divider" role="presentation">
-                <span class="cta-divider-text">OR</span>
-              </div>
-
               <!-- Primary CTA: Add to Product -->
               <button class="btn-primary-shop add-to-product-btn" aria-label="Add to product page">
                 🛍️ Add to Product
