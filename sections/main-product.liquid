@@ -64,23 +64,21 @@
 
   {% comment %} Pet Processor → Product Page Bridge {% endcomment %}
   <script>
-    // Bridge: Listen for pet processor completion and translate data format
-    document.addEventListener('petProcessorComplete', function(event) {
-      console.log('🌉 Bridge: Received petProcessorComplete event', event.detail);
-
-      const { sessionKey, artistNote, effects } = event.detail;
+    // Bridge: Transform processor data to product selector format
+    function processBridgeData(bridgeData) {
+      const { sessionKey, artistNote, effects } = bridgeData;
 
       if (!sessionKey || !effects) {
-        console.warn('⚠️ Bridge: Invalid event data - missing sessionKey or effects');
-        return;
+        console.warn('⚠️ Bridge: Invalid bridge data - missing sessionKey or effects');
+        return false;
       }
 
-      // Load pet data from processor storage
+      // Load pet data from processor storage (for additional validation)
       const processorPetData = PetStorage.get(sessionKey);
 
       if (!processorPetData) {
         console.warn('⚠️ Bridge: No processor pet data found for sessionKey:', sessionKey);
-        return;
+        return false;
       }
 
       console.log('✅ Bridge: Loaded processor pet data:', processorPetData);
@@ -89,7 +87,7 @@
       const productId = {{ product.id }};
       const selectorKey = `perkie_pet_selector_${productId}`;
 
-      // Create pet selector state with all effects as separate "pets" (for multi-pet support)
+      // Create pet selector state with all effects
       const selectorState = {
         petCount: 1, // Start with 1 pet
         pets: [
@@ -108,16 +106,45 @@
       try {
         localStorage.setItem(selectorKey, JSON.stringify(selectorState));
         console.log('✅ Bridge: Saved to pet selector storage:', selectorKey);
-        console.log('🔄 Bridge: Reloading page to apply pet data...');
-
-        // Reload page to load the pet selector with the new data
-        window.location.reload();
+        return true;
       } catch (error) {
         console.error('❌ Bridge: Failed to save pet selector state:', error);
+        return false;
       }
-    });
+    }
 
-    console.log('🌉 Bridge: Listening for petProcessorComplete events');
+    // Check for pending bridge data from processor page (sessionStorage)
+    const pendingBridge = sessionStorage.getItem('processor_to_product_bridge');
+    if (pendingBridge) {
+      console.log('🌉 Bridge: Found pending redirect data from processor page');
+
+      try {
+        const bridgeData = JSON.parse(pendingBridge);
+        console.log('🌉 Bridge: Parsed bridge data:', bridgeData);
+
+        // Process the bridge data
+        if (processBridgeData(bridgeData)) {
+          // Clear the bridge data (one-time use)
+          sessionStorage.removeItem('processor_to_product_bridge');
+          console.log('✅ Bridge: Cleared sessionStorage bridge data');
+
+          // Reload page to apply pet data
+          console.log('🔄 Bridge: Reloading page to apply pet data...');
+          window.location.reload();
+        }
+      } catch (error) {
+        console.error('❌ Bridge: Failed to parse bridge data:', error);
+        sessionStorage.removeItem('processor_to_product_bridge');
+      }
+    } else {
+      console.log('🌉 Bridge: No pending redirect data found (normal product page load)');
+    }
+
+    // Fallback: Listen for petProcessorComplete event (same-page scenario)
+    document.addEventListener('petProcessorComplete', function(event) {
+      console.log('🌉 Bridge: Received petProcessorComplete event', event.detail);
+      processBridgeData(event.detail);
+    });
   </script>
 
   {%- if product.quantity_price_breaks_configured? -%}
