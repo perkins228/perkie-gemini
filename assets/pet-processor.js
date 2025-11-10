@@ -1922,6 +1922,7 @@ class PetProcessor {
 
     // Pet name is not collected on processor page (collected on product page instead)
     const petName = '';
+    const artistNote = ''; // Artist notes collected in inline preview modal (product page)
     const selectedEffect = this.currentPet.selectedEffect || 'enhancedblackwhite';
     const effectData = this.currentPet.effects[selectedEffect];
 
