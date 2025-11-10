@@ -150,9 +150,9 @@
 
 /* Email Submit Button (Pink Gradient) */
 .btn-email-submit {
-  height: 64px; /* WCAG AAA touch target */
-  padding: 18px 24px;
-  font-size: 18px;
+  height: 45px;
+  padding: 12px 24px;
+  font-size: 16px;
   font-weight: 600;
   color: #ffffff;
   background: linear-gradient(135deg, #FFA4AA 0%, #FF5964 100%);
@@ -296,9 +296,9 @@
    ============================================================================ */
 
 .btn-primary-shop {
-  height: 64px; /* WCAG AAA touch target */
-  padding: 18px 24px;
-  font-size: 18px;
+  height: 45px;
+  padding: 12px 24px;
+  font-size: 16px;
   font-weight: 600;
   color: #ffffff;
   background: linear-gradient(135deg, #FFA4AA 0%, #FF5964 100%);

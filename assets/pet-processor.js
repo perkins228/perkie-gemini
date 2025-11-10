@@ -1062,7 +1062,7 @@ class PetProcessor {
                 </div>
 
                 <!-- Email prompt text -->
-                <p class="email-prompt-text">Email your email for download + updates.</p>
+                <p class="email-prompt-text">Enter your email to download this image and get updates on new styles and offers</p>
 
                 <form class="email-form-inline" id="email-form-inline-${this.sectionId}">
                   <div class="email-input-group">
