@@ -419,6 +419,30 @@
   }
 }
 
+/* Large Desktop (1440px+) - Increased preview size */
+@media (min-width: 1440px) {
+  .pet-image-container,
+  .effect-grid {
+    max-width: 800px; /* +200px for better quality inspection */
+  }
+}
+
+/* XL Desktop (1920px+) - Further increased preview */
+@media (min-width: 1920px) {
+  .pet-image-container,
+  .effect-grid {
+    max-width: 1000px; /* +400px total for premium desktop experience */
+  }
+}
+
+/* Ultra-wide Desktop (2560px+) - Capped to prevent too large */
+@media (min-width: 2560px) {
+  .pet-image-container,
+  .effect-grid {
+    max-width: 1200px; /* Cap to maintain reasonable size */
+  }
+}
+
 /* High DPI Displays */
 @media (min-resolution: 2dppx) {
   .upload-zone,

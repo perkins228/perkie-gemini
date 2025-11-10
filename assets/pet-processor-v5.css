@@ -17,6 +17,31 @@
   font-family: var(--font-body-family);
 }
 
+/* Responsive container scaling for desktop */
+@media (min-width: 1024px) {
+  .pet-processor-container {
+    max-width: 1200px; /* Standard desktop container */
+  }
+}
+
+@media (min-width: 1440px) {
+  .pet-processor-container {
+    max-width: 1400px; /* +200px for large desktop screens */
+  }
+}
+
+@media (min-width: 1920px) {
+  .pet-processor-container {
+    max-width: 1600px; /* +400px for XL desktop screens */
+  }
+}
+
+@media (min-width: 2560px) {
+  .pet-processor-container {
+    max-width: 1800px; /* Cap for ultra-wide screens */
+  }
+}
+
 /* Upload Area */
 .upload-area {
   border: 2px dashed rgba(var(--color-foreground), 0.3);
