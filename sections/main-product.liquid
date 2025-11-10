@@ -61,6 +61,65 @@
   <script src="{{ 'pet-data-migration-es5.js' | asset_url }}" defer="defer"></script>
   {% endcomment %}
   <script src="{{ 'pet-storage.js' | asset_url }}"></script>
+
+  {% comment %} Pet Processor → Product Page Bridge {% endcomment %}
+  <script>
+    // Bridge: Listen for pet processor completion and translate data format
+    document.addEventListener('petProcessorComplete', function(event) {
+      console.log('🌉 Bridge: Received petProcessorComplete event', event.detail);
+
+      const { sessionKey, artistNote, effects } = event.detail;
+
+      if (!sessionKey || !effects) {
+        console.warn('⚠️ Bridge: Invalid event data - missing sessionKey or effects');
+        return;
+      }
+
+      // Load pet data from processor storage
+      const processorPetData = PetStorage.get(sessionKey);
+
+      if (!processorPetData) {
+        console.warn('⚠️ Bridge: No processor pet data found for sessionKey:', sessionKey);
+        return;
+      }
+
+      console.log('✅ Bridge: Loaded processor pet data:', processorPetData);
+
+      // Transform into pet selector format
+      const productId = {{ product.id }};
+      const selectorKey = `perkie_pet_selector_${productId}`;
+
+      // Create pet selector state with all effects as separate "pets" (for multi-pet support)
+      const selectorState = {
+        petCount: 1, // Start with 1 pet
+        pets: [
+          {
+            id: sessionKey,
+            name: '', // Name collected on product page
+            artistNote: artistNote || processorPetData.artistNote || '',
+            effects: processorPetData.effects || effects, // All effect URLs
+            timestamp: processorPetData.timestamp || Date.now()
+          }
+        ],
+        timestamp: Date.now()
+      };
+
+      // Save to pet selector storage
+      try {
+        localStorage.setItem(selectorKey, JSON.stringify(selectorState));
+        console.log('✅ Bridge: Saved to pet selector storage:', selectorKey);
+        console.log('🔄 Bridge: Reloading page to apply pet data...');
+
+        // Reload page to load the pet selector with the new data
+        window.location.reload();
+      } catch (error) {
+        console.error('❌ Bridge: Failed to save pet selector state:', error);
+      }
+    });
+
+    console.log('🌉 Bridge: Listening for petProcessorComplete events');
+  </script>
+
   {%- if product.quantity_price_breaks_configured? -%}
     <script src="{{ 'show-more.js' | asset_url }}" defer="defer"></script>
     <script src="{{ 'price-per-item.js' | asset_url }}" defer="defer"></script>
