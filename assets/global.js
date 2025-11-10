@@ -46,8 +46,15 @@ class HTMLUpdateUtility {
       element.form && element.setAttribute('form', `${element.form.getAttribute('id')}-${uniqueKey}`);
     });
 
+    // MOBILE SCROLL FIX: Lock scroll during DOM insertion
+    // insertBefore triggers layout reflow which causes mobile browsers to scroll
+    const scrollPosition = window.pageYOffset || document.documentElement.scrollTop;
+
     oldNode.parentNode.insertBefore(newNode, oldNode);
     oldNode.style.display = 'none';
+
+    // Immediately restore scroll after insertion (before browser can react)
+    window.scrollTo(0, scrollPosition);
 
     postProcessCallbacks?.forEach((callback) => callback(newNode));
 

@@ -63,6 +63,14 @@ if (!customElements.get('product-info')) {
       handleOptionValueChange({ data: { event, target, selectedOptionValues } }) {
         if (!this.contains(event.target)) return;
 
+        // MOBILE SCROLL FIX: Generate unique request ID to prevent race conditions with rapid clicks
+        const requestId = `${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+
+        // Save scroll position with request ID
+        if (window.mobileScrollLock) {
+          window.mobileScrollLock.savePositionWithId(requestId);
+        }
+
         this.resetProductFormState();
 
         const productUrl = target.dataset.productUrl || this.pendingRequestUrl || this.dataset.url;
@@ -73,6 +81,7 @@ if (!customElements.get('product-info')) {
         this.renderProductInfo({
           requestUrl: this.buildRequestUrlWithParams(productUrl, selectedOptionValues, shouldFetchFullPage),
           targetId: target.id,
+          requestId: requestId,
           callback: shouldSwapProduct
             ? this.handleSwapProduct(productUrl, shouldFetchFullPage)
             : this.handleUpdateProductInfo(productUrl),
@@ -113,7 +122,7 @@ if (!customElements.get('product-info')) {
         };
       }
 
-      renderProductInfo({ requestUrl, targetId, callback }) {
+      renderProductInfo({ requestUrl, targetId, requestId, callback }) {
         this.abortController?.abort();
         this.abortController = new AbortController();
 
@@ -126,9 +135,21 @@ if (!customElements.get('product-info')) {
           })
           .then(() => {
             // set focus to last clicked option value
-            document.querySelector(`#${targetId}`)?.focus();
+            // preventScroll prevents mobile auto-scroll to top on variant selection
+            document.querySelector(`#${targetId}`)?.focus({ preventScroll: true });
+
+            // MOBILE SCROLL FIX: Restore scroll position after DOM swap completes
+            // Uses request-ID to prevent race conditions with rapid clicks
+            if (window.mobileScrollLock && requestId) {
+              window.mobileScrollLock.restorePositionById(requestId);
+            }
           })
           .catch((error) => {
+            // MOBILE SCROLL FIX: Restore scroll even on error
+            if (window.mobileScrollLock && requestId) {
+              window.mobileScrollLock.restorePositionById(requestId);
+            }
+
             if (error.name === 'AbortError') {
               // Fetch aborted by user
             } else {

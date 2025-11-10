@@ -446,6 +446,9 @@
   margin: 0 auto;
   padding: 1rem 1rem 1rem 0;
   color: var(--pet-selector-text);
+  /* MOBILE SCROLL FIX: Prevent automatic scroll anchoring during DOM changes */
+  /* Supported by Chrome/Android, ignored by Safari (we handle iOS separately in JS) */
+  overflow-anchor: none;
 }
 
 .pet-selector__section {
@@ -509,6 +512,10 @@
   opacity: 0;
   width: 0;
   height: 0;
+  /* MOBILE SCROLL FIX: Prevent browser scroll-into-view on focus */
+  scroll-margin: 0;
+  /* iOS-specific: prevent zoom on focus which triggers scroll */
+  font-size: 16px;
 }
 
 .pet-count-btn--active,
@@ -646,6 +653,10 @@
   opacity: 0;
   width: 0;
   height: 0;
+  /* MOBILE SCROLL FIX: Prevent browser scroll-into-view on focus */
+  scroll-margin: 0;
+  /* iOS-specific: prevent zoom on focus which triggers scroll */
+  font-size: 16px;
 }
 
 .style-card__content {
