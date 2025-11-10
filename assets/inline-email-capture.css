@@ -488,8 +488,8 @@
   margin-bottom: max(0px, env(safe-area-inset-bottom));
 }
 
-/* Landscape mode adjustments - handle notch on left/right */
-@media (orientation: landscape) {
+/* Landscape mode adjustments - handle notch on left/right (mobile only) */
+@media (orientation: landscape) and (max-width: 1023px) {
   .email-capture-inline {
     padding-left: max(20px, env(safe-area-inset-left));
     padding-right: max(20px, env(safe-area-inset-right));
@@ -499,5 +499,13 @@
     padding-left: max(16px, env(safe-area-inset-left));
     padding-right: max(16px, env(safe-area-inset-right));
     padding-bottom: max(12px, env(safe-area-inset-bottom)); /* Smaller home indicator in landscape */
+  }
+}
+
+/* Desktop: Remove all horizontal padding to match effect-grid-wrapper width */
+@media (min-width: 1024px) {
+  .action-buttons {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
   }
 }
