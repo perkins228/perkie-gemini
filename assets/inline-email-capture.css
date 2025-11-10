@@ -18,7 +18,7 @@
   border: 1px solid #e5e7eb; /* Gray-200 */
   border-radius: 12px;
   padding: 20px;
-  margin-bottom: 20px; /* Spacing before Add to Product button */
+  margin-bottom: 0; /* Reduced spacing */
 }
 
 @media (min-width: 640px) {
@@ -372,6 +372,11 @@
   outline: 3px solid #6b7280; /* Gray-600 */
   outline-offset: 2px;
   border-radius: 8px;
+}
+
+/* Process Another Pet Button - Reduced Vertical Padding */
+.btn-link.process-another-btn {
+  padding: 8px 16px; /* Reduced top/bottom padding from 12px to 8px */
 }
 
 /* ============================================================================
