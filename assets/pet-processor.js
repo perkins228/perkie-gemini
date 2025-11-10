@@ -2085,34 +2085,44 @@ class PetProcessor {
       console.error('❌ Failed to save email data:', error);
     }
 
-    // Build image URLs from currentPet.effects
-    // Frontend uses: 'color', 'modern', 'sketch'
-    // Backend expects: 'original_url', 'ink_wash_url', 'pen_marker_url'
+    // Build image URL for the currently selected effect only
+    // Frontend effect names: 'enhancedblackwhite', 'color', 'modern', 'sketch'
+    // Backend expects: 'blackwhite_url', 'original_url', 'ink_wash_url', 'pen_marker_url'
     var imageUrls = {};
+    var selectedEffect = this.currentPet.selectedEffect || 'enhancedblackwhite';
+    var effectData = this.currentPet.effects[selectedEffect];
 
-    if (this.currentPet.effects.color && this.currentPet.effects.color.gcsUrl) {
-      imageUrls.original_url = this.currentPet.effects.color.gcsUrl;
-    }
+    // Map frontend effect names to backend email template names
+    var effectMapping = {
+      'color': 'original_url',
+      'modern': 'ink_wash_url',
+      'sketch': 'pen_marker_url',
+      'enhancedblackwhite': 'blackwhite_url'
+    };
 
-    if (this.currentPet.effects.modern && this.currentPet.effects.modern.gcsUrl) {
-      imageUrls.ink_wash_url = this.currentPet.effects.modern.gcsUrl;
-    }
-
-    if (this.currentPet.effects.sketch && this.currentPet.effects.sketch.gcsUrl) {
-      imageUrls.pen_marker_url = this.currentPet.effects.sketch.gcsUrl;
-    }
-
-    // Also include enhancedblackwhite if available
-    if (this.currentPet.effects.enhancedblackwhite && this.currentPet.effects.enhancedblackwhite.gcsUrl) {
-      imageUrls.blackwhite_url = this.currentPet.effects.enhancedblackwhite.gcsUrl;
-    }
-
-    // Check if we have at least one image URL
-    if (Object.keys(imageUrls).length === 0) {
-      console.error('❌ No GCS URLs available in effects');
+    // Check if selected effect has a GCS URL
+    if (!effectData || !effectData.gcsUrl) {
+      console.error('❌ Selected effect not ready:', selectedEffect);
       emailInput.classList.add('error');
       if (errorEl) {
-        errorEl.textContent = 'Images are not ready yet. Please wait for processing to complete.';
+        errorEl.textContent = 'The selected image is not ready yet. Please wait for processing to complete.';
+        errorEl.hidden = false;
+      }
+      submitBtn.disabled = false;
+      submitBtn.classList.remove('loading');
+      return;
+    }
+
+    // Send only the selected style
+    var emailKey = effectMapping[selectedEffect];
+    if (emailKey) {
+      imageUrls[emailKey] = effectData.gcsUrl;
+      console.log('📤 Sending selected style:', selectedEffect, '→', emailKey);
+    } else {
+      console.error('❌ Unknown effect type:', selectedEffect);
+      emailInput.classList.add('error');
+      if (errorEl) {
+        errorEl.textContent = 'Unable to send the selected image. Please try again.';
         errorEl.hidden = false;
       }
       submitBtn.disabled = false;
