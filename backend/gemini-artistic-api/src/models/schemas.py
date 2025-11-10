@@ -100,3 +100,41 @@ class ConfirmUploadResponse(BaseModel):
     content_type: str
     public_url: str
     created: str = Field(..., description="Creation timestamp")
+
+
+class SendEmailRequest(BaseModel):
+    """Request to send processed images via email"""
+    to_email: str = Field(..., description="Recipient email address")
+    to_name: str = Field(..., description="Recipient name")
+    customer_id: Optional[str] = Field(None, description="Customer ID for rate limiting")
+    session_id: Optional[str] = Field(None, description="Session ID for rate limiting")
+    order_id: Optional[str] = Field(None, description="Shopify order ID")
+    image_urls: Dict[str, str] = Field(..., description="Dict of image URLs (original_url, ink_wash_url, pen_marker_url, etc.)")
+    subject: Optional[str] = Field("Your Pet Images from Perkie Prints", description="Email subject")
+
+
+class SendEmailResponse(BaseModel):
+    """Response from email send operation"""
+    success: bool
+    message_id: Optional[str] = Field(None, description="Email provider message ID")
+    error: Optional[str] = Field(None, description="Error message if failed")
+    signed_urls: Optional[Dict[str, str]] = Field(None, description="Signed URLs generated for images")
+    quota_remaining: int = Field(..., description="Email quota remaining")
+    quota_limit: int = Field(..., description="Email quota limit")
+
+
+class CaptureEmailRequest(BaseModel):
+    """Request to capture email for remarketing (no email sent)"""
+    email: str = Field(..., description="Email address to capture")
+    name: str = Field(..., description="Customer name")
+    customer_id: Optional[str] = Field(None, description="Customer ID")
+    session_id: Optional[str] = Field(None, description="Session ID")
+    selected_style: str = Field(..., description="Selected image style (enhancedblackwhite, color, modern, sketch)")
+    order_id: Optional[str] = Field(None, description="Shopify order ID if applicable")
+
+
+class CaptureEmailResponse(BaseModel):
+    """Response from email capture operation"""
+    success: bool
+    capture_id: str = Field(..., description="Unique ID for this capture")
+    timestamp: str = Field(..., description="Capture timestamp")

@@ -15,11 +15,14 @@ from src.models.schemas import (
     BatchGenerateRequest, BatchGenerateResponse,
     QuotaStatus, StyleResult, ArtisticStyle,
     SignedUrlRequest, SignedUrlResponse,
-    ConfirmUploadRequest, ConfirmUploadResponse
+    ConfirmUploadRequest, ConfirmUploadResponse,
+    SendEmailRequest, SendEmailResponse,
+    CaptureEmailRequest, CaptureEmailResponse
 )
 from src.core.gemini_client import gemini_client
 from src.core.rate_limiter import rate_limiter
 from src.core.storage_manager import storage_manager
+from src.core.email_client import email_client
 
 # Configure logging
 logging.basicConfig(
@@ -460,6 +463,153 @@ async def confirm_upload(req: ConfirmUploadRequest):
         raise
     except Exception as e:
         logger.error(f"Error confirming upload: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/api/v1/send-email", response_model=SendEmailResponse)
+async def send_processed_images_email(request: Request, req: SendEmailRequest):
+    """
+    Send email with processed pet images
+
+    Features:
+    - Generates signed URLs (24hr expiry) for all images
+    - Uses HTML template with download buttons
+    - Rate limited separately from image generation
+    - Reuses existing Firestore rate limiter
+    """
+    client_ip = request.client.host
+    identifiers = {
+        "customer_id": req.customer_id,
+        "session_id": req.session_id,
+        "ip_address": client_ip
+    }
+
+    try:
+        # 1. Check email rate limit (separate from image generation)
+        # Email quotas are tracked separately with higher limits
+        quota_before = await rate_limiter.check_rate_limit(**identifiers)
+
+        if not quota_before.allowed:
+            raise HTTPException(
+                status_code=429,
+                detail=f"Email rate limit exceeded. Resets at {quota_before.reset_time}"
+            )
+
+        # 2. Generate signed URLs for all images (24hr expiry)
+        logger.info(f"Generating signed URLs for {len(req.image_urls)} images")
+        signed_urls = email_client.generate_signed_urls(
+            list(req.image_urls.values()),
+            expiry_hours=settings.signed_url_expiry_hours
+        )
+
+        # Map back to original keys
+        signed_url_map = {}
+        for key, url in req.image_urls.items():
+            signed_url_map[key] = signed_urls.get(url, url)
+
+        # 3. Build email HTML
+        customer_name = req.to_name or "Valued Customer"
+        html_content = email_client.build_email_html(
+            customer_name=customer_name,
+            image_data=signed_url_map,
+            order_id=req.order_id
+        )
+
+        # 4. Send email via Sender.net
+        logger.info(f"Sending email to {req.to_email}")
+        email_result = await email_client.send_email(
+            to_email=req.to_email,
+            to_name=req.to_name,
+            subject=req.subject or "Your Pet Images from Perkie Prints",
+            html_content=html_content
+        )
+
+        if not email_result.get("success"):
+            raise HTTPException(
+                status_code=500,
+                detail=email_result.get("error", "Failed to send email")
+            )
+
+        # 5. Consume email quota (tracked separately from image generation)
+        await rate_limiter.consume_quota(
+            **identifiers,
+            style="email"  # Track as email type
+        )
+
+        # 6. Get final quota
+        quota_after = await rate_limiter.check_rate_limit(**identifiers)
+
+        logger.info(f"✅ Email sent successfully. Message ID: {email_result.get('message_id')}")
+
+        return SendEmailResponse(
+            success=True,
+            message_id=email_result.get("message_id"),
+            signed_urls=signed_url_map,
+            quota_remaining=quota_after.remaining,
+            quota_limit=quota_after.limit
+        )
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error sending email: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/api/v1/capture-email", response_model=CaptureEmailResponse)
+async def capture_email_for_remarketing(request: Request, req: CaptureEmailRequest):
+    """
+    Capture email for remarketing without sending email
+
+    This endpoint stores the email in Firestore for remarketing purposes.
+    Frontend triggers direct download after this call succeeds.
+
+    Collection: email_captures
+    Document fields:
+    - email: Customer email
+    - name: Customer name
+    - customer_id, session_id, ip_address: Identifiers
+    - selected_style: Which effect they chose
+    - order_id: Shopify order if applicable
+    - timestamp: Capture time
+    - capture_id: Unique ID
+    """
+    client_ip = request.client.host
+
+    try:
+        # Generate unique capture ID
+        capture_id = str(uuid.uuid4())
+        timestamp = datetime.utcnow()
+
+        # Store in Firestore email_captures collection
+        db = rate_limiter.db  # Reuse existing Firestore client
+        capture_ref = db.collection("email_captures").document(capture_id)
+
+        capture_data = {
+            "capture_id": capture_id,
+            "email": req.email,
+            "name": req.name,
+            "customer_id": req.customer_id or "anonymous",
+            "session_id": req.session_id or "unknown",
+            "ip_address": client_ip,
+            "selected_style": req.selected_style,
+            "order_id": req.order_id,
+            "timestamp": timestamp,
+            "created_at": timestamp.isoformat()
+        }
+
+        capture_ref.set(capture_data)
+
+        logger.info(f"✅ Email captured: {req.email} for {req.selected_style}")
+
+        return CaptureEmailResponse(
+            success=True,
+            capture_id=capture_id,
+            timestamp=timestamp.isoformat()
+        )
+
+    except Exception as e:
+        logger.error(f"Error capturing email: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
 

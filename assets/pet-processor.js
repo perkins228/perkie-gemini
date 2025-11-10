@@ -2049,11 +2049,11 @@ class PetProcessor {
       return;
     }
 
-    // Check if we have processed images to send
+    // Check if we have processed images to download
     if (!this.currentPet || !this.currentPet.effects) {
       emailInput.classList.add('error');
       if (errorEl) {
-        errorEl.textContent = 'No processed images available to send';
+        errorEl.textContent = 'No processed images available to download';
         errorEl.hidden = false;
       }
       return;
@@ -2070,37 +2070,13 @@ class PetProcessor {
     submitBtn.disabled = true;
     submitBtn.classList.add('loading');
 
-    console.log('📧 Sending email to:', email);
+    console.log('📧 Capturing email:', email);
 
-    // Save to localStorage
-    try {
-      var emailData = {
-        email: email,
-        timestamp: new Date().toISOString(),
-        sessionId: this.currentPet ? this.currentPet.sessionId : null
-      };
-      localStorage.setItem('perkie_email_capture', JSON.stringify(emailData));
-      console.log('✅ Email data saved to localStorage');
-    } catch (error) {
-      console.error('❌ Failed to save email data:', error);
-    }
-
-    // Build image URL for the currently selected effect only
-    // Frontend effect names: 'enhancedblackwhite', 'color', 'modern', 'sketch'
-    // Backend expects: 'blackwhite_url', 'original_url', 'ink_wash_url', 'pen_marker_url'
-    var imageUrls = {};
+    // Get selected effect
     var selectedEffect = this.currentPet.selectedEffect || 'enhancedblackwhite';
     var effectData = this.currentPet.effects[selectedEffect];
 
-    // Map frontend effect names to backend email template names
-    var effectMapping = {
-      'color': 'original_url',
-      'modern': 'ink_wash_url',
-      'sketch': 'pen_marker_url',
-      'enhancedblackwhite': 'blackwhite_url'
-    };
-
-    // Check if selected effect has a GCS URL or data URL
+    // Check if selected effect is ready
     if (!effectData || (!effectData.gcsUrl && !effectData.dataUrl)) {
       console.error('❌ Selected effect not ready:', selectedEffect);
       emailInput.classList.add('error');
@@ -2113,68 +2089,109 @@ class PetProcessor {
       return;
     }
 
-    // Send only the selected style (prefer GCS URL, fall back to data URL)
-    var emailKey = effectMapping[selectedEffect];
-    if (emailKey) {
-      imageUrls[emailKey] = effectData.gcsUrl || effectData.dataUrl;
-      console.log('📤 Sending selected style:', selectedEffect, '→', emailKey, 'URL type:', effectData.gcsUrl ? 'GCS' : 'dataURL');
-    } else {
-      console.error('❌ Unknown effect type:', selectedEffect);
-      emailInput.classList.add('error');
-      if (errorEl) {
-        errorEl.textContent = 'Unable to send the selected image. Please try again.';
-        errorEl.hidden = false;
-      }
-      submitBtn.disabled = false;
-      submitBtn.classList.remove('loading');
-      return;
-    }
-
-    console.log('📤 Sending images:', imageUrls);
-
-    // Call real email API
     try {
-      var response = await fetch('https://gemini-artistic-api-753651513695.us-central1.run.app/api/v1/send-email', {
+      // Step 1: Capture email in backend (Firestore for remarketing)
+      var captureResponse = await fetch('https://gemini-artistic-api-753651513695.us-central1.run.app/api/v1/capture-email', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          to_email: email,
-          to_name: email.split('@')[0],
+          email: email,
+          name: email.split('@')[0],
           session_id: this.currentPet.id,
-          image_urls: imageUrls,
-          subject: 'Your Pet Images from Perkie Prints'
+          customer_id: null,
+          selected_style: selectedEffect,
+          order_id: null
         })
       });
 
-      var data = await response.json();
+      var captureData = await captureResponse.json();
 
-      if (response.ok && data.success) {
-        // Show success state
-        console.log('✅ Email sent successfully:', data.message_id);
-        if (successEl) successEl.hidden = false;
-
-        // Reset form
-        form.reset();
-
-        // Hide success message after 5 seconds
-        setTimeout(function() {
-          if (successEl) successEl.hidden = true;
-        }, 5000);
-      } else {
-        // Show error
-        throw new Error(data.error || data.detail || 'Failed to send email');
+      if (!captureResponse.ok || !captureData.success) {
+        throw new Error('Failed to capture email');
       }
+
+      console.log('✅ Email captured:', captureData.capture_id);
+
+      // Step 2: Download image directly using blob URL method
+      var imageUrl = effectData.dataUrl || effectData.gcsUrl;
+      var imageBlob = null;
+
+      if (imageUrl.startsWith('data:')) {
+        // Convert data URL to blob
+        var parts = imageUrl.split(',');
+        var mimeMatch = parts[0].match(/:(.*?);/);
+        var mime = mimeMatch ? mimeMatch[1] : 'image/png';
+        var bstr = atob(parts[1]);
+        var n = bstr.length;
+        var u8arr = new Uint8Array(n);
+        for (var i = 0; i < n; i++) {
+          u8arr[i] = bstr.charCodeAt(i);
+        }
+        imageBlob = new Blob([u8arr], {type: mime});
+      } else {
+        // Fetch GCS URL and convert to blob
+        var imageResponse = await fetch(imageUrl);
+        imageBlob = await imageResponse.blob();
+      }
+
+      // Create blob URL and trigger download
+      var blobUrl = URL.createObjectURL(imageBlob);
+      var downloadLink = document.createElement('a');
+      downloadLink.href = blobUrl;
+
+      // Generate filename: perkie-pet-{effect}-{timestamp}.png
+      var timestamp = new Date().getTime();
+      var filename = 'perkie-pet-' + selectedEffect + '-' + timestamp + '.png';
+      downloadLink.download = filename;
+
+      document.body.appendChild(downloadLink);
+      downloadLink.click();
+      document.body.removeChild(downloadLink);
+
+      // Clean up blob URL after a short delay
+      setTimeout(function() {
+        URL.revokeObjectURL(blobUrl);
+      }, 100);
+
+      console.log('✅ Image downloaded:', filename);
+
+      // Step 3: Save email to localStorage (backup)
+      try {
+        var emailData = {
+          email: email,
+          timestamp: new Date().toISOString(),
+          sessionId: this.currentPet ? this.currentPet.sessionId : null,
+          captureId: captureData.capture_id
+        };
+        localStorage.setItem('perkie_email_capture', JSON.stringify(emailData));
+      } catch (error) {
+        console.error('❌ Failed to save email data to localStorage:', error);
+      }
+
+      // Step 4: Show success state
+      if (successEl) {
+        var successMsg = successEl.querySelector('.success-message');
+        if (successMsg) {
+          successMsg.textContent = 'Image downloaded! Check your downloads folder.';
+        }
+        successEl.hidden = false;
+      }
+
+      // Reset form
+      form.reset();
+
+      // Hide success message after 5 seconds
+      setTimeout(function() {
+        if (successEl) successEl.hidden = true;
+      }, 5000);
+
     } catch (error) {
-      console.error('❌ Email send failed:', error);
+      console.error('❌ Email capture or download failed:', error);
       emailInput.classList.add('error');
       if (errorEl) {
-        var errorMsg = error.message || 'Failed to send email. Please try again.';
-        // Handle rate limit error
-        if (errorMsg.includes('rate limit') || errorMsg.includes('quota')) {
-          errorMsg = 'Daily email limit reached. Please try again tomorrow.';
-        }
+        var errorMsg = error.message || 'Failed to process your request. Please try again.';
         errorEl.textContent = errorMsg;
         errorEl.hidden = false;
       }
