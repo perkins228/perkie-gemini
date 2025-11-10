@@ -1698,7 +1698,55 @@ class PetProcessor {
       if (img && result.effects.enhancedblackwhite) {
         img.src = result.effects.enhancedblackwhite.dataUrl;
       }
+
+      // Update style card preview images with actual processed images
+      this.updateStyleCardPreviews(result);
     });
+  }
+
+  /**
+   * Update style selection card images with actual processed pet images
+   * Replaces generic placeholder images with user's processed results
+   * @param {Object} result - Processing result containing effects
+   */
+  updateStyleCardPreviews(result) {
+    if (!result || !result.effects) return;
+
+    try {
+      // Map of effect names to their corresponding preview image selectors
+      const styleMap = {
+        'enhancedblackwhite': '[data-style-preview="bw"]',
+        'color': '[data-style-preview="color"]',
+        'modern': '[data-style-preview="modern"]',
+        'sketch': '[data-style-preview="sketch"]'
+      };
+
+      // Update each style card with the actual processed image
+      Object.entries(styleMap).forEach(([effectKey, selector]) => {
+        const effectData = result.effects[effectKey];
+        const imgElement = this.container.querySelector(selector);
+
+        if (imgElement && effectData) {
+          // Gemini effects (modern, sketch) use GCS URLs
+          // InSPyReNet effects (B&W, color) use data URLs
+          if (effectKey === 'modern' || effectKey === 'sketch') {
+            // Gemini effect - use GCS URL
+            if (effectData.gcsUrl) {
+              imgElement.src = effectData.gcsUrl;
+            }
+          } else {
+            // InSPyReNet effect - use data URL
+            if (effectData.dataUrl) {
+              imgElement.src = effectData.dataUrl;
+            }
+          }
+        }
+      });
+
+      console.log('✅ Style card previews updated with processed images');
+    } catch (error) {
+      console.error('❌ Error updating style card previews:', error);
+    }
   }
   
   showError(message) {
