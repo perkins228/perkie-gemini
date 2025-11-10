@@ -900,7 +900,7 @@
   /* INITIAL STATE: Center upload zone when no result */
   .pet-processor-container:not(.has-result) .processor-columns {
     display: block;
-    max-width: 600px;
+    max-width: 500px;
     margin: 0 auto;
   }
   
