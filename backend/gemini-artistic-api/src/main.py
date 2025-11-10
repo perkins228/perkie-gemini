@@ -16,8 +16,7 @@ from src.models.schemas import (
     QuotaStatus, StyleResult, ArtisticStyle,
     SignedUrlRequest, SignedUrlResponse,
     ConfirmUploadRequest, ConfirmUploadResponse,
-    SendEmailRequest, SendEmailResponse,
-    CaptureEmailRequest, CaptureEmailResponse
+    SendEmailRequest, SendEmailResponse
 )
 from src.core.gemini_client import gemini_client
 from src.core.rate_limiter import rate_limiter
@@ -553,63 +552,6 @@ async def send_processed_images_email(request: Request, req: SendEmailRequest):
         raise
     except Exception as e:
         logger.error(f"Error sending email: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
-
-
-@app.post("/api/v1/capture-email", response_model=CaptureEmailResponse)
-async def capture_email_for_remarketing(request: Request, req: CaptureEmailRequest):
-    """
-    Capture email for remarketing without sending email
-
-    This endpoint stores the email in Firestore for remarketing purposes.
-    Frontend triggers direct download after this call succeeds.
-
-    Collection: email_captures
-    Document fields:
-    - email: Customer email
-    - name: Customer name
-    - customer_id, session_id, ip_address: Identifiers
-    - selected_style: Which effect they chose
-    - order_id: Shopify order if applicable
-    - timestamp: Capture time
-    - capture_id: Unique ID
-    """
-    client_ip = request.client.host
-
-    try:
-        # Generate unique capture ID
-        capture_id = str(uuid.uuid4())
-        timestamp = datetime.utcnow()
-
-        # Store in Firestore email_captures collection
-        db = rate_limiter.db  # Reuse existing Firestore client
-        capture_ref = db.collection("email_captures").document(capture_id)
-
-        capture_data = {
-            "capture_id": capture_id,
-            "email": req.email,
-            "name": req.name,
-            "customer_id": req.customer_id or "anonymous",
-            "session_id": req.session_id or "unknown",
-            "ip_address": client_ip,
-            "selected_style": req.selected_style,
-            "order_id": req.order_id,
-            "timestamp": timestamp,
-            "created_at": timestamp.isoformat()
-        }
-
-        capture_ref.set(capture_data)
-
-        logger.info(f"✅ Email captured: {req.email} for {req.selected_style}")
-
-        return CaptureEmailResponse(
-            success=True,
-            capture_id=capture_id,
-            timestamp=timestamp.isoformat()
-        )
-
-    except Exception as e:
-        logger.error(f"Error capturing email: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
 

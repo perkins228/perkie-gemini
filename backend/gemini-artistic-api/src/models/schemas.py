@@ -121,20 +121,3 @@ class SendEmailResponse(BaseModel):
     signed_urls: Optional[Dict[str, str]] = Field(None, description="Signed URLs generated for images")
     quota_remaining: int = Field(..., description="Email quota remaining")
     quota_limit: int = Field(..., description="Email quota limit")
-
-
-class CaptureEmailRequest(BaseModel):
-    """Request to capture email for remarketing (no email sent)"""
-    email: str = Field(..., description="Email address to capture")
-    name: str = Field(..., description="Customer name")
-    customer_id: Optional[str] = Field(None, description="Customer ID")
-    session_id: Optional[str] = Field(None, description="Session ID")
-    selected_style: str = Field(..., description="Selected image style (enhancedblackwhite, color, modern, sketch)")
-    order_id: Optional[str] = Field(None, description="Shopify order ID if applicable")
-
-
-class CaptureEmailResponse(BaseModel):
-    """Response from email capture operation"""
-    success: bool
-    capture_id: str = Field(..., description="Unique ID for this capture")
-    timestamp: str = Field(..., description="Capture timestamp")

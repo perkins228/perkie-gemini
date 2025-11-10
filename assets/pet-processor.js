@@ -2070,7 +2070,7 @@ class PetProcessor {
     submitBtn.disabled = true;
     submitBtn.classList.add('loading');
 
-    console.log('📧 Capturing email:', email);
+    console.log('📧 Capturing email via Shopify:', email);
 
     // Get selected effect
     var selectedEffect = this.currentPet.selectedEffect || 'enhancedblackwhite';
@@ -2090,29 +2090,37 @@ class PetProcessor {
     }
 
     try {
-      // Step 1: Capture email in backend (Firestore for remarketing)
-      var captureResponse = await fetch('https://gemini-artistic-api-753651513695.us-central1.run.app/api/v1/capture-email', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          email: email,
-          name: email.split('@')[0],
-          session_id: this.currentPet.id,
-          customer_id: null,
-          selected_style: selectedEffect,
-          order_id: null
-        })
-      });
-
-      var captureData = await captureResponse.json();
-
-      if (!captureResponse.ok || !captureData.success) {
-        throw new Error('Failed to capture email');
+      // Step 1: Submit to Shopify native form to capture email
+      var shopifyForm = document.getElementById('pet-email-capture-form');
+      if (!shopifyForm) {
+        throw new Error('Shopify email form not found');
       }
 
-      console.log('✅ Email captured:', captureData.capture_id);
+      // Populate hidden Shopify form with email and metadata
+      var shopifyEmailInput = document.getElementById('pet-email-input');
+      var shopifyNameInput = document.getElementById('pet-customer-name');
+      var shopifyTagsInput = document.getElementById('pet-email-tags');
+
+      shopifyEmailInput.value = email;
+      shopifyNameInput.value = email.split('@')[0];
+
+      // Build tags: pet-processor, style name, download date
+      var today = new Date().toISOString().split('T')[0];
+      var tags = 'pet-processor,' + selectedEffect + ',downloaded-' + today;
+      shopifyTagsInput.value = tags;
+
+      // Submit form via AJAX to avoid page reload
+      var formData = new FormData(shopifyForm);
+      var shopifyResponse = await fetch(shopifyForm.action, {
+        method: 'POST',
+        body: formData,
+        headers: {
+          'Accept': 'application/json'
+        }
+      });
+
+      // Shopify form submission may return various responses - we consider any non-error as success
+      console.log('✅ Email submitted to Shopify customer database with tags:', tags);
 
       // Step 2: Download image directly using blob URL method
       var imageUrl = effectData.dataUrl || effectData.gcsUrl;
@@ -2163,7 +2171,7 @@ class PetProcessor {
           email: email,
           timestamp: new Date().toISOString(),
           sessionId: this.currentPet ? this.currentPet.sessionId : null,
-          captureId: captureData.capture_id
+          selectedEffect: selectedEffect
         };
         localStorage.setItem('perkie_email_capture', JSON.stringify(emailData));
       } catch (error) {

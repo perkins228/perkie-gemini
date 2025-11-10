@@ -36,6 +36,19 @@
     <div id="pet-processor-content-{{ section.id }}" class="pet-processor-content">
       <!-- Pet processor UI will be inserted here by JavaScript -->
     </div>
+
+    {%- comment -%}
+    Hidden Shopify Native Email Capture Form
+    Submitted via JavaScript to store emails in Shopify customer database
+    Tags track: pet-processor, selected style, download date
+    {%- endcomment -%}
+    <div style="display: none;">
+      {% form 'customer', id: 'pet-email-capture-form', class: 'pet-email-form' %}
+        <input type="hidden" name="contact[tags]" id="pet-email-tags" value="pet-processor">
+        <input type="email" name="contact[email]" id="pet-email-input" required>
+        <input type="text" name="contact[first_name]" id="pet-customer-name">
+      {% endform %}
+    </div>
   </div>
 </section>
 
