@@ -41,11 +41,20 @@
     "how_it_works": {
       "type": "how-it-works",
       "blocks": {
+        "step_AcWh4f": {
+          "type": "step",
+          "settings": {
+            "icon_svg": "<svg viewbox=\"0 0 48 48\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\"><rect x=\"20\" y=\"10\" width=\"8\" height=\"28\" rx=\"4\" fill=\"#A3D9A5\"></rect><rect x=\"14\" y=\"28\" width=\"20\" height=\"8\" rx=\"4\" fill=\"#F7C873\"></rect></svg>",
+            "icon_image": "shopify://shop_images/t-shirt-icon.png",
+            "title": "1. Choose a Product",
+            "desc": "Pick a product to showcase your pet photo."
+          }
+        },
         "step_1": {
           "type": "step",
           "settings": {
             "icon_svg": "<text x=\"24\" y=\"36\" font-size=\"48\" text-anchor=\"middle\">📤</text>",
-            "title": "1. Upload Your Pet Photo",
+            "title": "2. Upload Your Photo",
             "desc": "Choose a well-lit, high-resolution photo of your pet (JPG/PNG, max 50MB)"
           }
         },
@@ -53,15 +62,15 @@
           "type": "step",
           "settings": {
             "icon_svg": "<text x=\"24\" y=\"36\" font-size=\"48\" text-anchor=\"middle\">🎨</text>",
-            "title": "2. Select Your Style",
-            "desc": "Preview 4 beautiful effects: Perkie Print, Pop Art, Halftone, or Color"
+            "title": "3. Select Your Style",
+            "desc": "Preview 4 beautiful effects: Black & White, Color, Modern, and Sketch"
           }
         },
         "step_3": {
           "type": "step",
           "settings": {
             "icon_svg": "<text x=\"24\" y=\"36\" font-size=\"48\" text-anchor=\"middle\">📝</text>",
-            "title": "3. Add Artist Notes",
+            "title": "4. Add Artist Notes",
             "desc": "Leave special requests for our artist to perfect your custom artwork"
           }
         },
@@ -69,12 +78,13 @@
           "type": "step",
           "settings": {
             "icon_svg": "<text x=\"24\" y=\"36\" font-size=\"48\" text-anchor=\"middle\">🛒</text>",
-            "title": "4. Add to Cart & Order",
+            "title": "5. Add to Cart & Order",
             "desc": "Choose your product and our artists will create your custom print"
           }
         }
       },
       "block_order": [
+        "step_AcWh4f",
         "step_1",
         "step_2",
         "step_3",
