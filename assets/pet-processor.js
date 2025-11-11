@@ -1371,13 +1371,47 @@ class PetProcessor {
     // API returns: {success: true, effects: {enhancedblackwhite: "base64...", ...}}
     const effectsData = data.effects || {};
     
+    // Upload all effects to GCS in parallel to avoid localStorage quota issues
+    const uploadPromises = [];
+    const effectNames = Object.keys(effectsData);
+
     for (const [effectName, base64Data] of Object.entries(effectsData)) {
       // Convert base64 to data URL
       const dataUrl = `data:image/png;base64,${base64Data}`;
-      effects[effectName] = {
-        gcsUrl: '', // Will be set when uploading to GCS if needed
-        dataUrl: dataUrl
+
+      // Create upload promise (will execute in parallel)
+      const uploadPromise = this.uploadToGCS(
+        dataUrl,
+        this.getSessionId(),
+        'processed',
+        effectName
+      ).then(gcsUrl => ({
+        effectName,
+        gcsUrl,
+        dataUrl
+      }));
+
+      uploadPromises.push(uploadPromise);
+    }
+
+    // Update progress: uploading effects
+    this.updateProgressWithTimer(78, '📤 Uploading effects to cloud storage...', null);
+
+    // Wait for all uploads to complete
+    const uploadResults = await Promise.all(uploadPromises);
+
+    // Process upload results
+    for (const result of uploadResults) {
+      effects[result.effectName] = {
+        gcsUrl: result.gcsUrl || '', // Use GCS URL if upload succeeded
+        dataUrl: result.gcsUrl ? null : result.dataUrl  // Keep dataUrl only as fallback
       };
+
+      if (result.gcsUrl) {
+        console.log(`✅ ${result.effectName} uploaded to GCS: ${result.gcsUrl}`);
+      } else {
+        console.warn(`⚠️ ${result.effectName} upload failed, using dataUrl fallback`);
+      }
     }
 
     // Generate Gemini AI effects (Modern + Classic) if enabled
@@ -2249,14 +2283,38 @@ class PetProcessor {
         }
 
         // Phase 4: Create session bridge before redirect
+        // Only pass GCS URLs (not dataUrls) to avoid localStorage quota issues
+        const effectsForBridge = {};
+        for (const [effectName, effectData] of Object.entries(this.currentPet.effects)) {
+          if (effectData.gcsUrl) {
+            // Only include GCS URL (not dataUrl)
+            effectsForBridge[effectName] = {
+              gcsUrl: effectData.gcsUrl
+            };
+          } else if (effectData.dataUrl) {
+            console.warn(`⚠️ ${effectName} missing GCS URL, will use dataUrl as fallback`);
+            // Fallback: include dataUrl only if no GCS URL available
+            effectsForBridge[effectName] = {
+              dataUrl: effectData.dataUrl
+            };
+          }
+        }
+
         const bridgeData = {
           sessionKey: this.currentPet.id,
           artistNote: '', // Collected on product page
-          effects: this.currentPet.effects,
+          effects: effectsForBridge,
           selectedEffect: this.currentPet.selectedEffect || 'enhancedblackwhite',
           timestamp: Date.now(),
           redirectUrl: redirectUrl
         };
+
+        // Validate bridge size (should be ~400 bytes with GCS URLs, not 2.7MB with dataUrls)
+        const bridgeSize = JSON.stringify(bridgeData).length;
+        console.log(`📊 Bridge data size: ${(bridgeSize / 1024).toFixed(1)}KB`);
+        if (bridgeSize > 100000) { // 100KB threshold
+          console.error(`❌ Bridge data too large (${(bridgeSize / 1024).toFixed(1)}KB)! May cause quota issues.`);
+        }
 
         // Save to sessionStorage (cleared after page load)
         sessionStorage.setItem('processor_to_product_bridge', JSON.stringify(bridgeData));
