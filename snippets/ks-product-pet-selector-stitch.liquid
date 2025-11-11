@@ -2794,10 +2794,15 @@
         if (petNumber === 1 && pet.artistNote) {
           const artistNotesField = document.querySelector('[data-artist-notes]');
           if (artistNotesField) {
-            // SECURITY: Sanitize artist notes (prevent XSS, limit length)
+            // SECURITY: Enhanced sanitization (prevent XSS, limit length)
             const sanitizedNotes = pet.artistNote
               .substring(0, 200) // Limit to 200 chars
               .replace(/<[^>]*>/g, '') // Strip HTML tags
+              .replace(/&lt;/g, '') // Remove encoded tags
+              .replace(/&gt;/g, '')
+              .replace(/javascript:/gi, '') // Remove javascript: protocol
+              .replace(/on\w+=/gi, '') // Remove event handlers (onclick=, onload=, etc)
+              .replace(/[\u0000-\u001F\u007F-\u009F]/g, '') // Remove control characters
               .trim();
 
             artistNotesField.value = sanitizedNotes;
