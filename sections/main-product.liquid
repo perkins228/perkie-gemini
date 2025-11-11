@@ -617,11 +617,18 @@
                 -%}
 
                 {%- comment -%}
-                  PHASE 1 MVP: Inline Preview for Black Frame Product Only
-                  Test URL: https://r27yma0ce20no386-2930573424.shopifypreview.com/collections/personalized-pet-portraits/products/personalized-pet-portrait-in-black-frame
+                  Inline Preview Modal for ALL Custom Products
+                  Loaded for any product with 'custom' tag (same condition as pet-selector)
                   Kill switch: ?inline_preview=false
                 {%- endcomment -%}
-                {%- if product.handle == 'personalized-pet-portrait-in-black-frame' -%}
+                {%- assign has_custom_tag = false -%}
+                {%- for tag in product.tags -%}
+                  {%- if tag contains 'custom' or tag contains 'Custom' or tag contains 'CUSTOM' -%}
+                    {%- assign has_custom_tag = true -%}
+                    {%- break -%}
+                  {%- endif -%}
+                {%- endfor -%}
+                {%- if has_custom_tag -%}
                   {%- render 'inline-preview-mvp', product: product -%}
                 {%- endif -%}
               {%- when 'trust_indicators' -%}
