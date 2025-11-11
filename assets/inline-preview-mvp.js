@@ -623,6 +623,20 @@
           warmthTracker.recordServiceCall('gemini', true, geminiTime);
         }
 
+        // Upload all effects to GCS to prevent localStorage quota issues
+        console.log('☁️ Uploading effects to GCS...');
+        this.updateProgress('Saving images to cloud...', '⏱️ A few seconds...');
+
+        try {
+          const uploadedEffects = await this.uploadAllEffectsToGCS(this.currentPet.effects);
+          // Replace data URLs with GCS URLs (1.7MB → 100 bytes per effect)
+          this.currentPet.effects = uploadedEffects;
+          console.log('✅ Effects uploaded to GCS');
+        } catch (error) {
+          console.error('❌ GCS upload failed, using data URLs as fallback:', error);
+          // Continue with data URLs if upload fails (localStorage quota risk accepted)
+        }
+
         // Stop timer and show result
         this.stopProgressTimer();
         this.updateProgress('Complete!', '✅ Ready to preview');
@@ -1189,6 +1203,131 @@
         }
       } catch (error) {
         console.error('❌ Auto-select error:', error);
+      }
+    }
+
+    /**
+     * Upload all effect images to GCS in parallel
+     * Converts data URLs to GCS URLs to prevent localStorage quota issues
+     * @param {Object} effects - Effect name → data URL mapping
+     * @returns {Promise<Object>} Effect name → GCS URL mapping
+     */
+    async uploadAllEffectsToGCS(effects) {
+      const sessionKey = `pet_${this.petNumber}_${Date.now()}`;
+      const uploadPromises = [];
+
+      // Upload all effects in parallel for speed (3-4s for 4 effects)
+      for (const [effectName, dataUrl] of Object.entries(effects)) {
+        if (!dataUrl || !dataUrl.startsWith('data:')) continue;
+
+        const uploadPromise = this.uploadEffectToGCS(
+          dataUrl,
+          sessionKey,
+          effectName
+        ).then(gcsUrl => ({
+          effectName,
+          gcsUrl: gcsUrl || dataUrl // Fallback to data URL if upload fails
+        })).catch(error => {
+          console.error(`❌ Upload failed for ${effectName}:`, error);
+          return { effectName, gcsUrl: dataUrl }; // Fallback to data URL
+        });
+
+        uploadPromises.push(uploadPromise);
+      }
+
+      // Wait for all uploads (parallel execution)
+      const results = await Promise.allSettled(uploadPromises);
+
+      // Build result object with GCS URLs
+      const uploadedEffects = {};
+      for (const result of results) {
+        if (result.status === 'fulfilled' && result.value) {
+          const { effectName, gcsUrl } = result.value;
+          uploadedEffects[effectName] = gcsUrl;
+
+          // Log success/fallback
+          if (gcsUrl.startsWith('https://storage.googleapis.com')) {
+            console.log(`✅ ${effectName} uploaded to GCS`);
+          } else {
+            console.warn(`⚠️ ${effectName} using data URL fallback`);
+          }
+        }
+      }
+
+      return uploadedEffects;
+    }
+
+    /**
+     * Upload single effect to GCS using direct upload handler
+     * @param {string} dataUrl - Base64 data URL
+     * @param {string} sessionKey - Session identifier
+     * @param {string} effectName - Effect name (e.g., 'modern', 'sketch')
+     * @returns {Promise<string|null>} GCS URL or null
+     */
+    async uploadEffectToGCS(dataUrl, sessionKey, effectName) {
+      try {
+        // Convert data URL to blob
+        const response = await fetch(dataUrl);
+        const blob = await response.blob();
+
+        // Create File object with descriptive name
+        const file = new File(
+          [blob],
+          `${sessionKey}_${effectName}.png`,
+          { type: 'image/png' }
+        );
+
+        // Try direct upload handler first (75% faster)
+        if (window.directUploadHandler && typeof window.directUploadHandler.uploadImage === 'function') {
+          const gcsUrl = await window.directUploadHandler.uploadImage(file, {
+            sessionId: sessionKey,
+            customerId: this.getCustomerId ? this.getCustomerId() : 'anonymous'
+          });
+          return gcsUrl;
+        }
+
+        // Fallback to InSPyReNet endpoint
+        return await this.uploadViaInSPyReNet(file, sessionKey, effectName);
+
+      } catch (error) {
+        console.error(`❌ Failed to upload ${effectName}:`, error);
+        return null;
+      }
+    }
+
+    /**
+     * Upload via InSPyReNet API (fallback method)
+     * @param {File} file - File to upload
+     * @param {string} sessionKey - Session identifier
+     * @param {string} effectName - Effect name
+     * @returns {Promise<string|null>} GCS URL or null
+     */
+    async uploadViaInSPyReNet(file, sessionKey, effectName) {
+      try {
+        const formData = new FormData();
+        formData.append('file', file, file.name);
+        formData.append('session_id', sessionKey);
+        formData.append('image_type', `processed_${effectName}`);
+        formData.append('tier', 'temporary'); // 7-day retention
+
+        const response = await fetch(
+          'https://inspirenet-bg-removal-api-725543555429.us-central1.run.app/store-image',
+          {
+            method: 'POST',
+            body: formData
+          }
+        );
+
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}`);
+        }
+
+        const result = await response.json();
+        return result.success ? result.url : null;
+
+      } catch (error) {
+        console.error(`❌ InSPyReNet upload failed for ${effectName}:`, error);
+        return null;
       }
     }
 
