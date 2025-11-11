@@ -492,24 +492,54 @@
         const correctedFile = await this.correctImageOrientation(file);
         if (this.processingCancelled) return;
 
-        // Detect API warmth for accurate countdown
-        const warmthState = warmthTracker.getWarmthState();
-        const isFirstTime = warmthTracker.isFirstTimeUser();
+        // Detect API warmth for accurate countdown (both InSPyReNet and Gemini)
+        // Wrapped in try/catch for Safari private mode and disabled localStorage
+        let inspyreNetWarm = false;
+        let geminiWarm = false;
+        let isFirstTime = false;
 
-        // Select appropriate timer based on warmth detection
+        try {
+          inspyreNetWarm = warmthTracker.getServiceWarmth('inspirenet');
+          geminiWarm = warmthTracker.getServiceWarmth('gemini');
+          isFirstTime = warmthTracker.isFirstTimeUser();
+        } catch (error) {
+          console.warn('⚠️ Warmth detection failed (localStorage disabled?), assuming cold APIs:', error);
+          // Defaults already set to false/cold - safe fallback
+        }
+
+        const geminiEnabled = this.geminiEnabled;
+
+        // Calculate accurate estimated time based on BOTH API warmth states
         let estimatedTime;
-        if (warmthState === 'warm') {
-          // Warm API: 12-15 seconds
-          estimatedTime = 15000;
-          console.log('⚡ Fast processing mode (warm API)');
-        } else if (warmthState === 'cold' || isFirstTime) {
-          // Cold API or first-time user: 75-85 seconds
-          estimatedTime = 80000;
-          console.log('🧠 Standard processing mode (cold API)');
+
+        if (isFirstTime) {
+          // First-time user: Both APIs cold + extra overhead
+          estimatedTime = geminiEnabled ? 70000 : 45000; // 70s with Gemini, 45s without
+          console.log('👋 First-time processing mode (both APIs cold):', estimatedTime / 1000 + 's');
+        } else if (inspyreNetWarm && geminiWarm && geminiEnabled) {
+          // Both APIs warm - best case scenario
+          estimatedTime = 18000; // 18 seconds
+          console.log('⚡⚡ Ultra-fast mode (both APIs warm):', estimatedTime / 1000 + 's');
+        } else if (inspyreNetWarm && !geminiEnabled) {
+          // Only InSPyReNet needed and it's warm
+          estimatedTime = 8000; // 8 seconds
+          console.log('⚡ Fast mode (InSPyReNet warm, no AI effects):', estimatedTime / 1000 + 's');
+        } else if (inspyreNetWarm && !geminiWarm && geminiEnabled) {
+          // InSPyReNet warm, but Gemini cold
+          estimatedTime = 28000; // 8s InSPyReNet + 20s Gemini cold
+          console.log('⚡❄️ Mixed mode (InSPyReNet warm, Gemini cold):', estimatedTime / 1000 + 's');
+        } else if (!inspyreNetWarm && geminiWarm && geminiEnabled) {
+          // InSPyReNet cold, Gemini warm
+          estimatedTime = 50000; // 40s InSPyReNet cold + 10s Gemini warm
+          console.log('❄️⚡ Mixed mode (InSPyReNet cold, Gemini warm):', estimatedTime / 1000 + 's');
+        } else if (!inspyreNetWarm && !geminiEnabled) {
+          // Only InSPyReNet cold needed
+          estimatedTime = 40000; // 40 seconds
+          console.log('❄️ Standard mode (InSPyReNet cold, no AI effects):', estimatedTime / 1000 + 's');
         } else {
-          // Unknown state: Conservative estimate
-          estimatedTime = 45000;
-          console.log('📤 Processing mode (unknown warmth)');
+          // Both APIs cold - worst case
+          estimatedTime = 65000; // 40s InSPyReNet + 25s Gemini
+          console.log('❄️❄️ Extended processing (both APIs cold):', estimatedTime / 1000 + 's');
         }
 
         // Process with effects directly (no GCS upload needed initially)
@@ -521,13 +551,11 @@
         const effects = await this.removeBackground(correctedFile);
         if (this.processingCancelled) return;
 
-        const totalTime = Date.now() - startTime;
-        console.log('✅ Processing complete:', effects);
-        this.stopProgressTimer();
-        this.updateProgress('Complete!', '✅ Ready to preview');
+        const inspyreNetTime = Date.now() - startTime;
+        console.log('✅ Background removal complete:', effects, `(${inspyreNetTime}ms)`);
 
-        // Record API call for future warmth detection
-        warmthTracker.recordAPICall(true, totalTime);
+        // Record InSPyReNet API call for future warmth detection
+        warmthTracker.recordServiceCall('inspirenet', true, inspyreNetTime);
 
         // Store pet data with data URLs initially
         this.currentPet = {
@@ -541,10 +569,18 @@
 
         // Generate AI effects if enabled
         if (this.geminiEnabled) {
+          const geminiStartTime = Date.now();
           await this.generateAIEffects(this.currentPet.processedImage);
+          const geminiTime = Date.now() - geminiStartTime;
+          console.log(`✅ AI effects complete (${geminiTime}ms)`);
+
+          // Record Gemini API call for future warmth detection
+          warmthTracker.recordServiceCall('gemini', true, geminiTime);
         }
 
-        // Show result
+        // Stop timer and show result
+        this.stopProgressTimer();
+        this.updateProgress('Complete!', '✅ Ready to preview');
         this.showResult();
 
       } catch (error) {
@@ -554,7 +590,12 @@
         // Record failed API call if processing was started
         if (startTime) {
           const totalTime = Date.now() - startTime;
-          warmthTracker.recordAPICall(false, totalTime);
+          // Record failure for InSPyReNet (always attempted)
+          warmthTracker.recordServiceCall('inspirenet', false, totalTime);
+          // Record failure for Gemini if it was enabled
+          if (this.geminiEnabled) {
+            warmthTracker.recordServiceCall('gemini', false, totalTime);
+          }
         }
 
         this.showError(error.message || 'Failed to process image. Please try again.');
@@ -1329,12 +1370,18 @@
 
     isFirstTimeUser() {
       try {
-        // Check if user has ever used the API
-        const hasLocalData = localStorage.getItem(this.storageKey);
-        const hasSessionData = sessionStorage.getItem(this.sessionKey);
+        // Check if user has ever used the NEW service-specific API tracking
+        const hasInspyreNetData = localStorage.getItem('perkie_api_warmth_inspirenet') ||
+                                  sessionStorage.getItem('perkie_api_warmth_inspirenet');
+        const hasGeminiData = localStorage.getItem('perkie_api_warmth_gemini') ||
+                              sessionStorage.getItem('perkie_api_warmth_gemini');
         const hasProcessedCount = localStorage.getItem('perkie_processed_count');
 
-        const isFirstTime = !hasLocalData && !hasSessionData && !hasProcessedCount;
+        // Also check legacy keys for backward compatibility
+        const hasLegacyData = localStorage.getItem(this.storageKey) ||
+                              sessionStorage.getItem(this.sessionKey);
+
+        const isFirstTime = !hasInspyreNetData && !hasGeminiData && !hasProcessedCount && !hasLegacyData;
 
         if (isFirstTime) {
           console.log('👋 First-time user detected');
@@ -1412,6 +1459,135 @@
         console.log(`📊 API call recorded: ${Math.round(duration/1000)}s (${wasWarm ? 'warm' : 'cold'})`);
       } catch (error) {
         console.warn('Failed to record API call:', error);
+      }
+    }
+
+    /**
+     * Check warmth for a specific service (inspirenet or gemini)
+     * @param {string} service - 'inspirenet' or 'gemini'
+     * @returns {boolean} - true if warm, false if cold
+     */
+    getServiceWarmth(service) {
+      try {
+        const key = `perkie_api_warmth_${service}`;
+
+        // Check sessionStorage first (most reliable)
+        const sessionData = sessionStorage.getItem(key);
+        if (sessionData) {
+          const data = JSON.parse(sessionData);
+          const timeSinceLastCall = Date.now() - data.lastCall;
+
+          if (timeSinceLastCall < this.warmthTimeout) {
+            return true; // Warm
+          }
+        }
+
+        // Check localStorage
+        const storedData = localStorage.getItem(key);
+        if (!storedData) {
+          return false; // Cold (never used)
+        }
+
+        const data = JSON.parse(storedData);
+        const timeSinceLastCall = Date.now() - data.lastCall;
+
+        return timeSinceLastCall < this.warmthTimeout; // Warm if < 10 minutes
+      } catch (error) {
+        console.warn(`Failed to detect ${service} warmth:`, error);
+        return false; // Assume cold on error
+      }
+    }
+
+    /**
+     * Record API call for a specific service
+     * @param {string} service - 'inspirenet' or 'gemini'
+     * @param {boolean} success - whether the call succeeded
+     * @param {number} duration - duration in milliseconds
+     */
+    recordServiceCall(service, success, duration) {
+      try {
+        const key = `perkie_api_warmth_${service}`;
+
+        // Update sessionStorage (immediate warmth)
+        const sessionData = {
+          lastCall: Date.now(),
+          callCount: 1,
+          averageDuration: duration,
+          success: success
+        };
+
+        const existingSession = sessionStorage.getItem(key);
+        if (existingSession) {
+          const session = JSON.parse(existingSession);
+          sessionData.callCount = (session.callCount || 0) + 1;
+          sessionData.averageDuration = Math.round(
+            ((session.averageDuration || duration) + duration) / 2
+          );
+        }
+
+        sessionStorage.setItem(key, JSON.stringify(sessionData));
+
+        // Update localStorage (cross-session tracking)
+        let data = {
+          lastCall: Date.now(),
+          callHistory: [],
+          service: service
+        };
+
+        const stored = localStorage.getItem(key);
+        if (stored) {
+          data = JSON.parse(stored);
+        }
+
+        // Determine if this was a warm or cold start based on duration
+        // InSPyReNet: < 15s = warm, Gemini: < 15s = warm
+        const wasWarm = duration < 15000;
+
+        // Add to history (keep last 5 calls per service)
+        data.callHistory.push({
+          timestamp: Date.now(),
+          duration: duration,
+          wasWarm: wasWarm,
+          success: success
+        });
+
+        // Keep only last 5 calls
+        if (data.callHistory.length > 5) {
+          data.callHistory = data.callHistory.slice(-5);
+        }
+
+        // Update last call time
+        data.lastCall = Date.now();
+
+        // Write to localStorage with quota exceeded handling
+        try {
+          localStorage.setItem(key, JSON.stringify(data));
+        } catch (storageError) {
+          // Handle QuotaExceededError (localStorage full)
+          if (storageError.name === 'QuotaExceededError' || storageError.code === 22) {
+            console.warn(`⚠️ localStorage quota exceeded for ${service} tracking, cleaning up old data...`);
+
+            // Emergency cleanup: Remove old call history, keep only last 2 calls
+            try {
+              data.callHistory = data.callHistory.slice(-2);
+              localStorage.setItem(key, JSON.stringify(data));
+              console.log(`✅ ${service} tracking recovered with reduced history`);
+            } catch (retryError) {
+              // If still fails, skip localStorage but continue with sessionStorage
+              console.warn(`❌ Could not save ${service} tracking to localStorage, using sessionStorage only`);
+            }
+          } else if (storageError.name === 'SecurityError') {
+            // Safari private mode or disabled localStorage
+            console.warn(`⚠️ localStorage disabled (private mode?) for ${service} tracking`);
+          } else {
+            throw storageError; // Re-throw unexpected errors
+          }
+        }
+
+        console.log(`📊 ${service} call recorded: ${Math.round(duration/1000)}s (${wasWarm ? 'warm' : 'cold'})`);
+      } catch (error) {
+        console.warn(`Failed to record ${service} API call:`, error);
+        // Silent failure - warmth tracking is non-critical
       }
     }
   }
