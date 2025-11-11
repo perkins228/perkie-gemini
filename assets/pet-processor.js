@@ -1586,15 +1586,12 @@ class PetProcessor {
     });
     button.classList.add('active');
 
-    // Update image - handle both data URLs (InSPyReNet) and Cloud Storage URLs (Gemini)
+    // Update image - all effects now use GCS URLs (prefer GCS, fallback to dataUrl)
     const img = this.container.querySelector('.pet-image');
     if (img) {
-      if (effect === 'modern' || effect === 'sketch') {
-        // Gemini effects use Cloud Storage URLs
-        img.src = effectData.gcsUrl;
-      } else {
-        // InSPyReNet effects use data URLs
-        img.src = effectData.dataUrl;
+      const imageUrl = effectData.gcsUrl || effectData.dataUrl;
+      if (imageUrl) {
+        img.src = imageUrl;
       }
     }
 
