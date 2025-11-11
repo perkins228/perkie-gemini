@@ -2237,27 +2237,15 @@ class PetProcessor {
         // Get current effect for smart routing
         const currentEffect = this.currentPet?.selectedEffect || null;
 
-        // Map effects to collection URLs with UTM tracking
-        const effectCollections = {
-          'modern': '/collections/canvas-prints?style=modern&utm_source=processor&utm_medium=cta',
-          'sketch': '/collections/canvas-prints?style=sketch&utm_source=processor&utm_medium=cta',
-          'blackwhite': '/collections/canvas-prints?style=blackwhite&utm_source=processor&utm_medium=cta',
-          'watercolor': '/collections/canvas-prints?style=watercolor&utm_source=processor&utm_medium=cta'
-        };
-
-        // Use style-filtered collection if available
-        if (currentEffect && effectCollections[currentEffect]) {
-          redirectUrl = effectCollections[currentEffect];
-          console.log(`✅ Smart routing to ${currentEffect} collection: ${redirectUrl}`);
+        // Smart routing: Return to product page if user came from one
+        const referrer = document.referrer;
+        if (referrer && referrer.includes('/products/')) {
+          redirectUrl = referrer;
+          console.log(`✅ Smart routing: Returning to product page: ${redirectUrl}`);
         } else {
-          // Fallback: Check referrer for product page
-          const referrer = document.referrer;
-          if (referrer && referrer.includes('/products/')) {
-            redirectUrl = referrer;
-            console.log(`✅ Returning to product referrer: ${redirectUrl}`);
-          } else {
-            console.log('ℹ️ Using generic collections fallback');
-          }
+          // Fallback: Main collection
+          redirectUrl = '/collections/personalized-pet-products-gifts?utm_source=processor&utm_medium=cta';
+          console.log(`ℹ️ Fallback routing: Using main collection: ${redirectUrl}`);
         }
 
         // Phase 4: Create session bridge before redirect
