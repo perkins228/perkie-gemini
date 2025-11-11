@@ -1403,8 +1403,8 @@ class PetProcessor {
     // Process upload results
     for (const result of uploadResults) {
       effects[result.effectName] = {
-        gcsUrl: result.gcsUrl || '', // Use GCS URL if upload succeeded
-        dataUrl: result.gcsUrl ? null : result.dataUrl  // Keep dataUrl only as fallback
+        gcsUrl: result.gcsUrl || '', // Use GCS URL (CORS now fixed)
+        dataUrl: result.gcsUrl ? null : result.dataUrl  // Only keep dataUrl if upload failed
       };
 
       if (result.gcsUrl) {
@@ -1770,18 +1770,11 @@ class PetProcessor {
         const imgElement = this.container.querySelector(selector);
 
         if (imgElement && effectData) {
-          // Gemini effects (modern, sketch) use GCS URLs
-          // InSPyReNet effects (B&W, color) use data URLs
-          if (effectKey === 'modern' || effectKey === 'sketch') {
-            // Gemini effect - use GCS URL
-            if (effectData.gcsUrl) {
-              imgElement.src = effectData.gcsUrl;
-            }
-          } else {
-            // InSPyReNet effect - use data URL
-            if (effectData.dataUrl) {
-              imgElement.src = effectData.dataUrl;
-            }
+          // All effects now use GCS URLs (CORS fixed)
+          // Prefer GCS URL, fallback to dataUrl if upload failed
+          const imageUrl = effectData.gcsUrl || effectData.dataUrl;
+          if (imageUrl) {
+            imgElement.src = imageUrl;
           }
         }
       });
