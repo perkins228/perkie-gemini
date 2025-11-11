@@ -1736,10 +1736,13 @@ class PetProcessor {
 
       this.isProcessing = false;
 
-      // Set initial image
+      // Set initial image (prefer GCS URL, fallback to dataUrl)
       const img = this.container.querySelector('.pet-image');
       if (img && result.effects.enhancedblackwhite) {
-        img.src = result.effects.enhancedblackwhite.dataUrl;
+        const imageUrl = result.effects.enhancedblackwhite.gcsUrl || result.effects.enhancedblackwhite.dataUrl;
+        if (imageUrl) {
+          img.src = imageUrl;
+        }
       }
 
       // Update style card preview images with actual processed images
