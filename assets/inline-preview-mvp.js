@@ -416,6 +416,42 @@
      * Correct image orientation based on EXIF data
      * Uses blueimp-load-image library to auto-rotate images
      */
+    /**
+     * Check EXIF orientation without full image decode (fast pre-check)
+     * Returns orientation value (1-8) or undefined if can't determine
+     */
+    async getExifOrientation(file) {
+      // Check if library is loaded
+      if (typeof loadImage === 'undefined' || !loadImage.parseMetaData) {
+        console.warn('🔄 blueimp-load-image parseMetaData not available');
+        return undefined; // Assume correction needed if can't check
+      }
+
+      // Skip for non-JPEG files (PNG/WebP don't have EXIF)
+      if (!file.type.includes('jpeg') && !file.type.includes('jpg')) {
+        return 1; // No rotation needed for non-JPEG
+      }
+
+      return new Promise((resolve) => {
+        // Read only first 64KB for EXIF (much faster than full decode)
+        const slice = file.slice(0, 65536);
+
+        loadImage.parseMetaData(slice, (data) => {
+          if (data.exif) {
+            const orientation = data.exif.get('Orientation');
+            console.log('📐 EXIF orientation detected:', orientation || 'none');
+            resolve(orientation || 1); // Default to 1 (normal) if no orientation tag
+          } else {
+            console.log('📐 No EXIF data found, assuming normal orientation');
+            resolve(1); // No EXIF = assume normal orientation
+          }
+        }, {
+          maxMetaDataSize: 262144, // Read up to 256KB for EXIF
+          disableImageHead: false   // Allow reading image header
+        });
+      });
+    }
+
     async correctImageOrientation(file) {
       // Check if library is loaded
       if (typeof loadImage === 'undefined') {
@@ -428,6 +464,15 @@
         console.log('🔄 Non-JPEG file, skipping orientation correction');
         return file;
       }
+
+      // NEW: Check EXIF first, skip processing if no rotation needed
+      const orientation = await this.getExifOrientation(file);
+      if (orientation === 1 || orientation === undefined) {
+        console.log('✅ Image already correctly oriented, skipping 9-second processing');
+        return file; // No processing needed - saves 9 seconds!
+      }
+
+      console.log(`🔄 Image needs rotation (orientation: ${orientation}), processing...`);
 
       return new Promise((resolve, reject) => {
         loadImage(
