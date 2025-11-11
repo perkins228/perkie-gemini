@@ -2235,7 +2235,7 @@ class PetProcessor {
 
       try {
         // Get current effect for smart routing
-        const currentEffect = this.currentData?.selectedEffect || null;
+        const currentEffect = this.currentPet?.selectedEffect || null;
 
         // Map effects to collection URLs with UTM tracking
         const effectCollections = {
@@ -2273,6 +2273,26 @@ class PetProcessor {
         // Save to sessionStorage (cleared after page load)
         sessionStorage.setItem('processor_to_product_bridge', JSON.stringify(bridgeData));
         console.log('🌉 Bridge data saved for product page redirect:', bridgeData);
+
+        // Verify sessionStorage was written
+        const verifyBridge = sessionStorage.getItem('processor_to_product_bridge');
+        if (verifyBridge) {
+          console.log('✅ Bridge verification: sessionStorage contains bridge data');
+          console.log('📦 Bridge contents:', JSON.parse(verifyBridge));
+        } else {
+          console.error('❌ Bridge verification FAILED: sessionStorage is empty after save!');
+        }
+
+        // Also save to localStorage as fallback (persist across sessions)
+        try {
+          localStorage.setItem('processor_to_product_bridge_backup', JSON.stringify({
+            ...bridgeData,
+            expiresAt: Date.now() + (5 * 60 * 1000) // 5 minute expiry
+          }));
+          console.log('💾 Bridge backup saved to localStorage (5 min expiry)');
+        } catch (e) {
+          console.warn('⚠️ Failed to save localStorage backup:', e);
+        }
 
       } catch (error) {
         console.warn('⚠️ Error in smart routing, using fallback:', error);

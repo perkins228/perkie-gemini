@@ -114,6 +114,9 @@
     }
 
     // Check for pending bridge data from processor page (sessionStorage)
+    console.log('🔍 Product page: Checking sessionStorage for bridge data...');
+    console.log('📦 All sessionStorage keys:', Object.keys(sessionStorage));
+
     const pendingBridge = sessionStorage.getItem('processor_to_product_bridge');
     if (pendingBridge) {
       console.log('🌉 Bridge: Found pending redirect data from processor page');
@@ -126,6 +129,7 @@
         if (processBridgeData(bridgeData)) {
           // Clear the bridge data (one-time use)
           sessionStorage.removeItem('processor_to_product_bridge');
+          localStorage.removeItem('processor_to_product_bridge_backup');
           console.log('✅ Bridge: Cleared sessionStorage bridge data');
 
           // Reload page to apply pet data
@@ -137,7 +141,42 @@
         sessionStorage.removeItem('processor_to_product_bridge');
       }
     } else {
-      console.log('🌉 Bridge: No pending redirect data found (normal product page load)');
+      // Fallback to localStorage if sessionStorage is empty
+      console.log('🌉 Bridge: No sessionStorage found, checking localStorage backup...');
+      const backupBridge = localStorage.getItem('processor_to_product_bridge_backup');
+
+      if (backupBridge) {
+        try {
+          const backupData = JSON.parse(backupBridge);
+
+          // Check expiry
+          if (backupData.expiresAt && Date.now() < backupData.expiresAt) {
+            console.log('💾 Bridge: Found valid localStorage backup (within 5 min)');
+
+            // Remove expiry field and process as normal bridge data
+            delete backupData.expiresAt;
+
+            if (processBridgeData(backupData)) {
+              // Clear both storages
+              sessionStorage.removeItem('processor_to_product_bridge');
+              localStorage.removeItem('processor_to_product_bridge_backup');
+              console.log('✅ Bridge: Processed backup data, cleared storages');
+
+              // Reload page to apply pet data
+              console.log('🔄 Bridge: Reloading page to apply pet data...');
+              window.location.reload();
+            }
+          } else {
+            console.log('⏰ Bridge: localStorage backup expired (>5 min old)');
+            localStorage.removeItem('processor_to_product_bridge_backup');
+          }
+        } catch (e) {
+          console.error('❌ Bridge: Failed to parse localStorage backup:', e);
+          localStorage.removeItem('processor_to_product_bridge_backup');
+        }
+      } else {
+        console.log('🌉 Bridge: No pending redirect data found (normal product page load)');
+      }
     }
 
     // Fallback: Listen for petProcessorComplete event (same-page scenario)
