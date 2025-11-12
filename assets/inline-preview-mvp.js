@@ -629,8 +629,8 @@
 
         try {
           const uploadedEffects = await this.uploadAllEffectsToGCS(this.currentPet.effects);
-          // Replace data URLs with GCS URLs (1.7MB → 100 bytes per effect)
-          this.currentPet.effects = uploadedEffects;
+          // Merge uploaded effects back (preserves Modern/Sketch that are already GCS URLs)
+          this.currentPet.effects = { ...this.currentPet.effects, ...uploadedEffects };
           console.log('✅ Effects uploaded to GCS');
         } catch (error) {
           console.error('❌ GCS upload failed, using data URLs as fallback:', error);
