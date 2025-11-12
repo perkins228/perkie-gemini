@@ -523,6 +523,10 @@
     async processImage(file) {
       this.processingCancelled = false;
 
+      // Generate session key ONCE at start (prevents mismatch between upload and save)
+      const sessionKey = `pet_${this.petNumber}_${Date.now()}`;
+      console.log(`🔑 Session key created: ${sessionKey}`);
+
       // Initialize warmth tracker outside try block for error recording
       const warmthTracker = new window.APIWarmthTracker();
       let startTime = null;
@@ -604,6 +608,7 @@
 
         // Store pet data with data URLs initially
         this.currentPet = {
+          sessionKey: sessionKey, // Store for reuse in upload and save
           originalImage: null, // Will set if we upload to GCS later
           processedImage: effects.enhancedblackwhite || effects.color,
           effects: {
@@ -1100,9 +1105,9 @@
             .trim();
         }
 
-        // Generate unique session key for PetStorage compatibility
+        // Reuse session key from processImage (prevents mismatch with GCS URLs)
         // Format: pet_{number}_{timestamp} for uniqueness across sessions
-        const sessionKey = `pet_${this.petNumber}_${Date.now()}`;
+        const sessionKey = this.currentPet?.sessionKey || `pet_${this.petNumber}_${Date.now()}`;
 
         // Build effects data in PetStorage format
         // PetStorage expects: { effectName: { gcsUrl, timestamp } }
@@ -1213,7 +1218,8 @@
      * @returns {Promise<Object>} Effect name → GCS URL mapping
      */
     async uploadAllEffectsToGCS(effects) {
-      const sessionKey = `pet_${this.petNumber}_${Date.now()}`;
+      // Reuse session key from processImage (prevents mismatch)
+      const sessionKey = this.currentPet?.sessionKey || `pet_${this.petNumber}_${Date.now()}`;
       const uploadPromises = [];
 
       // Upload all effects in parallel for speed (3-4s for 4 effects)
