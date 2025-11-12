@@ -1,0 +1,137 @@
+# ============================================================================
+# CLOUD BUILD CONFIGURATION - Optimized InSPyReNet API
+# ============================================================================
+# Project: gen-lang-client-0601138686 (perkieprints-nanobanana)
+# Purpose: Build and deploy optimized InSPyReNet API with 15-20s cold starts
+#
+# Usage:
+#   gcloud builds submit --config=cloudbuild.yaml --project=gen-lang-client-0601138686
+# ============================================================================
+
+steps:
+  # ============================================================================
+  # STEP 1: Build optimized Docker image
+  # ============================================================================
+  - name: 'gcr.io/cloud-builders/docker'
+    id: 'build-image'
+    args:
+      - 'build'
+      - '-t'
+      - 'us-central1-docker.pkg.dev/gen-lang-client-0601138686/pet-bg-removal/inspirenet-bg-removal-test:optimized'
+      - '-t'
+      - 'us-central1-docker.pkg.dev/gen-lang-client-0601138686/pet-bg-removal/inspirenet-bg-removal-test:$SHORT_SHA'
+      - '--build-arg'
+      - 'BUILDKIT_INLINE_CACHE=1'
+      - '--cache-from'
+      - 'us-central1-docker.pkg.dev/gen-lang-client-0601138686/pet-bg-removal/inspirenet-bg-removal-test:optimized'
+      - '.'
+    timeout: '1800s'  # 30 minutes (model download takes time in builder stage)
+
+  # ============================================================================
+  # STEP 2: Push optimized image to Artifact Registry
+  # ============================================================================
+  - name: 'gcr.io/cloud-builders/docker'
+    id: 'push-optimized'
+    args:
+      - 'push'
+      - 'us-central1-docker.pkg.dev/gen-lang-client-0601138686/pet-bg-removal/inspirenet-bg-removal-test:optimized'
+    waitFor: ['build-image']
+
+  - name: 'gcr.io/cloud-builders/docker'
+    id: 'push-sha'
+    args:
+      - 'push'
+      - 'us-central1-docker.pkg.dev/gen-lang-client-0601138686/pet-bg-removal/inspirenet-bg-removal-test:$SHORT_SHA'
+    waitFor: ['build-image']
+
+  # ============================================================================
+  # STEP 3: Deploy to Cloud Run
+  # ============================================================================
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    id: 'deploy-cloud-run'
+    entrypoint: gcloud
+    args:
+      - 'run'
+      - 'deploy'
+      - 'inspirenet-bg-removal-test'
+      - '--image'
+      - 'us-central1-docker.pkg.dev/gen-lang-client-0601138686/pet-bg-removal/inspirenet-bg-removal-test:optimized'
+      - '--region'
+      - 'us-central1'
+      - '--project'
+      - 'gen-lang-client-0601138686'
+      - '--platform'
+      - 'managed'
+      - '--allow-unauthenticated'
+      - '--execution-environment'
+      - 'gen2'
+      - '--cpu'
+      - '8'
+      - '--memory'
+      - '32Gi'
+      - '--gpu'
+      - '1'
+      - '--gpu-type'
+      - 'nvidia-l4'
+      - '--min-instances'
+      - '0'
+      - '--max-instances'
+      - '3'
+      - '--concurrency'
+      - '10'
+      - '--timeout'
+      - '300'
+      - '--cpu-boost'  # Startup CPU boost for faster cold starts
+      - '--startup-cpu-boost'
+      - '--set-env-vars'
+      - 'STORAGE_BUCKET=perkieprints-processing-cache,TARGET_SIZE=1024,INSPIRENET_MODE=base,INSPIRENET_RESIZE=dynamic,LOG_LEVEL=info'
+    waitFor: ['push-optimized', 'push-sha']
+
+  # ============================================================================
+  # STEP 4: Configure startup probe
+  # ============================================================================
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    id: 'configure-startup-probe'
+    entrypoint: gcloud
+    args:
+      - 'run'
+      - 'services'
+      - 'update'
+      - 'inspirenet-bg-removal-test'
+      - '--region'
+      - 'us-central1'
+      - '--project'
+      - 'gen-lang-client-0601138686'
+      - '--startup-probe'
+      - 'http_get,path=/startup,port=8080,initial_delay_seconds=0,timeout_seconds=240,period_seconds=10,failure_threshold=3'
+    waitFor: ['deploy-cloud-run']
+
+# ============================================================================
+# BUILD OPTIONS
+# ============================================================================
+options:
+  machineType: 'E2_HIGHCPU_8'  # Fast build machine
+  logging: CLOUD_LOGGING_ONLY
+  dynamic_substitutions: true
+
+# ============================================================================
+# TIMEOUT
+# ============================================================================
+timeout: '3600s'  # 60 minutes total (allows for slow model download)
+
+# ============================================================================
+# SUBSTITUTIONS
+# ============================================================================
+substitutions:
+  _IMAGE_NAME: 'inspirenet-bg-removal-test'
+  _REGION: 'us-central1'
+  _PROJECT_ID: 'gen-lang-client-0601138686'
+
+# ============================================================================
+# EXPECTED RESULTS
+# ============================================================================
+# Container size: 6-8GB (vs 10GB+ unoptimized)
+# Cold start time: 15-20s (vs 81-92s unoptimized)
+# Model included: InSPyReNet (368MB) baked into image
+# Startup probe: Prevents traffic until model loaded
+# ============================================================================
