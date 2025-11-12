@@ -297,7 +297,7 @@
         {%- if pet1 != blank -%}
           {%- assign pet1_images = line_item.properties['Pet 1 Images'] | default: line_item.properties['_pet_1_images'] -%}
           {%- assign pet1_order_type = line_item.properties['_pet_1_order_type'] -%}
-          {%- assign pet1_order_number = line_item.properties['Pet 1 Order Number'] | default: line_item.properties['_pet_1_order_number'] -%}
+          {%- assign pet1_order_number = line_item.properties['Pet 1 Order Number'] | default: line_item.properties['_pet_1_previous_order_number'] -%}
           {%- assign pet1_processed_url = line_item.properties['_pet_1_processed_image_url'] -%}
           {%- assign pet1_filename = line_item.properties['_pet_1_filename'] -%}
           {%- assign pet1_processing_state = line_item.properties['_pet_1_processing_state'] -%}
@@ -391,7 +391,7 @@
         {%- if pet2 != blank -%}
           {%- assign pet2_images = line_item.properties['Pet 2 Images'] | default: line_item.properties['_pet_2_images'] -%}
           {%- assign pet2_order_type = line_item.properties['_pet_2_order_type'] -%}
-          {%- assign pet2_order_number = line_item.properties['Pet 2 Order Number'] | default: line_item.properties['_pet_2_order_number'] -%}
+          {%- assign pet2_order_number = line_item.properties['Pet 2 Order Number'] | default: line_item.properties['_pet_2_previous_order_number'] -%}
           {%- assign pet2_processed_url = line_item.properties['_pet_2_processed_image_url'] -%}
           {%- assign pet2_filename = line_item.properties['_pet_2_filename'] -%}
           {%- assign pet2_processing_state = line_item.properties['_pet_2_processing_state'] -%}
@@ -485,7 +485,7 @@
         {%- if pet3 != blank -%}
           {%- assign pet3_images = line_item.properties['Pet 3 Images'] | default: line_item.properties['_pet_3_images'] -%}
           {%- assign pet3_order_type = line_item.properties['_pet_3_order_type'] -%}
-          {%- assign pet3_order_number = line_item.properties['Pet 3 Order Number'] | default: line_item.properties['_pet_3_order_number'] -%}
+          {%- assign pet3_order_number = line_item.properties['Pet 3 Order Number'] | default: line_item.properties['_pet_3_previous_order_number'] -%}
           {%- assign pet3_processed_url = line_item.properties['_pet_3_processed_image_url'] -%}
           {%- assign pet3_filename = line_item.properties['_pet_3_filename'] -%}
           {%- assign pet3_processing_state = line_item.properties['_pet_3_processing_state'] -%}
