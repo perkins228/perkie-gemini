@@ -437,6 +437,8 @@
   flex-direction: column;
   gap: 1rem;
   padding-top: 1rem;
+  position: relative;
+  z-index: 10; /* Ensure button is above image */
 }
 
 .inline-btn-primary {
@@ -449,6 +451,10 @@
   font-weight: 600;
   cursor: pointer;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
+  touch-action: manipulation; /* Improve mobile touch response */
+  -webkit-tap-highlight-color: transparent; /* Remove tap highlight on iOS */
+  position: relative;
+  z-index: 11; /* Button on top */
 }
 
 .inline-btn-primary:hover {
@@ -550,6 +556,11 @@
     padding: 1.5rem;
   }
 
+  .inline-preview-controls {
+    overflow-y: auto; /* Allow scrolling if content is tall */
+    max-height: calc(100vh - 200px); /* Prevent overflow */
+  }
+
   .inline-preview-header {
     padding: 1.5rem 1.5rem 1rem;
   }
@@ -569,10 +580,16 @@
 
   .inline-preview-image-area {
     min-height: 300px;
+    max-height: 400px; /* Prevent image from taking too much space */
+    order: -1; /* Move image above controls on mobile */
+  }
+
+  .inline-pet-image-container {
+    padding: 1rem; /* Reduce padding on mobile */
   }
 
   .inline-pet-image {
-    max-height: 400px;
+    max-height: 350px; /* Smaller on mobile to leave room for button */
   }
 
   .inline-upload-label {
@@ -581,6 +598,16 @@
 
   .inline-upload-icon {
     font-size: 2.5rem;
+  }
+
+  /* Ensure button is always accessible on mobile */
+  .inline-action-buttons {
+    margin-top: 1rem;
+    padding-bottom: 1rem; /* Extra bottom padding for safety */
+    position: sticky; /* Keep button visible when scrolling */
+    bottom: 0;
+    background: white; /* Solid background so content scrolls behind */
+    padding-top: 1.5rem;
   }
 }
 
