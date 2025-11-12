@@ -689,7 +689,7 @@
      * Uses /api/v2/process-with-effects endpoint like pet-processor.js
      */
     async removeBackground(file) {
-      const API_URL = 'https://inspirenet-bg-removal-api-725543555429.us-central1.run.app/api/v2/process-with-effects';
+      const API_URL = 'https://inspirenet-bg-removal-test-3km6z2qpyq-uc.a.run.app/api/v2/process-with-effects';
 
       // Use FormData with POST like pet-processor.js does
       const formData = new FormData();
@@ -1317,7 +1317,7 @@
         formData.append('tier', 'temporary'); // 7-day retention
 
         const response = await fetch(
-          'https://inspirenet-bg-removal-api-725543555429.us-central1.run.app/store-image',
+          'https://inspirenet-bg-removal-test-3km6z2qpyq-uc.a.run.app/store-image',
           {
             method: 'POST',
             body: formData
