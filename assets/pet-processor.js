@@ -451,7 +451,7 @@ class PetProcessor {
     
     this.container = document.getElementById(`pet-processor-content-${sectionId}`);
     
-    this.apiUrl = 'https://inspirenet-bg-removal-test-3km6z2qpyq-uc.a.run.app';
+    this.apiUrl = 'https://inspirenet-bg-removal-api-725543555429.us-central1.run.app';
     this.currentPet = null;
     this.isProcessing = false;
     this.geminiGenerating = false;  // Track Gemini generation state separately
@@ -2735,7 +2735,7 @@ class PetProcessor {
       }
 
       // Upload to existing /store-image endpoint
-      const apiUrl = 'https://inspirenet-bg-removal-test-3km6z2qpyq-uc.a.run.app/store-image';
+      const apiUrl = 'https://inspirenet-bg-removal-api-725543555429.us-central1.run.app/store-image';
       const uploadResponse = await fetch(apiUrl, {
         method: 'POST',
         body: formData
