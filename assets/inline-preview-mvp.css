@@ -600,14 +600,53 @@
     font-size: 2.5rem;
   }
 
-  /* Ensure button is always accessible on mobile */
+  /* Floating Action Button (FAB) for mobile - always visible */
   .inline-action-buttons {
-    margin-top: 1rem;
-    padding-bottom: 1rem; /* Extra bottom padding for safety */
-    position: sticky; /* Keep button visible when scrolling */
-    bottom: 0;
-    background: white; /* Solid background so content scrolls behind */
-    padding-top: 1.5rem;
+    position: fixed;           /* Fixed to viewport, not parent */
+    bottom: 20px;              /* Thumb-zone optimized */
+    left: 16px;                /* 16px margin */
+    right: 16px;               /* Full width minus margins */
+    z-index: 1000;             /* Above scrollable content */
+    background: transparent;   /* No background */
+    padding: 0;
+    margin: 0;
+    box-shadow: none;          /* Shadow on button itself */
+  }
+
+  /* Elevated button with shadow for visual separation */
+  .inline-btn-primary {
+    width: 100%;
+    padding: 1rem 2rem;
+    background: #000;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+
+    /* Elevation */
+    box-shadow:
+      0 4px 12px rgba(0, 0, 0, 0.15),
+      0 8px 24px rgba(0, 0, 0, 0.1);
+
+    /* Smooth interactions */
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* Press effect on mobile */
+  .inline-btn-primary:active {
+    transform: translateY(2px);
+    box-shadow:
+      0 2px 8px rgba(0, 0, 0, 0.15),
+      0 4px 16px rgba(0, 0, 0, 0.1);
+  }
+
+  /* Prevent content from hiding under button */
+  .inline-preview-controls {
+    padding-bottom: 100px; /* Button height (50px) + spacing (50px) */
   }
 }
 

@@ -72,6 +72,20 @@
             </button>
           </div>
 
+          <!-- Artist Notes (shown after processing) - Moved above styles for better mobile UX -->
+          <div class="inline-artist-notes-section" hidden>
+            <label for="inline-artist-notes" class="inline-artist-notes-label">Note for the Artist (Optional)</label>
+            <textarea
+              id="inline-artist-notes"
+              class="inline-artist-notes-input"
+              placeholder="Tell us about your pet's personality or any special requests"
+              rows="3"
+              maxlength="500"></textarea>
+            <div class="inline-char-count">
+              <span id="inline-char-count">0</span>/500
+            </div>
+          </div>
+
           <!-- Effect Selection (shown after processing) -->
           <div class="inline-effect-grid-wrapper" hidden>
             <h3 class="inline-effect-heading">Choose Style</h3>
@@ -108,20 +122,6 @@
                   <p class="inline-effect-label">Sketch</p>
                 </div>
               </label>
-            </div>
-          </div>
-
-          <!-- Artist Notes (shown after processing) -->
-          <div class="inline-artist-notes-section" hidden>
-            <label for="inline-artist-notes" class="inline-artist-notes-label">Note for the Artist (Optional)</label>
-            <textarea
-              id="inline-artist-notes"
-              class="inline-artist-notes-input"
-              placeholder="Any special requests about your pet's personality or features"
-              rows="3"
-              maxlength="500"></textarea>
-            <div class="inline-char-count">
-              <span id="inline-char-count">0</span>/500
             </div>
           </div>
 
