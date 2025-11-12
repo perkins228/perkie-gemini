@@ -400,12 +400,25 @@
   {% endfor %}
 
   {% comment %} HIDDEN FROM CUSTOMERS: Internal fulfillment notes (underscore prefix) {% endcomment %}
+  {% comment %} Separate artist notes for each pet (up to 3 pets) {% endcomment %}
   <input type="hidden"
-         id="artist-notes-field"
-         name="properties[_artist_notes]"
+         id="artist-notes-field-1"
+         name="properties[_pet_1_artist_notes]"
          value=""
          form="{{ product_form_id }}"
-         data-artist-notes>
+         data-artist-notes="1">
+  <input type="hidden"
+         id="artist-notes-field-2"
+         name="properties[_pet_2_artist_notes]"
+         value=""
+         form="{{ product_form_id }}"
+         data-artist-notes="2">
+  <input type="hidden"
+         id="artist-notes-field-3"
+         name="properties[_pet_3_artist_notes]"
+         value=""
+         form="{{ product_form_id }}"
+         data-artist-notes="3">
 
 </div>
 
@@ -2790,9 +2803,9 @@
         const pet = latestPets[i];
         const petNumber = i + 1;
 
-        // Populate artist notes (only for Pet 1)
-        if (petNumber === 1 && pet.artistNote) {
-          const artistNotesField = document.querySelector('[data-artist-notes]');
+        // Populate artist notes for this pet (per-pet fields)
+        if (pet.artistNote) {
+          const artistNotesField = document.querySelector(`[data-artist-notes="${petNumber}"]`);
           if (artistNotesField) {
             // SECURITY: Enhanced sanitization (prevent XSS, limit length)
             const sanitizedNotes = pet.artistNote
@@ -2918,9 +2931,9 @@
         }
       }
 
-      // Extract artist notes from petData (NEW: Artist Notes field)
+      // Extract artist notes from petData (per-pet fields)
       if (petData.artistNote) {
-        const artistNotesField = document.querySelector('[data-artist-notes]');
+        const artistNotesField = document.querySelector(`[data-artist-notes="${i}"]`);
         if (artistNotesField) {
           // SECURITY: Sanitize artist notes (prevent XSS, limit length)
           const sanitizedNotes = petData.artistNote
@@ -2929,7 +2942,7 @@
             .trim();
 
           artistNotesField.value = sanitizedNotes;
-          console.log(`✅ Artist notes set: "${sanitizedNotes.substring(0, 50)}${sanitizedNotes.length > 50 ? '...' : ''}"`);
+          console.log(`✅ Pet ${i} artist notes set: "${sanitizedNotes.substring(0, 50)}${sanitizedNotes.length > 50 ? '...' : ''}"`);
         }
       }
     }
