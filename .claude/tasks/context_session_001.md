@@ -2214,3 +2214,132 @@ gsutil cors get gs://perkieprints-uploads
 
 **Status**: ✅ COMPLETE - Ready for deployment
 
+
+---
+
+## 2025-11-12 22:35 UTC - Created Staging Branch
+
+**Task**: Create staging branch to enable testing before main deployment
+
+**Branch Structure Update**:
+- **main**: Production deployment branch (auto-deploys to Shopify test environment)
+- **staging**: New testing branch for changes before merging to main
+- **Current branch**: main
+
+**Commands Executed**:
+```bash
+git checkout -b staging  # Create staging branch from main
+git push origin staging  # Push to remote
+git checkout main        # Switch back to main
+```
+
+**Branch Status**:
+```
+* main (current)
+  staging
+  remotes/origin/main
+  remotes/origin/staging
+```
+
+**Workflow Update**:
+1. Make changes on staging branch
+2. Test changes on staging
+3. Merge to main when ready for deployment
+4. Main auto-deploys to Shopify test environment
+
+**Note**: This updates the repository structure from single-branch (main only) to dual-branch (staging + main) workflow.
+
+**Status**: ✅ COMPLETE - Staging branch created and pushed to remote
+
+
+---
+
+## 2025-11-12 22:45 UTC - Fix: Cart Validation Bypass Bug
+
+**Issue**: After adding a product to cart once, subsequent products can be added without validation (pet count, pet names, style selection skipped)
+
+**Root Cause Analysis**:
+
+The validation system has two parts:
+1. **Button State Validation** (working correctly):
+   - `validateCustomization()` checks all required fields
+   - `validateAndUpdateButton()` enables/disables button based on validation
+   - Event listeners trigger validation on field changes
+
+2. **Form Submit Intercept** (MISSING VALIDATION):
+   - `interceptAddToCart()` function (line 510) intercepts form submissions
+   - **BUG**: Only validated returning customer order number and add-on products
+   - **BUG**: Did NOT re-validate customization fields before submission
+   - **Result**: If button state became stale (after successful cart add), form would submit without validation
+
+**The Bypass Scenario**:
+1. User fills out pet selector correctly → button enabled
+2. User adds to cart successfully
+3. User navigates to another product OR page state changes
+4. Button may remain enabled from previous state
+5. User can now submit form without completing fields because `interceptAddToCart()` doesn't re-check validation
+
+**Fix Applied**:
+
+Added **VALIDATION 0** to `interceptAddToCart()` function in [assets/cart-pet-integration.js:513-536](assets/cart-pet-integration.js#L513):
+
+```javascript
+// VALIDATION 0: Re-validate customization fields before submission
+// This prevents bypass if button state becomes stale
+var newPetSelector = document.querySelector('.pet-selector-stitch');
+if (newPetSelector) {
+  var validation = self.validateCustomization();
+  if (!validation.isValid) {
+    e.preventDefault();
+    e.stopPropagation();
+
+    // Show user-friendly error message
+    var missingFieldsText = validation.missingFields.join(', ');
+    alert('Please complete all required fields before adding to cart.\n\nMissing: ' + missingFieldsText);
+
+    // Update button state to reflect validation
+    self.disableAddToCart({
+      missingCount: validation.missingFields.length,
+      missingFields: validation.missingFields,
+      isMobile: window.innerWidth <= 750
+    });
+
+    console.log('❌ Form submission blocked: Missing required fields -', missingFieldsText);
+    return false;
+  }
+}
+```
+
+**What This Fix Does**:
+- Re-validates ALL customization fields on EVERY form submission
+- Prevents submission if validation fails (even if button is enabled)
+- Shows user-friendly alert with specific missing fields
+- Updates button state to reflect current validation
+- Logs validation failure to console for debugging
+
+**Files Modified**:
+- [assets/cart-pet-integration.js](assets/cart-pet-integration.js) (lines 513-536)
+
+**Validation Checks**:
+1. ✅ Pet count selected
+2. ✅ Pet name(s) entered for visible pets
+3. ✅ Style selected
+4. ✅ Font selected (if product supports fonts)
+
+**Impact**:
+- ✅ Prevents incomplete orders from entering cart
+- ✅ Maintains data quality for order fulfillment
+- ✅ User gets clear feedback about missing fields
+- ✅ Button state updated to match current validation
+- ✅ Works across all product pages and navigation scenarios
+
+**Testing Required**:
+1. Add product to cart with all fields filled
+2. Navigate to another product page
+3. Try to add to cart WITHOUT filling fields
+4. Verify alert appears with missing fields
+5. Verify submission is blocked
+6. Fill required fields and verify submission succeeds
+
+**Status**: ✅ FIX APPLIED - Ready for testing and deployment
+

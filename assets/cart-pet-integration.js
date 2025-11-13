@@ -510,6 +510,31 @@
       document.addEventListener('submit', function(e) {
         var form = e.target;
         if (form.action && form.action.indexOf('/cart/add') > -1) {
+          // VALIDATION 0: Re-validate customization fields before submission
+          // This prevents bypass if button state becomes stale
+          var newPetSelector = document.querySelector('.pet-selector-stitch');
+          if (newPetSelector) {
+            var validation = self.validateCustomization();
+            if (!validation.isValid) {
+              e.preventDefault();
+              e.stopPropagation();
+
+              // Show user-friendly error message
+              var missingFieldsText = validation.missingFields.join(', ');
+              alert('Please complete all required fields before adding to cart.\n\nMissing: ' + missingFieldsText);
+
+              // Update button state to reflect validation
+              self.disableAddToCart({
+                missingCount: validation.missingFields.length,
+                missingFields: validation.missingFields,
+                isMobile: window.innerWidth <= 750
+              });
+
+              console.log('❌ Form submission blocked: Missing required fields -', missingFieldsText);
+              return false;
+            }
+          }
+
           // VALIDATION 1: Check returning customer has order number
           var orderTypeField = form.querySelector('[name="properties[_order_type]"]');
           var orderNumberField = form.querySelector('[name="properties[_previous_order_number]"]');
