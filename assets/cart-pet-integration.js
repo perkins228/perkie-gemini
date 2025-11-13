@@ -138,11 +138,9 @@
     // Initialize button state on page load for custom products
     // UPDATED: Now supports pet name-only orders (Scenario 2 & 3)
     initializeButtonState: function() {
-      // Skip validation on cart and checkout pages
+      // Skip validation on cart and checkout pages (pathname only to avoid false positives)
       var isCartPage = window.location.pathname.indexOf('/cart') > -1 ||
-                       window.location.pathname.indexOf('/checkout') > -1 ||
-                       document.querySelector('.cart-items') !== null ||
-                       document.querySelector('[data-cart-page]') !== null;
+                       window.location.pathname.indexOf('/checkout') > -1;
 
       if (isCartPage) {
         console.log('Cart page detected - skipping pet name validation');
@@ -251,14 +249,34 @@
       }
     },
 
+    // Helper: Check if element is truly visible (reads computed styles, not just inline)
+    isElementVisible: function(element) {
+      if (!element) return false;
+
+      // Check offsetParent (most reliable method)
+      if (element.offsetParent === null) return false;
+
+      // Check computed styles
+      var style = window.getComputedStyle(element);
+      if (style.display === 'none') return false;
+      if (style.visibility === 'hidden') return false;
+      if (style.opacity === '0') return false;
+
+      return true;
+    },
+
     // NEW: Comprehensive validation of all customization fields
-    validateCustomization: function() {
-      var newPetSelector = document.querySelector('.pet-selector-stitch');
+    // Now accepts optional form context for multi-form pages
+    validateCustomization: function(formContext) {
+      var context = formContext || document;
+      var newPetSelector = context.querySelector('.pet-selector-stitch');
+
       if (!newPetSelector) {
         return { isValid: true, missingFields: [] };
       }
 
       var missingFields = [];
+      var self = this;
 
       // 1. Validate pet count selection
       var petCountRadio = newPetSelector.querySelector('[data-pet-count-radio]:checked');
@@ -266,21 +284,27 @@
         missingFields.push('pet count');
       }
 
-      // 2. Validate pet name(s) - check if ANY pet name is filled
+      // 2. Validate pet name(s) - FIXED: Now requires ALL visible pet names, not just ANY
       var petNameInputs = newPetSelector.querySelectorAll('[data-pet-name-input]');
-      var hasAnyPetName = false;
+      var emptyPetNames = [];
+
       for (var i = 0; i < petNameInputs.length; i++) {
-        // Only check visible inputs (based on pet count)
         var petDetail = petNameInputs[i].closest('.pet-detail');
-        if (petDetail && petDetail.style.display !== 'none') {
-          if (petNameInputs[i].value.trim() !== '') {
-            hasAnyPetName = true;
-            break;
+
+        // Use proper visibility check (reads computed styles)
+        if (petDetail && self.isElementVisible(petDetail)) {
+          if (petNameInputs[i].value.trim() === '') {
+            emptyPetNames.push('Pet ' + (i + 1));
           }
         }
       }
-      if (!hasAnyPetName) {
-        missingFields.push('pet name');
+
+      if (emptyPetNames.length > 0) {
+        if (emptyPetNames.length === 1) {
+          missingFields.push(emptyPetNames[0] + ' name');
+        } else {
+          missingFields.push(emptyPetNames.length + ' pet names');
+        }
       }
 
       // 3. Validate style selection
@@ -290,17 +314,13 @@
       }
 
       // 4. Validate font selection (conditional - only for products that support fonts)
-      // Font section only renders when product.metafields.custom.supports_font_styles == true
-      // Check if font radios exist in DOM (indicates text product supports fonts)
       var fontRadios = newPetSelector.querySelectorAll('[data-font-radio]');
       if (fontRadios.length > 0) {
-        // Font section exists - validate that one is selected
         var fontRadio = newPetSelector.querySelector('[data-font-radio]:checked');
         if (!fontRadio) {
           missingFields.push('font');
         }
       }
-      // If fontRadios.length === 0, this is a non-text product - skip font validation
 
       return {
         isValid: missingFields.length === 0,
@@ -503,113 +523,130 @@
     },
 
     // Intercept add to cart to ensure pet data is included
+    // FIXED: Now hooks into button clicks instead of form submit (works with AJAX)
     interceptAddToCart: function() {
       var self = this;
 
-      // Listen for form submissions
-      document.addEventListener('submit', function(e) {
-        var form = e.target;
-        if (form.action && form.action.indexOf('/cart/add') > -1) {
-          // VALIDATION 0: Re-validate customization fields before submission
-          // This prevents bypass if button state becomes stale
-          var newPetSelector = document.querySelector('.pet-selector-stitch');
-          if (newPetSelector) {
-            var validation = self.validateCustomization();
-            if (!validation.isValid) {
+      // Wait for DOM to be fully loaded
+      var attachValidation = function() {
+        // Find all Add to Cart buttons in product forms
+        var addToCartButtons = document.querySelectorAll('form[action*="/cart/add"] button[name="add"], form[action*="/cart/add"] button[type="submit"]');
+
+        addToCartButtons.forEach(function(button) {
+          // Skip if already attached (idempotency)
+          if (button.getAttribute('data-validation-attached') === 'true') {
+            return;
+          }
+
+          button.setAttribute('data-validation-attached', 'true');
+
+          // Add click listener in capture phase (runs before Shopify's handler)
+          button.addEventListener('click', function(e) {
+            var form = button.closest('form');
+            if (!form) return true;
+
+            // Skip validation on cart/checkout pages
+            if (window.location.pathname.indexOf('/cart') > -1 ||
+                window.location.pathname.indexOf('/checkout') > -1) {
+              return true;
+            }
+
+            // VALIDATION 0: Re-validate customization fields before submission
+            var newPetSelector = form.querySelector('.pet-selector-stitch');
+            if (newPetSelector) {
+              var validation = self.validateCustomization(form);
+
+              console.log('🔍 Validation result:', validation);
+
+              if (!validation.isValid) {
+                e.preventDefault();
+                e.stopImmediatePropagation();
+
+                // Show user-friendly error message
+                var missingFieldsText = validation.missingFields.join(', ');
+                alert('Please complete all required fields before adding to cart:\n\n' + missingFieldsText);
+
+                // Update button state to reflect validation
+                self.disableAddToCart({
+                  missingCount: validation.missingFields.length,
+                  missingFields: validation.missingFields,
+                  isMobile: window.innerWidth <= 750
+                });
+
+                console.log('❌ Submission blocked: Missing -', missingFieldsText);
+                return false;
+              }
+
+              console.log('✅ Custom product validation passed');
+            }
+
+            // VALIDATION 1: Check returning customer has order number
+            var orderTypeField = form.querySelector('[name="properties[_order_type]"]');
+            var orderNumberField = form.querySelector('[name="properties[_previous_order_number]"]');
+
+            if (orderTypeField && orderTypeField.value === 'returning') {
+              if (!orderNumberField || !orderNumberField.value || orderNumberField.value.trim() === '') {
+                e.preventDefault();
+                e.stopImmediatePropagation();
+                alert('Please enter your previous order number to use an existing Perkie Print.');
+
+                var visibleOrderInput = document.querySelector('[id^="previous-order-"]');
+                if (visibleOrderInput) {
+                  visibleOrderInput.focus();
+                  visibleOrderInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+
+                console.log('❌ Blocked: Returning customer missing order number');
+                return false;
+              }
+            }
+
+            // VALIDATION 2: Check if add-on product requires standard product in cart
+            if (self.isAddonProduct()) {
               e.preventDefault();
-              e.stopPropagation();
+              e.stopImmediatePropagation();
 
-              // Show user-friendly error message
-              var missingFieldsText = validation.missingFields.join(', ');
-              alert('Please complete all required fields before adding to cart.\n\nMissing: ' + missingFieldsText);
-
-              // Update button state to reflect validation
-              self.disableAddToCart({
-                missingCount: validation.missingFields.length,
-                missingFields: validation.missingFields,
-                isMobile: window.innerWidth <= 750
+              self.validateAddonProduct(form, function(isValid) {
+                if (isValid) {
+                  console.log('✅ Add-on validation passed - triggering click');
+                  // Valid - trigger actual submission by clicking button again
+                  // Mark as validated first to skip this check
+                  button.setAttribute('data-addon-validated', 'true');
+                  button.click();
+                  setTimeout(function() {
+                    button.removeAttribute('data-addon-validated');
+                  }, 2000);
+                } else {
+                  console.log('❌ Add-on validation failed');
+                }
               });
 
-              console.log('❌ Form submission blocked: Missing required fields -', missingFieldsText);
               return false;
             }
-          }
 
-          // VALIDATION 1: Check returning customer has order number
-          var orderTypeField = form.querySelector('[name="properties[_order_type]"]');
-          var orderNumberField = form.querySelector('[name="properties[_previous_order_number]"]');
+            // All validations passed - allow submission
+            console.log('✅ All validations passed - allowing submission');
 
-          if (orderTypeField && orderTypeField.value === 'returning') {
-            if (!orderNumberField || !orderNumberField.value || orderNumberField.value.trim() === '') {
-              e.preventDefault();
-              e.stopPropagation();
-              alert('Please enter your previous order number to use an existing Perkie Print.');
+            // Dispatch cart update events
+            setTimeout(function() {
+              self.dispatchCartUpdateEvent();
+            }, 300);
 
-              // Focus the order number input if it exists in the visible form
-              var visibleOrderInput = document.querySelector('[id^="previous-order-"]');
-              if (visibleOrderInput) {
-                visibleOrderInput.focus();
-                visibleOrderInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
-              }
+            setTimeout(function() {
+              self.updateThumbnailsWithRetry();
+            }, 1000);
 
-              console.log('❌ Form submission blocked: Returning customer missing order number');
-              return false;
-            }
-          }
+            return true;
+          }, true); // Capture phase - runs before Shopify's handlers
+        });
+      };
 
-          // VALIDATION 2: Check if add-on product requires standard product in cart
-          // Skip if already validated (to avoid infinite loop on re-submission)
-          if (form.getAttribute('data-addon-validated') !== 'true' && self.isAddonProduct()) {
-            // Prevent default submission
-            e.preventDefault();
-            e.stopPropagation();
-
-            // Validate add-on product
-            self.validateAddonProduct(form, function(isValid) {
-              if (isValid) {
-                // Valid - mark as validated and re-submit
-                console.log('✅ Add-on validation passed - submitting form');
-
-                // Mark form as validated to avoid infinite loop
-                form.setAttribute('data-addon-validated', 'true');
-
-                // Re-trigger form submission (will skip this validation block)
-                var submitEvent = new Event('submit', { bubbles: true, cancelable: true });
-                form.dispatchEvent(submitEvent);
-
-                // Clear validation flag after a delay to allow re-validation on next attempt
-                setTimeout(function() {
-                  form.removeAttribute('data-addon-validated');
-                }, 2000);
-              } else {
-                console.log('❌ Add-on validation failed - form submission blocked');
-                // Error message already shown by validateAddonProduct
-
-                // Re-enable submit button (it was disabled by product-form.js)
-                var submitButton = form.querySelector('[type="submit"]');
-                if (submitButton) {
-                  submitButton.removeAttribute('aria-disabled');
-                  submitButton.classList.remove('loading');
-                  var spinner = form.querySelector('.loading__spinner');
-                  if (spinner) spinner.classList.add('hidden');
-                }
-              }
-            });
-
-            return false;
-          }
-
-          // Dispatch cart update event with better timing
-          setTimeout(function() {
-            self.dispatchCartUpdateEvent();
-          }, 300);
-
-          // Additional retry after longer delay for slower connections
-          setTimeout(function() {
-            self.updateThumbnailsWithRetry();
-          }, 1000);
-        }
-      }, true);
+      // Attach on DOM ready
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', attachValidation);
+      } else {
+        attachValidation();
+      }
     },
 
     // Setup cart drawer events
