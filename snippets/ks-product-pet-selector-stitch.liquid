@@ -47,219 +47,6 @@
     </div>
   </div>
 
-  {% comment %} MOVED: Style Selector - Now appears BEFORE Pet Details for better order flow {% endcomment %}
-  {% comment %} This will ensure Style property appears before pet properties in Shopify order details {% endcomment %}
-  <div class="pet-selector__section" data-style-section hidden>
-    <h2 class="pet-selector__section-heading">Choose Style</h2>
-    <div class="style-selector__grid">
-
-      {% comment %} B&W Style {% endcomment %}
-      <label class="style-card">
-        <input type="radio"
-               name="properties[Style]"
-               value="Black & White"
-               form="{{ product_form_id }}"
-               data-style-radio="enhancedblackwhite">
-        <div class="style-card__content">
-          <div class="style-card__image-wrapper">
-            {% if block.settings.style_preview_bw != blank %}
-              <img src="{{ block.settings.style_preview_bw | image_url: width: 320 }}"
-                   alt="Black & White style preview"
-                   class="style-card__image">
-            {% else %}
-              <img src="{{ 'pet-bw-preview.jpg' | asset_url }}"
-                   alt="Black & White style preview"
-                   class="style-card__image">
-            {% endif %}
-          </div>
-          <p class="style-card__label">Black & White</p>
-        </div>
-      </label>
-
-      {% comment %} Color Style {% endcomment %}
-      <label class="style-card">
-        <input type="radio"
-               name="properties[Style]"
-               value="Color"
-               form="{{ product_form_id }}"
-               data-style-radio="color">
-        <div class="style-card__content">
-          <div class="style-card__image-wrapper">
-            {% if block.settings.style_preview_color != blank %}
-              <img src="{{ block.settings.style_preview_color | image_url: width: 320 }}"
-                   alt="Color style preview"
-                   class="style-card__image">
-            {% else %}
-              <img src="{{ 'pet-color-preview.jpg' | asset_url }}"
-                   alt="Color style preview"
-                   class="style-card__image">
-            {% endif %}
-          </div>
-          <p class="style-card__label">Color</p>
-        </div>
-      </label>
-
-      {% comment %} Modern (Ink Wash) Style {% endcomment %}
-      <label class="style-card">
-        <input type="radio"
-               name="properties[Style]"
-               value="Modern"
-               form="{{ product_form_id }}"
-               data-style-radio="modern">
-        <div class="style-card__content">
-          <div class="style-card__image-wrapper">
-            {% if block.settings.style_preview_modern != blank %}
-              <img src="{{ block.settings.style_preview_modern | image_url: width: 320 }}"
-                   alt="Modern style preview"
-                   class="style-card__image">
-            {% else %}
-              <img src="{{ 'pet-modern-preview.jpg' | asset_url }}"
-                   alt="Modern style preview"
-                   class="style-card__image">
-            {% endif %}
-          </div>
-          <p class="style-card__label">Modern</p>
-        </div>
-      </label>
-
-      {% comment %} Sketch (Pen & Marker) Style {% endcomment %}
-      <label class="style-card">
-        <input type="radio"
-               name="properties[Style]"
-               value="Sketch"
-               form="{{ product_form_id }}"
-               data-style-radio="sketch">
-        <div class="style-card__content">
-          <div class="style-card__image-wrapper">
-            {% if block.settings.style_preview_sketch != blank %}
-              <img src="{{ block.settings.style_preview_sketch | image_url: width: 320 }}"
-                   alt="Sketch style preview"
-                   class="style-card__image">
-            {% else %}
-              <img src="{{ 'pet-sketch-preview.jpg' | asset_url }}"
-                   alt="Sketch style preview"
-                   class="style-card__image">
-            {% endif %}
-          </div>
-          <p class="style-card__label">Sketch</p>
-        </div>
-      </label>
-
-    </div>
-  </div>
-
-  {% comment %} MOVED: Font Selector - Now appears BEFORE Pet Details for better order flow {% endcomment %}
-  {% if product.metafields.custom.supports_font_styles == true %}
-  <div class="pet-selector__section">
-    <h2 class="pet-selector__section-heading">Choose Font</h2>
-    <div class="font-selector__grid">
-
-      {% comment %} No Text Option {% endcomment %}
-      <label class="font-card">
-        <input type="radio"
-               name="properties[Font]"
-               value="no-text"
-               form="{{ product_form_id }}"
-               data-font-radio="no-text">
-        <div class="font-card__content">
-          <p class="font-card__title">No Text</p>
-          <div class="font-card__preview font-card__preview--icon">
-            <svg class="font-card__no-text-icon" viewBox="0 0 24 24">
-              <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
-            </svg>
-          </div>
-        </div>
-      </label>
-
-      {% comment %} Preppy Font {% endcomment %}
-      <label class="font-card">
-        <input type="radio"
-               name="properties[Font]"
-               value="preppy"
-               form="{{ product_form_id }}"
-               data-font-radio="preppy">
-        <div class="font-card__content">
-          <p class="font-card__title">Preppy</p>
-          <div class="font-card__preview">
-            <p class="font-preview-text preppy-font">
-              Your Pet's Name
-            </p>
-          </div>
-        </div>
-      </label>
-
-      {% comment %} Classic Font {% endcomment %}
-      <label class="font-card">
-        <input type="radio"
-               name="properties[Font]"
-               value="classic"
-               form="{{ product_form_id }}"
-               data-font-radio="classic">
-        <div class="font-card__content">
-          <p class="font-card__title">Classic</p>
-          <div class="font-card__preview">
-            <p class="font-preview-text classic-font">
-              Your Pet's Name
-            </p>
-          </div>
-        </div>
-      </label>
-
-      {% comment %} Playful Font {% endcomment %}
-      <label class="font-card">
-        <input type="radio"
-               name="properties[Font]"
-               value="playful"
-               form="{{ product_form_id }}"
-               data-font-radio="playful">
-        <div class="font-card__content">
-          <p class="font-card__title">Playful</p>
-          <div class="font-card__preview">
-            <p class="font-preview-text playful-font">
-              Your Pet's Name
-            </p>
-          </div>
-        </div>
-      </label>
-
-      {% comment %} Elegant Font {% endcomment %}
-      <label class="font-card">
-        <input type="radio"
-               name="properties[Font]"
-               value="elegant"
-               form="{{ product_form_id }}"
-               data-font-radio="elegant">
-        <div class="font-card__content">
-          <p class="font-card__title">Elegant</p>
-          <div class="font-card__preview">
-            <p class="font-preview-text elegant-font">
-              Your Pet's Name
-            </p>
-          </div>
-        </div>
-      </label>
-
-      {% comment %} Trend Font {% endcomment %}
-      <label class="font-card">
-        <input type="radio"
-               name="properties[Font]"
-               value="trend"
-               form="{{ product_form_id }}"
-               data-font-radio="trend">
-        <div class="font-card__content">
-          <p class="font-card__title">Trend</p>
-          <div class="font-card__preview">
-            <p class="font-preview-text trend-font">
-              Your Pet's Name
-            </p>
-          </div>
-        </div>
-      </label>
-
-    </div>
-  </div>
-  {% endif %}
-
   {% comment %} Pet Details Section {% endcomment %}
   <div class="pet-selector__section">
     <h2 class="pet-selector__section-heading">Pet Details</h2>
@@ -392,6 +179,217 @@
     </div>
   </div>
 
+  {% comment %} Style Selector - RESTORED: After Pet Details for proper UX flow {% endcomment %}
+  <div class="pet-selector__section" data-style-section hidden>
+    <h2 class="pet-selector__section-heading">Choose Style</h2>
+    <div class="style-selector__grid">
+
+      {% comment %} B&W Style {% endcomment %}
+      <label class="style-card">
+        <input type="radio"
+               name="properties[Style]"
+               value="Black & White"
+               form="{{ product_form_id }}"
+               data-style-radio="enhancedblackwhite">
+        <div class="style-card__content">
+          <div class="style-card__image-wrapper">
+            {% if block.settings.style_preview_bw != blank %}
+              <img src="{{ block.settings.style_preview_bw | image_url: width: 320 }}"
+                   alt="Black & White style preview"
+                   class="style-card__image">
+            {% else %}
+              <img src="{{ 'pet-bw-preview.jpg' | asset_url }}"
+                   alt="Black & White style preview"
+                   class="style-card__image">
+            {% endif %}
+          </div>
+          <p class="style-card__label">Black & White</p>
+        </div>
+      </label>
+
+      {% comment %} Color Style {% endcomment %}
+      <label class="style-card">
+        <input type="radio"
+               name="properties[Style]"
+               value="Color"
+               form="{{ product_form_id }}"
+               data-style-radio="color">
+        <div class="style-card__content">
+          <div class="style-card__image-wrapper">
+            {% if block.settings.style_preview_color != blank %}
+              <img src="{{ block.settings.style_preview_color | image_url: width: 320 }}"
+                   alt="Color style preview"
+                   class="style-card__image">
+            {% else %}
+              <img src="{{ 'pet-color-preview.jpg' | asset_url }}"
+                   alt="Color style preview"
+                   class="style-card__image">
+            {% endif %}
+          </div>
+          <p class="style-card__label">Color</p>
+        </div>
+      </label>
+
+      {% comment %} Modern (Ink Wash) Style {% endcomment %}
+      <label class="style-card">
+        <input type="radio"
+               name="properties[Style]"
+               value="Modern"
+               form="{{ product_form_id }}"
+               data-style-radio="modern">
+        <div class="style-card__content">
+          <div class="style-card__image-wrapper">
+            {% if block.settings.style_preview_modern != blank %}
+              <img src="{{ block.settings.style_preview_modern | image_url: width: 320 }}"
+                   alt="Modern style preview"
+                   class="style-card__image">
+            {% else %}
+              <img src="{{ 'pet-modern-preview.jpg' | asset_url }}"
+                   alt="Modern style preview"
+                   class="style-card__image">
+            {% endif %}
+          </div>
+          <p class="style-card__label">Modern</p>
+        </div>
+      </label>
+
+      {% comment %} Sketch (Pen & Marker) Style {% endcomment %}
+      <label class="style-card">
+        <input type="radio"
+               name="properties[Style]"
+               value="Sketch"
+               form="{{ product_form_id }}"
+               data-style-radio="sketch">
+        <div class="style-card__content">
+          <div class="style-card__image-wrapper">
+            {% if block.settings.style_preview_sketch != blank %}
+              <img src="{{ block.settings.style_preview_sketch | image_url: width: 320 }}"
+                   alt="Sketch style preview"
+                   class="style-card__image">
+            {% else %}
+              <img src="{{ 'pet-sketch-preview.jpg' | asset_url }}"
+                   alt="Sketch style preview"
+                   class="style-card__image">
+            {% endif %}
+          </div>
+          <p class="style-card__label">Sketch</p>
+        </div>
+      </label>
+
+    </div>
+  </div>
+
+  {% comment %} Font Selector - RESTORED: After Style for proper UX flow {% endcomment %}
+  {% if product.metafields.custom.supports_font_styles == true %}
+  <div class="pet-selector__section">
+    <h2 class="pet-selector__section-heading">Choose Font</h2>
+    <div class="font-selector__grid">
+
+      {% comment %} No Text Option {% endcomment %}
+      <label class="font-card">
+        <input type="radio"
+               name="properties[Font]"
+               value="no-text"
+               form="{{ product_form_id }}"
+               data-font-radio="no-text">
+        <div class="font-card__content">
+          <p class="font-card__title">No Text</p>
+          <div class="font-card__preview font-card__preview--icon">
+            <svg class="font-card__no-text-icon" viewBox="0 0 24 24">
+              <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+            </svg>
+          </div>
+        </div>
+      </label>
+
+      {% comment %} Preppy Font {% endcomment %}
+      <label class="font-card">
+        <input type="radio"
+               name="properties[Font]"
+               value="preppy"
+               form="{{ product_form_id }}"
+               data-font-radio="preppy">
+        <div class="font-card__content">
+          <p class="font-card__title">Preppy</p>
+          <div class="font-card__preview">
+            <p class="font-preview-text preppy-font">
+              Your Pet's Name
+            </p>
+          </div>
+        </div>
+      </label>
+
+      {% comment %} Classic Font {% endcomment %}
+      <label class="font-card">
+        <input type="radio"
+               name="properties[Font]"
+               value="classic"
+               form="{{ product_form_id }}"
+               data-font-radio="classic">
+        <div class="font-card__content">
+          <p class="font-card__title">Classic</p>
+          <div class="font-card__preview">
+            <p class="font-preview-text classic-font">
+              Your Pet's Name
+            </p>
+          </div>
+        </div>
+      </label>
+
+      {% comment %} Playful Font {% endcomment %}
+      <label class="font-card">
+        <input type="radio"
+               name="properties[Font]"
+               value="playful"
+               form="{{ product_form_id }}"
+               data-font-radio="playful">
+        <div class="font-card__content">
+          <p class="font-card__title">Playful</p>
+          <div class="font-card__preview">
+            <p class="font-preview-text playful-font">
+              Your Pet's Name
+            </p>
+          </div>
+        </div>
+      </label>
+
+      {% comment %} Elegant Font {% endcomment %}
+      <label class="font-card">
+        <input type="radio"
+               name="properties[Font]"
+               value="elegant"
+               form="{{ product_form_id }}"
+               data-font-radio="elegant">
+        <div class="font-card__content">
+          <p class="font-card__title">Elegant</p>
+          <div class="font-card__preview">
+            <p class="font-preview-text elegant-font">
+              Your Pet's Name
+            </p>
+          </div>
+        </div>
+      </label>
+
+      {% comment %} Trend Font {% endcomment %}
+      <label class="font-card">
+        <input type="radio"
+               name="properties[Font]"
+               value="trend"
+               form="{{ product_form_id }}"
+               data-font-radio="trend">
+        <div class="font-card__content">
+          <p class="font-card__title">Trend</p>
+          <div class="font-card__preview">
+            <p class="font-preview-text trend-font">
+              Your Pet's Name
+            </p>
+          </div>
+        </div>
+      </label>
+
+    </div>
+  </div>
+  {% endif %}
 
 </div>
 
