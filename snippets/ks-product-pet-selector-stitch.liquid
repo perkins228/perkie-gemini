@@ -376,43 +376,78 @@
   </div>
   {% endif %}
 
-  {% comment %} HIDDEN FROM CUSTOMERS: Upload tracking metadata (underscore prefix) {% endcomment %}
-  {% for i in (1..3) %}
-    <input type="hidden" id="order-type-{{ i }}" name="properties[_pet_{{ i }}_order_type]" value="" form="{{ product_form_id }}">
-    <input type="hidden" id="processing-state-{{ i }}" name="properties[_pet_{{ i }}_processing_state]" value="" form="{{ product_form_id }}">
-    <input type="hidden" id="upload-timestamp-{{ i }}" name="properties[_pet_{{ i }}_upload_timestamp]" value="" form="{{ product_form_id }}">
-  {% endfor %}
+  {% comment %} HIDDEN FROM CUSTOMERS: Fulfillment data grouped by pet (underscore prefix) {% endcomment %}
+  {% comment %} Optimized order: All Pet 1 data together, then Pet 2, then Pet 3 {% endcomment %}
+  {% comment %} Order within each pet: processed_image_url → order_type → filename → artist_notes {% endcomment %}
 
-  {% comment %} HIDDEN FROM CUSTOMERS: Fulfillment metadata (underscore prefix) {% endcomment %}
-  {% for i in (1..3) %}
-    <input type="hidden"
-           id="pet-{{ i }}-processed-url"
-           name="properties[_pet_{{ i }}_processed_image_url]"
-           value=""
-           form="{{ product_form_id }}"
-           data-pet-processed-url="{{ i }}">
-    <input type="hidden"
-           id="pet-{{ i }}-filename"
-           name="properties[_pet_{{ i }}_filename]"
-           value=""
-           form="{{ product_form_id }}"
-           data-pet-filename="{{ i }}">
-  {% endfor %}
-
-  {% comment %} HIDDEN FROM CUSTOMERS: Internal fulfillment notes (underscore prefix) {% endcomment %}
-  {% comment %} Separate artist notes for each pet (up to 3 pets) {% endcomment %}
+  {% comment %} Pet 1 Fulfillment Data {% endcomment %}
+  <input type="hidden"
+         id="pet-1-processed-url"
+         name="properties[_pet_1_processed_image_url]"
+         value=""
+         form="{{ product_form_id }}"
+         data-pet-processed-url="1">
+  <input type="hidden"
+         id="order-type-1"
+         name="properties[_pet_1_order_type]"
+         value=""
+         form="{{ product_form_id }}">
+  <input type="hidden"
+         id="pet-1-filename"
+         name="properties[_pet_1_filename]"
+         value=""
+         form="{{ product_form_id }}"
+         data-pet-filename="1">
   <input type="hidden"
          id="artist-notes-field-1"
          name="properties[_pet_1_artist_notes]"
          value=""
          form="{{ product_form_id }}"
          data-artist-notes="1">
+
+  {% comment %} Pet 2 Fulfillment Data {% endcomment %}
+  <input type="hidden"
+         id="pet-2-processed-url"
+         name="properties[_pet_2_processed_image_url]"
+         value=""
+         form="{{ product_form_id }}"
+         data-pet-processed-url="2">
+  <input type="hidden"
+         id="order-type-2"
+         name="properties[_pet_2_order_type]"
+         value=""
+         form="{{ product_form_id }}">
+  <input type="hidden"
+         id="pet-2-filename"
+         name="properties[_pet_2_filename]"
+         value=""
+         form="{{ product_form_id }}"
+         data-pet-filename="2">
   <input type="hidden"
          id="artist-notes-field-2"
          name="properties[_pet_2_artist_notes]"
          value=""
          form="{{ product_form_id }}"
          data-artist-notes="2">
+
+  {% comment %} Pet 3 Fulfillment Data {% endcomment %}
+  <input type="hidden"
+         id="pet-3-processed-url"
+         name="properties[_pet_3_processed_image_url]"
+         value=""
+         form="{{ product_form_id }}"
+         data-pet-processed-url="3">
+  <input type="hidden"
+         id="order-type-3"
+         name="properties[_pet_3_order_type]"
+         value=""
+         form="{{ product_form_id }}">
+  <input type="hidden"
+         id="pet-3-filename"
+         name="properties[_pet_3_filename]"
+         value=""
+         form="{{ product_form_id }}"
+         data-pet-filename="3">
   <input type="hidden"
          id="artist-notes-field-3"
          name="properties[_pet_3_artist_notes]"
