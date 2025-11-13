@@ -11,13 +11,497 @@
   "sections": {
     "main": {
       "type": "main-page",
+      "disabled": true,
       "settings": {
         "padding_top": 28,
         "padding_bottom": 28
       }
+    },
+    "image_with_text_Pq63rp": {
+      "type": "image-with-text",
+      "blocks": {
+        "caption_fPhmFj": {
+          "type": "caption",
+          "settings": {
+            "caption": "Gift Guide",
+            "text_style": "caption-with-letter-spacing",
+            "text_size": "large"
+          }
+        },
+        "heading_zQXCQk": {
+          "type": "heading",
+          "settings": {
+            "heading": "Gifts that Capture the feeling of Love",
+            "heading_size": "h1"
+          }
+        },
+        "text_nQx3jb": {
+          "type": "text",
+          "settings": {
+            "text": "<p>Discover heartfelt gifts: personalized pet prints, custom created and individually printed on quality items.</p>",
+            "text_style": "body"
+          }
+        },
+        "button_iDgC7n": {
+          "type": "button",
+          "disabled": true,
+          "settings": {
+            "button_label": "Button label",
+            "button_link": "",
+            "button_style_secondary": false
+          }
+        }
+      },
+      "block_order": [
+        "caption_fPhmFj",
+        "heading_zQXCQk",
+        "text_nQx3jb",
+        "button_iDgC7n"
+      ],
+      "settings": {
+        "image": "shopify://shop_images/PP-opening-gift_48ffdcfc-6125-4b2e-856e-dbf8be2ec085.gif",
+        "height": "adapt",
+        "desktop_image_width": "medium",
+        "layout": "text_first",
+        "image_behavior": "none",
+        "content_layout": "no-overlap",
+        "desktop_content_position": "middle",
+        "desktop_content_alignment": "center",
+        "mobile_content_alignment": "center",
+        "section_color_scheme": "",
+        "color_scheme": "scheme-36fc21dc-2d10-4a81-8302-b2e842fce5f4",
+        "padding_top": 36,
+        "padding_bottom": 0
+      }
+    },
+    "collection_list_KEWNp8": {
+      "type": "collection-list",
+      "blocks": {
+        "featured_collection_PmMfYY": {
+          "type": "featured_collection",
+          "settings": {
+            "collection": "🎁-happy-holidays-🎄"
+          }
+        },
+        "featured_collection_wmWBLJ": {
+          "type": "featured_collection",
+          "settings": {
+            "collection": "personalized-pet-apparel-accessories"
+          }
+        },
+        "featured_collection_VbwQpf": {
+          "type": "featured_collection",
+          "settings": {
+            "collection": "personalized-home-decor"
+          }
+        }
+      },
+      "block_order": [
+        "featured_collection_PmMfYY",
+        "featured_collection_wmWBLJ",
+        "featured_collection_VbwQpf"
+      ],
+      "name": "t:sections.collection-list.presets.name",
+      "settings": {
+        "title": "",
+        "heading_size": "h1",
+        "image_ratio": "square",
+        "columns_desktop": 3,
+        "color_scheme": "",
+        "show_view_all": false,
+        "columns_mobile": "1",
+        "swipe_on_mobile": false,
+        "padding_top": 36,
+        "padding_bottom": 36
+      }
+    },
+    "rich_text_P4RJFY": {
+      "type": "rich-text",
+      "blocks": {
+        "heading_GQw7NG": {
+          "type": "heading",
+          "settings": {
+            "heading": "Magical Moments in Heartfelt Gifting",
+            "heading_size": "h1"
+          }
+        },
+        "text_9BjWgV": {
+          "type": "text",
+          "settings": {
+            "text": "<p>Dear pet lover, </p><p>There's an indescribable joy in finding the ideal gift, isn't there? That moment when you see their face light up or tears of joy fill their eyes because you've genuinely touched their hearts. At Perkie Prints, that feeling resonates deeply with us.</p><p>Crafting pet portraits isn't just a transaction; it's a collaboration between you, the cherished pet parent capturing precious moments, and us, the dedicated artists transforming these moments into tangible treasures. This process is a journey, a shared passion for our beloved animals that culminates in creating something profoundly special.</p><p>Our commitment extends beyond artistry; it's about giving back. Every purchase helps animals in need, making this collaboration even more meaningful. Together, let's celebrate the beauty of this connection and the joy it brings to your family, your friends, your home and our furry friends, this holiday season.</p><p>Happy Gifting,<br/>Jonni Perkins <br/>CEO, Perkie Prints</p>"
+          }
+        },
+        "button_DH67Af": {
+          "type": "button",
+          "disabled": true,
+          "settings": {
+            "button_label": "Button label",
+            "button_link": "",
+            "button_style_secondary": false,
+            "button_label_2": "",
+            "button_link_2": "",
+            "button_style_secondary_2": false
+          }
+        }
+      },
+      "block_order": [
+        "heading_GQw7NG",
+        "text_9BjWgV",
+        "button_DH67Af"
+      ],
+      "settings": {
+        "desktop_content_position": "center",
+        "content_alignment": "center",
+        "color_scheme": "scheme-9f6d3ba1-939b-4af9-b284-239ad849b276",
+        "full_width": true,
+        "padding_top": 40,
+        "padding_bottom": 52
+      }
+    },
+    "collage_qryV7g": {
+      "type": "collage",
+      "blocks": {
+        "image_mCp7BV": {
+          "type": "image",
+          "settings": {
+            "image": "shopify://shop_images/Holiday-banner-2023-square-gif.gif"
+          }
+        },
+        "collection_PeaEDk": {
+          "type": "collection",
+          "settings": {
+            "collection": "gifts-for-him"
+          }
+        },
+        "collection_qkr7pY": {
+          "type": "collection",
+          "settings": {
+            "collection": "gifts-for-her"
+          }
+        }
+      },
+      "block_order": [
+        "image_mCp7BV",
+        "collection_PeaEDk",
+        "collection_qkr7pY"
+      ],
+      "settings": {
+        "heading": "Heartwarming Surprises 🎁",
+        "heading_size": "h1",
+        "desktop_layout": "left",
+        "mobile_layout": "collage",
+        "card_styles": "product-card-wrapper",
+        "color_scheme": "scheme-515076a9-58a2-482b-a146-99ab06be0008",
+        "padding_top": 36,
+        "padding_bottom": 36
+      }
+    },
+    "multicolumn_DECNHF": {
+      "type": "multicolumn",
+      "blocks": {
+        "column_X9zFdg": {
+          "type": "column",
+          "settings": {
+            "title": "Jennifer A. 🌟🌟🌟🌟🌟",
+            "text": "<p>\"If I could give more than 5 stars I would! The artwork turned out so good and the artist who made the print was so kind and easy to work with 10/10!\"</p>",
+            "link_label": "",
+            "link": ""
+          }
+        },
+        "column_tQd6yM": {
+          "type": "column",
+          "settings": {
+            "title": "Jack P. 🌟🌟🌟🌟🌟",
+            "text": "<p>\"Ordered this for a client and she loved it so much we're ordering more! Great communication with the team on the design and it came so much faster than expected.\"</p>",
+            "link_label": "",
+            "link": ""
+          }
+        },
+        "column_YqqdNx": {
+          "type": "column",
+          "settings": {
+            "title": "Kyle M 🌟🌟🌟🌟🌟",
+            "text": "<p>\"Favorite gift of the year. Great experience, quality of T shirt and print is solid. Would recommend!\"</p>",
+            "link_label": "",
+            "link": ""
+          }
+        },
+        "column_VfrUnE": {
+          "type": "column",
+          "settings": {
+            "title": "Elizabeth M. 🌟🌟🌟🌟🌟",
+            "text": "<p>\"The team was so patient with me!! I had lots of photos to choose from and with the PP team’s help we found the right ones. Made the perfect gift :)\"</p>",
+            "link_label": "",
+            "link": ""
+          }
+        },
+        "column_teKCn8": {
+          "type": "column",
+          "settings": {
+            "title": "Lindsey B. 🌟🌟🌟🌟🌟",
+            "text": "<p>\"Purchased as a gift, and it was a hit! Great quality and a beautiful tee. My friend loved how it captured her pup perfectly!\"</p>",
+            "link_label": "",
+            "link": ""
+          }
+        },
+        "column_xFh49b": {
+          "type": "column",
+          "settings": {
+            "title": "Heather S. 🌟🌟🌟🌟🌟",
+            "text": "<p>\"This was birthday gift for my friend. And she absolutely adored the tote bag. Tears were had. This is something she will be able to cherish for ever.\"</p>",
+            "link_label": "",
+            "link": ""
+          }
+        }
+      },
+      "block_order": [
+        "column_X9zFdg",
+        "column_tQd6yM",
+        "column_YqqdNx",
+        "column_VfrUnE",
+        "column_teKCn8",
+        "column_xFh49b"
+      ],
+      "settings": {
+        "title": "Reviews",
+        "heading_size": "h1",
+        "image_width": "full",
+        "image_ratio": "adapt",
+        "button_label": "",
+        "button_link": "",
+        "columns_desktop": 3,
+        "column_alignment": "left",
+        "background_style": "primary",
+        "color_scheme": "scheme-affd6a5e-2304-40c5-a8e5-3c226c8427f7",
+        "columns_mobile": "1",
+        "swipe_on_mobile": true,
+        "padding_top": 36,
+        "padding_bottom": 36
+      }
+    },
+    "image_with_text_nLXHnh": {
+      "type": "image-with-text",
+      "blocks": {
+        "caption_rcHdqa": {
+          "type": "caption",
+          "settings": {
+            "caption": "Make it Meaningful",
+            "text_style": "caption-with-letter-spacing",
+            "text_size": "large"
+          }
+        },
+        "heading_yg3e9i": {
+          "type": "heading",
+          "settings": {
+            "heading": "Reflect What  Matters Most; The love of their pet, in print!",
+            "heading_size": "h2"
+          }
+        },
+        "text_T6gtra": {
+          "type": "text",
+          "settings": {
+            "text": "<p>With Perkie Prints custom pet portraits, you can show each recipient how much you care — through their favorite photos of their pet preserved, timeless design, and craftsmanship made to last.</p>",
+            "text_style": "body"
+          }
+        },
+        "button_BG9Uzy": {
+          "type": "button",
+          "settings": {
+            "button_label": "SHOP ALL GIFTS",
+            "button_link": "shopify://collections/all-products",
+            "button_style_secondary": false
+          }
+        }
+      },
+      "block_order": [
+        "caption_rcHdqa",
+        "heading_yg3e9i",
+        "text_T6gtra",
+        "button_BG9Uzy"
+      ],
+      "settings": {
+        "image": "shopify://shop_images/FramesLayoutcopy2_dc2dc311-92d4-4abd-be3f-e52476dacfdc.jpg",
+        "height": "adapt",
+        "desktop_image_width": "medium",
+        "layout": "image_first",
+        "image_behavior": "none",
+        "content_layout": "no-overlap",
+        "desktop_content_position": "middle",
+        "desktop_content_alignment": "center",
+        "mobile_content_alignment": "left",
+        "section_color_scheme": "scheme-1",
+        "color_scheme": "scheme-9f6d3ba1-939b-4af9-b284-239ad849b276",
+        "padding_top": 36,
+        "padding_bottom": 36
+      }
+    },
+    "image_with_text_cCDMP4": {
+      "type": "image-with-text",
+      "blocks": {
+        "heading_LKQTgm": {
+          "type": "heading",
+          "settings": {
+            "heading": "Gifts That Give Back",
+            "heading_size": "h1"
+          }
+        },
+        "text_T8VTXm": {
+          "type": "text",
+          "settings": {
+            "text": "<p> Elevate your gifting experience with presents that truly make a difference. We're proud to give back a portion of every sale to our charity partners, Wags and Walks, who work tirelessly to save the lives of animals in need.</p>",
+            "text_style": "body"
+          }
+        },
+        "button_U7b6pz": {
+          "type": "button",
+          "settings": {
+            "button_label": "About Wags & Walks",
+            "button_link": "shopify://pages/our-charity-partners",
+            "button_style_secondary": true
+          }
+        }
+      },
+      "block_order": [
+        "heading_LKQTgm",
+        "text_T8VTXm",
+        "button_U7b6pz"
+      ],
+      "settings": {
+        "image": "shopify://shop_images/Honey_Dog_Rescued_a52fb6da-5f4b-4780-8d6d-fe7aca7c8552.png",
+        "height": "adapt",
+        "desktop_image_width": "medium",
+        "layout": "text_first",
+        "image_behavior": "none",
+        "content_layout": "no-overlap",
+        "desktop_content_position": "middle",
+        "desktop_content_alignment": "left",
+        "mobile_content_alignment": "left",
+        "section_color_scheme": "",
+        "color_scheme": "scheme-9f6d3ba1-939b-4af9-b284-239ad849b276",
+        "padding_top": 36,
+        "padding_bottom": 36
+      }
+    },
+    "featured_collection_KYkX9J": {
+      "type": "featured-collection",
+      "settings": {
+        "collection": "bestsellers",
+        "products_to_show": 4,
+        "title": "Browse Our Bestsellers",
+        "heading_size": "h1",
+        "description": "",
+        "show_description": false,
+        "description_style": "body",
+        "columns_desktop": 4,
+        "enable_desktop_slider": false,
+        "full_width": false,
+        "show_view_all": true,
+        "view_all_style": "solid",
+        "color_scheme": "scheme-aa0a3308-e0c9-4974-89d8-8634dfa5f8a1",
+        "image_ratio": "square",
+        "image_shape": "default",
+        "show_secondary_image": true,
+        "show_vendor": false,
+        "show_rating": true,
+        "quick_add": "none",
+        "columns_mobile": "2",
+        "swipe_on_mobile": true,
+        "padding_top": 36,
+        "padding_bottom": 36
+      }
+    },
+    "collage_4f4xhQ": {
+      "type": "collage",
+      "blocks": {
+        "image_g7tYzf": {
+          "type": "image",
+          "settings": {
+            "image": "shopify://shop_images/xmas_frames_on_wall_copy_0d9eb784-3141-4db9-9c9c-80138453d23c.jpg"
+          }
+        },
+        "product_TFPhcy": {
+          "type": "product",
+          "settings": {
+            "product": "holiday-throw-pillow-cover",
+            "second_image": false
+          }
+        },
+        "product_8TwdyT": {
+          "type": "product",
+          "settings": {
+            "product": "holiday-coffee-mug",
+            "second_image": false
+          }
+        }
+      },
+      "block_order": [
+        "image_g7tYzf",
+        "product_TFPhcy",
+        "product_8TwdyT"
+      ],
+      "settings": {
+        "heading": "Gifts for the Homebody Pet Parent",
+        "heading_size": "h1",
+        "desktop_layout": "left",
+        "mobile_layout": "collage",
+        "card_styles": "product-card-wrapper",
+        "color_scheme": "scheme-515076a9-58a2-482b-a146-99ab06be0008",
+        "padding_top": 36,
+        "padding_bottom": 36
+      }
+    },
+    "collage_dAhtkV": {
+      "type": "collage",
+      "blocks": {
+        "collection_jUkpwP": {
+          "type": "collection",
+          "settings": {
+            "collection": "gifts-for-new-moms-and-or-dads"
+          }
+        },
+        "product_8TLNwa": {
+          "type": "product",
+          "settings": {
+            "product": "toddler-tee-front-graphic",
+            "second_image": true
+          }
+        },
+        "product_xbEdQM": {
+          "type": "product",
+          "settings": {
+            "product": "personalized-pet-baby-onesie",
+            "second_image": true
+          }
+        }
+      },
+      "block_order": [
+        "collection_jUkpwP",
+        "product_8TLNwa",
+        "product_xbEdQM"
+      ],
+      "settings": {
+        "heading": "Gifts for New Parents",
+        "heading_size": "h1",
+        "desktop_layout": "left",
+        "mobile_layout": "collage",
+        "card_styles": "product-card-wrapper",
+        "color_scheme": "scheme-36fc21dc-2d10-4a81-8302-b2e842fce5f4",
+        "padding_top": 36,
+        "padding_bottom": 36
+      }
     }
   },
   "order": [
-    "main"
+    "main",
+    "image_with_text_Pq63rp",
+    "collection_list_KEWNp8",
+    "rich_text_P4RJFY",
+    "collage_qryV7g",
+    "multicolumn_DECNHF",
+    "image_with_text_nLXHnh",
+    "image_with_text_cCDMP4",
+    "featured_collection_KYkX9J",
+    "collage_4f4xhQ",
+    "collage_dAhtkV"
   ]
 }
