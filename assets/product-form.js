@@ -100,6 +100,7 @@ if (!customElements.get('product-form')) {
                   // This prevents carryover to next product while preserving processor bridge
                   self.savePetCustomization();  // Phase 2: Save for restoration
                   self.clearPetPropertyFields(); // Phase 1: Clear form fields
+                  self.clearProcessedPets();     // Phase 1: Clear processed pet data
                 });
               self.error = false;
               const quickAddModal = self.closest('quick-add-modal');
@@ -271,6 +272,36 @@ if (!customElements.get('product-form')) {
         }
 
         return window.PetPropertyUtils.clearFieldsWithTelemetry(this.form, 'cart_success');
+      }
+
+      /**
+       * Clear processed pet data from localStorage after cart success
+       * This prevents processed pets from being reused for different products
+       */
+      clearProcessedPets() {
+        try {
+          // Get all localStorage keys
+          var keysToRemove = [];
+          for (var i = 0; i < localStorage.length; i++) {
+            var key = localStorage.key(i);
+            // Match perkie_pet_pet_* keys (processed pets from processor)
+            if (key && key.indexOf('perkie_pet_pet_') === 0) {
+              keysToRemove.push(key);
+            }
+          }
+
+          // Remove processed pets
+          for (var j = 0; j < keysToRemove.length; j++) {
+            localStorage.removeItem(keysToRemove[j]);
+          }
+
+          if (keysToRemove.length > 0) {
+            console.log('🗑️ [PetProps] Cleared ' + keysToRemove.length + ' processed pet(s) after cart success');
+          }
+
+        } catch (e) {
+          console.warn('⚠️ [PetProps] Failed to clear processed pets:', e);
+        }
       }
 
       get variantIdInput() {
