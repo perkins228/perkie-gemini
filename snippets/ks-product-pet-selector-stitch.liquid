@@ -2864,10 +2864,12 @@
         const pet = latestPets[i];
         const petNumber = i + 1;
 
-        // Populate artist notes for this pet (per-pet fields)
-        if (pet.artistNote) {
-          const artistNotesField = document.querySelector(`[data-artist-notes="${petNumber}"]`);
-          if (artistNotesField) {
+        // CRITICAL FIX: Only populate artist notes if they exist for THIS SPECIFIC PET
+        // Do NOT carry over notes from other pets in PetStorage
+        const artistNotesField = document.querySelector(`[data-artist-notes="${petNumber}"]`);
+        if (artistNotesField) {
+          // Check if this specific pet has artist notes
+          if (pet.artistNote && pet.artistNote.trim() !== '') {
             // SECURITY: Enhanced sanitization (prevent XSS, limit length)
             const sanitizedNotes = pet.artistNote
               .substring(0, 200) // Limit to 200 chars
@@ -2881,6 +2883,11 @@
 
             artistNotesField.value = sanitizedNotes;
             console.log(`✅ Artist notes from processed Pet ${petNumber}: "${sanitizedNotes.substring(0, 50)}${sanitizedNotes.length > 50 ? '...' : ''}"`);
+          } else {
+            // CRITICAL FIX: If pet has no artist notes, explicitly clear the field
+            // This prevents carryover from previous products
+            artistNotesField.value = '';
+            console.log(`ℹ️ Pet ${petNumber} has no artist notes - field cleared`);
           }
         }
 
