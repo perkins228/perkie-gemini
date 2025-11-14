@@ -807,8 +807,9 @@
   text-decoration-thickness: 2px;
   text-underline-offset: 0;
   line-height: 1.0;
-  padding-top: 0.35rem;      /* Space for overline */
-  padding-bottom: 0.25rem;   /* Space for underline */
+  padding-top: 0.5rem;       /* Increased space for overline */
+  padding-bottom: 0.3rem;    /* Increased space for underline */
+  overflow: visible;         /* Override parent overflow to prevent clipping */
 }
 
 .font-card__preview--classic {
