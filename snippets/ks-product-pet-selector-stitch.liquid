@@ -2892,31 +2892,41 @@
         }
 
         // Populate processed URL for selected style
-        if (pet.effects && pet.effects[selectedStyle]) {
-          const styleData = pet.effects[selectedStyle];
-          const gcsUrl = styleData.gcsUrl || styleData.dataUrl || '';
+        const urlField = document.querySelector(`[data-pet-processed-url="${petNumber}"]`);
+        if (urlField) {
+          if (pet.effects && pet.effects[selectedStyle]) {
+            const styleData = pet.effects[selectedStyle];
+            const gcsUrl = styleData.gcsUrl || styleData.dataUrl || '';
 
-          if (gcsUrl) {
-            // SECURITY: Validate URL before populating (prevent URL injection)
-            if (isValidGCSUrl(gcsUrl)) {
-              const urlField = document.querySelector(`[data-pet-processed-url="${petNumber}"]`);
-              if (urlField) {
+            if (gcsUrl) {
+              // SECURITY: Validate URL before populating (prevent URL injection)
+              if (isValidGCSUrl(gcsUrl)) {
                 urlField.value = gcsUrl;
                 console.log(`✅ Pet ${petNumber} processed URL [${selectedStyle}]: ${gcsUrl.substring(0, 60)}...`);
+              } else {
+                console.error(`❌ Invalid GCS URL for Pet ${petNumber}, skipping: ${gcsUrl.substring(0, 60)}...`);
               }
-            } else {
-              console.error(`❌ Invalid GCS URL for Pet ${petNumber}, skipping: ${gcsUrl.substring(0, 60)}...`);
             }
+          } else {
+            // CRITICAL FIX: If pet has no processed effects, explicitly clear the field
+            // This prevents carryover of processed URLs from other pets
+            urlField.value = '';
+            console.log(`ℹ️ Pet ${petNumber} has no processed effects for style "${selectedStyle}" - URL field cleared`);
           }
         }
 
         // Extract original filename from processed pet data (if available)
-        if (pet.filename) {
-          const filenameField = document.querySelector(`[data-pet-filename="${petNumber}"]`);
-          if (filenameField) {
+        const filenameField = document.querySelector(`[data-pet-filename="${petNumber}"]`);
+        if (filenameField) {
+          if (pet.filename && pet.filename.trim() !== '') {
             const sanitizedFilename = sanitizeFilename(pet.filename);
             filenameField.value = sanitizedFilename;
             console.log(`✅ Pet ${petNumber} filename from processor: ${sanitizedFilename}`);
+          } else {
+            // CRITICAL FIX: If pet has no filename, explicitly clear the field
+            // This prevents carryover of filenames from other pets
+            filenameField.value = '';
+            console.log(`ℹ️ Pet ${petNumber} has no filename - field cleared`);
           }
         }
       }
