@@ -95,6 +95,11 @@ if (!customElements.get('product-form')) {
                   cartData: response,
                 }).then(() => {
                   CartPerformance.measureFromMarker('add:wait-for-subscribers', startMarker);
+
+                  // LAYER 1: Save customization + clear pet property fields after cart success
+                  // This prevents carryover to next product while preserving processor bridge
+                  self.savePetCustomization();  // Phase 2: Save for restoration
+                  self.clearPetPropertyFields(); // Phase 1: Clear form fields
                 });
               self.error = false;
               const quickAddModal = self.closest('quick-add-modal');
@@ -155,6 +160,117 @@ if (!customElements.get('product-form')) {
           this.submitButton.removeAttribute('disabled');
           this.submitButtonText.textContent = window.variantStrings.addToCart;
         }
+      }
+
+      /**
+       * Get current product ID from page
+       * @returns {number|null} Product ID
+       */
+      getProductId() {
+        // Try window.productId first (set by Shopify themes)
+        if (window.productId) {
+          return parseInt(window.productId, 10);
+        }
+
+        // Try data attribute on form
+        if (this.form && this.form.dataset.productId) {
+          return parseInt(this.form.dataset.productId, 10);
+        }
+
+        // Try hidden input
+        var productIdInput = this.form.querySelector('[name="product-id"]');
+        if (productIdInput) {
+          return parseInt(productIdInput.value, 10);
+        }
+
+        return null;
+      }
+
+      /**
+       * Get pet session key from form fields
+       * @returns {string|null} Session key
+       */
+      getPetSessionKey() {
+        var sessionKeyInput = this.form.querySelector('[name="properties[_pet_1_session_key]"]');
+        return sessionKeyInput ? sessionKeyInput.value : null;
+      }
+
+      /**
+       * Get artist notes from form
+       * @returns {string} Artist notes
+       */
+      getArtistNotes() {
+        var notesInput = this.form.querySelector('[name="properties[_pet_1_artist_notes]"]');
+        return notesInput ? notesInput.value : '';
+      }
+
+      /**
+       * Get selected effect from form
+       * @returns {string} Selected effect name
+       */
+      getSelectedEffect() {
+        var effectInput = this.form.querySelector('[name="properties[_pet_1_selected_effect]"]');
+        return effectInput ? effectInput.value : '';
+      }
+
+      /**
+       * Get processed image URL from form
+       * @returns {string} Processed image URL
+       */
+      getProcessedUrl() {
+        var urlInput = this.form.querySelector('[name="properties[_pet_1_processed_image_url]"]');
+        return urlInput ? urlInput.value : '';
+      }
+
+      /**
+       * PHASE 2: Save pet customization for product-scoped restoration
+       * This allows customers to return to same product and see their work
+       */
+      savePetCustomization() {
+        try {
+          var productId = this.getProductId();
+          if (!productId) {
+            console.log('ℹ️ [PetProps] No product ID, skipping customization save');
+            return;
+          }
+
+          var sessionKey = this.getPetSessionKey();
+          if (!sessionKey) {
+            console.log('ℹ️ [PetProps] No pet session key, skipping customization save');
+            return;
+          }
+
+          var customization = {
+            sessionKey: sessionKey,
+            artistNotes: this.getArtistNotes(),
+            selectedEffect: this.getSelectedEffect(),
+            processedImageUrl: this.getProcessedUrl(),
+            timestamp: Date.now(),
+            productId: productId
+          };
+
+          var storageKey = 'petCustomization_product_' + productId;
+          localStorage.setItem(storageKey, JSON.stringify(customization));
+
+          console.log('💾 [PetProps] Saved customization for product', productId, customization);
+
+        } catch (e) {
+          console.warn('⚠️ [PetProps] Failed to save customization:', e);
+        }
+      }
+
+      /**
+       * PHASE 1: Clear pet property fields after cart success
+       * This prevents carryover to next product
+       * Uses centralized PetPropertyUtils for consistency
+       */
+      clearPetPropertyFields() {
+        if (!window.PetPropertyUtils) {
+          console.warn('⚠️ [PetProps] PetPropertyUtils not loaded, cannot clear fields');
+          return;
+        }
+
+        return window.PetPropertyUtils.clearFieldsWithTelemetry(this.form, 'cart_success');
       }
 
       get variantIdInput() {

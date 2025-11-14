@@ -2601,6 +2601,105 @@
     }
   }
 
+  /**
+   * PHASE 2: Restore product-scoped customization
+   * Allows customers to return to same product and see their work
+   * Prevents carryover to different products
+   */
+  function restoreProductScopedCustomization() {
+    if (!window.PetPropertyUtils) {
+      console.log('ℹ️ [PetProps] PetPropertyUtils not loaded, skipping restoration');
+      return;
+    }
+
+    try {
+      // Get current product ID
+      var productId = window.productId || null;
+      if (!productId) {
+        console.log('ℹ️ [PetProps] No product ID, skipping restoration');
+        return;
+      }
+
+      // Load saved customization for THIS product
+      var storageKey = 'petCustomization_product_' + productId;
+      var savedData = localStorage.getItem(storageKey);
+
+      if (!savedData) {
+        console.log('ℹ️ [PetProps] No saved customization for product', productId);
+        return;
+      }
+
+      var customization = JSON.parse(savedData);
+
+      // Validate customization (security check)
+      if (!window.PetPropertyUtils.isValidCustomization(customization)) {
+        console.warn('⚠️ [PetProps] Invalid customization data, removing');
+        localStorage.removeItem(storageKey);
+        return;
+      }
+
+      // Check timeout (10 minutes)
+      var now = Date.now();
+      var RESTORE_TIMEOUT = window.PetPropertyUtils.RESTORE_TIMEOUT || (10 * 60 * 1000);
+
+      if (now - customization.timestamp > RESTORE_TIMEOUT) {
+        console.log('ℹ️ [PetProps] Customization expired, removing');
+        localStorage.removeItem(storageKey);
+        return;
+      }
+
+      // Check product ID matches
+      if (customization.productId !== productId) {
+        console.warn('⚠️ [PetProps] Product ID mismatch, skipping restoration');
+        return;
+      }
+
+      // Load pet data from processor storage (preserves bridge!)
+      var sessionKey = customization.sessionKey;
+      var petData = PetStorage.get(sessionKey);
+
+      if (!petData || !petData.effects) {
+        console.warn('⚠️ [PetProps] Pet data not found for session key:', sessionKey);
+        localStorage.removeItem(storageKey);
+        return;
+      }
+
+      console.log('✅ [PetProps] Restoring customization for product', productId, customization);
+
+      // Restore to form fields
+      var form = document.querySelector('[data-product-form] form');
+      if (form) {
+        // Session key
+        var sessionKeyInput = form.querySelector('[name="properties[_pet_1_session_key]"]');
+        if (sessionKeyInput) sessionKeyInput.value = customization.sessionKey;
+
+        // Artist notes (sanitized by validation)
+        var notesInput = form.querySelector('[name="properties[_pet_1_artist_notes]"]');
+        if (notesInput) notesInput.value = customization.artistNotes || '';
+
+        // Selected effect
+        var effectInput = form.querySelector('[name="properties[_pet_1_selected_effect]"]');
+        if (effectInput) effectInput.value = customization.selectedEffect || '';
+
+        // Processed image URL
+        var urlInput = form.querySelector('[name="properties[_pet_1_processed_image_url]"]');
+        if (urlInput) urlInput.value = customization.processedImageUrl || '';
+
+        // Filename (from pet data)
+        var filenameInput = form.querySelector('[name="properties[_pet_1_filename]"]');
+        if (filenameInput && petData.filename) filenameInput.value = petData.filename;
+
+        console.log('✅ [PetProps] Form fields restored from saved customization');
+      }
+
+      // Trigger UI update to show restored pet
+      // The existing restorePetSelectorState() will handle UI rendering
+
+    } catch (error) {
+      console.error('❌ [PetProps] Error restoring customization:', error);
+    }
+  }
+
   // === END STATE PERSISTENCE MODULE ===
 
   // === SELECTED STYLE URL POPULATION MODULE ===
@@ -2933,6 +3032,11 @@
     console.log('✅ Pet Selector: Form handler attached to', form.getAttribute('id'));
 
     form.addEventListener('submit', function(e) {
+      // LAYER 4: Defensive clear before populate (guarantees fresh data)
+      if (window.PetPropertyUtils) {
+        window.PetPropertyUtils.clearFields(form);
+      }
+
       // Populate selected style URLs and filenames from localStorage before submission
       populateSelectedStyleUrls();
 
@@ -2958,12 +3062,24 @@
   // Wait for DOM to be fully ready
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => {
+      // LAYER 2: Clear stale pet property fields from previous products
+      if (window.PetPropertyUtils) {
+        window.PetPropertyUtils.clearFieldsWithTelemetry(null, 'page_load');
+      }
+
       cleanupStalePets(); // Clean up before restoring
+      restoreProductScopedCustomization(); // Phase 2: Restore if same product
       restorePetSelectorState();
       toggleStyleSection(); // Set initial style section visibility
     });
   } else {
+    // LAYER 2: Clear stale pet property fields from previous products
+    if (window.PetPropertyUtils) {
+      window.PetPropertyUtils.clearFieldsWithTelemetry(null, 'page_load');
+    }
+
     cleanupStalePets(); // Clean up before restoring
+    restoreProductScopedCustomization(); // Phase 2: Restore if same product
     restorePetSelectorState();
     toggleStyleSection(); // Set initial style section visibility
   }
@@ -2972,7 +3088,14 @@
   window.addEventListener('pageshow', (e) => {
     if (e.persisted) {
       console.log('📄 Page loaded from cache, reloading state...');
+
+      // LAYER 3: Clear stale pet property fields on bfcache restore
+      if (window.PetPropertyUtils) {
+        window.PetPropertyUtils.clearFieldsWithTelemetry(null, 'bfcache');
+      }
+
       cleanupStalePets(); // Clean up before restoring
+      restoreProductScopedCustomization(); // Phase 2: Restore if same product
       restorePetSelectorState();
       toggleStyleSection(); // Update style section visibility
     }
