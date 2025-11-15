@@ -43,7 +43,8 @@ gcloud run deploy $SERVICE_NAME \
   --cpu 2 \
   --memory 2Gi \
   --timeout 300 \
-  --set-env-vars PROJECT_ID=$PROJECT_ID,PROJECT_NUMBER=$PROJECT_NUMBER,GEMINI_MODEL=gemini-2.5-flash-image
+  --set-env-vars PROJECT_ID=$PROJECT_ID,PROJECT_NUMBER=$PROJECT_NUMBER,GEMINI_MODEL=gemini-2.5-flash-image \
+  --set-secrets GEMINI_API_KEY=gemini-api-key:latest
 
 echo ""
 echo "✅ Deployment complete!"

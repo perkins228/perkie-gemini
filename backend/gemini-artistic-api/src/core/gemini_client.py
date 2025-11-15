@@ -17,25 +17,18 @@ T = TypeVar('T')
 
 
 # Artistic style prompts optimized for Gemini 2.5 Flash Image
-# Clean prompts - response_modalities handles image output request
+# Ultra-simplified prompts - let model interpret core style descriptors naturally
 STYLE_PROMPTS = {
     ArtisticStyle.INK_WASH: (
-        "Transform this pet photo into a traditional Asian ink wash painting. "
+        "Transform this pet photo into multi-color stencil art piece. "
         "Create a portrait composition showing the pet's head and neck area. "
-        "Use flowing black ink with varying gradients to create an artistic effect. "
-        "Apply expressive brush strokes in the style of sumi-e painting. "
-        "Keep the pet's features recognizable while making it look like a painting. "
+        "Keep the pet's features clearly recognizable while maintaining the stencil art simplification. "
         "Place the portrait on a clean white background."
     ),
     ArtisticStyle.PEN_AND_MARKER: (
-        "Transform this pet photo into a traditional watercolor marker illustration "
-        "in the style of classic children's book art. "
-        "Create a warm, hand-painted portrait focusing on the pet's head and neck. "
-        "Use soft alcohol markers with gentle blending and visible brush strokes. "
-        "Apply warm earthy tones - browns, oranges, soft blacks, and cream whites. "
-        "Let colors blend naturally at the edges with a loose, painterly quality. "
-        "Keep fine details in the eyes and nose while maintaining artistic softness. "
-        "Add light pencil-like sketch lines only where needed for structure. "
+        "Transform this pet photo into a marker art illustration. "
+        "Create a portrait composition showing the pet's head and neck area. "
+        "Keep the pet's features clearly recognizable with expressive detail in the eyes and nose. "
         "Place the portrait on a clean white background."
     ),
 }
