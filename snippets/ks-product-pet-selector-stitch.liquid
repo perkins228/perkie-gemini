@@ -3049,12 +3049,8 @@
     console.log('✅ Pet Selector: Form handler attached to', form.getAttribute('id'));
 
     form.addEventListener('submit', function(e) {
-      // LAYER 4: Defensive clear before populate (guarantees fresh data)
-      if (window.PetPropertyUtils) {
-        window.PetPropertyUtils.clearFields(form);
-      }
-
       // Populate selected style URLs and filenames from localStorage before submission
+      // No pre-clearing needed - Layer 1 prevents carryover after cart success
       populateSelectedStyleUrls();
 
       // Note: File inputs and all other inputs are now associated with form via
