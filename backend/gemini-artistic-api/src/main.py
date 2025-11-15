@@ -21,7 +21,7 @@ from src.models.schemas import (
 from src.core.gemini_client import gemini_client
 from src.core.rate_limiter import rate_limiter
 from src.core.storage_manager import storage_manager
-from src.core.email_client import email_client
+# from src.core.email_client import email_client  # TODO: Enable when email client is ready
 
 # Configure logging
 logging.basicConfig(
@@ -465,8 +465,9 @@ async def confirm_upload(req: ConfirmUploadRequest):
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@app.post("/api/v1/send-email", response_model=SendEmailResponse)
-async def send_processed_images_email(request: Request, req: SendEmailRequest):
+# TODO: Enable when email client is ready
+# @app.post("/api/v1/send-email", response_model=SendEmailResponse)
+async def send_processed_images_email_disabled(request: Request, req: SendEmailRequest):
     """
     Send email with processed pet images
 
