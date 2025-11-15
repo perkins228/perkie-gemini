@@ -257,22 +257,22 @@
       <label class="style-card">
         <input type="radio"
                name="properties[Style]"
-               value="Sketch"
+               value="Marker"
                form="{{ product_form_id }}"
                data-style-radio="sketch">
         <div class="style-card__content">
           <div class="style-card__image-wrapper">
             {% if block.settings.style_preview_sketch != blank %}
               <img src="{{ block.settings.style_preview_sketch | image_url: width: 320 }}"
-                   alt="Sketch style preview"
+                   alt="Marker style preview"
                    class="style-card__image">
             {% else %}
               <img src="{{ 'pet-sketch-preview.jpg' | asset_url }}"
-                   alt="Sketch style preview"
+                   alt="Marker style preview"
                    class="style-card__image">
             {% endif %}
           </div>
-          <p class="style-card__label">Sketch</p>
+          <p class="style-card__label">Marker</p>
         </div>
       </label>
 

@@ -28,14 +28,14 @@ STYLE_PROMPTS = {
         "Place the portrait on a clean white background."
     ),
     ArtisticStyle.PEN_AND_MARKER: (
-        "Transform this pet photo into a pen and marker illustration. "
-        "Create a portrait composition focusing on the pet's head and neck. "
-        "Use bold black pen outlines to define the pet's features and structure. "
-        "Fill areas with vibrant marker colors using confident strokes. "
-        "Apply cross-hatching and parallel lines for shading and texture in the fur. "
-        "Add small dots and dashes for detail work around eyes and nose. "
-        "Keep the pet's expression and personality clearly visible. "
-        "Use a limited color palette of 5-7 colors for visual coherence. "
+        "Transform this pet photo into a traditional watercolor marker illustration "
+        "in the style of classic children's book art. "
+        "Create a warm, hand-painted portrait focusing on the pet's head and neck. "
+        "Use soft alcohol markers with gentle blending and visible brush strokes. "
+        "Apply warm earthy tones - browns, oranges, soft blacks, and cream whites. "
+        "Let colors blend naturally at the edges with a loose, painterly quality. "
+        "Keep fine details in the eyes and nose while maintaining artistic softness. "
+        "Add light pencil-like sketch lines only where needed for structure. "
         "Place the portrait on a clean white background."
     ),
 }

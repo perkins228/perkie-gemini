@@ -1032,9 +1032,9 @@ class PetProcessor {
                 <label class="effect-btn style-card effect-btn--ai" data-effect="sketch">
                   <div class="style-card__content">
                     <div class="style-card__image-wrapper">
-                      <img src="" alt="Sketch style preview" class="style-card__image" data-style-preview="sketch">
+                      <img src="" alt="Marker style preview" class="style-card__image" data-style-preview="sketch">
                     </div>
-                    <p class="style-card__label">Sketch</p>
+                    <p class="style-card__label">Marker</p>
                   </div>
                 </label>
               </div>

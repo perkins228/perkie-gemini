@@ -1185,7 +1185,7 @@
           'enhancedblackwhite': 'Black & White',
           'color': 'Color',
           'modern': 'Modern',
-          'sketch': 'Sketch'
+          'sketch': 'Marker'
         };
 
         const styleValue = styleMap[this.currentEffect];
@@ -1390,7 +1390,7 @@
         'enhancedblackwhite': 'Black & White',
         'color': 'Color',
         'modern': 'Modern',
-        'sketch': 'Sketch'
+        'sketch': 'Marker'
       };
       return displayNames[effect] || effect;
     }
