@@ -184,7 +184,7 @@
         this.geminiEnabled = this.geminiClient.enabled;
 
         if (this.geminiEnabled) {
-          console.log('🎨 Gemini AI effects enabled - Modern and Sketch styles available');
+          console.log('🎨 Gemini AI effects enabled - Stencil and Marker styles available');
 
           // Initialize UI after modal container is rendered
           // Delay ensures DOM is ready for banner/UI elements
@@ -634,7 +634,7 @@
 
         try {
           const uploadedEffects = await this.uploadAllEffectsToGCS(this.currentPet.effects);
-          // Merge uploaded effects back (preserves Modern/Sketch that are already GCS URLs)
+          // Merge uploaded effects back (preserves Stencil/Marker that are already GCS URLs)
           this.currentPet.effects = { ...this.currentPet.effects, ...uploadedEffects };
           console.log('✅ Effects uploaded to GCS');
         } catch (error) {
@@ -723,7 +723,7 @@
     }
 
     /**
-     * Generate AI effects (Modern + Sketch) using Gemini API
+     * Generate AI effects (Stencil + Marker) using Gemini API
      * Pattern extracted from pet-processor.js (lines 1352-1430)
      * Uses batch generation for efficiency (both effects in ~10s vs 20s sequential)
      */
@@ -753,28 +753,28 @@
         // Uses timestamp + random string for uniqueness
         const sessionId = `inline-preview-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 
-        // Batch generate both Modern and Sketch styles (single API call)
-        // Returns: {modern: {url, cacheHit, processingTime}, sketch: {...}, quota: {...}}
+        // Batch generate both Stencil and Marker styles (single API call)
+        // Returns: {stencil: {url, cacheHit, processingTime}, sketch: {...}, quota: {...}}
         const geminiResults = await this.geminiClient.batchGenerate(imageDataUrl, {
           sessionId: sessionId
         });
 
-        // Store Modern effect with full metadata
-        if (geminiResults.modern && geminiResults.modern.url) {
-          this.currentPet.effects.modern = geminiResults.modern.url;
+        // Store Stencil effect with full metadata
+        if (geminiResults.stencil && geminiResults.stencil.url) {
+          this.currentPet.effects.stencil = geminiResults.stencil.url;
 
           // Store metadata if needed for analytics
           if (!this.currentPet.effectsMeta) {
             this.currentPet.effectsMeta = {};
           }
-          this.currentPet.effectsMeta.modern = {
-            cacheHit: geminiResults.modern.cacheHit,
-            processingTime: geminiResults.modern.processingTime
+          this.currentPet.effectsMeta.stencil = {
+            cacheHit: geminiResults.stencil.cacheHit,
+            processingTime: geminiResults.stencil.processingTime
           };
 
-          console.log('🎨 Modern effect generated:',
-            geminiResults.modern.cacheHit ? 'cache hit' : 'newly generated',
-            `(${geminiResults.modern.processingTime}ms)`
+          console.log('🎨 Stencil effect generated:',
+            geminiResults.stencil.cacheHit ? 'cache hit' : 'newly generated',
+            `(${geminiResults.stencil.processingTime}ms)`
           );
 
           // Update thumbnail immediately (progressive enhancement)
@@ -815,9 +815,9 @@
 
         // Success logging
         console.log('✅ Gemini AI effects generation complete:', {
-          modern: geminiResults.modern?.cacheHit ? 'cached' : 'generated',
+          stencil: geminiResults.stencil?.cacheHit ? 'cached' : 'generated',
           sketch: geminiResults.sketch?.cacheHit ? 'cached' : 'generated',
-          totalTime: (geminiResults.modern?.processingTime || 0) + (geminiResults.sketch?.processingTime || 0),
+          totalTime: (geminiResults.stencil?.processingTime || 0) + (geminiResults.sketch?.processingTime || 0),
           quota: geminiResults.quota
         });
 
@@ -837,8 +837,8 @@
         if (error.quotaExhausted) {
           console.warn('⚠️ Gemini quota exhausted - only B&W and Color available today');
 
-          // Render locked thumbnails for Modern and Sketch (prevents broken images)
-          this.renderLockedThumbnail('modern');
+          // Render locked thumbnails for Stencil and Marker (prevents broken images)
+          this.renderLockedThumbnail('stencil');
           this.renderLockedThumbnail('sketch');
 
           // Update UI to show quota exhausted state (buttons disabled, badges, etc.)
@@ -899,7 +899,7 @@
       const effectMapping = {
         'enhancedblackwhite': 'enhancedblackwhite',
         'color': 'color',
-        'modern': 'modern',
+        'stencil': 'stencil',
         'sketch': 'sketch'
       };
 
@@ -925,7 +925,7 @@
     /**
      * Render locked thumbnail when Gemini quota exhausted
      * Replaces broken image with professional lock icon + helpful messaging
-     * @param {string} effectName - 'modern' or 'sketch'
+     * @param {string} effectName - 'stencil' or 'sketch'
      */
     renderLockedThumbnail(effectName) {
       const btn = this.modal.querySelector(`[data-effect="${effectName}"]`);
@@ -983,7 +983,7 @@
      * Uses toast notification or alert fallback
      */
     showQuotaExhaustedMessage() {
-      const message = '💡 AI limit reached! Modern and Sketch reset at midnight UTC. Try B&W or Color now (unlimited)';
+      const message = '💡 AI limit reached! Stencil and Marker reset at midnight UTC. Try B&W or Color now (unlimited)';
 
       // Use Gemini UI toast if available
       if (this.geminiUI && typeof this.geminiUI.showToast === 'function') {
@@ -1112,7 +1112,7 @@
         // Build effects data in PetStorage format
         // PetStorage expects: { effectName: { gcsUrl, timestamp } }
         const effects = {};
-        const effectsList = ['enhancedblackwhite', 'color', 'modern', 'sketch'];
+        const effectsList = ['enhancedblackwhite', 'color', 'stencil', 'sketch'];
 
         for (const effectName of effectsList) {
           const effectUrl = this.currentPet.effects[effectName];
@@ -1184,7 +1184,7 @@
         const styleMap = {
           'enhancedblackwhite': 'Black & White',
           'color': 'Color',
-          'modern': 'Modern',
+          'stencil': 'Stencil',
           'sketch': 'Marker'
         };
 
@@ -1389,7 +1389,7 @@
       const displayNames = {
         'enhancedblackwhite': 'Black & White',
         'color': 'Color',
-        'modern': 'Modern',
+        'stencil': 'Stencil',
         'sketch': 'Marker'
       };
       return displayNames[effect] || effect;

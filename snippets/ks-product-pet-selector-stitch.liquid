@@ -230,26 +230,26 @@
         </div>
       </label>
 
-      {% comment %} Modern (Ink Wash) Style {% endcomment %}
+      {% comment %} Stencil (Multi-Color Street Art) Style {% endcomment %}
       <label class="style-card">
         <input type="radio"
                name="properties[Style]"
-               value="Modern"
+               value="Stencil"
                form="{{ product_form_id }}"
-               data-style-radio="modern">
+               data-style-radio="stencil">
         <div class="style-card__content">
           <div class="style-card__image-wrapper">
-            {% if block.settings.style_preview_modern != blank %}
-              <img src="{{ block.settings.style_preview_modern | image_url: width: 320 }}"
-                   alt="Modern style preview"
+            {% if block.settings.style_preview_stencil != blank %}
+              <img src="{{ block.settings.style_preview_stencil | image_url: width: 320 }}"
+                   alt="Stencil style preview"
                    class="style-card__image">
             {% else %}
-              <img src="{{ 'pet-modern-preview.jpg' | asset_url }}"
-                   alt="Modern style preview"
+              <img src="{{ 'pet-stencil-preview.jpg' | asset_url }}"
+                   alt="Stencil style preview"
                    class="style-card__image">
             {% endif %}
           </div>
-          <p class="style-card__label">Modern</p>
+          <p class="style-card__label">Stencil</p>
         </div>
       </label>
 

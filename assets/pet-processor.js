@@ -225,7 +225,7 @@ class ComparisonManager {
     this.comparisonEffect = null;
     this.longPressTimer = null;
     this.swipeStartX = null;
-    this.effectOrder = ['enhancedblackwhite', 'color', 'modern', 'sketch'];
+    this.effectOrder = ['enhancedblackwhite', 'color', 'stencil', 'sketch'];
     this.currentComparisonIndex = 0;
     
     this.initializeComparison();
@@ -619,27 +619,27 @@ class PetProcessor {
       }
       // Note: Old format data is ignored (fresh start for new test site)
 
-      // Check for other Gemini effects in localStorage (modern/sketch)
+      // Check for other Gemini effects in localStorage (stencil/marker)
       // These might exist even if not the selected effect
-      const modernKey = `${latestPet.id}_modern`;
+      const stencilKey = `${latestPet.id}_stencil`;
       const sketchKey = `${latestPet.id}_sketch`;
 
-      const modernData = safeGetLocalStorage(modernKey, null);
-      if (modernData && !this.currentPet.effects.modern) {
-        // Validate modern effect data
-        let validModernUrl = null;
-        if (typeof modernData === 'string') {
-          if (modernData.startsWith('http') && validateGCSUrl(modernData)) {
-            validModernUrl = modernData;
-          } else if (modernData.startsWith('data:')) {
-            validModernUrl = validateAndSanitizeImageData(modernData);
+      const stencilData = safeGetLocalStorage(stencilKey, null);
+      if (stencilData && !this.currentPet.effects.stencil) {
+        // Validate stencil effect data
+        let validStencilUrl = null;
+        if (typeof stencilData === 'string') {
+          if (stencilData.startsWith('http') && validateGCSUrl(stencilData)) {
+            validStencilUrl = stencilData;
+          } else if (stencilData.startsWith('data:')) {
+            validStencilUrl = validateAndSanitizeImageData(stencilData);
           }
         }
 
-        if (validModernUrl) {
-          this.currentPet.effects.modern = {
-            gcsUrl: validModernUrl.startsWith('http') ? validModernUrl : '',
-            dataUrl: validModernUrl.startsWith('data:') ? validModernUrl : null,
+        if (validStencilUrl) {
+          this.currentPet.effects.stencil = {
+            gcsUrl: validStencilUrl.startsWith('http') ? validStencilUrl : '',
+            dataUrl: validStencilUrl.startsWith('data:') ? validStencilUrl : null,
             cacheHit: true
           };
         }
@@ -932,7 +932,7 @@ class PetProcessor {
       this.geminiEnabled = this.geminiClient.enabled;
 
       if (this.geminiEnabled) {
-        console.log('🎨 Gemini AI effects enabled - Modern and Classic styles available');
+        console.log('🎨 Gemini AI effects enabled - Stencil and Marker styles available');
 
         // Initialize UI after container is rendered
         setTimeout(() => {
@@ -1021,12 +1021,12 @@ class PetProcessor {
                     <p class="style-card__label">Color</p>
                   </div>
                 </label>
-                <label class="effect-btn style-card effect-btn--ai" data-effect="modern">
+                <label class="effect-btn style-card effect-btn--ai" data-effect="stencil">
                   <div class="style-card__content">
                     <div class="style-card__image-wrapper">
-                      <img src="" alt="Modern style preview" class="style-card__image" data-style-preview="modern">
+                      <img src="" alt="Stencil style preview" class="style-card__image" data-style-preview="stencil">
                     </div>
-                    <p class="style-card__label">Modern</p>
+                    <p class="style-card__label">Stencil</p>
                   </div>
                 </label>
                 <label class="effect-btn style-card effect-btn--ai" data-effect="sketch">
@@ -1177,10 +1177,10 @@ class PetProcessor {
           fallback: 'pet-color-preview.jpg',
           element: '[data-style-preview="color"]'
         },
-        'modern': {
-          setting: section.dataset.stylePreviewModern,
-          fallback: 'pet-modern-preview.jpg',
-          element: '[data-style-preview="modern"]'
+        'stencil': {
+          setting: section.dataset.stylePreviewStencil,
+          fallback: 'pet-stencil-preview.jpg',
+          element: '[data-style-preview="stencil"]'
         },
         'sketch': {
           setting: section.dataset.stylePreviewSketch,
@@ -1439,11 +1439,11 @@ class PetProcessor {
           });
 
           // Add Gemini effects to effects object
-          effects.modern = {
-            gcsUrl: geminiResults.modern.url,
+          effects.stencil = {
+            gcsUrl: geminiResults.stencil.url,
             dataUrl: null, // Gemini effects use Cloud Storage URLs
-            cacheHit: geminiResults.modern.cacheHit,
-            processingTime: geminiResults.modern.processingTime
+            cacheHit: geminiResults.stencil.cacheHit,
+            processingTime: geminiResults.stencil.processingTime
           };
 
           effects.sketch = {
@@ -1464,12 +1464,12 @@ class PetProcessor {
           }
 
           console.log('🎨 Gemini AI effects generated:', {
-            modern: geminiResults.modern.cacheHit ? 'cached' : 'generated',
+            stencil: geminiResults.stencil.cacheHit ? 'cached' : 'generated',
             sketch: geminiResults.sketch.cacheHit ? 'cached' : 'generated',
             quota: geminiResults.quota
           });
 
-          // Update button states - Modern and Sketch should now be enabled
+          // Update button states - Stencil and Marker should now be enabled
           this.updateEffectButtonStates();
         }
 
@@ -1571,7 +1571,7 @@ class PetProcessor {
 
     if (!effectData) {
       // Check if this is a Gemini effect that's unavailable due to quota
-      if ((effect === 'modern' || effect === 'sketch') && this.geminiEnabled) {
+      if ((effect === 'stencil' || effect === 'sketch') && this.geminiEnabled) {
         // Show quota exhausted message
         if (this.geminiUI) {
           this.geminiUI.showWarning(4, 0); // Level 4 = exhausted
@@ -1621,7 +1621,7 @@ class PetProcessor {
     if (!this.currentPet) {
       const buttons = this.container.querySelectorAll('.effect-btn');
       buttons.forEach(btn => {
-        if (btn.dataset.effect === 'modern' || btn.dataset.effect === 'sketch') {
+        if (btn.dataset.effect === 'stencil' || btn.dataset.effect === 'sketch') {
           btn.disabled = true;
           btn.classList.add('effect-btn--disabled');
           btn.classList.remove('effect-btn--loading', 'effect-btn--ready');
@@ -1644,9 +1644,9 @@ class PetProcessor {
       }
 
       // Handle Gemini effects (Modern and Sketch)
-      if (effect === 'modern' || effect === 'sketch') {
+      if (effect === 'stencil' || effect === 'sketch') {
         const effectData = this.currentPet.effects[effect];
-        const effectLabel = effect === 'modern' ? 'Modern' : 'Sketch';
+        const effectLabel = effect === 'stencil' ? 'Stencil' : 'Marker';
 
         // Priority 1: Effect already loaded → ENABLE for viewing
         if (effectData) {
@@ -1760,7 +1760,7 @@ class PetProcessor {
       const styleMap = {
         'enhancedblackwhite': '[data-style-preview="bw"]',
         'color': '[data-style-preview="color"]',
-        'modern': '[data-style-preview="modern"]',
+        'stencil': '[data-style-preview="stencil"]',
         'sketch': '[data-style-preview="sketch"]'
       };
 
