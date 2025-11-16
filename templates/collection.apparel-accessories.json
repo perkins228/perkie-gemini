@@ -24,7 +24,8 @@
         "collection_JDm6Qj": {
           "type": "collection",
           "settings": {
-            "collection": "",
+            "collection": "t-shirts",
+            "img": "shopify://shop_images/tee_collection_website_-_cell_copy.jpg",
             "title": ""
           }
         },
