@@ -74,7 +74,7 @@
       "name": "KS - Fancy slideshow",
       "settings": {
         "color_scheme": "scheme-f318d737-2be2-4346-8605-b2fbd6208608",
-        "slider_navigation": false,
+        "slider_navigation": true,
         "slider_pagination": "bullets",
         "slider_effect": "slide",
         "slider_speed": 700,
@@ -83,7 +83,7 @@
         "slider_spacing": false,
         "media_mobile_height": 400,
         "media_desktop_height": 700,
-        "media_adapt": false,
+        "media_adapt": true,
         "pt": 4,
         "pb": 4
       }
