@@ -346,76 +346,6 @@
         "pb": 0
       }
     },
-    "featured_product_amzyGg": {
-      "type": "featured-product",
-      "blocks": {
-        "text_4dXyWQ": {
-          "type": "text",
-          "settings": {
-            "text": "{{ section.settings.product.vendor }}",
-            "text_style": "uppercase"
-          }
-        },
-        "title_BY4BXM": {
-          "type": "title",
-          "settings": {
-            "heading_size": "h2"
-          }
-        },
-        "price_JUXTjR": {
-          "type": "price",
-          "settings": {}
-        },
-        "variant_picker_QiQhH7": {
-          "type": "variant_picker",
-          "settings": {
-            "picker_type": "button",
-            "swatch_shape": "circle"
-          }
-        },
-        "quantity_selector_FGBYNB": {
-          "type": "quantity_selector",
-          "settings": {}
-        },
-        "buy_buttons_MUJwH8": {
-          "type": "buy_buttons",
-          "settings": {
-            "show_dynamic_checkout": false,
-            "show_gift_card_recipient": true
-          }
-        },
-        "share_agzPLd": {
-          "type": "share",
-          "settings": {
-            "share_label": "Share"
-          }
-        }
-      },
-      "block_order": [
-        "text_4dXyWQ",
-        "title_BY4BXM",
-        "price_JUXTjR",
-        "variant_picker_QiQhH7",
-        "quantity_selector_FGBYNB",
-        "buy_buttons_MUJwH8",
-        "share_agzPLd"
-      ],
-      "disabled": true,
-      "settings": {
-        "product": "personalized-pet-portrait-in-black-frame",
-        "color_scheme": "scheme-f318d737-2be2-4346-8605-b2fbd6208608",
-        "secondary_background": false,
-        "media_size": "small",
-        "constrain_to_viewport": true,
-        "media_fit": "contain",
-        "media_position": "left",
-        "image_zoom": "lightbox",
-        "hide_variants": true,
-        "enable_video_looping": false,
-        "padding_top": 12,
-        "padding_bottom": 12
-      }
-    },
     "ks_testimonials_XBY9Fx": {
       "type": "ks-testimonials",
       "blocks": {
@@ -520,7 +450,6 @@
     "ks_separator_wjFBYC",
     "featured_collection_Jxhrxe",
     "ks_parallax_media_VzVbNE",
-    "featured_product_amzyGg",
     "ks_testimonials_XBY9Fx"
   ]
 }
