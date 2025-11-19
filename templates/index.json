@@ -14,15 +14,15 @@
       "blocks": {
         "slide_LKwkcd": {
           "type": "slide",
-          "disabled": true,
           "settings": {
             "img_mobile": "shopify://shop_images/holidaymobile.jpg",
+            "img_desktop": "shopify://shop_images/holidaydesktoppercentoff.jpg",
             "overlay_color": "#121212",
             "overlay_opacity": 0,
             "overlay_blur": 0,
             "caption_position_mobile": "bottom",
             "caption_text_align_mobile": "text-center",
-            "caption_position_desktop": "center",
+            "caption_position_desktop": "bottom",
             "caption_text_align_desktop": "text-desktop-center",
             "caption_max_width": "900",
             "subtitle": "",
@@ -82,7 +82,7 @@
         "slider_partial": false,
         "slider_spacing": true,
         "media_mobile_height": 400,
-        "media_desktop_height": 650,
+        "media_desktop_height": 700,
         "media_adapt": false,
         "pt": 0,
         "pb": 0
