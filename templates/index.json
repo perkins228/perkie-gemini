@@ -84,8 +84,8 @@
         "media_mobile_height": 400,
         "media_desktop_height": 700,
         "media_adapt": true,
-        "pt": 4,
-        "pb": 4
+        "pt": 0,
+        "pb": 0
       }
     },
     "ks_separator_hw3jyN": {
