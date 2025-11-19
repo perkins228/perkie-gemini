@@ -22,7 +22,7 @@ STYLE_PROMPTS = {
     ArtisticStyle.INK_WASH: (
         "Transform this pet photo into multi-color stencil art piece. "
         "Create a portrait composition showing the pet's head and neck area. "
-        "Use a limited color palette of 4-6 colors. "
+        "Use a limited color palette of 2-3 colors. "
         "Keep the pet's features clearly recognizable while maintaining the stencil art simplification. "
         "Place the portrait on a clean white background."
     ),
