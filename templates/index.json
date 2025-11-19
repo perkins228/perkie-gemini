@@ -80,10 +80,10 @@
         "slider_speed": 700,
         "slider_autoplay": 0,
         "slider_partial": false,
-        "slider_spacing": true,
+        "slider_spacing": false,
         "media_mobile_height": 400,
         "media_desktop_height": 700,
-        "media_adapt": false,
+        "media_adapt": true,
         "pt": 0,
         "pb": 0
       }
