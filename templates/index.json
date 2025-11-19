@@ -82,23 +82,13 @@
         "slider_partial": false,
         "slider_spacing": true,
         "media_mobile_height": 400,
-        "media_desktop_height": 680,
+        "media_desktop_height": 700,
         "media_adapt": false,
         "pt": 4,
         "pb": 4
       }
     },
     "ks_separator_hw3jyN": {
-      "type": "ks-separator",
-      "name": "KS - Separator",
-      "settings": {
-        "container": "page-width",
-        "opacity": 25,
-        "pt": 4,
-        "pb": 4
-      }
-    },
-    "ks_separator_VHgP3w": {
       "type": "ks-separator",
       "name": "KS - Separator",
       "settings": {
@@ -209,6 +199,16 @@
         "item_show_product_count": false,
         "pt": 20,
         "pb": 20
+      }
+    },
+    "ks_separator_VHgP3w": {
+      "type": "ks-separator",
+      "name": "KS - Separator",
+      "settings": {
+        "container": "page-width",
+        "opacity": 25,
+        "pt": 4,
+        "pb": 4
       }
     },
     "ks_image_compare_FEc4MF": {
