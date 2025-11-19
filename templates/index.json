@@ -15,7 +15,7 @@
         "slide_LKwkcd": {
           "type": "slide",
           "settings": {
-            "img_mobile": "shopify://shop_images/holidaymobile.jpg",
+            "img_mobile": "shopify://shop_images/holidaymobile2.jpg",
             "img_desktop": "shopify://shop_images/holidaydesktoppercentoff.jpg",
             "overlay_color": "#121212",
             "overlay_opacity": 0,
@@ -43,7 +43,7 @@
           "type": "slide",
           "settings": {
             "img_mobile": "shopify://shop_images/holidayornamentmobile.jpg",
-            "img_desktop": "shopify://shop_images/holidaydesktopornament_a6521ef4-3188-4395-9c1b-a752a7836802.jpg",
+            "img_desktop": "shopify://shop_images/holidaydesktopornament.jpg",
             "overlay_color": "#121212",
             "overlay_opacity": 0,
             "overlay_blur": 0,
