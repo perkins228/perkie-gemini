@@ -372,20 +372,7 @@
   margin: 0;
 }
 
-/* AI Effect Badge */
-.inline-effect-btn--ai .inline-effect-content::after {
-  content: "AI";
-  position: absolute;
-  top: 0.5rem;
-  right: 0.5rem;
-  padding: 0.25rem 0.5rem;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: #fff;
-  font-size: 0.625rem;
-  font-weight: 700;
-  border-radius: 4px;
-  z-index: 1;
-}
+/* AI Effect Badge - Removed per UX feedback (cleaner mobile interface) */
 
 /* Artist Notes (shown after processing) */
 .inline-artist-notes-section {
