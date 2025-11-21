@@ -261,7 +261,12 @@ class GeminiEffectsUI {
         existingBadge.remove();
       }
 
-      // Create new badge based on level
+      // Level 1 (normal) - no badge needed, cleaner mobile UX
+      if (level === 1) {
+        return;
+      }
+
+      // Create quota warning badge for levels 2-4 only
       const badge = document.createElement('span');
       badge.className = 'gemini-quota-badge';
 
@@ -308,20 +313,6 @@ class GeminiEffectsUI {
           padding: 4px 8px;
           border-radius: 12px;
           font-size: 10px;
-          font-weight: 600;
-        `;
-      } else {
-        // Level 1 - minimal "AI" badge
-        badge.textContent = '✨ AI';
-        badge.style.cssText = `
-          position: absolute;
-          top: 8px;
-          right: 8px;
-          background: rgba(255, 255, 255, 0.8);
-          color: #666;
-          padding: 2px 6px;
-          border-radius: 8px;
-          font-size: 9px;
           font-weight: 600;
         `;
       }

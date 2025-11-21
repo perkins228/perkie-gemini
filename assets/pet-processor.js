@@ -1021,7 +1021,7 @@ class PetProcessor {
                     <p class="style-card__label">Color</p>
                   </div>
                 </label>
-                <label class="effect-btn style-card effect-btn--ai" data-effect="ink_wash">
+                <label class="effect-btn style-card" data-effect="ink_wash">
                   <div class="style-card__content">
                     <div class="style-card__image-wrapper">
                       <img src="" alt="Ink Wash style preview" class="style-card__image" data-style-preview="ink_wash">
@@ -1029,7 +1029,7 @@ class PetProcessor {
                     <p class="style-card__label">Ink Wash</p>
                   </div>
                 </label>
-                <label class="effect-btn style-card effect-btn--ai" data-effect="sketch">
+                <label class="effect-btn style-card" data-effect="sketch">
                   <div class="style-card__content">
                     <div class="style-card__image-wrapper">
                       <img src="" alt="Marker style preview" class="style-card__image" data-style-preview="sketch">
