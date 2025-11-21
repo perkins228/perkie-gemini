@@ -225,7 +225,7 @@ class ComparisonManager {
     this.comparisonEffect = null;
     this.longPressTimer = null;
     this.swipeStartX = null;
-    this.effectOrder = ['enhancedblackwhite', 'color', 'stencil', 'sketch'];
+    this.effectOrder = ['enhancedblackwhite', 'color', 'ink_wash', 'sketch'];
     this.currentComparisonIndex = 0;
     
     this.initializeComparison();
@@ -619,27 +619,27 @@ class PetProcessor {
       }
       // Note: Old format data is ignored (fresh start for new test site)
 
-      // Check for other Gemini effects in localStorage (stencil/marker)
+      // Check for other Gemini effects in localStorage (ink_wash/marker)
       // These might exist even if not the selected effect
-      const stencilKey = `${latestPet.id}_stencil`;
+      const inkWashKey = `${latestPet.id}_ink_wash`;
       const sketchKey = `${latestPet.id}_sketch`;
 
-      const stencilData = safeGetLocalStorage(stencilKey, null);
-      if (stencilData && !this.currentPet.effects.stencil) {
-        // Validate stencil effect data
-        let validStencilUrl = null;
-        if (typeof stencilData === 'string') {
-          if (stencilData.startsWith('http') && validateGCSUrl(stencilData)) {
-            validStencilUrl = stencilData;
-          } else if (stencilData.startsWith('data:')) {
-            validStencilUrl = validateAndSanitizeImageData(stencilData);
+      const inkWashData = safeGetLocalStorage(inkWashKey, null);
+      if (inkWashData && !this.currentPet.effects.ink_wash) {
+        // Validate ink_wash effect data
+        let validInkWashUrl = null;
+        if (typeof inkWashData === 'string') {
+          if (inkWashData.startsWith('http') && validateGCSUrl(inkWashData)) {
+            validInkWashUrl = inkWashData;
+          } else if (inkWashData.startsWith('data:')) {
+            validInkWashUrl = validateAndSanitizeImageData(inkWashData);
           }
         }
 
-        if (validStencilUrl) {
-          this.currentPet.effects.stencil = {
-            gcsUrl: validStencilUrl.startsWith('http') ? validStencilUrl : '',
-            dataUrl: validStencilUrl.startsWith('data:') ? validStencilUrl : null,
+        if (validInkWashUrl) {
+          this.currentPet.effects.ink_wash = {
+            gcsUrl: validInkWashUrl.startsWith('http') ? validInkWashUrl : '',
+            dataUrl: validInkWashUrl.startsWith('data:') ? validInkWashUrl : null,
             cacheHit: true
           };
         }
@@ -932,7 +932,7 @@ class PetProcessor {
       this.geminiEnabled = this.geminiClient.enabled;
 
       if (this.geminiEnabled) {
-        console.log('🎨 Gemini AI effects enabled - Stencil and Marker styles available');
+        console.log('🎨 Gemini AI effects enabled - Ink Wash and Marker styles available');
 
         // Initialize UI after container is rendered
         setTimeout(() => {
@@ -1021,12 +1021,12 @@ class PetProcessor {
                     <p class="style-card__label">Color</p>
                   </div>
                 </label>
-                <label class="effect-btn style-card effect-btn--ai" data-effect="stencil">
+                <label class="effect-btn style-card effect-btn--ai" data-effect="ink_wash">
                   <div class="style-card__content">
                     <div class="style-card__image-wrapper">
-                      <img src="" alt="Stencil style preview" class="style-card__image" data-style-preview="stencil">
+                      <img src="" alt="Ink Wash style preview" class="style-card__image" data-style-preview="ink_wash">
                     </div>
-                    <p class="style-card__label">Stencil</p>
+                    <p class="style-card__label">Ink Wash</p>
                   </div>
                 </label>
                 <label class="effect-btn style-card effect-btn--ai" data-effect="sketch">
@@ -1177,10 +1177,10 @@ class PetProcessor {
           fallback: 'pet-color-preview.jpg',
           element: '[data-style-preview="color"]'
         },
-        'stencil': {
+        'ink_wash': {
           setting: section.dataset.stylePreviewStencil,
           fallback: 'pet-stencil-preview.jpg',
-          element: '[data-style-preview="stencil"]'
+          element: '[data-style-preview="ink_wash"]'
         },
         'sketch': {
           setting: section.dataset.stylePreviewSketch,
@@ -1439,11 +1439,11 @@ class PetProcessor {
           });
 
           // Add Gemini effects to effects object
-          effects.stencil = {
-            gcsUrl: geminiResults.stencil.url,
+          effects.ink_wash = {
+            gcsUrl: geminiResults.ink_wash.url,
             dataUrl: null, // Gemini effects use Cloud Storage URLs
-            cacheHit: geminiResults.stencil.cacheHit,
-            processingTime: geminiResults.stencil.processingTime
+            cacheHit: geminiResults.ink_wash.cacheHit,
+            processingTime: geminiResults.ink_wash.processingTime
           };
 
           effects.sketch = {
@@ -1464,12 +1464,12 @@ class PetProcessor {
           }
 
           console.log('🎨 Gemini AI effects generated:', {
-            stencil: geminiResults.stencil.cacheHit ? 'cached' : 'generated',
+            ink_wash: geminiResults.ink_wash.cacheHit ? 'cached' : 'generated',
             sketch: geminiResults.sketch.cacheHit ? 'cached' : 'generated',
             quota: geminiResults.quota
           });
 
-          // Update button states - Stencil and Marker should now be enabled
+          // Update button states - Ink Wash and Marker should now be enabled
           this.updateEffectButtonStates();
         }
 
@@ -1571,7 +1571,7 @@ class PetProcessor {
 
     if (!effectData) {
       // Check if this is a Gemini effect that's unavailable due to quota
-      if ((effect === 'stencil' || effect === 'sketch') && this.geminiEnabled) {
+      if ((effect === 'ink_wash' || effect === 'sketch') && this.geminiEnabled) {
         // Show quota exhausted message
         if (this.geminiUI) {
           this.geminiUI.showWarning(4, 0); // Level 4 = exhausted
@@ -1621,7 +1621,7 @@ class PetProcessor {
     if (!this.currentPet) {
       const buttons = this.container.querySelectorAll('.effect-btn');
       buttons.forEach(btn => {
-        if (btn.dataset.effect === 'stencil' || btn.dataset.effect === 'sketch') {
+        if (btn.dataset.effect === 'ink_wash' || btn.dataset.effect === 'sketch') {
           btn.disabled = true;
           btn.classList.add('effect-btn--disabled');
           btn.classList.remove('effect-btn--loading', 'effect-btn--ready');
@@ -1643,10 +1643,10 @@ class PetProcessor {
         return;
       }
 
-      // Handle Gemini effects (Modern and Sketch)
-      if (effect === 'stencil' || effect === 'sketch') {
+      // Handle Gemini effects (Ink Wash and Sketch)
+      if (effect === 'ink_wash' || effect === 'sketch') {
         const effectData = this.currentPet.effects[effect];
-        const effectLabel = effect === 'stencil' ? 'Stencil' : 'Marker';
+        const effectLabel = effect === 'ink_wash' ? 'Ink Wash' : 'Marker';
 
         // Priority 1: Effect already loaded → ENABLE for viewing
         if (effectData) {
@@ -1760,7 +1760,7 @@ class PetProcessor {
       const styleMap = {
         'enhancedblackwhite': '[data-style-preview="bw"]',
         'color': '[data-style-preview="color"]',
-        'stencil': '[data-style-preview="stencil"]',
+        'ink_wash': '[data-style-preview="ink_wash"]',
         'sketch': '[data-style-preview="sketch"]'
       };
 

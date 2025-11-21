@@ -4,7 +4,7 @@
  * Integrates with existing Pet Processor architecture
  *
  * Features:
- * - Batch generation (Stencil + Marker together)
+ * - Batch generation (Ink Wash + Marker together)
  * - Rate limit tracking (10/day with 4-level warnings)
  * - Feature flag support for gradual rollout
  * - Retry logic with exponential backoff
@@ -121,7 +121,7 @@ class GeminiAPIClient {
   }
 
   /**
-   * Generate both artistic styles at once (Stencil + Marker)
+   * Generate both artistic styles at once (Ink Wash + Marker)
    * This is more efficient than calling generate() twice
    */
   async batchGenerate(imageDataUrl, options = {}) {
@@ -170,7 +170,7 @@ class GeminiAPIClient {
       // Transform response to our format
       return {
         success: true,
-        stencil: {
+        ink_wash: {
           url: response.results.ink_wash.image_url,
           cacheHit: response.results.ink_wash.cache_hit,
           processingTime: response.results.ink_wash.processing_time_ms
@@ -222,7 +222,7 @@ class GeminiAPIClient {
 
     // Map our style names to API enum
     const styleMap = {
-      'stencil': 'ink_wash',
+      'ink_wash': 'ink_wash',
       'sketch': 'pen_and_marker'
     };
 

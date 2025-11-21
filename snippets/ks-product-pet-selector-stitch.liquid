@@ -230,26 +230,26 @@
         </div>
       </label>
 
-      {% comment %} Stencil (Multi-Color Street Art) Style {% endcomment %}
+      {% comment %} Ink Wash (Traditional Asian Ink Painting) Style {% endcomment %}
       <label class="style-card">
         <input type="radio"
                name="properties[Style]"
-               value="Stencil"
+               value="Ink Wash"
                form="{{ product_form_id }}"
-               data-style-radio="stencil">
+               data-style-radio="ink_wash">
         <div class="style-card__content">
           <div class="style-card__image-wrapper">
             {% if block.settings.style_preview_stencil != blank %}
               <img src="{{ block.settings.style_preview_stencil | image_url: width: 320 }}"
-                   alt="Stencil style preview"
+                   alt="Ink Wash style preview"
                    class="style-card__image">
             {% else %}
               <img src="{{ 'pet-stencil-preview.jpg' | asset_url }}"
-                   alt="Stencil style preview"
+                   alt="Ink Wash style preview"
                    class="style-card__image">
             {% endif %}
           </div>
-          <p class="style-card__label">Stencil</p>
+          <p class="style-card__label">Ink Wash</p>
         </div>
       </label>
 
