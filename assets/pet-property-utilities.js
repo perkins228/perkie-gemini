@@ -289,7 +289,7 @@
     }
 
     // Validate selectedEffect (whitelist)
-    var VALID_EFFECTS = ['enhancedblackwhite', 'color', 'stencil', 'sketch', 'popart', 'dithering', '8bit'];
+    var VALID_EFFECTS = ['enhancedblackwhite', 'color', 'ink_wash', 'sketch', 'popart', 'dithering', '8bit'];
     if (customization.selectedEffect && !VALID_EFFECTS.includes(customization.selectedEffect)) {
       log('warn', 'validation', 'Invalid selectedEffect:', { effect: customization.selectedEffect });
       return false;

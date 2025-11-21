@@ -246,13 +246,13 @@ class GeminiEffectsUI {
   }
 
   /**
-   * Update badges on Stencil and Marker effect buttons
+   * Update badges on Ink Wash and Marker effect buttons
    */
   updateEffectBadges(remaining, level) {
-    const stencilBtn = this.container.querySelector('[data-effect="stencil"]');
+    const inkWashBtn = this.container.querySelector('[data-effect="ink_wash"]');
     const sketchBtn = this.container.querySelector('[data-effect="sketch"]');
 
-    [stencilBtn, sketchBtn].forEach(btn => {
+    [inkWashBtn, sketchBtn].forEach(btn => {
       if (!btn) return;
 
       // Remove existing badge
@@ -332,13 +332,13 @@ class GeminiEffectsUI {
   }
 
   /**
-   * Enable/disable Stencil and Marker buttons based on quota
+   * Enable/disable Ink Wash and Marker buttons based on quota
    */
   updateButtonStates(level) {
-    const stencilBtn = this.container.querySelector('[data-effect="stencil"]');
+    const inkWashBtn = this.container.querySelector('[data-effect="ink_wash"]');
     const sketchBtn = this.container.querySelector('[data-effect="sketch"]');
 
-    [stencilBtn, sketchBtn].forEach(btn => {
+    [inkWashBtn, sketchBtn].forEach(btn => {
       if (!btn) return;
 
       if (level === 4) {
