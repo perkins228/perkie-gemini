@@ -73,7 +73,7 @@
         "caption_RU4zq9": {
           "type": "caption",
           "settings": {
-            "caption": "September 2025 Pet of the month Winner",
+            "caption": "October 2025 Pet of the month Winner",
             "text_style": "caption-with-letter-spacing",
             "text_size": "medium"
           }
@@ -81,14 +81,14 @@
         "heading_WqeVLQ": {
           "type": "heading",
           "settings": {
-            "heading": "Beef",
+            "heading": "Gus",
             "heading_size": "h1"
           }
         },
         "text_jWNHWb": {
           "type": "text",
           "settings": {
-            "text": "<p>Meet Beef 👋  Beef is 2.5 years old, and was named by our sons during a brainstorming conversation on taco Tuesday! He loves long runs with his dad and snuggles with his buddy Harry, our mini poodle. He’s the best boy.</p>",
+            "text": "<p>Gus is almost 1.5 years old and the happiest, most lovable boy around! He’s always up for zooming around outside or cozy couch cuddles. His goofy charm and daily dose of silliness keeps us laughing daily. He’s truly the best boy! </p>",
             "text_style": "body"
           }
         }
@@ -97,6 +97,54 @@
         "caption_RU4zq9",
         "heading_WqeVLQ",
         "text_jWNHWb"
+      ],
+      "name": "t:sections.image-with-text.presets.name",
+      "settings": {
+        "image": "shopify://shop_images/35912_Gus.png",
+        "height": "adapt",
+        "desktop_image_width": "medium",
+        "layout": "text_first",
+        "image_behavior": "none",
+        "content_layout": "no-overlap",
+        "desktop_content_position": "middle",
+        "desktop_content_alignment": "center",
+        "mobile_content_alignment": "left",
+        "section_color_scheme": "",
+        "color_scheme": "",
+        "padding_top": 36,
+        "padding_bottom": 36
+      }
+    },
+    "image_with_text_x8AmUh": {
+      "type": "image-with-text",
+      "blocks": {
+        "caption_Gp7dzX": {
+          "type": "caption",
+          "settings": {
+            "caption": "September 2025 Pet of the month Winner",
+            "text_style": "caption-with-letter-spacing",
+            "text_size": "medium"
+          }
+        },
+        "heading_LdaywK": {
+          "type": "heading",
+          "settings": {
+            "heading": "Beef",
+            "heading_size": "h1"
+          }
+        },
+        "text_D9GC9q": {
+          "type": "text",
+          "settings": {
+            "text": "<p>Meet Beef 👋  Beef is 2.5 years old, and was named by our sons during a brainstorming conversation on taco Tuesday! He loves long runs with his dad and snuggles with his buddy Harry, our mini poodle. He’s the best boy.</p>",
+            "text_style": "body"
+          }
+        }
+      },
+      "block_order": [
+        "caption_Gp7dzX",
+        "heading_LdaywK",
+        "text_D9GC9q"
       ],
       "name": "t:sections.image-with-text.presets.name",
       "settings": {
@@ -922,6 +970,7 @@
     "main",
     "image_banner_kyY9iW",
     "image_with_text_3i4i89",
+    "image_with_text_x8AmUh",
     "multicolumn_nhJAcY",
     "image_with_text_7zQXpH",
     "multicolumn_Qbg6Wn",
