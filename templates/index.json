@@ -9,6 +9,114 @@
  */
 {
   "sections": {
+    "image_banner_hDyVfU": {
+      "type": "image-banner",
+      "blocks": {
+        "heading_q4tWzh": {
+          "type": "heading",
+          "disabled": true,
+          "settings": {
+            "heading": "Image banner",
+            "heading_size": "h1"
+          }
+        },
+        "text_wXt3N6": {
+          "type": "text",
+          "disabled": true,
+          "settings": {
+            "text": "Give customers details about the banner image(s) or content on the template.",
+            "text_style": "body"
+          }
+        },
+        "buttons_qVXbBU": {
+          "type": "buttons",
+          "disabled": true,
+          "settings": {
+            "button_label_1": "Button label",
+            "button_link_1": "",
+            "button_style_secondary_1": false,
+            "button_label_2": "Button label",
+            "button_link_2": "",
+            "button_style_secondary_2": false
+          }
+        }
+      },
+      "block_order": [
+        "heading_q4tWzh",
+        "text_wXt3N6",
+        "buttons_qVXbBU"
+      ],
+      "name": "t:sections.image-banner.presets.name",
+      "settings": {
+        "image": "shopify://shop_images/holiday_desktop_30percent__collection_banner.jpg",
+        "image_overlay_opacity": 0,
+        "image_height": "adapt",
+        "image_behavior": "none",
+        "desktop_content_position": "middle-center",
+        "desktop_content_alignment": "center",
+        "show_text_box": true,
+        "color_scheme": "scheme-f318d737-2be2-4346-8605-b2fbd6208608",
+        "stack_images_on_mobile": false,
+        "mobile_content_alignment": "center",
+        "show_text_below": false
+      }
+    },
+    "image_with_text_9bWqwm": {
+      "type": "image-with-text",
+      "blocks": {
+        "caption_f7Tpk4": {
+          "type": "caption",
+          "settings": {
+            "caption": "PERFECT FOR EVERY PET LOVER",
+            "text_style": "caption-with-letter-spacing",
+            "text_size": "medium"
+          }
+        },
+        "heading_ViFRCt": {
+          "type": "heading",
+          "settings": {
+            "heading": "Gifts That Capture The Feeling Of Love",
+            "heading_size": "h1"
+          }
+        },
+        "text_7x7EPe": {
+          "type": "text",
+          "settings": {
+            "text": "<h5>Discover heartfelt gifts: personalized pet prints, custom created and individually printed on quality items.</h5>",
+            "text_style": "body"
+          }
+        },
+        "button_bdt4J7": {
+          "type": "button",
+          "settings": {
+            "button_label": "Shop All Gifts",
+            "button_link": "shopify://collections/personalized-pet-products-gifts",
+            "button_style_secondary": false
+          }
+        }
+      },
+      "block_order": [
+        "caption_f7Tpk4",
+        "heading_ViFRCt",
+        "text_7x7EPe",
+        "button_bdt4J7"
+      ],
+      "settings": {
+        "image": "shopify://shop_images/Holiday_GG_Gif.gif",
+        "height": "adapt",
+        "desktop_image_width": "medium",
+        "layout": "image_first",
+        "image_behavior": "none",
+        "content_layout": "no-overlap",
+        "desktop_content_position": "middle",
+        "desktop_content_alignment": "center",
+        "mobile_content_alignment": "center",
+        "section_color_scheme": "scheme-f318d737-2be2-4346-8605-b2fbd6208608",
+        "color_scheme": "scheme-f318d737-2be2-4346-8605-b2fbd6208608",
+        "padding_top": 0,
+        "padding_bottom": 0
+      }
+    },
     "ks_fancy_slideshow_FaQtVG": {
       "type": "ks-fancy-slideshow",
       "blocks": {
@@ -71,6 +179,7 @@
         "slide_LKwkcd",
         "slide_qyBCUq"
       ],
+      "disabled": true,
       "name": "KS - Fancy slideshow",
       "settings": {
         "color_scheme": "scheme-f318d737-2be2-4346-8605-b2fbd6208608",
@@ -78,7 +187,7 @@
         "slider_pagination": "bullets",
         "slider_effect": "slide",
         "slider_speed": 700,
-        "slider_autoplay": 10,
+        "slider_autoplay": 0,
         "slider_partial": false,
         "slider_spacing": false,
         "media_mobile_height": 400,
@@ -148,7 +257,7 @@
           "type": "collection",
           "settings": {
             "collection": "personalized-pet-apparel-accessories",
-            "img": "shopify://shop_images/white_t_1.webp",
+            "img": "shopify://shop_images/homepage-banner-pocketteenew.png",
             "title": "Apparel & Accessories"
           }
         },
@@ -168,8 +277,16 @@
             "title": "Kids"
           }
         },
+        "collection_MDq7kD": {
+          "type": "collection",
+          "settings": {
+            "collection": "happy-holidays",
+            "title": ""
+          }
+        },
         "collection_zgAPDe": {
           "type": "collection",
+          "disabled": true,
           "settings": {
             "collection": "perkie-originals",
             "img": "shopify://shop_images/readymade-removebg-preview_2.webp",
@@ -182,6 +299,7 @@
         "collection_ybQGrr",
         "collection_kFBiHa",
         "collection_hbRgpp",
+        "collection_MDq7kD",
         "collection_zgAPDe"
       ],
       "name": "KS - Simple collections",
@@ -478,6 +596,8 @@
     }
   },
   "order": [
+    "image_banner_hDyVfU",
+    "image_with_text_9bWqwm",
     "ks_fancy_slideshow_FaQtVG",
     "ks_separator_hw3jyN",
     "ks_marquee_d9Eyaf",
