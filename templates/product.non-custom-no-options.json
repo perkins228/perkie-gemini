@@ -12,6 +12,13 @@
     "main": {
       "type": "main-product",
       "blocks": {
+        "ks_breadcrumb_xEHhJ8": {
+          "type": "ks-breadcrumb",
+          "settings": {
+            "pt": 0,
+            "pb": 0
+          }
+        },
         "vendor": {
           "type": "text",
           "settings": {
@@ -44,7 +51,8 @@
           "settings": {
             "custom_image_fee": "5.00",
             "max_pets_per_product": 3,
-            "preview_product_variant_id": ""
+            "preview_product_variant_id": "",
+            "color_scheme": ""
           }
         },
         "variant_picker": {
@@ -159,14 +167,6 @@
             "page": ""
           }
         },
-        "ks_breadcrumb_xEHhJ8": {
-          "type": "ks-breadcrumb",
-          "disabled": true,
-          "settings": {
-            "pt": 0,
-            "pb": 0
-          }
-        },
         "complementary_ErGqxM": {
           "type": "complementary",
           "settings": {
@@ -182,6 +182,7 @@
         }
       },
       "block_order": [
+        "ks_breadcrumb_xEHhJ8",
         "vendor",
         "title",
         "rating_XPUjyk",
@@ -200,7 +201,6 @@
         "collapsible_tab_9pTVbh",
         "collapsible_tab_d7d9CE",
         "collapsible_tab_hrn6Wc",
-        "ks_breadcrumb_xEHhJ8",
         "complementary_ErGqxM"
       ],
       "settings": {
