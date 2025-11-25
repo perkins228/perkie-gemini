@@ -111,9 +111,9 @@
         "desktop_content_position": "middle",
         "desktop_content_alignment": "center",
         "mobile_content_alignment": "center",
-        "section_color_scheme": "",
-        "color_scheme": "scheme-36fc21dc-2d10-4a81-8302-b2e842fce5f4",
-        "padding_top": 36,
+        "section_color_scheme": "scheme-f318d737-2be2-4346-8605-b2fbd6208608",
+        "color_scheme": "scheme-f318d737-2be2-4346-8605-b2fbd6208608",
+        "padding_top": 0,
         "padding_bottom": 0
       }
     },
