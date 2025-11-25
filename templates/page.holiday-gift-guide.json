@@ -44,10 +44,9 @@
         },
         "button_iDgC7n": {
           "type": "button",
-          "disabled": true,
           "settings": {
-            "button_label": "Button label",
-            "button_link": "",
+            "button_label": "Shop Personalized Gifts",
+            "button_link": "shopify://collections/personalized-pet-products-gifts",
             "button_style_secondary": false
           }
         }
