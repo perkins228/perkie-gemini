@@ -55,10 +55,10 @@
         "desktop_content_position": "middle-center",
         "desktop_content_alignment": "center",
         "show_text_box": true,
-        "color_scheme": "",
-        "stack_images_on_mobile": true,
+        "color_scheme": "scheme-f318d737-2be2-4346-8605-b2fbd6208608",
+        "stack_images_on_mobile": false,
         "mobile_content_alignment": "center",
-        "show_text_below": true
+        "show_text_below": false
       }
     },
     "image_with_text_9bWqwm": {
@@ -76,7 +76,7 @@
           "type": "heading",
           "settings": {
             "heading": "Gifts That Capture The Feeling Of Love",
-            "heading_size": "h2"
+            "heading_size": "h1"
           }
         },
         "text_7x7EPe": {
