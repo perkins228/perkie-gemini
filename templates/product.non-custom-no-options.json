@@ -265,7 +265,7 @@
         "row_PAB9Vr": {
           "type": "row",
           "settings": {
-            "image": "{{ product.metafields.custom.hero_image.value }}",
+            "image": "shopify://shop_images/Black_Frame_11X14_WM_iPhone.jpg",
             "caption": "Meaningful Connections",
             "heading": "The Pet You Love in a Portrait You'll Cherish",
             "text": "<p>The relationships we have to our pets are some of the most meaningful in our lives. We believe that pet portraiture deserves an approach that honors that love. Did you know you can get your pets face personalized on these awesome products? We provide photo selection guidance, highest standards of art creation, and we individually print every item in your order. Nothing is left to chance because it is all hand done.</p>",
@@ -288,10 +288,28 @@
         "desktop_content_position": "middle",
         "desktop_content_alignment": "center",
         "mobile_content_alignment": "center",
-        "section_color_scheme": "scheme-872ca72f-3acf-40b0-9717-028f5840921f",
-        "row_color_scheme": "scheme-872ca72f-3acf-40b0-9717-028f5840921f",
+        "section_color_scheme": "scheme-f318d737-2be2-4346-8605-b2fbd6208608",
+        "row_color_scheme": "scheme-f318d737-2be2-4346-8605-b2fbd6208608",
+        "padding_top": 8,
+        "padding_bottom": 8
+      }
+    },
+    "related-products": {
+      "type": "related-products",
+      "settings": {
+        "heading": "You may also like",
+        "heading_size": "h2",
+        "products_to_show": 4,
+        "columns_desktop": 4,
+        "columns_mobile": "2",
+        "color_scheme": "scheme-1",
+        "image_ratio": "square",
+        "image_shape": "default",
+        "show_secondary_image": true,
+        "show_vendor": false,
+        "show_rating": true,
         "padding_top": 36,
-        "padding_bottom": 36
+        "padding_bottom": 28
       }
     },
     "1759718299d91d8436": {
@@ -317,24 +335,6 @@
       "type": "apps",
       "settings": {
         "include_margins": true
-      }
-    },
-    "related-products": {
-      "type": "related-products",
-      "settings": {
-        "heading": "You may also like",
-        "heading_size": "h2",
-        "products_to_show": 4,
-        "columns_desktop": 4,
-        "columns_mobile": "2",
-        "color_scheme": "scheme-1",
-        "image_ratio": "square",
-        "image_shape": "default",
-        "show_secondary_image": true,
-        "show_vendor": false,
-        "show_rating": true,
-        "padding_top": 36,
-        "padding_bottom": 28
       }
     }
   },
