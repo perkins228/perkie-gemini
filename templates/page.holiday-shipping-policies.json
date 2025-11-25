@@ -11,13 +11,676 @@
   "sections": {
     "main": {
       "type": "main-page",
+      "disabled": true,
       "settings": {
         "padding_top": 28,
         "padding_bottom": 28
       }
+    },
+    "image_with_text_PBbweT": {
+      "type": "image-with-text",
+      "blocks": {
+        "heading_8zw36q": {
+          "type": "heading",
+          "settings": {
+            "heading": "Everything You Need to Know About Holiday Shipping",
+            "heading_size": "h2"
+          }
+        },
+        "text_iHri9K": {
+          "type": "text",
+          "disabled": true,
+          "settings": {
+            "text": "<p>Discover heartfelt gifts: personalized pet prints, custom created and individually printed on quality items. Perfect for every pet lover.</p>",
+            "text_style": "body"
+          }
+        },
+        "caption_4rCwGb": {
+          "type": "caption",
+          "settings": {
+            "caption": "DEADLINES, POLICIES, TIPS & MORE",
+            "text_style": "caption-with-letter-spacing",
+            "text_size": "large"
+          }
+        },
+        "button_FR3cf8": {
+          "type": "button",
+          "disabled": true,
+          "settings": {
+            "button_label": "Button label",
+            "button_link": "",
+            "button_style_secondary": false
+          }
+        }
+      },
+      "block_order": [
+        "heading_8zw36q",
+        "text_iHri9K",
+        "caption_4rCwGb",
+        "button_FR3cf8"
+      ],
+      "settings": {
+        "image": "shopify://shop_images/Holiday_Shipping_Page_Header_Desktop_copy6_9a0cc1d8-ecba-404c-9bb9-d30a8a8220b3.jpg",
+        "height": "adapt",
+        "desktop_image_width": "medium",
+        "layout": "image_first",
+        "image_behavior": "none",
+        "content_layout": "overlap",
+        "desktop_content_position": "middle",
+        "desktop_content_alignment": "left",
+        "mobile_content_alignment": "center",
+        "color_scheme": "accent-2",
+        "padding_top": 36,
+        "padding_bottom": 12
+      }
+    },
+    "multicolumn_neJe3m": {
+      "type": "multicolumn",
+      "blocks": {
+        "column_CcWt8z": {
+          "type": "column",
+          "settings": {
+            "image": "shopify://shop_images/Calendar_Date_Holiday_Design_Queue_Closed.jpg",
+            "title": "",
+            "text": "<h4>Last Day to Place an Order </h4>",
+            "link_label": "",
+            "link": ""
+          }
+        },
+        "column_aTL3Jw": {
+          "type": "column",
+          "settings": {
+            "image": "shopify://shop_images/December_9.jpg",
+            "title": "",
+            "text": "<h4>Last Day to Confirm Photo Selection</h4>",
+            "link_label": "",
+            "link": ""
+          }
+        },
+        "column_3WDqP8": {
+          "type": "column",
+          "settings": {
+            "image": "shopify://shop_images/December_12_4dba3025-ff83-439b-8111-6a0145da3196.jpg",
+            "title": "",
+            "text": "<h4>Last Day to Approve Print Previews </h4>",
+            "link_label": "",
+            "link": ""
+          }
+        },
+        "column_CmghGP": {
+          "type": "column",
+          "settings": {
+            "image": "shopify://shop_images/December_14.jpg",
+            "title": "",
+            "text": "<h4>Last day to Upgrade to Expedited Shipping.</h4>",
+            "link_label": "",
+            "link": ""
+          }
+        },
+        "column_kxnVdB": {
+          "type": "column",
+          "disabled": true,
+          "settings": {
+            "image": "shopify://shop_images/December_17_4e9102da-7829-48b5-b792-fca0da0804be.jpg",
+            "title": "USPS Shipping Deadline",
+            "text": "",
+            "link_label": "",
+            "link": ""
+          }
+        }
+      },
+      "block_order": [
+        "column_CcWt8z",
+        "column_aTL3Jw",
+        "column_3WDqP8",
+        "column_CmghGP",
+        "column_kxnVdB"
+      ],
+      "settings": {
+        "title": "",
+        "heading_size": "h1",
+        "image_width": "full",
+        "image_ratio": "square",
+        "button_label": "",
+        "button_link": "",
+        "columns_desktop": 4,
+        "column_alignment": "center",
+        "background_style": "primary",
+        "color_scheme": "",
+        "columns_mobile": "2",
+        "swipe_on_mobile": false,
+        "padding_top": 12,
+        "padding_bottom": 36
+      }
+    },
+    "multicolumn_CiDeCG": {
+      "type": "multicolumn",
+      "blocks": {
+        "column_XR3z6f": {
+          "type": "column",
+          "settings": {
+            "image": "shopify://shop_images/December_10_c8105327-6796-40e5-800d-2ef089b24116.jpg",
+            "title": "",
+            "text": "<h4>Last Day to Place an Order </h4>",
+            "link_label": "",
+            "link": ""
+          }
+        },
+        "column_acL7Nd": {
+          "type": "column",
+          "settings": {
+            "image": "shopify://shop_images/December_12_4dba3025-ff83-439b-8111-6a0145da3196.jpg",
+            "title": "",
+            "text": "<h4>Last Day to Confirm Photo Selection</h4>",
+            "link_label": "",
+            "link": ""
+          }
+        },
+        "column_WtzabA": {
+          "type": "column",
+          "settings": {
+            "image": "shopify://shop_images/Calendar_Date_Image_copy.jpg",
+            "title": "",
+            "text": "<h4>Last Day to Approve Print Previews </h4>",
+            "link_label": "",
+            "link": ""
+          }
+        },
+        "column_z79Lm4": {
+          "type": "column",
+          "settings": {
+            "image": "shopify://shop_images/Calendar_Date_18.jpg",
+            "title": "",
+            "text": "<h4>Last day to Upgrade to Expedited Shipping.</h4>",
+            "link_label": "",
+            "link": ""
+          }
+        },
+        "column_feK9U4": {
+          "type": "column",
+          "settings": {
+            "image": "shopify://shop_images/December_20.jpg",
+            "title": "USPS Shipping Deadline",
+            "text": "",
+            "link_label": "",
+            "link": ""
+          }
+        }
+      },
+      "block_order": [
+        "column_XR3z6f",
+        "column_acL7Nd",
+        "column_WtzabA",
+        "column_z79Lm4",
+        "column_feK9U4"
+      ],
+      "disabled": true,
+      "settings": {
+        "title": "",
+        "heading_size": "h1",
+        "image_width": "full",
+        "image_ratio": "square",
+        "button_label": "",
+        "button_link": "",
+        "columns_desktop": 5,
+        "column_alignment": "center",
+        "background_style": "primary",
+        "color_scheme": "",
+        "columns_mobile": "2",
+        "swipe_on_mobile": false,
+        "padding_top": 12,
+        "padding_bottom": 36
+      }
+    },
+    "rich_text_ALVJH9": {
+      "type": "rich-text",
+      "blocks": {
+        "caption_wEUDYX": {
+          "type": "caption",
+          "settings": {
+            "caption": "TRANSPARENCY IS OUR POLICY",
+            "text_style": "caption-with-letter-spacing",
+            "text_size": "small"
+          }
+        },
+        "heading_GbUW4z": {
+          "type": "heading",
+          "settings": {
+            "heading": "",
+            "heading_size": "h2"
+          }
+        },
+        "text_dg6KGB": {
+          "type": "text",
+          "settings": {
+            "text": "<h6>*You need to meet each of these deadlines in order to receive your gift for a Dec. 24th delivery. Turnaround time varies by order. Total turnaround is dependent on the communication speed, artist turnaround time, production times, and shipping speeds. Please see Turnaround Timelines & Policies, below. You Choose Your Shipping speed at checkout. Our Guaranteed Delivery date has already passed, but if you meet these deadlines we will get the package in the mail by the posted USPS deadline of Dec. 17th. Once we drop in in the mail, shipping times and speeds are out of our hands. </h6>"
+          }
+        },
+        "button_74XqDE": {
+          "type": "button",
+          "disabled": true,
+          "settings": {
+            "button_label": "Button label",
+            "button_link": "",
+            "button_style_secondary": false,
+            "button_label_2": "",
+            "button_link_2": "",
+            "button_style_secondary_2": false
+          }
+        }
+      },
+      "block_order": [
+        "caption_wEUDYX",
+        "heading_GbUW4z",
+        "text_dg6KGB",
+        "button_74XqDE"
+      ],
+      "settings": {
+        "desktop_content_position": "center",
+        "content_alignment": "center",
+        "color_scheme": "scheme-4",
+        "full_width": true,
+        "padding_top": 12,
+        "padding_bottom": 24
+      }
+    },
+    "multicolumn_p6JpcT": {
+      "type": "multicolumn",
+      "blocks": {
+        "column_wmyUPT": {
+          "type": "column",
+          "settings": {
+            "image": "shopify://shop_images/New_Portrait_Process_Timeline.png",
+            "title": "Overview",
+            "text": "<p>We reach out via your preferred contact method and  you'll work directly with our team throughout the entire process.</p>",
+            "link_label": "Swipe to learn more",
+            "link": "shopify://pages/new-pet-portrait-process"
+          }
+        },
+        "column_tyYMxy": {
+          "type": "column",
+          "settings": {
+            "image": "shopify://shop_images/Black_Frames_1039_E_F_G_U__Two_subjects_into_one_SQUARE_copy.jpg",
+            "title": "Photo Selection",
+            "text": "<p>Our artists directly edit the photo provided to edit and create your custom pet portrait and therefore we need a high quality photo to start. Please keep an eye on your inbox as we will reach out should we be concerned about quality or need new photos. </p>",
+            "link_label": "How to Choose a Photo",
+            "link": "shopify://pages/photo-submission-guidelines"
+          }
+        },
+        "column_rWaV9G": {
+          "type": "column",
+          "settings": {
+            "image": "shopify://shop_images/Artist_Working2.jpg",
+            "title": "Artwork Creation",
+            "text": "<p>No two photos are the same and each requires an individualized approach to get the best results. Your artist will carefully evaluate what adjustments are needed to have your pet looking their best.</p>",
+            "link_label": "Our Artistic Process",
+            "link": "shopify://pages/our-artistic-process"
+          }
+        },
+        "column_QzMQWw": {
+          "type": "column",
+          "settings": {
+            "image": "shopify://shop_images/Preview_delivery_v2.jpg",
+            "title": "Perkie Print Previews",
+            "text": "<p>Your artist will email you the completed Perkie Print for your approval before we print your products. Make sure to provide an active email or phone number.</p>",
+            "link_label": "See More Examples",
+            "link": "shopify://pages/perkie-prints-examples"
+          }
+        },
+        "column_NkjHwG": {
+          "type": "column",
+          "settings": {
+            "image": "shopify://shop_images/Tina_Production_Framing.jpg",
+            "title": "Printing & Shipping",
+            "text": "<p>We print each item one at a time to ensure we deliver the highest quality possible. We use a suite of top-of-the-line Epson printers so your Perkie Print retains details and rich saturation.</p>",
+            "link_label": "Shipping Policies & deadlines",
+            "link": "shopify://pages/shipping-policies-deadlines"
+          }
+        },
+        "column_iVm7JY": {
+          "type": "column",
+          "settings": {
+            "image": "shopify://shop_images/Honey_Dog_Rescued_a52fb6da-5f4b-4780-8d6d-fe7aca7c8552.png",
+            "title": "Donation Made",
+            "text": "<p>Know that your purchase makes a difference to animals in need because we donate a portion of your purchase to our charity partners, Wags & Walks.</p>",
+            "link_label": "More about Wags & Walks",
+            "link": "shopify://pages/our-charity-partners"
+          }
+        }
+      },
+      "block_order": [
+        "column_wmyUPT",
+        "column_tyYMxy",
+        "column_rWaV9G",
+        "column_QzMQWw",
+        "column_NkjHwG",
+        "column_iVm7JY"
+      ],
+      "settings": {
+        "title": "Here is What Happens After You Place Your Order",
+        "heading_size": "h2",
+        "image_width": "full",
+        "image_ratio": "adapt",
+        "button_label": "",
+        "button_link": "",
+        "columns_desktop": 3,
+        "column_alignment": "center",
+        "background_style": "primary",
+        "color_scheme": "scheme-6d240997-b7c2-4bac-b3bb-33180afb3f1a",
+        "columns_mobile": "1",
+        "swipe_on_mobile": true,
+        "padding_top": 36,
+        "padding_bottom": 36
+      }
+    },
+    "rich_text_TixDcT": {
+      "type": "rich-text",
+      "blocks": {
+        "heading_PnECjw": {
+          "type": "heading",
+          "settings": {
+            "heading": "",
+            "heading_size": "h2"
+          }
+        },
+        "text_8Kq9dy": {
+          "type": "text",
+          "settings": {
+            "text": "<h2>To Connect Human To Human and check status of your order, reach us at, hello@perkieprints.com</h2>"
+          }
+        },
+        "button_LLyA9T": {
+          "type": "button",
+          "disabled": true,
+          "settings": {
+            "button_label": "Button label",
+            "button_link": "",
+            "button_style_secondary": false,
+            "button_label_2": "",
+            "button_link_2": "",
+            "button_style_secondary_2": false
+          }
+        }
+      },
+      "block_order": [
+        "heading_PnECjw",
+        "text_8Kq9dy",
+        "button_LLyA9T"
+      ],
+      "settings": {
+        "desktop_content_position": "center",
+        "content_alignment": "center",
+        "color_scheme": "scheme-5bf212b3-c060-4789-9330-10bdcca4e3d7",
+        "full_width": true,
+        "padding_top": 40,
+        "padding_bottom": 52
+      }
+    },
+    "rich_text_xanxwz": {
+      "type": "rich-text",
+      "blocks": {
+        "caption_3X3t67": {
+          "type": "caption",
+          "settings": {
+            "caption": "Want it by Dec. 24th? Please Read The Following",
+            "text_style": "caption-with-letter-spacing",
+            "text_size": "large"
+          }
+        },
+        "heading_BJYW6B": {
+          "type": "heading",
+          "settings": {
+            "heading": "Turnaround Times & Policies",
+            "heading_size": "h1"
+          }
+        },
+        "text_kKU9mw": {
+          "type": "text",
+          "settings": {
+            "text": "<p><strong>Total Turnaround Time:</strong> <br/>varies by order. </p><p>With the submission of a high quality photo that our artists can use, our average turnaround time to get your package dropped in the mail is about 4-7 business days, but this can vary depending on the volume of incoming orders.</p><p>If you chose to skip the photo upload to receive help with photo selection, or the photo provided does not meet our quality standards, The turnaround time <strong> depends on both of the following factors:</strong></p><ul><li><strong>The response rate to which you reply to our customer care team via email</strong>. Please make sure to provide your active email address at checkout.</li></ul><p></p><ul><li><strong>The response rate to which approve your Perkie Print Preview </strong>once your artist delivers it to your inbox. We cannot ship your order until we receive your sign of on the adorable print review. We need your response at both points of the process, so please be sure to provide an active email address or phone number & check your spam folders and promotional tabs for our emails.</li></ul><p><br/></p>"
+          }
+        },
+        "caption_T6Tr6k": {
+          "type": "caption",
+          "disabled": true,
+          "settings": {
+            "caption": "NOTABLE",
+            "text_style": "caption-with-letter-spacing",
+            "text_size": "large"
+          }
+        },
+        "heading_NRjt4R": {
+          "type": "heading",
+          "disabled": true,
+          "settings": {
+            "heading": "Definitions",
+            "heading_size": "h1"
+          }
+        },
+        "button_MFRDXQ": {
+          "type": "button",
+          "disabled": true,
+          "settings": {
+            "button_label": "Button label",
+            "button_link": "",
+            "button_style_secondary": false,
+            "button_label_2": "",
+            "button_link_2": "",
+            "button_style_secondary_2": false
+          }
+        },
+        "text_hXRxdz": {
+          "type": "text",
+          "disabled": true,
+          "settings": {
+            "text": "<p><strong>Perkie Print Preview Delivery Date: </strong>Provided via email once we either of the following: </p><ul><li>a high quality photo for our artist to edit; </li><li>or, your acknowledgment and approval to proceed given our concerns about quality. </li></ul><p>Time varies due to the speed at which we communicate. </p><p><strong>Production Time: </strong>Starts once we receive your email approving your print preview. There is a 1-4 business day window to allow our production team to create each template and individually print every item in your order.</p><p><strong>Shipping Speed</strong>: is determined by what option you choose at checkout. Shipping speed starts once our production team drops your item in the mail during your production window. Free shipping is economy shipping that takes 5-7 days. Should you want faster shipping speeds, please choose accordingly at checkout. </p><p><strong>Business days/hours</strong> :do not include Saturday or Sunday, and these estimates do not include weekend delivery. For example, if a package ships on Friday with Rush (1 business day) it will arrive the following Monday.Keep in mind that production timelines are full business days. For example, if an order is placed on a Monday, the first full business day in production is the following business day, Tuesday.</p><p>*Business days counted in production and shipping timelines do not include US National Holidays.</p><p></p>"
+          }
+        }
+      },
+      "block_order": [
+        "caption_3X3t67",
+        "heading_BJYW6B",
+        "text_kKU9mw",
+        "caption_T6Tr6k",
+        "heading_NRjt4R",
+        "button_MFRDXQ",
+        "text_hXRxdz"
+      ],
+      "settings": {
+        "desktop_content_position": "center",
+        "content_alignment": "left",
+        "color_scheme": "",
+        "full_width": true,
+        "padding_top": 40,
+        "padding_bottom": 16
+      }
+    },
+    "collapsible_content_LKEA4E": {
+      "type": "collapsible-content",
+      "blocks": {
+        "collapsible_row_7YGp34": {
+          "type": "collapsible_row",
+          "settings": {
+            "heading": "I placed my order on the 10th, am I guaranteed to get it by Dec 24th?",
+            "icon": "check_mark",
+            "row_content": "<p><strong>No</strong>. Turnaround time is entirely dependent on the speed at which we communicate at each step of the process. Please make sure to have hello@perkieprints.com AND design@perkieprints.com on your list of contacts so our emails do not end up in your spam folder OR the promotional tab of your inbox. <br/><br/>Soon after your order is placed, you will receive an automated order confirmation email. Though you should keep and read this email, you will also receive an email from our Customer Care team with photo feedback and your perkie print preview delivery window within 36 business hours of placing your order. If at that time you do not see this email from our customer care team, please send us an email to hello@perkieprints.com with your name and order confirmation number. </p>",
+            "page": ""
+          }
+        },
+        "collapsible_row_7XBbGE": {
+          "type": "collapsible_row",
+          "settings": {
+            "heading": "Do your Timelines include weekends?",
+            "icon": "check_mark",
+            "row_content": "<p>No, shipping times are calculated in business days. Business days do not include Saturday or Sunday, and these shipping estimates do not include weekend delivery. For example, if a package ships on Friday with UPS Next Day (1 business day) it will arrive the following Monday.</p>",
+            "page": ""
+          }
+        },
+        "collapsible_row_rmKpn3": {
+          "type": "collapsible_row",
+          "settings": {
+            "heading": "Do you ship internationally/ to Canada?",
+            "icon": "check_mark",
+            "row_content": "<p>Unfortunately, we do not. </p>",
+            "page": ""
+          }
+        },
+        "collapsible_row_ABVcUr": {
+          "type": "collapsible_row",
+          "settings": {
+            "heading": "Can I Rush My Order?",
+            "icon": "check_mark",
+            "row_content": "<p>Unfortunately, once our art queue fills up, there is no way for us to squeeze in your order or speed up the production of your items. Shipping speeds are chosen by you at checkout and will determine the final delivery date of your items. Should you choose express shipping options, those will help get your packages to your doorstep sooner. </p>",
+            "page": ""
+          }
+        }
+      },
+      "block_order": [
+        "collapsible_row_7YGp34",
+        "collapsible_row_7XBbGE",
+        "collapsible_row_rmKpn3",
+        "collapsible_row_ABVcUr"
+      ],
+      "settings": {
+        "caption": "",
+        "heading": "FAQs",
+        "heading_size": "h1",
+        "heading_alignment": "center",
+        "layout": "none",
+        "container_color_scheme": "",
+        "color_scheme": "scheme-6d240997-b7c2-4bac-b3bb-33180afb3f1a",
+        "open_first_collapsible_row": false,
+        "image_ratio": "adapt",
+        "desktop_layout": "image_second",
+        "padding_top": 36,
+        "padding_bottom": 36
+      }
+    },
+    "rich_text_wxjkam": {
+      "type": "rich-text",
+      "blocks": {
+        "caption_CbJbky": {
+          "type": "caption",
+          "settings": {
+            "caption": "Notable",
+            "text_style": "caption-with-letter-spacing",
+            "text_size": "large"
+          }
+        },
+        "heading_Na889r": {
+          "type": "heading",
+          "settings": {
+            "heading": "Definitions",
+            "heading_size": "h0"
+          }
+        },
+        "text_EGcFRC": {
+          "type": "text",
+          "settings": {
+            "text": "<p><strong>Perkie Print Preview Delivery Date: </strong>Provided via email once we either of the following: </p><ul><li>a high quality photo for our artist to edit; </li><li>or, your acknowledgment and approval to proceed given our concerns about quality. </li></ul><p>Time varies due to the speed at which we communicate. </p><p><strong>Production Time: </strong>Starts once we receive your email approving your print preview. There is a 1-4 business day window to allow our production team to create each template and individually print every item in your order.</p><p><strong>Shipping Speed</strong>: is determined by what option you choose at checkout. Shipping speed starts once our production team drops your item in the mail during your production window. Both the Free shipping and FLAT RATE SHIPPING offers are economy shipping options that takes 5-10 business days. Should you want faster shipping speeds, please choose accordingly at checkout. </p><p><strong>Business days/hours</strong> :do not include Saturday or Sunday, and these estimates do not include weekend delivery. For example, if a package ships on Friday with an expedited shipping option (1 business day) it will arrive the following Monday. Keep in mind that production timelines are full business days. For example, if an order is placed on a Monday, the first full business day in production is the following business day, Tuesday.</p><p>*Business days counted in production and shipping timelines do not include US National Holidays.</p><p></p>"
+          }
+        }
+      },
+      "block_order": [
+        "caption_CbJbky",
+        "heading_Na889r",
+        "text_EGcFRC"
+      ],
+      "settings": {
+        "desktop_content_position": "center",
+        "content_alignment": "center",
+        "color_scheme": "inverse",
+        "full_width": true,
+        "padding_top": 40,
+        "padding_bottom": 52
+      }
+    },
+    "featured_collection_fEAWjE": {
+      "type": "featured-collection",
+      "settings": {
+        "collection": "personalized-pet-products-gifts",
+        "products_to_show": 4,
+        "title": "Browse our Bestsellers",
+        "heading_size": "h1",
+        "description": "",
+        "show_description": false,
+        "description_style": "body",
+        "columns_desktop": 4,
+        "enable_desktop_slider": false,
+        "full_width": false,
+        "show_view_all": true,
+        "view_all_style": "solid",
+        "color_scheme": "scheme-4",
+        "image_ratio": "square",
+        "image_shape": "default",
+        "show_secondary_image": true,
+        "show_vendor": false,
+        "show_rating": true,
+        "columns_mobile": "1",
+        "swipe_on_mobile": true,
+        "padding_top": 36,
+        "padding_bottom": 36
+      }
+    },
+    "image_with_text_pE6epY": {
+      "type": "image-with-text",
+      "blocks": {
+        "caption_JUnpJY": {
+          "type": "caption",
+          "settings": {
+            "caption": "FROM THE LEADING LADIES AT PERKIE PRINTS",
+            "text_style": "caption-with-letter-spacing",
+            "text_size": "small"
+          }
+        },
+        "heading_iY6qMp": {
+          "type": "heading",
+          "settings": {
+            "heading": "Thank You For Supporting Small",
+            "heading_size": "h2"
+          }
+        },
+        "text_xA8bjX": {
+          "type": "text",
+          "settings": {
+            "text": "<p>This gift, wrapped in the warmth of your patience, tells a story of delayed gratification transformed into heartfelt generosity. Thank you for choosing to support our small business and for be part of this meaningful journey—a journey that celebrates the beauty of supporting local businesses, nurturing compassion for our furry friends, and embracing the joy of giving. <br/><br/>Warmest Wishes & Happy Holidays, <br/>J&M</p>",
+            "text_style": "body"
+          }
+        }
+      },
+      "block_order": [
+        "caption_JUnpJY",
+        "heading_iY6qMp",
+        "text_xA8bjX"
+      ],
+      "settings": {
+        "image": "shopify://shop_images/TreeFrameScene_copy.jpg",
+        "height": "adapt",
+        "desktop_image_width": "medium",
+        "layout": "image_first",
+        "image_behavior": "none",
+        "content_layout": "overlap",
+        "desktop_content_position": "middle",
+        "desktop_content_alignment": "center",
+        "mobile_content_alignment": "center",
+        "color_scheme": "scheme-6d240997-b7c2-4bac-b3bb-33180afb3f1a",
+        "padding_top": 36,
+        "padding_bottom": 36
+      }
     }
   },
   "order": [
-    "main"
+    "main",
+    "image_with_text_PBbweT",
+    "multicolumn_neJe3m",
+    "multicolumn_CiDeCG",
+    "rich_text_ALVJH9",
+    "multicolumn_p6JpcT",
+    "rich_text_TixDcT",
+    "rich_text_xanxwz",
+    "collapsible_content_LKEA4E",
+    "rich_text_wxjkam",
+    "featured_collection_fEAWjE",
+    "image_with_text_pE6epY"
   ]
 }
