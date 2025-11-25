@@ -114,6 +114,190 @@
         "padding_bottom": 36
       }
     },
+    "rich_text_xR8UtR": {
+      "type": "rich-text",
+      "blocks": {
+        "caption_fgrCMn": {
+          "type": "caption",
+          "settings": {
+            "caption": "Need it by Dec. 24th?",
+            "text_style": "caption-with-letter-spacing",
+            "text_size": "large"
+          }
+        },
+        "heading_GeHNqp": {
+          "type": "heading",
+          "settings": {
+            "heading": "Here Are The Deadlines to Meet*",
+            "heading_size": "h1"
+          }
+        },
+        "text_RKpxyW": {
+          "type": "text",
+          "settings": {
+            "text": ""
+          }
+        },
+        "button_rVdAJk": {
+          "type": "button",
+          "disabled": true,
+          "settings": {
+            "button_label": "Button label",
+            "button_link": "",
+            "button_style_secondary": false,
+            "button_label_2": "",
+            "button_link_2": "",
+            "button_style_secondary_2": false
+          }
+        }
+      },
+      "block_order": [
+        "caption_fgrCMn",
+        "heading_GeHNqp",
+        "text_RKpxyW",
+        "button_rVdAJk"
+      ],
+      "settings": {
+        "desktop_content_position": "center",
+        "content_alignment": "center",
+        "color_scheme": "scheme-515076a9-58a2-482b-a146-99ab06be0008",
+        "full_width": true,
+        "padding_top": 32,
+        "padding_bottom": 16
+      }
+    },
+    "multicolumn_Pkq6QT": {
+      "type": "multicolumn",
+      "blocks": {
+        "column_jf89nT": {
+          "type": "column",
+          "settings": {
+            "image": "shopify://shop_images/Calendar_Date_Holiday_Design_Queue_Closed.jpg",
+            "title": "",
+            "text": "<h4>Last Day to Place an Order </h4>",
+            "link_label": "",
+            "link": ""
+          }
+        },
+        "column_bUrLJh": {
+          "type": "column",
+          "settings": {
+            "image": "shopify://shop_images/December_9.jpg",
+            "title": "",
+            "text": "<h4>Last Day to Confirm Photo Selection</h4>",
+            "link_label": "",
+            "link": ""
+          }
+        },
+        "column_JLXcT8": {
+          "type": "column",
+          "settings": {
+            "image": "shopify://shop_images/December_12_4dba3025-ff83-439b-8111-6a0145da3196.jpg",
+            "title": "",
+            "text": "<h4>Last Day to Approve Print Previews </h4>",
+            "link_label": "",
+            "link": ""
+          }
+        },
+        "column_NPWkmY": {
+          "type": "column",
+          "settings": {
+            "image": "shopify://shop_images/December_14.jpg",
+            "title": "",
+            "text": "<h4>Last day to Upgrade to Expedited Shipping.</h4>",
+            "link_label": "",
+            "link": ""
+          }
+        },
+        "column_YhWTtF": {
+          "type": "column",
+          "disabled": true,
+          "settings": {
+            "image": "shopify://shop_images/December_17_4e9102da-7829-48b5-b792-fca0da0804be.jpg",
+            "title": "USPS Shipping Deadline",
+            "text": "",
+            "link_label": "",
+            "link": ""
+          }
+        }
+      },
+      "block_order": [
+        "column_jf89nT",
+        "column_bUrLJh",
+        "column_JLXcT8",
+        "column_NPWkmY",
+        "column_YhWTtF"
+      ],
+      "settings": {
+        "title": "",
+        "heading_size": "h1",
+        "image_width": "full",
+        "image_ratio": "square",
+        "button_label": "",
+        "button_link": "",
+        "columns_desktop": 4,
+        "column_alignment": "center",
+        "background_style": "primary",
+        "color_scheme": "",
+        "columns_mobile": "2",
+        "swipe_on_mobile": false,
+        "padding_top": 12,
+        "padding_bottom": 36
+      }
+    },
+    "rich_text_mytBLp": {
+      "type": "rich-text",
+      "blocks": {
+        "caption_pcpTLp": {
+          "type": "caption",
+          "disabled": true,
+          "settings": {
+            "caption": "",
+            "text_style": "caption-with-letter-spacing",
+            "text_size": "large"
+          }
+        },
+        "text_wWJnmV": {
+          "type": "text",
+          "settings": {
+            "text": "<p>*You need to meet each of these deadlines in order to receive your gift for a Dec. 24th delivery. </p>"
+          }
+        },
+        "button_9RLTic": {
+          "type": "button",
+          "disabled": true,
+          "settings": {
+            "button_label": "Button label",
+            "button_link": "",
+            "button_style_secondary": false,
+            "button_label_2": "",
+            "button_link_2": "",
+            "button_style_secondary_2": false
+          }
+        },
+        "heading_6KwbFT": {
+          "type": "heading",
+          "settings": {
+            "heading": "Please  <a href=\"/pages/shipping-deadlines\" title=\"Holiday Shipping Deadlines\">Read Our Full Holiday Shipping Policies. </a>",
+            "heading_size": "h2"
+          }
+        }
+      },
+      "block_order": [
+        "caption_pcpTLp",
+        "text_wWJnmV",
+        "button_9RLTic",
+        "heading_6KwbFT"
+      ],
+      "settings": {
+        "desktop_content_position": "center",
+        "content_alignment": "center",
+        "color_scheme": "inverse",
+        "full_width": true,
+        "padding_top": 16,
+        "padding_bottom": 48
+      }
+    },
     "rich_text_P4RJFY": {
       "type": "rich-text",
       "blocks": {
@@ -494,6 +678,9 @@
     "main",
     "image_with_text_Pq63rp",
     "collection_list_KEWNp8",
+    "rich_text_xR8UtR",
+    "multicolumn_Pkq6QT",
+    "rich_text_mytBLp",
     "rich_text_P4RJFY",
     "collage_qryV7g",
     "multicolumn_DECNHF",
