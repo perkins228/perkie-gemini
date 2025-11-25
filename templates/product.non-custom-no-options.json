@@ -140,16 +140,16 @@
           "type": "collapsible_tab",
           "settings": {
             "heading": "Product Description",
-            "icon": "check_mark",
+            "icon": "paw_print",
             "content": "{{ product.description }}",
             "page": ""
           }
         },
-        "collapsible_tab_d7d9CE": {
+        "collapsible_tab_xa8pQh": {
           "type": "collapsible_tab",
           "source": "{{ product.metafields.custom.size_guide.value }}",
           "settings": {
-            "heading": "What is my size?",
+            "heading": "Size Chart",
             "icon": "ruler",
             "content": "",
             "page": "{{ product.metafields.custom.size_guide.value.size_guide.value }}"
@@ -202,7 +202,7 @@
         "description",
         "ks_delivery_dates_4dfWaY",
         "collapsible_tab_9pTVbh",
-        "collapsible_tab_d7d9CE",
+        "collapsible_tab_xa8pQh",
         "collapsible_tab_hrn6Wc",
         "complementary_ErGqxM",
         "share"
