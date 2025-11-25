@@ -103,7 +103,7 @@
       ],
       "settings": {
         "image": "shopify://shop_images/Holiday_GG_Gif.gif",
-        "height": "medium",
+        "height": "adapt",
         "desktop_image_width": "medium",
         "layout": "image_first",
         "image_behavior": "none",
