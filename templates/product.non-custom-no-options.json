@@ -266,10 +266,10 @@
           "type": "row",
           "settings": {
             "image": "shopify://shop_images/Black_Frame_11X14_WM_iPhone.jpg",
-            "caption": "Meaningful Connections",
-            "heading": "The Pet You Love in a Portrait You'll Cherish",
-            "text": "<p>The relationships we have to our pets are some of the most meaningful in our lives. We believe that pet portraiture deserves an approach that honors that love. Did you know you can get your pets face personalized on these awesome products? We provide photo selection guidance, highest standards of art creation, and we individually print every item in your order. Nothing is left to chance because it is all hand done.</p>",
-            "button_label": "SEE A PREVIEW OF YOUR PET, NOW!",
+            "caption": "",
+            "heading": "Did You Know We Make Custom Pet Portraits?",
+            "text": "<p>The relationships we have to our pets are some of the most meaningful in our lives. We believe that pet portraiture deserves an approach that honors that love. We provide photo selection guidance, highest standards of art creation, and we individually print every item in your order. Nothing is left to chance because it is all hand done.</p>",
+            "button_label": "SEE A PREVIEW",
             "button_link": "shopify://pages/custom-image-processing"
           }
         }
