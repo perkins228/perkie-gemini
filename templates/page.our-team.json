@@ -17,6 +17,39 @@
         "padding_bottom": 28
       }
     },
+    "ks_parallax_media_DpMTaA": {
+      "type": "ks-parallax-media",
+      "name": "KS - Parallax media",
+      "settings": {
+        "video_mobile": "shopify://files/videos/Brand Video_7e001be6-09d2-421d-8ca6-c5788c7fc467.mp4",
+        "video_desktop": "shopify://files/videos/Brand Video_7e001be6-09d2-421d-8ca6-c5788c7fc467.mp4",
+        "media_mobile_height": 400,
+        "media_desktop_height": 650,
+        "media_adapt": true,
+        "overlay_color": "#000000",
+        "overlay_opacity": 0,
+        "overlay_blur": 0,
+        "overlay_top_bottom_border": false,
+        "parallax_orientation": "down",
+        "parallax_scale": 1,
+        "color_scheme": "scheme-f318d737-2be2-4346-8605-b2fbd6208608",
+        "caption_max_width": "900",
+        "subtitle": "",
+        "subtitle_font_size": "fs-sm",
+        "title": "",
+        "title_font_size": "h1",
+        "description": "",
+        "description_font_size": "fs-lg",
+        "btn_primary_text": "",
+        "btn_primary_style": "button--primary",
+        "btn_primary_url": "",
+        "btn_secondary_text": "",
+        "btn_secondary_style": "button--secondary",
+        "btn_secondary_url": "",
+        "pt": 0,
+        "pb": 0
+      }
+    },
     "image_with_text_7bdNQV": {
       "type": "image-with-text",
       "blocks": {
@@ -50,7 +83,7 @@
       ],
       "name": "t:sections.image-with-text.presets.name",
       "settings": {
-        "image": "shopify://shop_images/MeetTheTeam_Jonni.jpg",
+        "image": "shopify://shop_images/White_Crew_Jonni_Miley.jpg",
         "height": "adapt",
         "desktop_image_width": "medium",
         "layout": "text_first",
@@ -235,6 +268,7 @@
   },
   "order": [
     "main",
+    "ks_parallax_media_DpMTaA",
     "image_with_text_7bdNQV",
     "image_with_text_tie8nY",
     "image_with_text_GmVQmW",
