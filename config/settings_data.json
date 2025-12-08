@@ -139,7 +139,7 @@
     "cart_delivery_calendar_show": false,
     "cart_sub_upgrade_show": false,
     "cart_page_disable": true,
-    "cart_announcement": "<p>30% OFF with code: <strong>EARLY30 </strong>-OR<strong>- </strong>Free Ornament with $50+ purchase with code:  <strong>FREEBIE</strong></p>",
+    "cart_announcement": "<p>Spend $100, get a FREE Glass Ornament with code: ORNAMENT</p>",
     "cart_announcement_bg_color": "#ff5964",
     "cart_announcement_corner_radius": 6,
     "cart_low_stock_text_color": "#ff5964",
