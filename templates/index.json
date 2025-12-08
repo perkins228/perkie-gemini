@@ -46,6 +46,7 @@
         "text_wXt3N6",
         "buttons_qVXbBU"
       ],
+      "disabled": true,
       "name": "t:sections.image-banner.presets.name",
       "settings": {
         "image": "shopify://shop_images/holiday_desktop_30percent__collection_banner.jpg",
