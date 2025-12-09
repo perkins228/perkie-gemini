@@ -288,37 +288,46 @@
     "image_with_text_xpgytz": {
       "type": "image-with-text",
       "blocks": {
+        "caption_Q4XhNV": {
+          "type": "caption",
+          "settings": {
+            "caption": "Now That December 7th Has Passed...",
+            "text_style": "caption-with-letter-spacing",
+            "text_size": "medium"
+          }
+        },
         "heading_yCQTKp": {
           "type": "heading",
           "settings": {
-            "heading": "So you missed the Shipping Deadline?",
+            "heading": "So you missed the Christmas Deadline?",
             "heading_size": "h1"
           }
         },
         "text_W8rPVt": {
           "type": "text",
           "settings": {
-            "text": "<p>There is still time to make it meaningful. </p>",
+            "text": "<p>There is still time to make it meaningful. Check out our RUSH Options or our <strong>FREE </strong>Digital Download Offer.</p>",
             "text_style": "body"
           }
         },
         "button_DdHctV": {
           "type": "button",
           "settings": {
-            "button_label": "Button label",
-            "button_link": "",
+            "button_label": "See My Options",
+            "button_link": "shopify://pages/holiday-design-queue-closed",
             "button_style_secondary": false
           }
         }
       },
       "block_order": [
+        "caption_Q4XhNV",
         "heading_yCQTKp",
         "text_W8rPVt",
         "button_DdHctV"
       ],
-      "disabled": true,
       "name": "t:sections.image-with-text.presets.name",
       "settings": {
+        "image": "shopify://shop_images/Digital_Download_Holiday_Queue_Email_Delivery-phone2.png",
         "height": "adapt",
         "desktop_image_width": "medium",
         "layout": "image_first",
