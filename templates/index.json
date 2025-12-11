@@ -62,6 +62,58 @@
         "show_text_below": false
       }
     },
+    "ks_fancy_slideshow_CjgK6D": {
+      "type": "ks-fancy-slideshow",
+      "blocks": {
+        "slide_TYtCDA": {
+          "type": "slide",
+          "settings": {
+            "img_mobile": "shopify://shop_images/Nov_wk2_Sale-_Free_Digi_76f9ed82-8fd4-46fa-ad63-feaa3c637c43.png",
+            "img_desktop": "shopify://shop_images/Nov_wk2_Sale-_Free_Digi_76f9ed82-8fd4-46fa-ad63-feaa3c637c43.jpg",
+            "overlay_color": "#121212",
+            "overlay_opacity": 60,
+            "overlay_blur": 0,
+            "caption_position_mobile": "center",
+            "caption_text_align_mobile": "text-center",
+            "caption_position_desktop": "left",
+            "caption_text_align_desktop": "text-desktop-center",
+            "caption_max_width": "500",
+            "subtitle": "Miseed the shipping deadline?",
+            "subtitle_font_size": "fs-sm",
+            "title": "There is still time to make it meaningful!",
+            "title_font_size": "h1",
+            "description": "<p>Purchases placed today will receive a <strong>complimentary digital download*</strong> for you to email to your recipient on Christmas morning! </p><p>Not only will they enjoy the digital download as a background for all their devices, but also delight in the anticipation of receiving their custom package!<br/>No Code Necessary. </p>",
+            "description_font_size": "fs-lg",
+            "btn_primary_text": "Add FREE Digital Download to Cart",
+            "btn_primary_style": "button--primary",
+            "btn_primary_url": "",
+            "btn_secondary_text": "",
+            "btn_secondary_style": "button--secondary",
+            "btn_secondary_url": ""
+          }
+        }
+      },
+      "block_order": [
+        "slide_TYtCDA"
+      ],
+      "disabled": true,
+      "name": "Missed the deadline Header",
+      "settings": {
+        "color_scheme": "scheme-f87c2828-f6f5-4ee4-81f9-351a7b6ea793",
+        "slider_navigation": true,
+        "slider_pagination": "bullets",
+        "slider_effect": "slide",
+        "slider_speed": 700,
+        "slider_autoplay": 5,
+        "slider_partial": false,
+        "slider_spacing": false,
+        "media_mobile_height": 520,
+        "media_desktop_height": 610,
+        "media_adapt": false,
+        "pt": 36,
+        "pb": 36
+      }
+    },
     "image_with_text_9bWqwm": {
       "type": "image-with-text",
       "blocks": {
@@ -594,10 +646,44 @@
         "pt": 8,
         "pb": 0
       }
+    },
+    "ks_parallax_media_NmcciF": {
+      "type": "ks-parallax-media",
+      "name": "KS - Parallax media",
+      "settings": {
+        "img_mobile": "shopify://shop_images/Digital_Download_Holiday_Queue_Email_Deliveryv5.jpg",
+        "img_desktop": "shopify://shop_images/Digital_Download_Holiday_Queue_Email_Deliveryv5-min.jpg",
+        "media_mobile_height": 400,
+        "media_desktop_height": 700,
+        "media_adapt": false,
+        "overlay_color": "#121212",
+        "overlay_opacity": 30,
+        "overlay_blur": 0,
+        "overlay_top_bottom_border": true,
+        "parallax_orientation": "left",
+        "parallax_scale": 1.1,
+        "color_scheme": "",
+        "caption_max_width": "900",
+        "subtitle": "Optional Subtitle",
+        "subtitle_font_size": "fs-sm",
+        "title": "Parallax Media",
+        "title_font_size": "h1",
+        "description": "<p>An optional description for this slide</p>",
+        "description_font_size": "fs-lg",
+        "btn_primary_text": "Primary button",
+        "btn_primary_style": "button--primary",
+        "btn_primary_url": "",
+        "btn_secondary_text": "Secondary button",
+        "btn_secondary_style": "button--secondary",
+        "btn_secondary_url": "",
+        "pt": 36,
+        "pb": 36
+      }
     }
   },
   "order": [
     "image_banner_hDyVfU",
+    "ks_fancy_slideshow_CjgK6D",
     "image_with_text_9bWqwm",
     "ks_fancy_slideshow_FaQtVG",
     "ks_separator_hw3jyN",
@@ -609,6 +695,7 @@
     "ks_separator_wjFBYC",
     "featured_collection_Jxhrxe",
     "ks_parallax_media_VzVbNE",
-    "ks_testimonials_XBY9Fx"
+    "ks_testimonials_XBY9Fx",
+    "ks_parallax_media_NmcciF"
   ]
 }
