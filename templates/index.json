@@ -47,7 +47,7 @@
         "buttons_qVXbBU"
       ],
       "disabled": true,
-      "name": "t:sections.image-banner.presets.name",
+      "name": "BFCM25 Discount Banner",
       "settings": {
         "image": "shopify://shop_images/holiday_desktop_30percent__collection_banner.jpg",
         "image_overlay_opacity": 0,
@@ -62,6 +62,58 @@
         "show_text_below": false
       }
     },
+    "image_banner_gLx4T3": {
+      "type": "image-banner",
+      "blocks": {
+        "heading_F9zP8k": {
+          "type": "heading",
+          "disabled": true,
+          "settings": {
+            "heading": "Image banner",
+            "heading_size": "h1"
+          }
+        },
+        "text_xt4rnB": {
+          "type": "text",
+          "disabled": true,
+          "settings": {
+            "text": "Give customers details about the banner image(s) or content on the template.",
+            "text_style": "body"
+          }
+        },
+        "buttons_WVNnL7": {
+          "type": "buttons",
+          "disabled": true,
+          "settings": {
+            "button_label_1": "Button label",
+            "button_link_1": "",
+            "button_style_secondary_1": false,
+            "button_label_2": "Button label",
+            "button_link_2": "",
+            "button_style_secondary_2": false
+          }
+        }
+      },
+      "block_order": [
+        "heading_F9zP8k",
+        "text_xt4rnB",
+        "buttons_WVNnL7"
+      ],
+      "name": "Missed the deadline option 2",
+      "settings": {
+        "image": "shopify://shop_images/still_time_to_make_it_meaningful2_abe7315b-4f13-4f13-816c-33ca836cb687.jpg",
+        "image_overlay_opacity": 0,
+        "image_height": "adapt",
+        "image_behavior": "none",
+        "desktop_content_position": "middle-center",
+        "desktop_content_alignment": "center",
+        "show_text_box": true,
+        "color_scheme": "",
+        "stack_images_on_mobile": true,
+        "mobile_content_alignment": "center",
+        "show_text_below": false
+      }
+    },
     "ks_fancy_slideshow_CjgK6D": {
       "type": "ks-fancy-slideshow",
       "blocks": {
@@ -70,8 +122,8 @@
           "settings": {
             "img_mobile": "shopify://shop_images/Nov_wk2_Sale-_Free_Digi_76f9ed82-8fd4-46fa-ad63-feaa3c637c43.png",
             "img_desktop": "shopify://shop_images/Nov_wk2_Sale-_Free_Digi_76f9ed82-8fd4-46fa-ad63-feaa3c637c43.jpg",
-            "overlay_color": "#121212",
-            "overlay_opacity": 60,
+            "overlay_color": "#000000",
+            "overlay_opacity": 30,
             "overlay_blur": 0,
             "caption_position_mobile": "center",
             "caption_text_align_mobile": "text-center",
@@ -683,6 +735,7 @@
   },
   "order": [
     "image_banner_hDyVfU",
+    "image_banner_gLx4T3",
     "ks_fancy_slideshow_CjgK6D",
     "image_with_text_9bWqwm",
     "ks_fancy_slideshow_FaQtVG",
