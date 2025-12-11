@@ -99,6 +99,7 @@
         "text_xt4rnB",
         "buttons_WVNnL7"
       ],
+      "disabled": true,
       "name": "Missed the deadline option 2",
       "settings": {
         "image": "shopify://shop_images/still_time_to_make_it_meaningful2_abe7315b-4f13-4f13-816c-33ca836cb687.jpg",
@@ -701,6 +702,7 @@
     },
     "ks_parallax_media_NmcciF": {
       "type": "ks-parallax-media",
+      "disabled": true,
       "name": "KS - Parallax media",
       "settings": {
         "img_mobile": "shopify://shop_images/Digital_Download_Holiday_Queue_Email_Deliveryv5.jpg",
