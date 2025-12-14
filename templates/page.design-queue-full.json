@@ -117,6 +117,63 @@
         "padding_bottom": 36
       }
     },
+    "image_with_text_gbzPbi": {
+      "type": "image-with-text",
+      "blocks": {
+        "caption_UQM9Gp": {
+          "type": "caption",
+          "settings": {
+            "caption": "Must Have Gifts in Hand?",
+            "text_style": "caption-with-letter-spacing",
+            "text_size": "medium"
+          }
+        },
+        "heading_y4FckK": {
+          "type": "heading",
+          "settings": {
+            "heading": "We have a Rush Option",
+            "heading_size": "h1"
+          }
+        },
+        "text_9mfEzy": {
+          "type": "text",
+          "settings": {
+            "text": "<p>For a $99 fee, your digital print or Perkie Print Previews will be sent to you within 24 hours of when we confirm your photo selection via email. LIMITED QUANTITY AVAILABLE! Price does not include shipping cost.  Last Day to use rush fee for xmas delivery is Dec. 14th. </p>",
+            "text_style": "body"
+          }
+        },
+        "button_fn6Lih": {
+          "type": "button",
+          "settings": {
+            "button_label": "Add Rush Fee to my order.",
+            "button_link": "shopify://products/rush-order-add-on",
+            "button_style_secondary": false
+          }
+        }
+      },
+      "block_order": [
+        "caption_UQM9Gp",
+        "heading_y4FckK",
+        "text_9mfEzy",
+        "button_fn6Lih"
+      ],
+      "name": "t:sections.image-with-text.presets.name",
+      "settings": {
+        "image": "shopify://shop_images/Opening_Digital_File-min.jpg",
+        "height": "adapt",
+        "desktop_image_width": "medium",
+        "layout": "text_first",
+        "image_behavior": "none",
+        "content_layout": "no-overlap",
+        "desktop_content_position": "top",
+        "desktop_content_alignment": "center",
+        "mobile_content_alignment": "center",
+        "section_color_scheme": "",
+        "color_scheme": "",
+        "padding_top": 36,
+        "padding_bottom": 36
+      }
+    },
     "main": {
       "type": "main-page",
       "disabled": true,
@@ -130,6 +187,7 @@
       "blocks": {
         "column_8LLRbC": {
           "type": "column",
+          "disabled": true,
           "settings": {
             "title": "We have 2 Rush Options Available",
             "text": "<p>Calling all procrastinators. Add a rush fee to your order to make this holiday worry-free! <br/><br/>(Swipe to see options &gt;)</p>",
@@ -139,6 +197,7 @@
         },
         "column_38PakH": {
           "type": "column",
+          "disabled": true,
           "settings": {
             "image": "shopify://shop_images/Rush_Options_70.jpg",
             "title": "Option 1: 48 Hour Rush Fee",
@@ -319,6 +378,7 @@
   "order": [
     "ks_fancy_slideshow_9m8X8x",
     "image_with_text_tr64Lw",
+    "image_with_text_gbzPbi",
     "main",
     "multicolumn_7eJie6",
     "ks_fancy_slideshow_LKVxL4",
