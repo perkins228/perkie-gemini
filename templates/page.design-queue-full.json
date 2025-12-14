@@ -159,7 +159,7 @@
       ],
       "name": "t:sections.image-with-text.presets.name",
       "settings": {
-        "image": "shopify://shop_images/Opening_Digital_File-min.jpg",
+        "image": "shopify://shop_images/Rush_Options_99.jpg",
         "height": "adapt",
         "desktop_image_width": "medium",
         "layout": "text_first",
@@ -222,6 +222,7 @@
         "column_38PakH",
         "column_dDqmBK"
       ],
+      "disabled": true,
       "name": "t:sections.multicolumn.presets.name",
       "settings": {
         "title": "Must Have Gifts in Hand?",
