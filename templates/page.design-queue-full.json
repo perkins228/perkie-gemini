@@ -157,6 +157,7 @@
         "text_9mfEzy",
         "button_fn6Lih"
       ],
+      "disabled": true,
       "name": "t:sections.image-with-text.presets.name",
       "settings": {
         "image": "shopify://shop_images/Rush_Options_99.jpg",
