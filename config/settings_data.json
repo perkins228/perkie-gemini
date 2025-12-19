@@ -139,7 +139,7 @@
     "cart_delivery_calendar_show": false,
     "cart_sub_upgrade_show": false,
     "cart_page_disable": true,
-    "cart_announcement": "<p>Spend $100, get a FREE Glass Ornament with code: ORNAMENT</p>",
+    "cart_announcement": "<p>FREE $25 Gift Card when you purchase $100 Gift Card! <a href=\"/products/gift-card\" title=\"Digital Gift Card\">Add both to cart. </a></p>",
     "cart_announcement_bg_color": "#ff5964",
     "cart_announcement_corner_radius": 6,
     "cart_low_stock_text_color": "#ff5964",
