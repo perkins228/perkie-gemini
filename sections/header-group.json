@@ -23,10 +23,9 @@
         },
         "announcement_c6HNJ6": {
           "type": "announcement",
-          "disabled": true,
           "settings": {
-            "text": "20% Off Everything! Mother's Day Sale [time]",
-            "link": "shopify://collections/all"
+            "text": "Get a FREE $25 eGift Card with Every $100 eGift Card Purchase!",
+            "link": "shopify://pages/holiday-design-queue-closed"
           }
         }
       },
@@ -36,8 +35,8 @@
       ],
       "settings": {
         "auto_rotate": true,
-        "change_slides_speed": 6,
-        "color_scheme": "scheme-2",
+        "change_slides_speed": 3,
+        "color_scheme": "scheme-bbe9ca6b-0116-4f9e-8bc7-ac1f3a240349",
         "show_line_separator": true,
         "show_social": false,
         "enable_country_selector": false,

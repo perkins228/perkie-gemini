@@ -298,6 +298,63 @@
         "padding_bottom": 48
       }
     },
+    "image_with_text_dFBb4C": {
+      "type": "image-with-text",
+      "blocks": {
+        "caption_J9cKTf": {
+          "type": "caption",
+          "settings": {
+            "caption": "Now That December 7th Has Passed...",
+            "text_style": "caption-with-letter-spacing",
+            "text_size": "medium"
+          }
+        },
+        "heading_RyzdBt": {
+          "type": "heading",
+          "settings": {
+            "heading": "So you missed the Christmas Deadline?",
+            "heading_size": "h1"
+          }
+        },
+        "text_RGLP3x": {
+          "type": "text",
+          "settings": {
+            "text": "<p>There is still time to make it meaningful. Check out our RUSH Options or our <strong>FREE </strong>Digital Download Offer.</p>",
+            "text_style": "body"
+          }
+        },
+        "button_rEa79g": {
+          "type": "button",
+          "settings": {
+            "button_label": "See My Options",
+            "button_link": "shopify://pages/holiday-design-queue-closed",
+            "button_style_secondary": false
+          }
+        }
+      },
+      "block_order": [
+        "caption_J9cKTf",
+        "heading_RyzdBt",
+        "text_RGLP3x",
+        "button_rEa79g"
+      ],
+      "name": "t:sections.image-with-text.presets.name",
+      "settings": {
+        "image": "shopify://shop_images/Digital_Download_Holiday_Queue_Email_Delivery-phone2.png",
+        "height": "adapt",
+        "desktop_image_width": "medium",
+        "layout": "image_first",
+        "image_behavior": "none",
+        "content_layout": "no-overlap",
+        "desktop_content_position": "top",
+        "desktop_content_alignment": "left",
+        "mobile_content_alignment": "left",
+        "section_color_scheme": "scheme-872ca72f-3acf-40b0-9717-028f5840921f",
+        "color_scheme": "scheme-872ca72f-3acf-40b0-9717-028f5840921f",
+        "padding_top": 36,
+        "padding_bottom": 36
+      }
+    },
     "rich_text_P4RJFY": {
       "type": "rich-text",
       "blocks": {
@@ -681,6 +738,7 @@
     "rich_text_xR8UtR",
     "multicolumn_Pkq6QT",
     "rich_text_mytBLp",
+    "image_with_text_dFBb4C",
     "rich_text_P4RJFY",
     "collage_qryV7g",
     "multicolumn_DECNHF",
