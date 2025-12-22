@@ -6,6 +6,7 @@
 {{ 'pet-processor-v5.css' | asset_url | stylesheet_tag }}
 {{ 'pet-processor-mobile.css' | asset_url | stylesheet_tag }}
 {{ 'effect-comparison.css' | asset_url | stylesheet_tag }}
+{{ 'crop-processor.css' | asset_url | stylesheet_tag }}
 {%- comment -%} Simple social sharing replaces complex 38KB implementation {%- endcomment -%}
 {{ 'pet-social-sharing-simple.css' | asset_url | stylesheet_tag }}
 {%- comment -%} Inline email capture for FREE download flow {%- endcomment -%}
@@ -59,7 +60,10 @@
 <script src="{{ 'gemini-api-client.js' | asset_url }}"></script>
 <script src="{{ 'gemini-effects-ui.js' | asset_url }}"></script>
 
-{% comment %} Mobile-First Pet Processor (ES6+) - Loads after Gemini modules {% endcomment %}
+{% comment %} Crop Processor - Load before pet processor {% endcomment %}
+<script src="{{ 'crop-processor.js' | asset_url }}"></script>
+
+{% comment %} Mobile-First Pet Processor (ES6+) - Loads after Gemini and Crop modules {% endcomment %}
 <script src="{{ 'pet-processor.js' | asset_url }}"></script>
 
 {% comment %} Simple Social Sharing (2KB vs 38KB) - Client-side only {% endcomment %}

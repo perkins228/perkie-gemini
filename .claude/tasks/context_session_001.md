@@ -3921,3 +3921,77 @@ form.addEventListener('submit', function(e) {
 
 **Status**: ✅ COMPLETE - All code changes ready for deployment
 
+
+
+### 2025-12-22 - Crop Feature Implementation
+
+**Task**: Add crop functionality to pet image processor
+
+**Research Completed**:
+- 3 Explore agents analyzed codebase architecture
+- 3 specialist agents (UX, Mobile, Product) provided recommendations
+- Comprehensive plan created with 3 options
+
+**User Decisions**:
+1. Aspect Ratios: Circle, Square, Rectangle
+2. Timing: Pre-processing (before API call)
+3. Skip Button: Subtle link
+4. API Pre-warming: Yes (during crop)
+
+**Recommended Option**: Native Canvas Pre-Processing Crop
+- 95/100 UX Score
+- 26-37 hours development
+- +10-15% conversion lift
+- 17-23x annual ROI
+
+**Key Files to Create**:
+- assets/crop-processor.js
+- assets/crop-gestures.js
+- assets/crop-ui.js
+- assets/crop-processor-mobile.css
+
+**Key Files to Modify**:
+- assets/pet-processor.js
+- sections/ks-pet-processor-v5.liquid
+
+**Plan File**: C:\Users\perki\.claude\plans\functional-greeting-charm.md
+
+**Status**: Implementation starting...
+
+
+#### Implementation Progress - Phase 1 Complete
+
+**Files Created**:
+1. `assets/crop-processor.js` (700+ lines)
+   - CropProcessor class with full Canvas API implementation
+   - Touch gestures: pinch-zoom, pan, drag
+   - Aspect ratios: Circle, Square, Rectangle (free)
+   - Rule of thirds grid overlay
+   - API pre-warming built-in
+   - Mobile-first with iOS Safari scroll lock
+
+2. `assets/crop-processor.css` (300+ lines)
+   - Mobile-first responsive design
+   - iOS Safe Area support
+   - Dark theme matching pet processor
+   - Touch-friendly 44px+ buttons
+   - Reduced motion preference support
+
+**Files Modified**:
+1. `assets/pet-processor.js`
+   - Added crop step in processFile() before API call
+   - Added showCropInterface() method
+   - Feature flag: localStorage 'perkieprints_crop_enabled'
+
+2. `sections/ks-pet-processor-v5.liquid`
+   - Added crop-processor.css stylesheet
+   - Added crop-processor.js script (before pet-processor.js)
+
+**Feature Flags**:
+- Crop enabled by default
+- Disable with: localStorage.setItem('perkieprints_crop_enabled', 'false')
+
+**Next Steps**:
+- Deploy to Shopify test environment
+- Test on real mobile devices
+- A/B test crop vs no-crop for conversion impact

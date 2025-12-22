@@ -1260,6 +1260,24 @@ class PetProcessor {
       return;
     }
 
+    // Check if crop is enabled (feature flag)
+    const cropEnabled = localStorage.getItem('perkieprints_crop_enabled') !== 'false';
+
+    // Show crop interface if enabled
+    if (cropEnabled && window.CropProcessor) {
+      try {
+        const fileToProcess = await this.showCropInterface(file);
+        if (fileToProcess === null) {
+          // User cancelled crop
+          return;
+        }
+        file = fileToProcess;
+      } catch (cropError) {
+        console.warn('Crop error, proceeding with original:', cropError);
+        // Continue with original file if crop fails
+      }
+    }
+
     // Show processing view
     this.showProcessing();
 
@@ -1300,7 +1318,50 @@ class PetProcessor {
     }
     return sessionId;
   }
-  
+
+  /**
+   * Show crop interface and return cropped file
+   * Pre-warms API in background during crop
+   * @param {File} file - Original image file
+   * @returns {Promise<File|null>} Cropped file, original file (skip), or null (cancel)
+   */
+  async showCropInterface(file) {
+    return new Promise((resolve, reject) => {
+      // Get or create crop container
+      let cropContainer = document.querySelector('.crop-container');
+      if (!cropContainer) {
+        cropContainer = document.createElement('div');
+        cropContainer.className = 'crop-container';
+        cropContainer.setAttribute('aria-hidden', 'true');
+        document.body.appendChild(cropContainer);
+      }
+
+      // Initialize crop processor
+      const cropProcessor = new window.CropProcessor({
+        apiUrl: this.apiUrl,
+        onCrop: (croppedFile) => {
+          console.log('✂️ Crop applied');
+          resolve(croppedFile);
+        },
+        onSkip: () => {
+          console.log('⏭️ Crop skipped, using original');
+          resolve(file);
+        },
+        onCancel: () => {
+          console.log('❌ Crop cancelled');
+          resolve(null);
+        }
+      });
+
+      cropProcessor.init(cropContainer);
+
+      // Load image and show crop UI
+      cropProcessor.loadImage(file).then(() => {
+        cropProcessor.show();
+      }).catch(reject);
+    });
+  }
+
   async callAPI(file) {
     // Simple EXIF rotation fix for mobile photos
     const fixedFile = await this.fixImageRotation(file);
