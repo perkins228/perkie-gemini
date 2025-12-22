@@ -214,6 +214,8 @@ class CropProcessor {
       if (source instanceof File || source instanceof Blob) {
         img.src = URL.createObjectURL(source);
       } else if (typeof source === 'string') {
+        // Set crossOrigin for external URLs (GCS, CDN) to prevent tainted canvas
+        img.crossOrigin = 'anonymous';
         img.src = source;
       } else {
         reject(new Error('Invalid image source'));

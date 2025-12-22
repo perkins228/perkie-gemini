@@ -529,22 +529,17 @@
   background: rgba(var(--color-foreground), 0.15);
 }
 
-/* Secondary Actions Row */
-.secondary-actions {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 1rem;
+/* Crop Button - below style cards */
+.effect-grid-wrapper .crop-btn {
+  display: block;
+  width: 100%;
   margin-top: 1rem;
-  flex-wrap: wrap;
+  padding: 0.875rem 1.5rem;
+  font-size: 0.95rem;
 }
 
-.secondary-actions .crop-btn {
-  padding: 0.75rem 1.25rem;
-  font-size: 0.9rem;
-}
-
-.secondary-actions .btn-link {
+/* Try Another Pet Link */
+.btn-link.process-another-btn {
   background: none;
   border: none;
   color: rgba(var(--color-foreground), 0.6);
@@ -553,9 +548,12 @@
   padding: 0.5rem 1rem;
   text-decoration: none;
   transition: color 0.2s ease;
+  margin-top: 1rem;
+  display: block;
+  text-align: center;
 }
 
-.secondary-actions .btn-link:hover {
+.btn-link.process-another-btn:hover {
   color: rgb(var(--color-foreground));
 }
 

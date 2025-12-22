@@ -1038,6 +1038,11 @@ class PetProcessor {
                   </div>
                 </label>
               </div>
+
+              <!-- Crop Button - directly below style buttons -->
+              <button class="btn-secondary crop-btn" aria-label="Crop image">
+                ✂️ Crop Image
+              </button>
             </div>
 
             <!-- Actions (shown in result view) -->
@@ -1097,15 +1102,10 @@ class PetProcessor {
                 </form>
               </div>
 
-              <!-- Secondary Actions Row -->
-              <div class="secondary-actions">
-                <button class="btn-secondary crop-btn" aria-label="Crop image">
-                  ✂️ Crop
-                </button>
-                <button class="btn-link process-another-btn" aria-label="Process another pet image">
-                  ↻ Try Another Pet
-                </button>
-              </div>
+              <!-- Try Another Pet Link -->
+              <button class="btn-link process-another-btn" aria-label="Process another pet image">
+                ↻ Try Another Pet
+              </button>
             </div>
 
             <!-- Error View -->
