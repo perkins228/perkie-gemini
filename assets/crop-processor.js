@@ -734,6 +734,11 @@ class CropProcessor {
     outputCanvas.height = height * dpr;
     const outputCtx = outputCanvas.getContext('2d');
 
+    // Fill canvas with white background (required for JPEG export)
+    // Transparent areas will render as black without this fill
+    outputCtx.fillStyle = '#ffffff';
+    outputCtx.fillRect(0, 0, width * dpr, height * dpr);
+
     // Calculate image position relative to crop box
     const img = this.state.image;
     const canvasWidth = this.canvas.width / dpr;
