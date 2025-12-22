@@ -5,12 +5,12 @@
  * Features:
  * - Pinch-to-zoom (mobile)
  * - Pan/drag gestures
- * - Aspect ratio presets: Circle, Square, Rectangle (free)
+ * - Aspect ratio presets: Circle, Square, 4:3 Landscape, 3:4 Portrait
  * - Rule of thirds grid overlay
- * - API pre-warming during crop
+ * - Post-processing crop (after background removal)
  * - Session persistence
  *
- * Version: 1.0.0
+ * Version: 1.1.0
  */
 
 class CropProcessor {
@@ -25,9 +25,10 @@ class CropProcessor {
       handleSize: 48, // Touch-friendly (WCAG 2.2)
       animationDuration: 200,
       aspectRatios: {
-        circle: 1,      // 1:1 but displayed as circle
-        square: 1,      // 1:1
-        rectangle: null // Free-form
+        circle: 1,        // 1:1 displayed as circle
+        square: 1,        // 1:1
+        landscape: 4/3,   // 4:3 horizontal
+        portrait: 3/4     // 3:4 vertical
       },
       ...options
     };
@@ -36,7 +37,7 @@ class CropProcessor {
     this.state = {
       image: null,
       imageLoaded: false,
-      aspectRatio: 'rectangle', // Default: free-form
+      aspectRatio: 'square', // Default: square
       isCircle: false,
       zoom: 1.0,
       pan: { x: 0, y: 0 },
@@ -61,10 +62,6 @@ class CropProcessor {
       onSkip: options.onSkip || null,
       onReady: options.onReady || null
     };
-
-    // API pre-warming
-    this.apiWarmingStarted = false;
-    this.apiUrl = options.apiUrl || 'https://inspirenet-bg-removal-api-725543555429.us-central1.run.app';
   }
 
   /**
@@ -76,9 +73,6 @@ class CropProcessor {
     this.createDOM();
     this.initCanvas();
     this.bindEvents();
-
-    // Start API pre-warming in background
-    this.warmAPIBackground();
   }
 
   /**
@@ -112,9 +106,13 @@ class CropProcessor {
               <span class="aspect-icon square-icon"></span>
               <span class="aspect-label">Square</span>
             </button>
-            <button class="crop-aspect-btn" data-aspect="rectangle" aria-label="Rectangle crop">
-              <span class="aspect-icon rect-icon"></span>
-              <span class="aspect-label">Rectangle</span>
+            <button class="crop-aspect-btn" data-aspect="landscape" aria-label="Landscape 4:3 crop">
+              <span class="aspect-icon landscape-icon"></span>
+              <span class="aspect-label">4:3</span>
+            </button>
+            <button class="crop-aspect-btn" data-aspect="portrait" aria-label="Portrait 3:4 crop">
+              <span class="aspect-icon portrait-icon"></span>
+              <span class="aspect-label">3:4</span>
             </button>
           </div>
 
@@ -279,27 +277,36 @@ class CropProcessor {
 
     const centerX = canvasWidth / 2;
     const centerY = canvasHeight / 2;
+    const maxSize = Math.min(canvasWidth, canvasHeight) * 0.85;
+
+    let width, height;
 
     if (ratio === 'circle' || ratio === 'square') {
-      // Square/circle: use smaller dimension
-      const size = Math.min(canvasWidth, canvasHeight) * 0.75;
-      this.state.cropBox = {
-        x: centerX - size / 2,
-        y: centerY - size / 2,
-        width: size,
-        height: size
-      };
+      // Square/circle: 1:1 ratio
+      width = height = maxSize * 0.88;
+    } else if (ratio === 'landscape') {
+      // Landscape: 4:3 ratio (wider than tall)
+      width = maxSize;
+      height = width * (3/4);
+    } else if (ratio === 'portrait') {
+      // Portrait: 3:4 ratio (taller than wide)
+      height = maxSize;
+      width = height * (3/4);
     } else {
-      // Rectangle: use 4:3 aspect ratio
-      const width = canvasWidth * 0.85;
-      const height = width * 0.75; // 4:3 ratio
-      this.state.cropBox = {
-        x: centerX - width / 2,
-        y: centerY - height / 2,
-        width: width,
-        height: Math.min(height, canvasHeight * 0.85)
-      };
+      // Fallback to square
+      width = height = maxSize * 0.88;
     }
+
+    // Ensure crop box fits within canvas
+    width = Math.min(width, canvasWidth * 0.9);
+    height = Math.min(height, canvasHeight * 0.85);
+
+    this.state.cropBox = {
+      x: centerX - width / 2,
+      y: centerY - height / 2,
+      width: width,
+      height: height
+    };
 
     // Update UI
     this.updateAspectButtons();
@@ -864,30 +871,6 @@ class CropProcessor {
     document.body.style.overflow = '';
     document.body.style.position = '';
     document.body.style.width = '';
-  }
-
-  /**
-   * Pre-warm API in background
-   * Called when crop interface opens to eliminate cold start wait
-   */
-  async warmAPIBackground() {
-    if (this.apiWarmingStarted) return;
-    this.apiWarmingStarted = true;
-
-    try {
-      console.log('🔥 Pre-warming API during crop...');
-
-      // Send health check to wake up Cloud Run
-      await fetch(`${this.apiUrl}/health`, {
-        method: 'GET',
-        signal: AbortSignal.timeout(60000) // 60s timeout
-      });
-
-      console.log('✅ API pre-warmed successfully');
-    } catch (error) {
-      // Silently fail - main processing will still work
-      console.log('⚠️ API pre-warm failed (will work anyway):', error.message);
-    }
   }
 
   /**

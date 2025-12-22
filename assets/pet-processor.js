@@ -1097,10 +1097,15 @@ class PetProcessor {
                 </form>
               </div>
 
-              <!-- Tertiary CTA: Try Another Pet -->
-              <button class="btn-link process-another-btn" aria-label="Process another pet image">
-                ↻ Try Another Pet
-              </button>
+              <!-- Secondary Actions Row -->
+              <div class="secondary-actions">
+                <button class="btn-secondary crop-btn" aria-label="Crop image">
+                  ✂️ Crop
+                </button>
+                <button class="btn-link process-another-btn" aria-label="Process another pet image">
+                  ↻ Try Another Pet
+                </button>
+              </div>
             </div>
 
             <!-- Error View -->
@@ -1221,6 +1226,7 @@ class PetProcessor {
     
     // Action buttons
     this.container.querySelector('.add-to-product-btn')?.addEventListener('click', () => this.handleAddToProduct());
+    this.container.querySelector('.crop-btn')?.addEventListener('click', () => this.handleCropClick());
     this.container.querySelector('.process-another-btn')?.addEventListener('click', async () => await this.processAnother());
     this.container.querySelector('.try-again-btn')?.addEventListener('click', () => this.reset());
 
@@ -1258,24 +1264,6 @@ class PetProcessor {
     if (file.size > 10 * 1024 * 1024) {
       this.showError('Image must be less than 10MB');
       return;
-    }
-
-    // Check if crop is enabled (feature flag)
-    const cropEnabled = localStorage.getItem('perkieprints_crop_enabled') !== 'false';
-
-    // Show crop interface if enabled
-    if (cropEnabled && window.CropProcessor) {
-      try {
-        const fileToProcess = await this.showCropInterface(file);
-        if (fileToProcess === null) {
-          // User cancelled crop
-          return;
-        }
-        file = fileToProcess;
-      } catch (cropError) {
-        console.warn('Crop error, proceeding with original:', cropError);
-        // Continue with original file if crop fails
-      }
     }
 
     // Show processing view
@@ -1320,12 +1308,19 @@ class PetProcessor {
   }
 
   /**
-   * Show crop interface and return cropped file
-   * Pre-warms API in background during crop
-   * @param {File} file - Original image file
-   * @returns {Promise<File|null>} Cropped file, original file (skip), or null (cancel)
+   * Show crop interface for post-processing crop
+   * Called after effects are applied, allows user to crop the result
+   * @param {string} imageUrl - URL of the processed image to crop
+   * @returns {Promise<{croppedUrl: string, croppedFile: File}|null>} Cropped result or null if cancelled
    */
-  async showCropInterface(file) {
+  async showCropInterface(imageUrl) {
+    // Check if crop is enabled (feature flag)
+    const cropEnabled = localStorage.getItem('perkieprints_crop_enabled') !== 'false';
+    if (!cropEnabled || !window.CropProcessor) {
+      console.log('Crop disabled or CropProcessor not available');
+      return null;
+    }
+
     return new Promise((resolve, reject) => {
       // Get or create crop container
       let cropContainer = document.querySelector('.crop-container');
@@ -1338,14 +1333,22 @@ class PetProcessor {
 
       // Initialize crop processor
       const cropProcessor = new window.CropProcessor({
-        apiUrl: this.apiUrl,
-        onCrop: (croppedFile) => {
-          console.log('✂️ Crop applied');
-          resolve(croppedFile);
+        onCrop: async (croppedFile) => {
+          console.log('✂️ Post-processing crop applied');
+
+          // Convert cropped file to data URL for display
+          const reader = new FileReader();
+          reader.onload = () => {
+            resolve({
+              croppedUrl: reader.result,
+              croppedFile: croppedFile
+            });
+          };
+          reader.readAsDataURL(croppedFile);
         },
         onSkip: () => {
-          console.log('⏭️ Crop skipped, using original');
-          resolve(file);
+          console.log('⏭️ Crop skipped');
+          resolve(null);
         },
         onCancel: () => {
           console.log('❌ Crop cancelled');
@@ -1355,11 +1358,56 @@ class PetProcessor {
 
       cropProcessor.init(cropContainer);
 
-      // Load image and show crop UI
-      cropProcessor.loadImage(file).then(() => {
+      // Load processed image and show crop UI
+      cropProcessor.loadImage(imageUrl).then(() => {
         cropProcessor.show();
       }).catch(reject);
     });
+  }
+
+  /**
+   * Handle crop button click - crops the currently selected effect
+   */
+  async handleCropClick() {
+    if (!this.currentPet || !this.currentPet.selectedEffect) {
+      console.warn('No effect selected for cropping');
+      return;
+    }
+
+    const selectedEffect = this.currentPet.selectedEffect;
+    const effectData = this.currentPet.effects?.[selectedEffect];
+
+    if (!effectData) {
+      console.warn('Effect data not found:', selectedEffect);
+      return;
+    }
+
+    // Get the image URL (prefer GCS URL, fallback to data URL)
+    const imageUrl = effectData.gcsUrl || effectData.dataUrl;
+    if (!imageUrl) {
+      console.warn('No image URL found for effect:', selectedEffect);
+      return;
+    }
+
+    try {
+      const cropResult = await this.showCropInterface(imageUrl);
+
+      if (cropResult) {
+        // Update the effect with cropped version
+        this.currentPet.effects[selectedEffect].croppedUrl = cropResult.croppedUrl;
+        this.currentPet.effects[selectedEffect].croppedFile = cropResult.croppedFile;
+
+        // Update the displayed image
+        const petImage = this.container.querySelector('.pet-image');
+        if (petImage) {
+          petImage.src = cropResult.croppedUrl;
+        }
+
+        console.log('✅ Crop applied to effect:', selectedEffect);
+      }
+    } catch (error) {
+      console.error('Crop error:', error);
+    }
   }
 
   async callAPI(file) {
