@@ -90,9 +90,9 @@ spec:
         - name: ENABLE_WARMUP_ON_STARTUP
           value: "true"
 
-        # CORS configuration (update with actual domains)
+        # CORS configuration - allow all origins for staging
         - name: CORS_ORIGINS
-          value: "https://perkieprints.com,https://www.perkieprints.com,https://perkie-prints-v3.myshopify.com"
+          value: "*"
 
         # Logging
         - name: LOG_LEVEL
