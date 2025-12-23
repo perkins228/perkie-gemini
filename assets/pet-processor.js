@@ -1487,8 +1487,11 @@ class PetProcessor {
     const effectNames = Object.keys(effectsData);
 
     for (const [effectName, base64Data] of Object.entries(effectsData)) {
-      // Convert base64 to data URL
-      const dataUrl = `data:image/png;base64,${base64Data}`;
+      // Convert base64 to data URL (handle both raw base64 and full data URLs)
+      // BiRefNet API returns full data URLs, InSPyReNet returns raw base64
+      const dataUrl = base64Data.startsWith('data:image/')
+        ? base64Data  // Already a full data URL
+        : `data:image/png;base64,${base64Data}`;  // Raw base64, add prefix
 
       // Create upload promise (will execute in parallel)
       const uploadPromise = this.uploadToGCS(

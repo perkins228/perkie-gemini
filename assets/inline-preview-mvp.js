@@ -716,9 +716,12 @@
       }
 
       // API returns base64 data for each effect
+      // BiRefNet returns full data URLs, InSPyReNet returns raw base64
       const effects = {};
       for (const [effectName, base64Data] of Object.entries(result.effects)) {
-        effects[effectName] = `data:image/png;base64,${base64Data}`;
+        effects[effectName] = base64Data.startsWith('data:image/')
+          ? base64Data  // Already a full data URL
+          : `data:image/png;base64,${base64Data}`;  // Raw base64, add prefix
       }
 
       return effects;
