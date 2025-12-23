@@ -685,11 +685,13 @@
     }
 
     /**
-     * Remove background using InSPyReNet API
+     * Remove background using BiRefNet API (STAGING) / InSPyReNet API (PRODUCTION)
      * Uses /api/v2/process-with-effects endpoint like pet-processor.js
      */
     async removeBackground(file) {
-      const API_URL = 'https://inspirenet-bg-removal-api-725543555429.us-central1.run.app/api/v2/process-with-effects';
+      // STAGING: BiRefNet (faster, higher quality)
+      // PRODUCTION: 'https://inspirenet-bg-removal-api-725543555429.us-central1.run.app/api/v2/process-with-effects'
+      const API_URL = 'https://birefnet-bg-removal-api-753651513695.us-central1.run.app/api/v2/process-with-effects';
 
       // Use FormData with POST like pet-processor.js does
       const formData = new FormData();

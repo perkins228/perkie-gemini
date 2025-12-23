@@ -1,0 +1,120 @@
+# BiRefNet Background Removal API - Cloud Run Deployment
+#
+# Deploy with:
+#   gcloud run services replace deploy.yaml --region us-central1
+#
+# Or build and deploy:
+#   gcloud builds submit --tag gcr.io/PROJECT_ID/birefnet-bg-removal-api
+#   gcloud run deploy birefnet-bg-removal-api --image gcr.io/PROJECT_ID/birefnet-bg-removal-api --region us-central1
+
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: birefnet-bg-removal-api
+  annotations:
+    run.googleapis.com/ingress: all
+    run.googleapis.com/description: "BiRefNet Background Removal API - High quality pet photo processing"
+spec:
+  template:
+    metadata:
+      annotations:
+        # Execution environment
+        run.googleapis.com/execution-environment: gen2
+
+        # Scaling configuration
+        # COST OPTIMIZED: Scale to zero when not in use
+        # BiRefNet cold start is faster than InSPyReNet (~15-20s vs 30-60s)
+        autoscaling.knative.dev/minScale: "0"
+        autoscaling.knative.dev/maxScale: "3"
+
+        # One request per instance (GPU bound)
+        autoscaling.knative.dev/maxConcurrency: "1"
+
+        # Performance optimizations
+        run.googleapis.com/startup-cpu-boost: "true"
+        run.googleapis.com/cpu-throttling: "false"
+
+        # Health check configuration
+        run.googleapis.com/health-check-path: "/health"
+        run.googleapis.com/health-check-interval: "30s"
+        run.googleapis.com/health-check-timeout: "10s"
+        run.googleapis.com/health-check-failure-threshold: "3"
+
+        # Startup probe - extended for model loading
+        run.googleapis.com/startup-probe-path: "/health"
+        run.googleapis.com/startup-probe-initial-delay: "30s"
+        run.googleapis.com/startup-probe-timeout: "20s"
+        run.googleapis.com/startup-probe-period: "15s"
+        run.googleapis.com/startup-probe-failure-threshold: "8"
+
+        # Request timeout
+        run.googleapis.com/timeout: "300s"
+
+        # Memory configuration
+        run.googleapis.com/memory: "16Gi"
+
+        # GPU configuration (disable zonal redundancy for GPU)
+        run.googleapis.com/gpu-zonal-redundancy-disabled: "true"
+
+    spec:
+      containers:
+      - image: us-central1-docker.pkg.dev/gen-lang-client-0601138686/pet-bg-removal/birefnet-bg-removal-api:latest
+        ports:
+        - containerPort: 8080
+          name: http1
+        resources:
+          limits:
+            cpu: '4'
+            memory: '16Gi'
+            nvidia.com/gpu: '1'
+          requests:
+            cpu: '2'
+            memory: '8Gi'
+            nvidia.com/gpu: '1'
+        env:
+        # Server configuration
+        - name: HOST
+          value: "0.0.0.0"
+
+        # Model configuration
+        - name: BIREFNET_MODEL_VARIANT
+          value: "birefnet-general"
+        - name: BIREFNET_MAX_DIMENSION
+          value: "2048"
+
+        # Processing limits
+        - name: MAX_IMAGE_SIZE_MB
+          value: "30"
+
+        # Warmup configuration
+        - name: ENABLE_WARMUP_ON_STARTUP
+          value: "true"
+
+        # CORS configuration (update with actual domains)
+        - name: CORS_ORIGINS
+          value: "https://perkieprints.com,https://www.perkieprints.com,https://perkie-prints-v3.myshopify.com"
+
+        # Logging
+        - name: LOG_LEVEL
+          value: "info"
+
+        # Python optimizations
+        - name: PYTHONOPTIMIZE
+          value: "2"
+        - name: PYTHONDONTWRITEBYTECODE
+          value: "1"
+
+        # Model cache directories (must match Dockerfile)
+        - name: U2NET_HOME
+          value: "/app/models/u2net"
+        - name: REMBG_MODELS_DIR
+          value: "/app/models/rembg"
+
+      # Service account (if using GCS)
+      # serviceAccountName: birefnet-api@PROJECT_ID.iam.gserviceaccount.com
+
+      # Container concurrency
+      containerConcurrency: 1
+
+      # Timeout for requests
+      timeoutSeconds: 300

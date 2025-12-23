@@ -1,0 +1,49 @@
+# Git
+.git
+.gitignore
+
+# Python
+__pycache__
+*.py[cod]
+*$py.class
+*.so
+.Python
+.venv
+venv
+ENV
+.eggs
+*.egg-info
+.pytest_cache
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+
+# Test files
+tests/
+*.test.py
+test_*.py
+
+# Documentation
+*.md
+docs/
+
+# Docker
+Dockerfile.dev
+docker-compose*.yml
+
+# Deployment configs (not needed in image)
+deploy*.yaml
+deploy*.yml
+
+# Local config
+.env
+.env.local
+*.local
+
+# Logs and cache
+logs/
+*.log
+.cache
