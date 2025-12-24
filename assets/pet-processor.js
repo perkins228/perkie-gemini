@@ -468,6 +468,10 @@ class PetProcessor {
     this.geminiUI = null;
     this.geminiEnabled = false;
 
+    // Track pending GCS uploads for deferred completion
+    // Uploads happen in background, awaited only at cart time
+    this.pendingGcsUploads = null;
+
     // Initialize
     this.init();
   }
@@ -1497,9 +1501,10 @@ class PetProcessor {
     // API returns: {success: true, effects: {enhancedblackwhite: "base64...", ...}}
     const effectsData = data.effects || {};
     
-    // Upload all effects to GCS in parallel to avoid localStorage quota issues
-    const uploadPromises = [];
+    // OPTIMIZATION: Display results immediately with data URLs
+    // GCS uploads happen in BACKGROUND (saves ~14s from perceived time)
     const effectNames = Object.keys(effectsData);
+    const dataUrls = {};  // Store data URLs for immediate display
 
     for (const [effectName, base64Data] of Object.entries(effectsData)) {
       // Convert base64 to data URL (handle both raw base64 and full data URLs)
@@ -1508,43 +1513,51 @@ class PetProcessor {
         ? base64Data  // Already a full data URL
         : `data:image/png;base64,${base64Data}`;  // Raw base64, add prefix
 
-      // Create upload promise (will execute in parallel)
-      const uploadPromise = this.uploadToGCS(
-        dataUrl,
+      dataUrls[effectName] = dataUrl;
+
+      // Set up effects with data URLs immediately (user sees results NOW)
+      effects[effectName] = {
+        gcsUrl: '',  // Will be populated when background upload completes
+        dataUrl: dataUrl  // Display immediately
+      };
+    }
+
+    // Fire GCS uploads in BACKGROUND (don't await - saves ~14.6s)
+    // Uploads complete silently, awaited only at cart time
+    timing.gcsUpload.start = Date.now();
+    console.log('🚀 Starting background GCS uploads (not blocking UI)...');
+
+    const uploadPromises = effectNames.map(effectName =>
+      this.uploadToGCS(
+        dataUrls[effectName],
         this.getSessionId(),
         'processed',
         effectName
-      ).then(gcsUrl => ({
-        effectName,
-        gcsUrl,
-        dataUrl
-      }));
+      ).then(gcsUrl => {
+        // Update effect with GCS URL when upload completes
+        if (gcsUrl) {
+          effects[effectName].gcsUrl = gcsUrl;
+          effects[effectName].dataUrl = null;  // Clear data URL to save memory
+          console.log(`✅ ${effectName} uploaded to GCS (background): ${gcsUrl}`);
+        } else {
+          console.warn(`⚠️ ${effectName} background upload failed, keeping dataUrl`);
+        }
+        return { effectName, gcsUrl };
+      }).catch(err => {
+        console.error(`❌ ${effectName} background upload error:`, err);
+        return { effectName, gcsUrl: null };
+      })
+    );
 
-      uploadPromises.push(uploadPromise);
-    }
+    // Store pending uploads - awaited at cart time via ensureUploadsComplete()
+    this.pendingGcsUploads = Promise.all(uploadPromises).then(results => {
+      timing.gcsUpload.end = Date.now();
+      console.log(`⏱️ Background GCS uploads completed: ${timing.gcsUpload.end - timing.gcsUpload.start}ms`);
+      this.pendingGcsUploads = null;  // Clear once complete
+      return results;
+    });
 
-    // Update progress: uploading effects
-    this.updateProgressWithTimer(78, '📤 Uploading effects to cloud storage...', null);
-
-    // Wait for all uploads to complete
-    timing.gcsUpload.start = Date.now();
-    const uploadResults = await Promise.all(uploadPromises);
-    timing.gcsUpload.end = Date.now();
-    console.log(`⏱️ GCS uploads: ${timing.gcsUpload.end - timing.gcsUpload.start}ms`);
-
-    // Process upload results
-    for (const result of uploadResults) {
-      effects[result.effectName] = {
-        gcsUrl: result.gcsUrl || '', // Use GCS URL (CORS now fixed)
-        dataUrl: result.gcsUrl ? null : result.dataUrl  // Only keep dataUrl if upload failed
-      };
-
-      if (result.gcsUrl) {
-        console.log(`✅ ${result.effectName} uploaded to GCS: ${result.gcsUrl}`);
-      } else {
-        console.warn(`⚠️ ${result.effectName} upload failed, using dataUrl fallback`);
-      }
-    }
+    // DON'T AWAIT - continue immediately to show results to user
 
     // Generate Gemini AI effects (Modern + Classic) if enabled
     if (this.geminiEnabled && this.geminiClient) {
@@ -1655,19 +1668,22 @@ class PetProcessor {
     const exifTime = timing.exifFix.end - timing.exifFix.start;
     const birefnetTime = timing.birefnet.end - timing.birefnet.start;
     const geminiTime = timing.gemini.end ? (timing.gemini.end - timing.gemini.start) : 0;
-    const gcsTime = timing.gcsUpload.end - timing.gcsUpload.start;
-    const accountedTime = exifTime + birefnetTime + geminiTime + gcsTime;
+    // GCS uploads now happen in background - show "in progress" if not done
+    const gcsTime = timing.gcsUpload.end ? (timing.gcsUpload.end - timing.gcsUpload.start) : 0;
+    const gcsStatus = timing.gcsUpload.end ? `${gcsTime}ms` : 'background';
+    const accountedTime = exifTime + birefnetTime + geminiTime;  // Don't include GCS (it's background)
     const unaccountedTime = totalTime - accountedTime;
 
     console.log('%c📊 TIMING BREAKDOWN', 'font-weight: bold; font-size: 14px; color: #007bff;');
     console.log(`┌─────────────────────────────────────────────────────┐`);
     console.log(`│ EXIF Fix:       ${String(exifTime).padStart(6)}ms  (${((exifTime/totalTime)*100).toFixed(1)}%)`);
     console.log(`│ BiRefNet API:   ${String(birefnetTime).padStart(6)}ms  (${((birefnetTime/totalTime)*100).toFixed(1)}%)`);
-    console.log(`│ GCS Uploads:    ${String(gcsTime).padStart(6)}ms  (${((gcsTime/totalTime)*100).toFixed(1)}%)`);
+    console.log(`│ GCS Uploads:    ${gcsStatus.padStart(10)}  (background - not blocking)`);
     console.log(`│ Gemini API:     ${String(geminiTime).padStart(6)}ms  (${((geminiTime/totalTime)*100).toFixed(1)}%)`);
     console.log(`│ Unaccounted:    ${String(unaccountedTime).padStart(6)}ms  (${((unaccountedTime/totalTime)*100).toFixed(1)}%)`);
     console.log(`├─────────────────────────────────────────────────────┤`);
     console.log(`│ TOTAL:          ${String(totalTime).padStart(6)}ms  (100%)`);
+    console.log(`│ 🚀 GCS uploads running in background - user sees results NOW`);
     console.log(`└─────────────────────────────────────────────────────┘`);
 
     return {
@@ -2919,6 +2935,19 @@ class PetProcessor {
   }
 
   /**
+   * Ensure all background GCS uploads are complete
+   * Called before cart operations to guarantee GCS URLs are available
+   * @returns {Promise<void>}
+   */
+  async ensureUploadsComplete() {
+    if (this.pendingGcsUploads) {
+      console.log('⏳ Waiting for background GCS uploads to complete...');
+      await this.pendingGcsUploads;
+      console.log('✅ Background GCS uploads complete');
+    }
+  }
+
+  /**
    * Upload selected effect's images to GCS
    * Called from buy-buttons.liquid during cart integration
    * @param {string} sessionKey - Pet session identifier
@@ -2928,6 +2957,9 @@ class PetProcessor {
   async syncSelectedToCloud(sessionKey, effect, callback) {
     try {
       console.log(`📤 Syncing to cloud: ${sessionKey}, effect: ${effect}`);
+
+      // Ensure any background uploads are complete before proceeding
+      await this.ensureUploadsComplete();
 
       // Find pet in processed pets
       const pet = this.processedPets.find(p => p.id === sessionKey);
