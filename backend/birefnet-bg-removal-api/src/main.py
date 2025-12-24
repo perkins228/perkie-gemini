@@ -28,7 +28,7 @@ import logging
 import hashlib
 import base64
 from contextlib import asynccontextmanager
-from typing import Optional
+from typing import Optional, Tuple
 
 from fastapi import FastAPI, File, UploadFile, HTTPException, Query
 from fastapi.responses import Response, JSONResponse
@@ -49,6 +49,46 @@ logger = logging.getLogger(__name__)
 ENABLE_WARMUP_ON_STARTUP = os.getenv("ENABLE_WARMUP_ON_STARTUP", "true").lower() == "true"
 MAX_IMAGE_SIZE_MB = int(os.getenv("MAX_IMAGE_SIZE_MB", "30"))
 CORS_ORIGINS = os.getenv("CORS_ORIGINS", "*").split(",")
+
+# Effect processing resolution cap (to avoid slow effects on full-res images)
+# This matches BiRefNet's preprocessing size for consistency
+EFFECT_MAX_DIMENSION = int(os.getenv("EFFECT_MAX_DIMENSION", "2048"))
+
+
+def resize_for_effect_processing(image: Image.Image, max_dimension: int = EFFECT_MAX_DIMENSION) -> Tuple[Image.Image, bool, Tuple[int, int]]:
+    """
+    Resize image to a manageable size for effect processing.
+
+    This optimization prevents effects (like Tri-X B&W) from processing
+    full-resolution images (e.g., 12MP = 37+ seconds) when they can process
+    at a capped resolution much faster (e.g., 4MP = ~8 seconds).
+
+    Args:
+        image: Input PIL Image
+        max_dimension: Maximum dimension for effect processing
+
+    Returns:
+        (resized_image, was_resized, original_size)
+    """
+    original_size = image.size
+    max_dim = max(original_size)
+
+    if max_dim <= max_dimension:
+        return image, False, original_size
+
+    scale = max_dimension / max_dim
+    new_size = (
+        int(original_size[0] * scale),
+        int(original_size[1] * scale)
+    )
+
+    # Use LANCZOS for high-quality downscaling
+    resized = image.resize(new_size, Image.Resampling.LANCZOS)
+
+    logger.info(f"Resized for effect processing: {original_size} -> {new_size} "
+               f"(scale: {scale:.2f}, ~{(new_size[0]*new_size[1]/1_000_000):.1f}MP)")
+
+    return resized, True, original_size
 
 
 @asynccontextmanager
@@ -508,13 +548,20 @@ async def process_with_effect(
             # Color effect - return bg-removed image (no additional processing)
             result_image = bg_removed.copy()
         elif normalized_effect == "blackwhite":
+            # Resize for optimized effect processing
+            bg_for_effect, was_resized, original_size = resize_for_effect_processing(bg_removed)
+
             result_image = apply_blackwhite_effect(
-                bg_removed,
+                bg_for_effect,
                 contrast=contrast,
                 edge_strength=edge_strength,
                 halation=halation,
                 grain=grain
             )
+
+            # Upscale back to original resolution if we downscaled
+            if was_resized:
+                result_image = result_image.resize(original_size, Image.Resampling.LANCZOS)
         else:
             raise HTTPException(status_code=400, detail=f"Effect '{effect}' not implemented")
 
@@ -649,7 +696,15 @@ async def process_with_multiple_effects(
 
         bg_time_ms = bg_result.inference_time_ms
 
-        # Step 2: Apply each effect
+        # Step 2: Resize for effect processing (optimization)
+        # Processing effects on 12MP images takes 30+ seconds
+        # Processing at 4MP takes ~8 seconds with minimal quality loss
+        bg_for_effects, was_resized, original_size = resize_for_effect_processing(bg_removed)
+
+        if was_resized:
+            logger.info(f"Effects will process at {bg_for_effects.size} instead of {original_size}")
+
+        # Step 3: Apply each effect at optimized resolution
         effect_results = {}
         effect_timings = {}
 
@@ -661,15 +716,23 @@ async def process_with_multiple_effects(
 
             if normalized_name == "color":
                 # Color effect - return bg-removed image (no additional processing)
+                # Use original resolution since there's no heavy processing
                 result_image = bg_removed.copy()
             elif normalized_name == "blackwhite":
+                # Apply effect at optimized resolution
                 result_image = apply_blackwhite_effect(
-                    bg_removed,
+                    bg_for_effects,
                     contrast=contrast,
                     edge_strength=edge_strength,
                     halation=halation,
                     grain=grain
                 )
+                # Upscale back to original resolution if we downscaled
+                if was_resized:
+                    upscale_start = time.time()
+                    result_image = result_image.resize(original_size, Image.Resampling.LANCZOS)
+                    upscale_time = (time.time() - upscale_start) * 1000
+                    logger.debug(f"Upscaled {effect_name} to {original_size} in {upscale_time:.0f}ms")
             else:
                 continue  # Skip unknown effects (shouldn't happen after validation)
 
