@@ -1413,13 +1413,25 @@ class PetProcessor {
   }
 
   async callAPI(file) {
+    // Detailed timing breakdown for debugging
+    const timing = {
+      totalStart: Date.now(),
+      exifFix: { start: 0, end: 0 },
+      birefnet: { start: 0, end: 0 },
+      gcsUpload: { start: 0, end: 0 },
+      gemini: { start: 0, end: 0 }
+    };
+
     // Simple EXIF rotation fix for mobile photos
+    timing.exifFix.start = Date.now();
     const fixedFile = await this.fixImageRotation(file);
-    
+    timing.exifFix.end = Date.now();
+    console.log(`⏱️ EXIF rotation fix: ${timing.exifFix.end - timing.exifFix.start}ms`);
+
     const formData = new FormData();
     formData.append('file', fixedFile);
     formData.append('effects', 'enhancedblackwhite,color');
-    
+
     // Detect API warmth state BEFORE showing any timer
     const warmthTracker = new APIWarmthTracker();
     const warmthState = warmthTracker.getWarmthState();
@@ -1456,25 +1468,28 @@ class PetProcessor {
     this.updateProgressWithTimer(10, initialMessage, timeRemaining);
     
     // Add return_all_effects=true to get JSON response with all effects
+    timing.birefnet.start = Date.now();
     const responsePromise = fetch(`${this.apiUrl}/api/v2/process-with-effects?return_all_effects=true&effects=enhancedblackwhite,color`, {
       method: 'POST',
       body: formData
     });
-    
+
     // Setup unified progressive messaging based on timer duration
     this.setupProgressMessages(estimatedTime);
-    
+
     const response = await responsePromise;
-    
+
     if (!response.ok) {
       this.stopProgressTimer();
       throw new Error(`API error: ${response.status}`);
     }
-    
+
     // Continue with value-focused progress messages
     this.updateProgressWithTimer(75, '🏁 Finalizing your custom preview...', null);
-    
+
     const data = await response.json();
+    timing.birefnet.end = Date.now();
+    console.log(`⏱️ BiRefNet API (including network): ${timing.birefnet.end - timing.birefnet.start}ms`);
     
     // Process response - effects are nested in data.effects object
     const effects = {};
@@ -1512,7 +1527,10 @@ class PetProcessor {
     this.updateProgressWithTimer(78, '📤 Uploading effects to cloud storage...', null);
 
     // Wait for all uploads to complete
+    timing.gcsUpload.start = Date.now();
     const uploadResults = await Promise.all(uploadPromises);
+    timing.gcsUpload.end = Date.now();
+    console.log(`⏱️ GCS uploads: ${timing.gcsUpload.end - timing.gcsUpload.start}ms`);
 
     // Process upload results
     for (const result of uploadResults) {
@@ -1537,6 +1555,7 @@ class PetProcessor {
 
         // Update progress for AI generation
         this.updateProgressWithTimer(85, '✨ Generating AI artistic styles...', null);
+        timing.gemini.start = Date.now();
 
         // Get background-removed image for Gemini
         const processedImage = data.processed_image || effectsData.color || effectsData.enhancedblackwhite;
@@ -1589,9 +1608,12 @@ class PetProcessor {
 
         // Reset Gemini generation flag
         this.geminiGenerating = false;
+        timing.gemini.end = Date.now();
+        console.log(`⏱️ Gemini API (including network): ${timing.gemini.end - timing.gemini.start}ms`);
       } catch (error) {
         // Reset Gemini generation flag on error
         this.geminiGenerating = false;
+        timing.gemini.end = Date.now();
 
         console.error('🎨 Gemini generation failed (graceful degradation):', error);
 
@@ -1628,7 +1650,26 @@ class PetProcessor {
     const expectedSeconds = Math.round(estimatedTime / 1000);
     const finishedEarly = totalSeconds < expectedSeconds;
     console.log(`✅ Processing completed in ${totalSeconds} seconds ${finishedEarly ? '(ahead of schedule!)' : '(on time)'}`);
-    
+
+    // Log detailed timing breakdown
+    const exifTime = timing.exifFix.end - timing.exifFix.start;
+    const birefnetTime = timing.birefnet.end - timing.birefnet.start;
+    const geminiTime = timing.gemini.end ? (timing.gemini.end - timing.gemini.start) : 0;
+    const gcsTime = timing.gcsUpload.end - timing.gcsUpload.start;
+    const accountedTime = exifTime + birefnetTime + geminiTime + gcsTime;
+    const unaccountedTime = totalTime - accountedTime;
+
+    console.log('%c📊 TIMING BREAKDOWN', 'font-weight: bold; font-size: 14px; color: #007bff;');
+    console.log(`┌─────────────────────────────────────────────────────┐`);
+    console.log(`│ EXIF Fix:       ${String(exifTime).padStart(6)}ms  (${((exifTime/totalTime)*100).toFixed(1)}%)`);
+    console.log(`│ BiRefNet API:   ${String(birefnetTime).padStart(6)}ms  (${((birefnetTime/totalTime)*100).toFixed(1)}%)`);
+    console.log(`│ GCS Uploads:    ${String(gcsTime).padStart(6)}ms  (${((gcsTime/totalTime)*100).toFixed(1)}%)`);
+    console.log(`│ Gemini API:     ${String(geminiTime).padStart(6)}ms  (${((geminiTime/totalTime)*100).toFixed(1)}%)`);
+    console.log(`│ Unaccounted:    ${String(unaccountedTime).padStart(6)}ms  (${((unaccountedTime/totalTime)*100).toFixed(1)}%)`);
+    console.log(`├─────────────────────────────────────────────────────┤`);
+    console.log(`│ TOTAL:          ${String(totalTime).padStart(6)}ms  (100%)`);
+    console.log(`└─────────────────────────────────────────────────────┘`);
+
     return {
       effects,
       selectedEffect: 'enhancedblackwhite'
