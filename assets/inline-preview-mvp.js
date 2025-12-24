@@ -531,6 +531,15 @@
       const warmthTracker = new window.APIWarmthTracker();
       let startTime = null;
 
+      // Detailed timing breakdown for debugging
+      const timing = {
+        totalStart: Date.now(),
+        orientation: { start: 0, end: 0 },
+        birefnet: { start: 0, end: 0 },
+        gemini: { start: 0, end: 0 },
+        gcsUpload: { start: 0, end: 0 }
+      };
+
       try {
         // Show processing view
         this.showView('processing');
@@ -538,7 +547,10 @@
         // Correct image orientation based on EXIF metadata
         console.log('🔄 Correcting image orientation...');
         this.updateProgress('Preparing image...', '⏱️ A few seconds...');
+        timing.orientation.start = Date.now();
         const correctedFile = await this.correctImageOrientation(file);
+        timing.orientation.end = Date.now();
+        console.log(`⏱️ Orientation correction: ${timing.orientation.end - timing.orientation.start}ms`);
         if (this.processingCancelled) return;
 
         // Detect API warmth for accurate countdown (both InSPyReNet and Gemini)
@@ -595,13 +607,16 @@
         console.log('🎨 Processing with AI...');
         this.updateProgress('Removing background...');
         startTime = Date.now();
+        timing.birefnet.start = Date.now();
         this.startProgressTimer(estimatedTime);
 
         const effects = await this.removeBackground(correctedFile);
+        timing.birefnet.end = Date.now();
         if (this.processingCancelled) return;
 
-        const inspyreNetTime = Date.now() - startTime;
-        console.log('✅ Background removal complete:', effects, `(${inspyreNetTime}ms)`);
+        const inspyreNetTime = timing.birefnet.end - timing.birefnet.start;
+        console.log(`⏱️ BiRefNet API (including network): ${inspyreNetTime}ms`);
+        console.log('✅ Background removal complete:', effects);
 
         // Record InSPyReNet API call for future warmth detection
         warmthTracker.recordServiceCall('inspirenet', true, inspyreNetTime);
@@ -619,10 +634,11 @@
 
         // Generate AI effects if enabled
         if (this.geminiEnabled) {
-          const geminiStartTime = Date.now();
+          timing.gemini.start = Date.now();
           await this.generateAIEffects(this.currentPet.processedImage);
-          const geminiTime = Date.now() - geminiStartTime;
-          console.log(`✅ AI effects complete (${geminiTime}ms)`);
+          timing.gemini.end = Date.now();
+          const geminiTime = timing.gemini.end - timing.gemini.start;
+          console.log(`⏱️ Gemini API (including network): ${geminiTime}ms`);
 
           // Record Gemini API call for future warmth detection
           warmthTracker.recordServiceCall('gemini', true, geminiTime);
@@ -631,13 +647,16 @@
         // Upload all effects to GCS to prevent localStorage quota issues
         console.log('☁️ Uploading effects to GCS...');
         this.updateProgress('Saving images to cloud...', '⏱️ A few seconds...');
+        timing.gcsUpload.start = Date.now();
 
         try {
           const uploadedEffects = await this.uploadAllEffectsToGCS(this.currentPet.effects);
           // Merge uploaded effects back (preserves Ink Wash/Marker that are already GCS URLs)
           this.currentPet.effects = { ...this.currentPet.effects, ...uploadedEffects };
-          console.log('✅ Effects uploaded to GCS');
+          timing.gcsUpload.end = Date.now();
+          console.log(`⏱️ GCS uploads: ${timing.gcsUpload.end - timing.gcsUpload.start}ms`);
         } catch (error) {
+          timing.gcsUpload.end = Date.now();
           console.error('❌ GCS upload failed, using data URLs as fallback:', error);
           // Continue with data URLs if upload fails (localStorage quota risk accepted)
         }
@@ -646,6 +665,27 @@
         this.stopProgressTimer();
         this.updateProgress('Complete!', '✅ Ready to preview');
         this.showResult();
+
+        // Log detailed timing breakdown
+        const totalTime = Date.now() - timing.totalStart;
+        const orientationTime = timing.orientation.end - timing.orientation.start;
+        const birefnetTime = timing.birefnet.end - timing.birefnet.start;
+        const geminiTime = timing.gemini.end ? (timing.gemini.end - timing.gemini.start) : 0;
+        const gcsTime = timing.gcsUpload.end - timing.gcsUpload.start;
+        const accountedTime = orientationTime + birefnetTime + geminiTime + gcsTime;
+        const unaccountedTime = totalTime - accountedTime;
+
+        console.log('%c📊 TIMING BREAKDOWN', 'font-weight: bold; font-size: 14px; color: #007bff;');
+        console.log(`┌─────────────────────────────────────────────────────┐`);
+        console.log(`│ Orientation:    ${String(orientationTime).padStart(6)}ms  (${((orientationTime/totalTime)*100).toFixed(1)}%)`);
+        console.log(`│ BiRefNet API:   ${String(birefnetTime).padStart(6)}ms  (${((birefnetTime/totalTime)*100).toFixed(1)}%)`);
+        console.log(`│ Gemini API:     ${String(geminiTime).padStart(6)}ms  (${((geminiTime/totalTime)*100).toFixed(1)}%)`);
+        console.log(`│ GCS Uploads:    ${String(gcsTime).padStart(6)}ms  (${((gcsTime/totalTime)*100).toFixed(1)}%)`);
+        console.log(`│ Unaccounted:    ${String(unaccountedTime).padStart(6)}ms  (${((unaccountedTime/totalTime)*100).toFixed(1)}%)`);
+        console.log(`├─────────────────────────────────────────────────────┤`);
+        console.log(`│ TOTAL:          ${String(totalTime).padStart(6)}ms  (100%)`);
+        console.log(`└─────────────────────────────────────────────────────┘`);
+        console.log(`✅ Processing completed in ${Math.round(totalTime/1000)} seconds`);
 
       } catch (error) {
         console.error('❌ Processing error:', error);
