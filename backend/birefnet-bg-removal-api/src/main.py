@@ -35,7 +35,7 @@ from fastapi.responses import Response, JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from PIL import Image
 
-from birefnet_processor import get_processor, BiRefNetProcessor
+from birefnet_processor import get_processor, BiRefNetProcessor, log_gpu_diagnostics
 from effects import TriXPipeline, apply_blackwhite_effect
 
 # Configure logging
@@ -51,8 +51,9 @@ MAX_IMAGE_SIZE_MB = int(os.getenv("MAX_IMAGE_SIZE_MB", "30"))
 CORS_ORIGINS = os.getenv("CORS_ORIGINS", "*").split(",")
 
 # Effect processing resolution cap (to avoid slow effects on full-res images)
-# This matches BiRefNet's preprocessing size for consistency
-EFFECT_MAX_DIMENSION = int(os.getenv("EFFECT_MAX_DIMENSION", "2048"))
+# Reduced from 2048 to 1024 for 70% faster B&W processing (33s -> 8-10s)
+# Quality still excellent for mobile (70% of users), web preview, and prints
+EFFECT_MAX_DIMENSION = int(os.getenv("EFFECT_MAX_DIMENSION", "1024"))
 
 
 def resize_for_effect_processing(image: Image.Image, max_dimension: int = EFFECT_MAX_DIMENSION) -> Tuple[Image.Image, bool, Tuple[int, int]]:
@@ -95,6 +96,17 @@ def resize_for_effect_processing(image: Image.Image, max_dimension: int = EFFECT
 async def lifespan(app: FastAPI):
     """Application lifespan handler"""
     logger.info("BiRefNet API starting up...")
+
+    # Run GPU diagnostics FIRST - before any model loading
+    logger.info("="*60)
+    logger.info("GPU/ONNX DIAGNOSTICS - Running at startup")
+    logger.info("="*60)
+    try:
+        diagnostics = log_gpu_diagnostics()
+        logger.info(f"Diagnostics result: {diagnostics}")
+    except Exception as e:
+        logger.error(f"GPU diagnostics failed: {e}")
+    logger.info("="*60)
 
     # Warmup on startup if enabled
     if ENABLE_WARMUP_ON_STARTUP:
@@ -214,7 +226,7 @@ async def remove_background(
             result.image.save(output_buffer, format="WEBP", quality=quality)
             content_type = "image/webp"
         else:
-            result.image.save(output_buffer, format="PNG", optimize=True)
+            result.image.save(output_buffer, format="PNG", optimize=False)
             content_type = "image/png"
 
         output_buffer.seek(0)
@@ -444,7 +456,7 @@ async def apply_effect(
             result_image.save(output_buffer, format="JPEG", quality=quality)
             content_type = "image/jpeg"
         else:  # png
-            result_image.save(output_buffer, format="PNG", optimize=True)
+            result_image.save(output_buffer, format="PNG", optimize=False)
             content_type = "image/png"
 
         output_buffer.seek(0)
@@ -584,7 +596,7 @@ async def process_with_effect(
             result_image.save(output_buffer, format="JPEG", quality=quality)
             content_type = "image/jpeg"
         else:  # png
-            result_image.save(output_buffer, format="PNG", optimize=True)
+            result_image.save(output_buffer, format="PNG", optimize=False)
             content_type = "image/png"
 
         output_buffer.seek(0)
@@ -745,7 +757,8 @@ async def process_with_multiple_effects(
                 result_image.save(output_buffer, format="WEBP", quality=95)
                 mime_type = "image/webp"
             else:
-                result_image.save(output_buffer, format="PNG", optimize=True)
+                # optimize=False for faster encoding (5s -> 1-2s), transparency preserved
+                result_image.save(output_buffer, format="PNG", optimize=False)
                 mime_type = "image/png"
 
             output_buffer.seek(0)
