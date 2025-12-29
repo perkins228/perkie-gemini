@@ -6,8 +6,12 @@ fastapi==0.109.0
 uvicorn[standard]==0.27.0
 python-multipart==0.0.6
 
-# BiRefNet via rembg
-rembg[gpu]==2.0.57
+# BiRefNet via HuggingFace transformers (replaces rembg for GPU support)
+transformers>=4.39.0
+timm>=0.9.12
+accelerate>=0.28.0
+einops>=0.7.0
+kornia>=0.7.0
 
 # Image processing
 Pillow>=10.0.0

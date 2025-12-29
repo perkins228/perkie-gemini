@@ -1,7 +1,8 @@
 """
-BiRefNet Background Removal Processor
+BiRefNet Background Removal Processor (Transformers/PyTorch)
 
-High-quality background removal using BiRefNet via rembg package.
+High-quality background removal using BiRefNet via HuggingFace transformers.
+Direct PyTorch inference at 2048px resolution with native GPU support.
 Optimized for pet photos with fine fur/hair detail preservation.
 """
 
@@ -10,7 +11,7 @@ import gc
 import time
 import logging
 import threading
-from typing import Optional, Tuple
+from typing import Optional, Tuple, List
 from dataclasses import dataclass
 
 import numpy as np
@@ -18,6 +19,48 @@ from PIL import Image
 import psutil
 
 logger = logging.getLogger(__name__)
+
+
+def log_gpu_diagnostics() -> dict:
+    """
+    Log comprehensive GPU/CUDA diagnostics at startup.
+    Returns diagnostic info dict for health checks.
+    """
+    diagnostics = {
+        "torch_available": False,
+        "cuda_available": False,
+        "cuda_device_count": 0,
+        "cuda_device_name": None,
+        "cuda_memory_gb": None,
+        "inference_device": "cpu",
+    }
+
+    try:
+        import torch
+        diagnostics["torch_available"] = True
+        diagnostics["cuda_available"] = torch.cuda.is_available()
+        diagnostics["cuda_device_count"] = torch.cuda.device_count()
+
+        if torch.cuda.is_available():
+            diagnostics["cuda_device_name"] = torch.cuda.get_device_name(0)
+            diagnostics["cuda_memory_gb"] = torch.cuda.get_device_properties(0).total_memory / (1024**3)
+            diagnostics["inference_device"] = "cuda"
+
+            logger.info(f"[GPU-DIAG] PyTorch CUDA available: YES")
+            logger.info(f"[GPU-DIAG] CUDA device count: {torch.cuda.device_count()}")
+            logger.info(f"[GPU-DIAG] CUDA device name: {torch.cuda.get_device_name(0)}")
+            logger.info(f"[GPU-DIAG] CUDA memory: {diagnostics['cuda_memory_gb']:.1f} GB")
+            logger.info(f"[GPU-DIAG] CUDA version: {torch.version.cuda}")
+            logger.info(f"[GPU-DIAG] PyTorch version: {torch.__version__}")
+        else:
+            logger.warning("[GPU-DIAG] PyTorch CUDA available: NO - will use CPU")
+
+    except ImportError:
+        logger.warning("[GPU-DIAG] PyTorch not available")
+    except Exception as e:
+        logger.error(f"[GPU-DIAG] PyTorch CUDA check failed: {e}")
+
+    return diagnostics
 
 
 @dataclass
@@ -32,28 +75,22 @@ class ProcessingResult:
 
 class BiRefNetProcessor:
     """
-    BiRefNet background removal processor using rembg package.
+    BiRefNet background removal processor using HuggingFace transformers.
 
-    Supports multiple model variants:
-    - birefnet-general: Best for general use, good balance
-    - birefnet-general-lite: Faster, slightly lower quality
-    - birefnet-portrait: Optimized for human portraits
-    - birefnet-massive: Trained on massive dataset, highest quality
+    Uses direct PyTorch inference for GPU acceleration without ONNX Runtime.
+    Supports high-resolution processing up to 2048px for fine fur detail.
     """
 
     SUPPORTED_VARIANTS = [
-        "birefnet-general",
-        "birefnet-general-lite",
-        "birefnet-portrait",
-        "birefnet-dis",
-        "birefnet-hrsod",
-        "birefnet-cod",
-        "birefnet-massive"
+        "ZhengPeng7/BiRefNet",
+        "ZhengPeng7/BiRefNet-portrait",
+        "ZhengPeng7/BiRefNet-general",
+        "ZhengPeng7/BiRefNet-lite",
     ]
 
     def __init__(
         self,
-        model_variant: str = "birefnet-general",
+        model_variant: str = "ZhengPeng7/BiRefNet-portrait",
         max_dimension: int = 2048,
         enable_preprocessing: bool = True
     ):
@@ -61,56 +98,90 @@ class BiRefNetProcessor:
         Initialize BiRefNet processor.
 
         Args:
-            model_variant: Which BiRefNet variant to use
-            max_dimension: Maximum image dimension for preprocessing
+            model_variant: HuggingFace model path
+            max_dimension: Maximum image dimension for processing (2048 for high detail)
             enable_preprocessing: Whether to resize large images before processing
         """
-        if model_variant not in self.SUPPORTED_VARIANTS:
-            raise ValueError(f"Unsupported variant: {model_variant}. "
-                           f"Supported: {self.SUPPORTED_VARIANTS}")
-
         self.model_variant = model_variant
         self.max_dimension = max_dimension
         self.enable_preprocessing = enable_preprocessing
 
-        self.session = None
+        # Inference resolution - L4 GPU (24GB) handles 2048x2048 easily
+        self.inference_size = (2048, 2048)
+
+        self.model = None
+        self.transform = None
+        self.device = None
         self.model_loaded = False
         self.loading_lock = threading.Lock()
         self.load_start_time: Optional[float] = None
 
         logger.info(f"BiRefNet processor initialized (variant={model_variant}, "
-                   f"max_dim={max_dimension})")
+                   f"max_dim={max_dimension}, inference_size={self.inference_size})")
 
     def load_model(self) -> None:
-        """Load BiRefNet model via rembg"""
+        """Load BiRefNet model via transformers"""
         with self.loading_lock:
-            if self.model_loaded and self.session is not None:
+            if self.model_loaded and self.model is not None:
                 logger.info("Model already loaded, skipping...")
                 return
 
             self.load_start_time = time.time()
-            logger.info(f"Loading BiRefNet model (variant: {self.model_variant})...")
+            logger.info(f"[LOAD-TIMING] Starting model load (variant: {self.model_variant})...")
 
             try:
-                # Clear memory before loading
-                self._clear_memory()
+                import torch
+                from transformers import AutoModelForImageSegmentation
+                from torchvision import transforms
 
-                from rembg import new_session
+                # Stage 1: Determine device
+                stage1_start = time.time()
+                self.device = "cuda" if torch.cuda.is_available() else "cpu"
+                stage1_time = time.time() - stage1_start
+                logger.info(f"[LOAD-TIMING] Stage 1 - Device detection: {stage1_time:.2f}s (using {self.device})")
 
-                # Load the specified variant
-                self.session = new_session(self.model_variant)
+                # Stage 2: Load model from HuggingFace
+                stage2_start = time.time()
+                logger.info(f"[LOAD-TIMING] Stage 2 - Loading model from {self.model_variant}...")
+
+                self.model = AutoModelForImageSegmentation.from_pretrained(
+                    self.model_variant,
+                    trust_remote_code=True
+                )
+                self.model.to(self.device)
+                self.model.eval()
+
+                stage2_time = time.time() - stage2_start
+                logger.info(f"[LOAD-TIMING] Stage 2 - Model load: {stage2_time:.2f}s")
+
+                # Stage 3: Setup transform pipeline
+                stage3_start = time.time()
+                self.transform = transforms.Compose([
+                    transforms.Resize(self.inference_size),
+                    transforms.ToTensor(),
+                    transforms.Normalize(
+                        mean=[0.485, 0.456, 0.406],
+                        std=[0.229, 0.224, 0.225]
+                    ),
+                ])
+                stage3_time = time.time() - stage3_start
+                logger.info(f"[LOAD-TIMING] Stage 3 - Transform setup: {stage3_time:.2f}s")
 
                 load_time = time.time() - self.load_start_time
                 self.model_loaded = True
                 self.load_start_time = None
 
+                logger.info(f"[LOAD-TIMING] Total model load: {load_time:.2f}s")
+                logger.info(f"[LOAD-TIMING] Breakdown: device={stage1_time:.2f}s, "
+                           f"model={stage2_time:.2f}s, transform={stage3_time:.2f}s")
+                logger.info(f"[GPU-DIAG] Model running on: {self.device}")
                 logger.info(f"BiRefNet model loaded successfully in {load_time:.2f}s")
 
             except ImportError as e:
-                logger.error(f"Failed to import rembg: {e}")
+                logger.error(f"Failed to import required packages: {e}")
                 self.model_loaded = False
                 self.load_start_time = None
-                raise RuntimeError(f"rembg package not installed: {e}")
+                raise RuntimeError(f"Required packages not installed: {e}")
 
             except Exception as e:
                 logger.error(f"Failed to load BiRefNet model: {e}")
@@ -166,19 +237,22 @@ class BiRefNetProcessor:
 
         Args:
             image: Input PIL Image (RGB or RGBA)
-            alpha_matting: Enable alpha matting for better edges
-            alpha_matting_foreground_threshold: Foreground threshold (0-255)
-            alpha_matting_background_threshold: Background threshold (0-255)
+            alpha_matting: Enable alpha matting for better edges (not used in transformers version)
+            alpha_matting_foreground_threshold: Foreground threshold (not used)
+            alpha_matting_background_threshold: Background threshold (not used)
 
         Returns:
             ProcessingResult with RGBA image and metadata
         """
+        import torch
+        from torchvision import transforms
+
         # Ensure model is loaded
-        if not self.model_loaded or self.session is None:
+        if not self.model_loaded or self.model is None:
             logger.info("Model not loaded, loading now...")
             self.load_model()
 
-        if not self.model_loaded or self.session is None:
+        if not self.model_loaded or self.model is None:
             raise RuntimeError("BiRefNet model failed to load")
 
         input_size = image.size
@@ -187,33 +261,36 @@ class BiRefNetProcessor:
         if image.mode != 'RGB':
             image = image.convert('RGB')
 
-        # Preprocess (resize if too large)
+        # Preprocess (resize if too large for preprocessing, but we'll still process at inference_size)
         processed_image, scale = self.preprocess_image(image)
 
-        logger.info(f"Processing image {input_size} with BiRefNet "
-                   f"(variant: {self.model_variant})")
+        logger.info(f"Processing image {input_size} with BiRefNet transformers "
+                   f"(variant: {self.model_variant}, device: {self.device})")
 
         start_time = time.time()
 
         try:
-            from rembg import remove
+            # Transform image for model
+            input_tensor = self.transform(processed_image).unsqueeze(0).to(self.device)
 
-            # Process with BiRefNet
-            result = remove(
-                processed_image,
-                session=self.session,
-                alpha_matting=alpha_matting,
-                alpha_matting_foreground_threshold=alpha_matting_foreground_threshold,
-                alpha_matting_background_threshold=alpha_matting_background_threshold
-            )
+            # Run inference
+            with torch.no_grad():
+                preds = self.model(input_tensor)[-1].sigmoid().cpu()
 
-            # Upscale back to original size if we downscaled
-            if scale < 1.0:
-                result = result.resize(input_size, Image.Resampling.LANCZOS)
+            # Post-process: resize mask back to original resolution
+            pred = preds[0].squeeze()
+            pred_pil = transforms.ToPILImage()(pred)
+
+            # Resize mask to original input size (high-res output)
+            mask = pred_pil.resize(input_size, Image.Resampling.BILINEAR)
+
+            # Apply mask to original image (not preprocessed) for full resolution output
+            result = image.copy()
+            result.putalpha(mask)
 
             inference_time = (time.time() - start_time) * 1000
 
-            logger.info(f"BiRefNet processing completed in {inference_time:.0f}ms")
+            logger.info(f"BiRefNet processing completed in {inference_time:.0f}ms on {self.device}")
 
             return ProcessingResult(
                 image=result,
@@ -226,6 +303,9 @@ class BiRefNetProcessor:
         except Exception as e:
             logger.error(f"BiRefNet processing failed: {e}")
             gc.collect()
+            if self.device == "cuda":
+                import torch
+                torch.cuda.empty_cache()
             raise
 
     def warmup(self) -> dict:
@@ -255,10 +335,10 @@ class BiRefNetProcessor:
                 model_load_time = 0
                 logger.info("Warmup: Model already loaded")
 
-            # Process minimal test image
+            # Process minimal test image to warm up CUDA
             logger.info("Warmup: Processing test image...")
             dummy_start = time.time()
-            dummy_image = Image.new('RGB', (64, 64), color=(128, 128, 128))
+            dummy_image = Image.new('RGB', (512, 512), color=(128, 128, 128))
 
             result = self.remove_background(dummy_image)
 
@@ -267,6 +347,9 @@ class BiRefNetProcessor:
 
             # Cleanup
             gc.collect()
+            if self.device == "cuda":
+                import torch
+                torch.cuda.empty_cache()
 
             logger.info(f"Warmup completed in {total_time:.2f}s "
                        f"(load: {model_load_time:.2f}s, process: {dummy_process_time:.2f}s)")
@@ -278,6 +361,7 @@ class BiRefNetProcessor:
                 "model_load_time": model_load_time,
                 "process_time": dummy_process_time,
                 "model_variant": self.model_variant,
+                "device": self.device,
                 "model_ready": True
             }
 
@@ -294,20 +378,26 @@ class BiRefNetProcessor:
 
     def get_model_info(self) -> dict:
         """Get model information and status"""
-        return {
+        info = {
             "model_name": "BiRefNet",
             "model_variant": self.model_variant,
-            "package": "rembg",
+            "package": "transformers",
+            "inference_backend": "pytorch",
+            "inference_size": self.inference_size,
             "max_dimension": self.max_dimension,
             "preprocessing_enabled": self.enable_preprocessing,
             "status": "loaded" if self.model_loaded else "not_loaded",
-            "ready": self.model_loaded and self.session is not None,
+            "ready": self.model_loaded and self.model is not None,
+            "device": self.device if self.device else "not_initialized",
+            "using_gpu": self.device == "cuda" if self.device else False,
             "supported_variants": self.SUPPORTED_VARIANTS
         }
 
+        return info
+
     def is_model_ready(self) -> bool:
         """Check if model is ready for processing"""
-        return self.model_loaded and self.session is not None
+        return self.model_loaded and self.model is not None
 
     def _clear_memory(self) -> None:
         """Clear memory before/after operations"""
@@ -317,6 +407,10 @@ class BiRefNetProcessor:
 
             gc.collect()
             gc.collect()
+
+            if self.device == "cuda":
+                import torch
+                torch.cuda.empty_cache()
 
             mem_after = process.memory_info().rss / 1024**3
 
@@ -339,13 +433,13 @@ def get_processor(
     Get or create the global processor instance.
 
     Uses environment variables for defaults:
-    - BIREFNET_MODEL_VARIANT: Model variant (default: birefnet-general)
+    - BIREFNET_MODEL_VARIANT: Model variant (default: ZhengPeng7/BiRefNet-portrait)
     - BIREFNET_MAX_DIMENSION: Max image dimension (default: 2048)
     """
     global _processor_instance
 
     if _processor_instance is None:
-        variant = model_variant or os.getenv("BIREFNET_MODEL_VARIANT", "birefnet-general")
+        variant = model_variant or os.getenv("BIREFNET_MODEL_VARIANT", "ZhengPeng7/BiRefNet-portrait")
         max_dim = max_dimension or int(os.getenv("BIREFNET_MAX_DIMENSION", "2048"))
 
         _processor_instance = BiRefNetProcessor(

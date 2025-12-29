@@ -76,9 +76,9 @@ spec:
         - name: HOST
           value: "0.0.0.0"
 
-        # Model configuration
+        # Model configuration (transformers/HuggingFace)
         - name: BIREFNET_MODEL_VARIANT
-          value: "birefnet-general"
+          value: "ZhengPeng7/BiRefNet-portrait"
         - name: BIREFNET_MAX_DIMENSION
           value: "2048"
 
@@ -104,11 +104,11 @@ spec:
         - name: PYTHONDONTWRITEBYTECODE
           value: "1"
 
-        # Model cache directories (must match Dockerfile)
-        - name: U2NET_HOME
-          value: "/app/models/u2net"
-        - name: REMBG_MODELS_DIR
-          value: "/app/models/rembg"
+        # HuggingFace cache directories (must match Dockerfile)
+        - name: HF_HOME
+          value: "/app/models/huggingface"
+        - name: TRANSFORMERS_CACHE
+          value: "/app/models/huggingface"
 
       # Service account (if using GCS)
       # serviceAccountName: birefnet-api@PROJECT_ID.iam.gserviceaccount.com

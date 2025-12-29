@@ -47,29 +47,33 @@ RUN pip install --no-cache-dir -r requirements.txt
 # ============================================================
 # MODEL BAKING: Pre-download BiRefNet model during build
 # This eliminates cold start download time (saves 10-20 seconds)
+# Uses HuggingFace transformers for native PyTorch GPU support
 # ============================================================
 
-# Set model cache directories
-ENV U2NET_HOME=/app/models/u2net
-ENV REMBG_MODELS_DIR=/app/models/rembg
-RUN mkdir -p $U2NET_HOME $REMBG_MODELS_DIR
+# Set HuggingFace cache directory
+ENV HF_HOME=/app/models/huggingface
+ENV TRANSFORMERS_CACHE=/app/models/huggingface
+RUN mkdir -p $HF_HOME
 
-# Pre-download the BiRefNet model
-# This runs the model initialization which triggers download
+# Pre-download the BiRefNet model via transformers
+# This downloads model weights during build to avoid cold start delay
 RUN python3 -c "\
 import os; \
-os.makedirs('/app/models/rembg', exist_ok=True); \
-from rembg import new_session; \
-print('Downloading BiRefNet-general model...'); \
-session = new_session('birefnet-general'); \
-print('BiRefNet-general model downloaded successfully'); \
+os.environ['HF_HOME'] = '/app/models/huggingface'; \
+from transformers import AutoModelForImageSegmentation; \
+print('Downloading BiRefNet-portrait model via transformers...'); \
+model = AutoModelForImageSegmentation.from_pretrained('ZhengPeng7/BiRefNet-portrait', trust_remote_code=True); \
+print('BiRefNet-portrait model downloaded successfully'); \
+del model; \
 "
 
-# Verify the model is cached
+# Verify the model is cached and loadable
 RUN python3 -c "\
-from rembg import new_session; \
-session = new_session('birefnet-general'); \
-print('Model verification successful'); \
+import os; \
+os.environ['HF_HOME'] = '/app/models/huggingface'; \
+from transformers import AutoModelForImageSegmentation; \
+model = AutoModelForImageSegmentation.from_pretrained('ZhengPeng7/BiRefNet-portrait', trust_remote_code=True); \
+print('Model verification successful - cached at /app/models/huggingface'); \
 "
 
 # Copy application code
@@ -82,9 +86,12 @@ ENV PYTHONPATH=/app/src:$PYTHONPATH
 RUN python3 -c "\
 import fastapi; \
 import uvicorn; \
-from rembg import new_session; \
+import torch; \
+from transformers import AutoModelForImageSegmentation; \
 import psutil; \
 print('All critical dependencies working'); \
+print(f'PyTorch version: {torch.__version__}'); \
+print(f'CUDA available: {torch.cuda.is_available()}'); \
 "
 
 # Create non-root user for security
@@ -98,11 +105,17 @@ EXPOSE 8080
 # Runtime environment variables
 ENV PORT=8080
 ENV HOST=0.0.0.0
-ENV BIREFNET_MODEL_VARIANT=birefnet-general
+
+# BiRefNet configuration (transformers/HuggingFace)
+ENV BIREFNET_MODEL_VARIANT=ZhengPeng7/BiRefNet-portrait
 ENV BIREFNET_MAX_DIMENSION=2048
 ENV MAX_IMAGE_SIZE_MB=30
 ENV ENABLE_WARMUP_ON_STARTUP=true
 ENV LOG_LEVEL=info
+
+# HuggingFace cache (must match build-time location)
+ENV HF_HOME=/app/models/huggingface
+ENV TRANSFORMERS_CACHE=/app/models/huggingface
 
 # CORS configuration (update for production)
 ENV CORS_ORIGINS=*
