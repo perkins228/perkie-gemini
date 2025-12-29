@@ -1563,7 +1563,9 @@ class PetProcessor {
     // DON'T AWAIT - continue immediately to show results to user
 
     // Generate Gemini AI effects (Modern + Classic) if enabled
-    if (this.geminiEnabled && this.geminiClient) {
+    // TEMPORARY: Skip Gemini for performance testing - remove this line to re-enable
+    const SKIP_GEMINI_FOR_TESTING = true;
+    if (!SKIP_GEMINI_FOR_TESTING && this.geminiEnabled && this.geminiClient) {
       try {
         // Set Gemini generation flag and reset main processing flag
         this.geminiGenerating = true;
