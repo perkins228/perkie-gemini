@@ -45,9 +45,8 @@ RUN pip install --no-cache-dir torch torchvision --index-url https://download.py
 RUN pip install --no-cache-dir -r requirements.txt
 
 # ============================================================
-# MODEL BAKING: Pre-download BiRefNet model during build
-# This eliminates cold start download time (saves 10-20 seconds)
-# Uses HuggingFace transformers for native PyTorch GPU support
+# MODEL BAKING: Pre-download models during build
+# This eliminates cold start download time (saves 30-40 seconds total)
 # ============================================================
 
 # Set HuggingFace cache directory
@@ -55,25 +54,50 @@ ENV HF_HOME=/app/models/huggingface
 ENV TRANSFORMERS_CACHE=/app/models/huggingface
 RUN mkdir -p $HF_HOME
 
-# Pre-download the BiRefNet model via transformers
-# This downloads model weights during build to avoid cold start delay
+# ============================================================
+# 1. Pre-download BiRefNet_HR-matting model
+# Trained on fine hair/fur details (better for pet photos than portrait variant)
+# ============================================================
 RUN python3 -c "\
 import os; \
 os.environ['HF_HOME'] = '/app/models/huggingface'; \
 from transformers import AutoModelForImageSegmentation; \
-print('Downloading BiRefNet-portrait model via transformers...'); \
-model = AutoModelForImageSegmentation.from_pretrained('ZhengPeng7/BiRefNet-portrait', trust_remote_code=True); \
-print('BiRefNet-portrait model downloaded successfully'); \
+print('Downloading BiRefNet_HR-matting model...'); \
+model = AutoModelForImageSegmentation.from_pretrained('ZhengPeng7/BiRefNet_HR-matting', trust_remote_code=True); \
+print('BiRefNet_HR-matting model downloaded successfully'); \
 del model; \
 "
 
-# Verify the model is cached and loadable
+# Verify BiRefNet model is cached
 RUN python3 -c "\
 import os; \
 os.environ['HF_HOME'] = '/app/models/huggingface'; \
 from transformers import AutoModelForImageSegmentation; \
-model = AutoModelForImageSegmentation.from_pretrained('ZhengPeng7/BiRefNet-portrait', trust_remote_code=True); \
-print('Model verification successful - cached at /app/models/huggingface'); \
+model = AutoModelForImageSegmentation.from_pretrained('ZhengPeng7/BiRefNet_HR-matting', trust_remote_code=True); \
+print('BiRefNet_HR-matting verification successful - cached'); \
+del model; \
+"
+
+# ============================================================
+# 2. Pre-download Real-ESRGAN model weights
+# Used for preprocessing: upscaling + denoising before segmentation
+# ============================================================
+RUN python3 -c "\
+from realesrgan import RealESRGANer; \
+from basicsr.archs.rrdbnet_arch import RRDBNet; \
+import torch; \
+print('Downloading Real-ESRGAN x2plus model...'); \
+model = RRDBNet(num_in_ch=3, num_out_ch=3, num_feat=64, num_block=23, num_grow_ch=32, scale=2); \
+upsampler = RealESRGANer( \
+    scale=2, \
+    model_path='https://github.com/xinntao/Real-ESRGAN/releases/download/v0.2.1/RealESRGAN_x2plus.pth', \
+    model=model, \
+    tile=400, \
+    tile_pad=10, \
+    device='cpu' \
+); \
+print('Real-ESRGAN x2plus model downloaded successfully'); \
+del upsampler; \
 "
 
 # Copy application code
@@ -107,8 +131,9 @@ ENV PORT=8080
 ENV HOST=0.0.0.0
 
 # BiRefNet configuration (transformers/HuggingFace)
-ENV BIREFNET_MODEL_VARIANT=ZhengPeng7/BiRefNet-portrait
-ENV BIREFNET_MAX_DIMENSION=2048
+# Using BiRefNet_HR-matting for fine fur/hair detail (optimized for pet photos)
+ENV BIREFNET_MODEL_VARIANT=ZhengPeng7/BiRefNet_HR-matting
+ENV BIREFNET_MAX_DIMENSION=1024
 ENV MAX_IMAGE_SIZE_MB=30
 ENV ENABLE_WARMUP_ON_STARTUP=true
 ENV LOG_LEVEL=info

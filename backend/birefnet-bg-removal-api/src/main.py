@@ -38,6 +38,7 @@ from PIL import Image
 
 from birefnet_processor import get_processor, BiRefNetProcessor, log_gpu_diagnostics
 from effects import TriXPipeline, apply_blackwhite_effect
+from cleanup import get_cleanup
 
 # Configure logging
 logging.basicConfig(
@@ -706,7 +707,22 @@ async def process_with_multiple_effects(
         # Load image
         image = Image.open(io.BytesIO(content))
 
-        # Step 1: Remove background
+        # Step 0: ESRGAN Cleanup (NEW - preprocessing before segmentation)
+        # Upscale 2x + denoise to give BiRefNet cleaner edges for fur detection
+        cleanup_start = time.time()
+        cleaner = get_cleanup()
+
+        # Skip ESRGAN for very large images to prevent timeout
+        if max(image.size) < 3000:
+            logger.info(f"Applying ESRGAN cleanup (2x upscale + denoise) to {image.size}")
+            image = cleaner.process(image)
+            cleanup_time_ms = (time.time() - cleanup_start) * 1000
+            logger.info(f"ESRGAN cleanup completed: {cleanup_time_ms:.0f}ms, new size: {image.size}")
+        else:
+            logger.info(f"Skipping ESRGAN (image too large: {image.size})")
+            cleanup_time_ms = 0
+
+        # Step 1: Remove background (BiRefNet gets cleaned, upscaled input)
         processor = get_processor()
         bg_result = processor.remove_background(image, alpha_matting=alpha_matting)
         bg_removed = bg_result.image
@@ -779,6 +795,7 @@ async def process_with_multiple_effects(
             "success": True,
             "effects": effect_results,
             "timing": {
+                "cleanup_ms": int(cleanup_time_ms),
                 "bg_removal_ms": int(bg_time_ms),
                 "effects_ms": {k: int(v) for k, v in effect_timings.items()},
                 "total_ms": int(total_time_ms)

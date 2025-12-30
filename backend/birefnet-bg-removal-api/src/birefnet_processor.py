@@ -15,10 +15,75 @@ from typing import Optional, Tuple, List
 from dataclasses import dataclass
 
 import numpy as np
-from PIL import Image
+from PIL import Image, ImageFilter
 import psutil
+import cv2
 
 logger = logging.getLogger(__name__)
+
+
+def enhance_mask(
+    mask: Image.Image,
+    threshold: float = 0.5,
+    contrast_boost: float = 1.5,
+    cleanup_kernel_size: int = 3,
+    hard_floor: float = 0.0,
+    hard_ceiling: float = 1.0
+) -> Image.Image:
+    """
+    Enhance the segmentation mask for cleaner background removal.
+
+    The raw model output is a probability mask (0-1) where uncertain areas
+    produce semi-transparent gray regions. This function:
+    1. Boosts contrast to push values toward 0 or 1
+    2. Applies soft thresholding to reduce gray artifacts
+    3. Applies hard floor/ceiling cutoffs to eliminate remaining grays
+    4. Optionally applies morphological cleanup
+
+    Args:
+        mask: PIL Image (L mode) with values 0-255
+        threshold: Center point for contrast curve (0-1)
+        contrast_boost: How aggressively to push values to extremes (1.0-5.0)
+        cleanup_kernel_size: Size of morphological kernel (0 to disable)
+        hard_floor: Values below this become 0 (eliminates light gray shadows)
+        hard_ceiling: Values above this become 1 (ensures solid foreground)
+
+    Returns:
+        Enhanced PIL Image mask
+    """
+    # Convert to numpy float
+    mask_array = np.array(mask).astype(np.float32) / 255.0
+
+    # Apply sigmoid-based contrast enhancement
+    # This pushes values toward 0 or 1, reducing gray artifacts
+    # Formula: 1 / (1 + exp(-contrast_boost * (x - threshold) * 10))
+    centered = (mask_array - threshold) * 10 * contrast_boost
+    enhanced = 1.0 / (1.0 + np.exp(-centered))
+
+    # Apply hard floor cutoff - values below this become fully transparent
+    # This eliminates stubborn gray shadow artifacts that sigmoid alone can't fix
+    if hard_floor > 0:
+        enhanced = np.where(enhanced < hard_floor, 0.0, enhanced)
+
+    # Apply hard ceiling cutoff - values above this become fully opaque
+    if hard_ceiling < 1.0:
+        enhanced = np.where(enhanced > hard_ceiling, 1.0, enhanced)
+
+    # Convert back to uint8
+    enhanced_uint8 = (enhanced * 255).astype(np.uint8)
+
+    # Optional morphological cleanup to smooth edges
+    if cleanup_kernel_size > 0:
+        kernel = cv2.getStructuringElement(
+            cv2.MORPH_ELLIPSE,
+            (cleanup_kernel_size, cleanup_kernel_size)
+        )
+        # Close small holes in foreground
+        enhanced_uint8 = cv2.morphologyEx(enhanced_uint8, cv2.MORPH_CLOSE, kernel)
+        # Open to remove small noise
+        enhanced_uint8 = cv2.morphologyEx(enhanced_uint8, cv2.MORPH_OPEN, kernel)
+
+    return Image.fromarray(enhanced_uint8, mode='L')
 
 
 def log_gpu_diagnostics() -> dict:
@@ -86,12 +151,15 @@ class BiRefNetProcessor:
         "ZhengPeng7/BiRefNet-portrait",
         "ZhengPeng7/BiRefNet-general",
         "ZhengPeng7/BiRefNet-lite",
+        "ZhengPeng7/BiRefNet-matting",         # Hair/fur matting at 1024x1024
+        "ZhengPeng7/BiRefNet_HR-matting",      # BEST FOR PETS - 2048x2048
+        "ZhengPeng7/BiRefNet_dynamic-matting", # Variable resolution matting
     ]
 
     def __init__(
         self,
         model_variant: str = "ZhengPeng7/BiRefNet-portrait",
-        max_dimension: int = 2048,
+        max_dimension: int = 1024,
         enable_preprocessing: bool = True
     ):
         """
@@ -99,15 +167,15 @@ class BiRefNetProcessor:
 
         Args:
             model_variant: HuggingFace model path
-            max_dimension: Maximum image dimension for processing (2048 for high detail)
+            max_dimension: Maximum image dimension for processing (1024 for BiRefNet-general)
             enable_preprocessing: Whether to resize large images before processing
         """
         self.model_variant = model_variant
         self.max_dimension = max_dimension
         self.enable_preprocessing = enable_preprocessing
 
-        # Inference resolution - L4 GPU (24GB) handles 2048x2048 easily
-        self.inference_size = (2048, 2048)
+        # Inference resolution - BiRefNet-general is trained at 1024x1024
+        self.inference_size = (1024, 1024)
 
         self.model = None
         self.transform = None
@@ -284,9 +352,22 @@ class BiRefNetProcessor:
             # Resize mask to original input size (high-res output)
             mask = pred_pil.resize(input_size, Image.Resampling.BILINEAR)
 
-            # Apply mask to original image (not preprocessed) for full resolution output
+            # Enhance mask to reduce gray artifacts and improve edge clarity
+            # This pushes uncertain (gray) areas toward fully transparent or opaque
+            # Parameters tuned for pet photos with complex backgrounds (sofas, furniture)
+            enhanced_mask = enhance_mask(
+                mask,
+                threshold=0.60,       # Higher threshold - more areas become transparent
+                contrast_boost=4.0,   # Very aggressive - steep sigmoid curve
+                cleanup_kernel_size=5,  # Larger kernel for smoother edges
+                hard_floor=0.25       # Kill all grays below 25% - eliminates shadow artifacts
+            )
+
+            logger.info(f"Mask enhanced: threshold=0.60, contrast=4.0, cleanup=5, floor=0.25")
+
+            # Apply enhanced mask to original image for full resolution output
             result = image.copy()
-            result.putalpha(mask)
+            result.putalpha(enhanced_mask)
 
             inference_time = (time.time() - start_time) * 1000
 
@@ -433,14 +514,14 @@ def get_processor(
     Get or create the global processor instance.
 
     Uses environment variables for defaults:
-    - BIREFNET_MODEL_VARIANT: Model variant (default: ZhengPeng7/BiRefNet-portrait)
-    - BIREFNET_MAX_DIMENSION: Max image dimension (default: 2048)
+    - BIREFNET_MODEL_VARIANT: Model variant (default: ZhengPeng7/BiRefNet_HR-matting)
+    - BIREFNET_MAX_DIMENSION: Max image dimension (default: 1024)
     """
     global _processor_instance
 
     if _processor_instance is None:
-        variant = model_variant or os.getenv("BIREFNET_MODEL_VARIANT", "ZhengPeng7/BiRefNet-portrait")
-        max_dim = max_dimension or int(os.getenv("BIREFNET_MAX_DIMENSION", "2048"))
+        variant = model_variant or os.getenv("BIREFNET_MODEL_VARIANT", "ZhengPeng7/BiRefNet_HR-matting")
+        max_dim = max_dimension or int(os.getenv("BIREFNET_MAX_DIMENSION", "1024"))
 
         _processor_instance = BiRefNetProcessor(
             model_variant=variant,
