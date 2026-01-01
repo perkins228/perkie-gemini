@@ -17,8 +17,8 @@ class CropProcessor {
   constructor(options = {}) {
     // Configuration
     this.config = {
-      minZoom: 1.0,
-      maxZoom: 4.0,
+      minCropScale: 0.5,  // Minimum crop box size (50% of base)
+      maxCropScale: 1.5,  // Maximum crop box size (150% of base)
       gridEnabled: true,
       gridOpacity: 0.3,
       overlayOpacity: 0.6,
@@ -39,9 +39,10 @@ class CropProcessor {
       imageLoaded: false,
       aspectRatio: 'square', // Default: square
       isCircle: false,
-      zoom: 1.0,
+      cropScale: 1.0, // Scales crop box size (0.5 = smaller, 1.5 = larger)
       pan: { x: 0, y: 0 },
       cropBox: { x: 0, y: 0, width: 0, height: 0 },
+      baseCropSize: 0, // Base crop box size before scaling
       isDragging: false,
       isPinching: false,
       touches: [],
@@ -117,13 +118,13 @@ class CropProcessor {
           </div>
 
           <div class="crop-zoom-controls">
-            <button class="crop-zoom-btn" data-zoom="out" aria-label="Zoom out">
+            <button class="crop-zoom-btn" data-zoom="out" aria-label="Smaller crop">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="8" y1="11" x2="14" y2="11"/>
               </svg>
             </button>
-            <input type="range" class="crop-zoom-slider" min="1" max="4" step="0.1" value="1" aria-label="Zoom level">
-            <button class="crop-zoom-btn" data-zoom="in" aria-label="Zoom in">
+            <input type="range" class="crop-zoom-slider" min="0.5" max="1.5" step="0.05" value="1" aria-label="Crop size">
+            <button class="crop-zoom-btn" data-zoom="in" aria-label="Larger crop">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/>
               </svg>
@@ -232,34 +233,20 @@ class CropProcessor {
     const canvasWidth = this.canvas.width / (window.devicePixelRatio || 1);
     const canvasHeight = this.canvas.height / (window.devicePixelRatio || 1);
 
-    // Calculate image dimensions to fit canvas
-    const imgAspect = this.state.image.width / this.state.image.height;
-    const canvasAspect = canvasWidth / canvasHeight;
+    // Calculate base crop size (80% of canvas minimum dimension)
+    const baseCropSize = Math.min(canvasWidth, canvasHeight) * 0.8;
+    this.state.baseCropSize = baseCropSize;
 
-    let displayWidth, displayHeight;
-
-    if (imgAspect > canvasAspect) {
-      // Image is wider than canvas
-      displayWidth = canvasWidth;
-      displayHeight = canvasWidth / imgAspect;
-    } else {
-      // Image is taller than canvas
-      displayHeight = canvasHeight;
-      displayWidth = canvasHeight * imgAspect;
-    }
-
-    // Center crop box (80% of visible area)
-    const cropSize = Math.min(displayWidth, displayHeight) * 0.8;
-
+    // Initialize crop box at base size (scale = 1.0)
     this.state.cropBox = {
-      x: (canvasWidth - cropSize) / 2,
-      y: (canvasHeight - cropSize) / 2,
-      width: cropSize,
-      height: cropSize
+      x: (canvasWidth - baseCropSize) / 2,
+      y: (canvasHeight - baseCropSize) / 2,
+      width: baseCropSize,
+      height: baseCropSize
     };
 
-    // Reset zoom and pan
-    this.state.zoom = 1.0;
+    // Reset crop scale and pan
+    this.state.cropScale = 1.0;
     this.state.pan = { x: 0, y: 0 };
 
     // Set default aspect ratio to square
@@ -279,29 +266,33 @@ class CropProcessor {
 
     const centerX = canvasWidth / 2;
     const centerY = canvasHeight / 2;
-    const maxSize = Math.min(canvasWidth, canvasHeight) * 0.85;
+    const baseSize = this.state.baseCropSize || Math.min(canvasWidth, canvasHeight) * 0.8;
 
     let width, height;
 
     if (ratio === 'circle' || ratio === 'square') {
       // Square/circle: 1:1 ratio
-      width = height = maxSize * 0.88;
+      width = height = baseSize;
     } else if (ratio === 'landscape') {
       // Landscape: 4:3 ratio (wider than tall)
-      width = maxSize;
+      width = baseSize;
       height = width * (3/4);
     } else if (ratio === 'portrait') {
       // Portrait: 3:4 ratio (taller than wide)
-      height = maxSize;
+      height = baseSize;
       width = height * (3/4);
     } else {
       // Fallback to square
-      width = height = maxSize * 0.88;
+      width = height = baseSize;
     }
 
+    // Apply crop scale to dimensions
+    width *= this.state.cropScale;
+    height *= this.state.cropScale;
+
     // Ensure crop box fits within canvas
-    width = Math.min(width, canvasWidth * 0.9);
-    height = Math.min(height, canvasHeight * 0.85);
+    width = Math.min(width, canvasWidth * 0.95);
+    height = Math.min(height, canvasHeight * 0.95);
 
     this.state.cropBox = {
       x: centerX - width / 2,
@@ -356,11 +347,11 @@ class CropProcessor {
       btn.addEventListener('click', () => this.setAspectRatio(btn.dataset.aspect));
     });
 
-    // Zoom controls
-    this.container.querySelector('[data-zoom="in"]')?.addEventListener('click', () => this.zoomIn());
-    this.container.querySelector('[data-zoom="out"]')?.addEventListener('click', () => this.zoomOut());
+    // Crop scale controls
+    this.container.querySelector('[data-zoom="in"]')?.addEventListener('click', () => this.scaleCropUp());
+    this.container.querySelector('[data-zoom="out"]')?.addEventListener('click', () => this.scaleCropDown());
     this.container.querySelector('.crop-zoom-slider')?.addEventListener('input', (e) => {
-      this.setZoom(parseFloat(e.target.value));
+      this.setCropScale(parseFloat(e.target.value));
     });
 
     // Keyboard
@@ -414,17 +405,17 @@ class CropProcessor {
         this.pan(deltaX, deltaY);
       }
     } else if (touches.length === 2 && this.state.isPinching) {
-      // Pinch-to-zoom gesture
+      // Pinch-to-resize crop box
       const newDistance = this.getTouchDistance(touches);
       const newMidpoint = this.getTouchMidpoint(touches);
 
       if (this.state.lastPinchDistance > 0) {
-        const zoomDelta = newDistance / this.state.lastPinchDistance;
-        const newZoom = Math.max(
-          this.config.minZoom,
-          Math.min(this.config.maxZoom, this.state.zoom * zoomDelta)
+        const scaleDelta = newDistance / this.state.lastPinchDistance;
+        const newCropScale = Math.max(
+          this.config.minCropScale,
+          Math.min(this.config.maxCropScale, this.state.cropScale * scaleDelta)
         );
-        this.setZoom(newZoom);
+        this.setCropScale(newCropScale);
       }
 
       this.state.lastPinchDistance = newDistance;
@@ -485,17 +476,17 @@ class CropProcessor {
   }
 
   /**
-   * Handle mouse wheel (desktop zoom)
+   * Handle mouse wheel (desktop crop box resize)
    */
   handleWheel(e) {
     e.preventDefault();
 
-    const delta = e.deltaY > 0 ? 0.9 : 1.1;
-    const newZoom = Math.max(
-      this.config.minZoom,
-      Math.min(this.config.maxZoom, this.state.zoom * delta)
+    const delta = e.deltaY > 0 ? 0.95 : 1.05;
+    const newCropScale = Math.max(
+      this.config.minCropScale,
+      Math.min(this.config.maxCropScale, this.state.cropScale * delta)
     );
-    this.setZoom(newZoom);
+    this.setCropScale(newCropScale);
   }
 
   /**
@@ -566,39 +557,40 @@ class CropProcessor {
   }
 
   /**
-   * Set zoom level
+   * Set crop box scale level
    */
-  setZoom(level) {
-    this.state.zoom = Math.max(this.config.minZoom, Math.min(this.config.maxZoom, level));
+  setCropScale(level) {
+    this.state.cropScale = Math.max(this.config.minCropScale, Math.min(this.config.maxCropScale, level));
 
     // Update slider
     const slider = this.container.querySelector('.crop-zoom-slider');
     if (slider) {
-      slider.value = this.state.zoom;
+      slider.value = this.state.cropScale;
     }
 
-    this.render();
+    // Recalculate crop box with new scale
+    this.setAspectRatio(this.state.aspectRatio);
   }
 
   /**
-   * Zoom in
+   * Increase crop box size
    */
-  zoomIn() {
-    this.setZoom(this.state.zoom + 0.25);
+  scaleCropUp() {
+    this.setCropScale(this.state.cropScale + 0.1);
   }
 
   /**
-   * Zoom out
+   * Decrease crop box size
    */
-  zoomOut() {
-    this.setZoom(this.state.zoom - 0.25);
+  scaleCropDown() {
+    this.setCropScale(this.state.cropScale - 0.1);
   }
 
   /**
    * Reset to initial state
    */
   reset() {
-    this.state.zoom = 1.0;
+    this.state.cropScale = 1.0;
     this.state.pan = { x: 0, y: 0 };
     this.initCropBox();
 
@@ -624,7 +616,7 @@ class CropProcessor {
     this.ctx.fillStyle = '#1a1a1a';
     this.ctx.fillRect(0, 0, canvasWidth, canvasHeight);
 
-    // Calculate image dimensions
+    // Calculate image dimensions (always fit to canvas, no zoom)
     const img = this.state.image;
     const imgAspect = img.width / img.height;
     const canvasAspect = canvasWidth / canvasHeight;
@@ -632,17 +624,19 @@ class CropProcessor {
     let drawWidth, drawHeight;
 
     if (imgAspect > canvasAspect) {
-      drawWidth = canvasWidth * this.state.zoom;
+      // Image is wider - fit width
+      drawWidth = canvasWidth;
       drawHeight = drawWidth / imgAspect;
     } else {
-      drawHeight = canvasHeight * this.state.zoom;
+      // Image is taller - fit height
+      drawHeight = canvasHeight;
       drawWidth = drawHeight * imgAspect;
     }
 
     const drawX = (canvasWidth - drawWidth) / 2 + this.state.pan.x;
     const drawY = (canvasHeight - drawHeight) / 2 + this.state.pan.y;
 
-    // Draw image
+    // Draw image at optimal size
     this.ctx.drawImage(img, drawX, drawY, drawWidth, drawHeight);
 
     // Draw dimmed overlay
@@ -749,10 +743,12 @@ class CropProcessor {
     let drawWidth, drawHeight;
 
     if (imgAspect > canvasAspect) {
-      drawWidth = canvasWidth * this.state.zoom;
+      // Image is wider - fit width
+      drawWidth = canvasWidth;
       drawHeight = drawWidth / imgAspect;
     } else {
-      drawHeight = canvasHeight * this.state.zoom;
+      // Image is taller - fit height
+      drawHeight = canvasHeight;
       drawWidth = drawHeight * imgAspect;
     }
 
