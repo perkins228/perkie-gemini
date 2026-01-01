@@ -1219,12 +1219,21 @@ class PetProcessor {
     // File input
     const fileInput = this.container.querySelector('.file-input');
     fileInput?.addEventListener('change', (e) => this.handleFileSelect(e));
-    
+
     // Drag and drop
     const uploadZone = this.container.querySelector('[data-upload-zone]');
     uploadZone?.addEventListener('dragover', (e) => this.handleDragOver(e));
     uploadZone?.addEventListener('drop', (e) => this.handleDrop(e));
-    
+
+    // Click handler for collapsed upload zone (mobile "Change Photo" button)
+    uploadZone?.addEventListener('click', (e) => {
+      const container = this.container.querySelector('.pet-processor-container');
+      if (container?.classList.contains('has-result')) {
+        // In collapsed state, click anywhere on upload zone triggers file input
+        fileInput?.click();
+      }
+    });
+
     // Effect buttons
     this.container.querySelectorAll('.effect-btn').forEach(btn => {
       btn.addEventListener('click', (e) => this.switchEffect(e.target.closest('.effect-btn')));

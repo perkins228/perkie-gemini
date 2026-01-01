@@ -523,8 +523,54 @@
     font-size: 0.55rem;
     letter-spacing: -0.02em;
   }
-  
+
   .effect-emoji {
     font-size: 1.2rem;
+  }
+}
+
+/* ====================================================================
+   MOBILE ABOVE-FOLD OPTIMIZATIONS
+   ==================================================================== */
+
+/* Upload Zone Auto-Collapse (Mobile Only) */
+@media (max-width: 768px) {
+  /* Collapsed state after processing */
+  .pet-processor-container.has-result .upload-zone {
+    min-height: auto;
+    padding: 0;
+    border: none;
+    background: transparent;
+    margin-bottom: 0.75rem;
+  }
+
+  /* Hide full upload UI when collapsed */
+  .pet-processor-container.has-result .upload-zone .upload-label {
+    display: none;
+  }
+
+  /* Show compact "Change Photo" button */
+  .pet-processor-container.has-result .upload-zone::after {
+    content: '↻ Change Photo';
+    display: block;
+    width: 100%;
+    padding: 0.5rem 1rem;
+    background: rgba(var(--color-foreground), 0.05);
+    border: 1px solid rgba(var(--color-foreground), 0.15);
+    border-radius: 8px;
+    font-size: 0.875rem;
+    color: rgba(var(--color-foreground), 0.7);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+  }
+
+  .pet-processor-container.has-result .upload-zone::after:active {
+    background: rgba(var(--color-foreground), 0.08);
+    transform: scale(0.98);
   }
 }
