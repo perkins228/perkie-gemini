@@ -1234,6 +1234,12 @@ class PetProcessor {
       }
     });
 
+    // Phase 2: Tap-to-zoom on mobile image preview
+    const imageContainer = this.container.querySelector('.pet-image-container');
+    if (imageContainer && window.innerWidth <= 768) {
+      imageContainer.addEventListener('click', () => this.showImageZoom());
+    }
+
     // Effect buttons
     this.container.querySelectorAll('.effect-btn').forEach(btn => {
       btn.addEventListener('click', (e) => this.switchEffect(e.target.closest('.effect-btn')));
@@ -1268,7 +1274,53 @@ class PetProcessor {
     const file = event.dataTransfer.files?.[0];
     if (file) this.processFile(file);
   }
-  
+
+  /**
+   * Phase 2: Show fullscreen image zoom overlay
+   * Displays the current processed image in a fullscreen overlay
+   * with backdrop and close button
+   */
+  showImageZoom() {
+    const petImage = this.container.querySelector('.pet-image');
+    if (!petImage || !petImage.src) {
+      console.warn('No image available to zoom');
+      return;
+    }
+
+    // Create overlay
+    const overlay = document.createElement('div');
+    overlay.className = 'image-zoom-overlay';
+    overlay.innerHTML = `
+      <div class="zoom-backdrop"></div>
+      <div class="zoom-container">
+        <img src="${petImage.src}" class="zoom-image" alt="Full size pet image">
+        <button class="zoom-close" aria-label="Close zoom">✕</button>
+      </div>
+    `;
+
+    // Close on backdrop click
+    const backdrop = overlay.querySelector('.zoom-backdrop');
+    backdrop?.addEventListener('click', () => overlay.remove());
+
+    // Close on button click
+    const closeBtn = overlay.querySelector('.zoom-close');
+    closeBtn?.addEventListener('click', () => overlay.remove());
+
+    // Close on Escape key
+    const handleEscape = (e) => {
+      if (e.key === 'Escape') {
+        overlay.remove();
+        document.removeEventListener('keydown', handleEscape);
+      }
+    };
+    document.addEventListener('keydown', handleEscape);
+
+    // Add overlay to body
+    document.body.appendChild(overlay);
+
+    console.log('🔍 Image zoom overlay displayed');
+  }
+
   async processFile(file) {
     // Validate file
     if (!file.type.startsWith('image/')) {

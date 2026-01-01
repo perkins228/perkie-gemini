@@ -481,24 +481,56 @@
   .processing-view {
     padding: 2rem 1rem;
   }
-  
+
   .progress-timer {
     font-size: 1.4rem;
   }
-  
+
   .processing-progress {
     height: 8px;
     max-width: 90%;
   }
-  
+
   .cancel-processing-btn {
     width: 100%;
     max-width: 200px;
   }
-  
+
   /* Reduce animation frequency on mobile for battery */
   .progress-bar::after {
     animation-duration: 3s;
+  }
+
+  /* PHASE 2: Compact Image Preview (~70px savings) */
+  .pet-processor-container.has-result .pet-image-container {
+    max-height: 280px;
+    margin-bottom: 1rem; /* Reduced from 1.5rem */
+    position: relative;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .pet-processor-container.has-result .pet-image {
+    max-height: 280px;
+    object-fit: contain; /* Maintain aspect ratio */
+  }
+
+  /* Zoom indicator - shows tap-to-zoom capability */
+  .pet-processor-container.has-result .pet-image-container::before {
+    content: '🔍';
+    position: absolute;
+    bottom: 8px;
+    right: 8px;
+    background: rgba(0, 0, 0, 0.6);
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    opacity: 0.8;
+    pointer-events: none;
+    z-index: 1;
   }
 }
 
@@ -572,5 +604,95 @@
   .pet-processor-container.has-result .upload-zone::after:active {
     background: rgba(var(--color-foreground), 0.08);
     transform: scale(0.98);
+  }
+}
+
+/* ====================================================================
+   IMAGE ZOOM OVERLAY (Phase 2)
+   ==================================================================== */
+
+/* Fullscreen zoom overlay for mobile image preview */
+.image-zoom-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.zoom-backdrop {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.9);
+  cursor: pointer;
+}
+
+.zoom-container {
+  position: relative;
+  z-index: 1;
+  max-width: 90vw;
+  max-height: 90vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.zoom-image {
+  width: 100%;
+  height: auto;
+  max-width: 90vw;
+  max-height: 90vh;
+  object-fit: contain;
+  border-radius: 8px;
+}
+
+.zoom-close {
+  position: absolute;
+  top: -40px;
+  right: 0;
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  color: white;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  font-size: 1.5rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s ease;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.zoom-close:active {
+  background: rgba(255, 255, 255, 0.3);
+  transform: scale(0.95);
+}
+
+/* Tablet and desktop - larger zoom container */
+@media (min-width: 768px) {
+  .zoom-container {
+    max-width: 80vw;
+    max-height: 80vh;
+  }
+
+  .zoom-image {
+    max-width: 80vw;
+    max-height: 80vh;
   }
 }
