@@ -533,8 +533,8 @@
     z-index: 1;
   }
 
-  /* PHASE 3: Compact Style Grid (~70px savings) */
-  /* Transform existing style cards into compact 2×2 grid */
+  /* PHASE 3: Compact Style Grid (~140px savings) */
+  /* Transform existing style cards into compact 1×4 grid (single row) */
 
   .effect-grid-wrapper {
     margin-bottom: 1rem; /* Reduced from 1.5rem */
@@ -547,15 +547,15 @@
 
   .effect-grid {
     display: grid;
-    grid-template-columns: repeat(2, 1fr); /* 2×2 grid */
+    grid-template-columns: repeat(4, 1fr); /* 1×4 grid (single row) */
     gap: 0.5rem;
     margin-bottom: 0.75rem; /* Reduced from 1rem */
   }
 
   /* Compact style buttons */
   .effect-grid .effect-btn {
-    min-height: 88px; /* Compact height for 2×2 grid */
-    padding: 0.5rem 0.375rem;
+    min-height: 88px; /* Compact height for single-row grid */
+    padding: 0.5rem 0.25rem; /* Tighter horizontal padding */
     border: 2px solid rgba(var(--color-foreground), 0.15);
     background: rgb(var(--color-background));
     border-radius: 8px;
@@ -594,8 +594,8 @@
 
   /* HYBRID APPROACH: Thumbnails for instant effects (B&W, Color) */
   .effect-grid .style-card__image-wrapper {
-    width: 56px;
-    height: 56px;
+    width: 48px;
+    height: 48px;
     border-radius: 6px;
     overflow: hidden;
     background: rgba(var(--color-foreground), 0.05);
@@ -616,7 +616,7 @@
   .effect-grid .effect-btn[data-effect="ink_wash"] .style-card__image-wrapper::before,
   .effect-grid .effect-btn[data-effect="sketch"] .style-card__image-wrapper::before {
     content: attr(data-icon);
-    font-size: 1.75rem;
+    font-size: 1.5rem;
     position: absolute;
     z-index: 0;
   }
