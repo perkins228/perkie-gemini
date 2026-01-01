@@ -545,9 +545,10 @@
     margin-bottom: 0.5rem; /* Reduced from default */
   }
 
-  .effect-grid {
+  .effect-grid,
+  .effect-grid.style-selector__grid {
     display: grid;
-    grid-template-columns: repeat(4, 1fr); /* 1×4 grid (single row) */
+    grid-template-columns: repeat(4, 1fr) !important; /* 1×4 grid (single row) - override base */
     gap: 0.5rem;
     margin-bottom: 0.75rem; /* Reduced from 1rem */
   }
