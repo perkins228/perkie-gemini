@@ -2179,9 +2179,9 @@ class PetProcessor {
   cancelProcessing() {
     this.processingComplete = true;
     this.stopProgressTimer();
-    this.hideAllViews();
-    const uploadView = this.container.querySelector('.upload-zone');
-    if (uploadView) uploadView.parentElement.hidden = false;
+    // Use reset() to properly clear state and remove has-result class
+    // This ensures upload zone shows in full expanded state (not collapsed)
+    this.reset();
     console.log('Processing cancelled by user');
   }
   
