@@ -4,8 +4,8 @@
 #   gcloud run services replace deploy.yaml --region us-central1
 #
 # Or build and deploy:
-#   gcloud builds submit --tag gcr.io/PROJECT_ID/birefnet-bg-removal-api
-#   gcloud run deploy birefnet-bg-removal-api --image gcr.io/PROJECT_ID/birefnet-bg-removal-api --region us-central1
+#   gcloud builds submit --tag gcr.io/gen-lang-client-0601138686/birefnet-bg-removal-api
+#   gcloud run deploy birefnet-bg-removal-api --image gcr.io/gen-lang-client-0601138686/birefnet-bg-removal-api --region us-central1
 
 apiVersion: serving.knative.dev/v1
 kind: Service
@@ -78,9 +78,9 @@ spec:
 
         # Model configuration (transformers/HuggingFace)
         - name: BIREFNET_MODEL_VARIANT
-          value: "ZhengPeng7/BiRefNet-portrait"
+          value: "ZhengPeng7/BiRefNet_HR-matting"
         - name: BIREFNET_MAX_DIMENSION
-          value: "2048"
+          value: "1024"
 
         # Processing limits
         - name: MAX_IMAGE_SIZE_MB
@@ -110,8 +110,12 @@ spec:
         - name: TRANSFORMERS_CACHE
           value: "/app/models/huggingface"
 
+        # ESRGAN model cache (must match Dockerfile)
+        - name: ESRGAN_MODEL_DIR
+          value: "/app/models/esrgan"
+
       # Service account (if using GCS)
-      # serviceAccountName: birefnet-api@PROJECT_ID.iam.gserviceaccount.com
+      # serviceAccountName: birefnet-api@gen-lang-client-0601138686.iam.gserviceaccount.com
 
       # Container concurrency
       containerConcurrency: 1

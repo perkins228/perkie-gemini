@@ -1,14 +1,15 @@
 """
 GPU-Accelerated Enhanced Black & White Effect
-Uses CuPy + cv2.cuda for 70-80% faster processing than CPU version
+Uses CuPy for GPU array operations, CPU cv2.GaussianBlur for blur
 
 Pipeline Architecture:
-- CuPy for array operations (grayscale, curves, grain)
-- cv2.cuda for Gaussian blur (edge enhancement, halation)
+- CuPy for array operations (grayscale, curves, grain, highlight protection)
+- CPU cv2.GaussianBlur for blur (edge enhancement, halation)
+  (OpenCV CUDA not compiled in standard pip package)
 - Maintains Phase 1 halation optimization (single-radius)
-- Automatic fallback to CPU if GPU unavailable
+- Automatic fallback to full CPU if CuPy unavailable
 
-Performance: 8-10s (CPU) → 2-3s (GPU) for 1024px images
+Performance: 8-10s (full CPU) → 3-4s (GPU hybrid) for 1024px images
 """
 import cv2
 import numpy as np
@@ -48,7 +49,7 @@ class EnhancedBlackWhitePipelineGPU:
         self.gpu_available = CUPY_AVAILABLE
 
         if self.gpu_available:
-            logger.info("Enhanced B&W GPU acceleration enabled (CuPy + cv2.cuda)")
+            logger.info("Enhanced B&W GPU acceleration enabled (CuPy hybrid)")
         else:
             logger.info("Enhanced B&W using CPU fallback")
 
@@ -181,29 +182,18 @@ class EnhancedBlackWhitePipelineGPU:
 
     def _edge_enhancement_gpu(self, gray: 'cp.ndarray') -> 'cp.ndarray':
         """
-        Gaussian unsharp mask for micro-contrast (GPU)
+        Gaussian unsharp mask for micro-contrast (GPU + CPU hybrid)
 
-        Uses cv2.cuda for GPU-accelerated Gaussian blur
+        Uses CPU cv2.GaussianBlur for blur (OpenCV CUDA not available),
+        CuPy for all other operations
         """
-        # Transfer to CPU for cv2.cuda (CuPy → numpy → GpuMat)
+        # Transfer to CPU for Gaussian blur
         gray_cpu = cp.asnumpy(gray).astype(np.float32)
 
-        # Upload to GPU (cv2.cuda)
-        gpu_mat = cv2.cuda_GpuMat()
-        gpu_mat.upload(gray_cpu)
+        # Apply Gaussian blur on CPU (sigma=1.2, 5x5 kernel)
+        gaussian_cpu = cv2.GaussianBlur(gray_cpu, (5, 5), 1.2)
 
-        # Create Gaussian filter (sigma=1.2, 5x5 kernel)
-        gaussian_filter = cv2.cuda.createGaussianFilter(
-            cv2.CV_32F, cv2.CV_32F, (5, 5), 1.2
-        )
-
-        # Apply blur on GPU
-        blurred_mat = gaussian_filter.apply(gpu_mat)
-
-        # Download result
-        gaussian_cpu = blurred_mat.download()
-
-        # Transfer back to CuPy
+        # Transfer back to CuPy for remaining GPU operations
         gray_gpu = cp.asarray(gray_cpu)
         gaussian_gpu = cp.asarray(gaussian_cpu)
 
@@ -218,42 +208,33 @@ class EnhancedBlackWhitePipelineGPU:
 
     def _halation_gpu(self, gray: 'cp.ndarray') -> 'cp.ndarray':
         """
-        Optimized single-radius halation (Phase 1 GPU version)
+        Optimized single-radius halation (Phase 1 GPU + CPU hybrid)
 
         Phase 1 Optimization: Single 13x13 Gaussian at sigma=4.0
         (Replaced dual-radius for 60% speedup)
 
+        Uses CPU cv2.GaussianBlur for blur (OpenCV CUDA not available),
+        CuPy for all other operations
+
         Halation = light bleeding from bright areas into dark areas
         Caused by light scattering through film base
         """
-        # Create bright mask (threshold at 75%)
-        bright_mask = cp.where(gray > 0.75, 1.0, 0.0).astype(np.float32)
+        # Create bright mask (threshold at 75%) on GPU
+        bright_mask = cp.where(gray > 0.75, 1.0, 0.0).astype(cp.float32)
 
-        # Transfer to CPU for cv2.cuda
+        # Transfer to CPU for Gaussian blur
         bright_cpu = cp.asnumpy(bright_mask)
 
-        # Upload to GPU (cv2.cuda)
-        gpu_mat = cv2.cuda_GpuMat()
-        gpu_mat.upload(bright_cpu)
-
-        # Create Gaussian filter (13x13, sigma=4.0 - Phase 1 optimized)
-        blur_filter = cv2.cuda.createGaussianFilter(
-            cv2.CV_32F, cv2.CV_32F, (13, 13), 4.0
-        )
-
-        # Apply blur on GPU
-        halo_mat = blur_filter.apply(gpu_mat)
-
-        # Download result
-        halo_cpu = halo_mat.download()
+        # Apply Gaussian blur on CPU (13x13, sigma=4.0 - Phase 1 optimized)
+        halo_cpu = cv2.GaussianBlur(bright_cpu, (13, 13), 4.0)
 
         # Transfer back to CuPy
         halo = cp.asarray(halo_cpu)
 
-        # Luminance masking (stronger effect in shadows)
+        # Luminance masking (stronger effect in shadows) - on GPU
         luminance_mask = 1.0 - cp.power(gray, 2.0)
 
-        # Apply halation
+        # Apply halation - on GPU
         return cp.clip(gray + halo * self.params.halation_strength * luminance_mask, 0, 1)
 
     def _grain_gpu(self, gray: 'cp.ndarray') -> 'cp.ndarray':
@@ -335,29 +316,29 @@ class EnhancedBlackWhitePipelineGPU:
 
 def apply_enhanced_blackwhite_gpu(
     image: Image.Image,
-    contrast_boost: float = 1.12,
+    contrast: float = 1.12,
     edge_strength: float = 0.9,
-    halation_strength: float = 0.12,
-    grain_strength: float = 0.08
+    halation: float = 0.12,
+    grain: float = 0.08
 ) -> Image.Image:
     """
     Apply GPU-accelerated Enhanced B&W effect to PIL Image
 
     Args:
         image: Input PIL Image (RGB or RGBA)
-        contrast_boost: Film curve contrast multiplier (1.0-1.5)
+        contrast: Film curve contrast multiplier (1.0-1.5)
         edge_strength: Micro-contrast edge enhancement (0.0-1.5)
-        halation_strength: Light bleeding intensity (0.0-0.3)
-        grain_strength: Film grain intensity (0.0-0.2)
+        halation: Light bleeding intensity (0.0-0.3)
+        grain: Film grain intensity (0.0-0.2)
 
     Returns:
         Processed PIL Image with Enhanced B&W effect
     """
     params = EnhancedBWParams(
-        contrast_boost=contrast_boost,
+        contrast_boost=contrast,
         edge_strength=edge_strength,
-        halation_strength=halation_strength,
-        grain_strength=grain_strength
+        halation_strength=halation,
+        grain_strength=grain
     )
 
     processor = EnhancedBlackWhitePipelineGPU(params)

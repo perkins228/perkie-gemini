@@ -79,25 +79,38 @@ del model; \
 "
 
 # ============================================================
-# 2. Pre-download Real-ESRGAN model weights
-# Used for preprocessing: upscaling + denoising before segmentation
+# 2. Pre-download Real-ESRGAN model weights (ai-forever implementation)
+# Using HuggingFace Hub for reliable model downloads
 # ============================================================
+ENV ESRGAN_MODEL_DIR=/app/models/esrgan
+RUN mkdir -p $ESRGAN_MODEL_DIR
+
+# Download x2 model weights from Hugging Face
 RUN python3 -c "\
-from realesrgan import RealESRGANer; \
-from basicsr.archs.rrdbnet_arch import RRDBNet; \
-import torch; \
-print('Downloading Real-ESRGAN x2plus model...'); \
-model = RRDBNet(num_in_ch=3, num_out_ch=3, num_feat=64, num_block=23, num_grow_ch=32, scale=2); \
-upsampler = RealESRGANer( \
-    scale=2, \
-    model_path='https://github.com/xinntao/Real-ESRGAN/releases/download/v0.2.1/RealESRGAN_x2plus.pth', \
-    model=model, \
-    tile=400, \
-    tile_pad=10, \
-    device='cpu' \
+import os; \
+os.environ['ESRGAN_MODEL_DIR'] = '/app/models/esrgan'; \
+from huggingface_hub import hf_hub_download; \
+print('Downloading RealESRGAN_x2.pth from ai-forever...'); \
+hf_hub_download( \
+    repo_id='ai-forever/Real-ESRGAN', \
+    filename='RealESRGAN_x2.pth', \
+    local_dir='/app/models/esrgan', \
+    local_dir_use_symlinks=False \
 ); \
-print('Real-ESRGAN x2plus model downloaded successfully'); \
-del upsampler; \
+print('Real-ESRGAN x2 model downloaded successfully'); \
+"
+
+# Verify ESRGAN loads correctly with ai-forever implementation
+# Note: Add huggingface_hub compatibility shim for cached_download (removed in 0.20.0)
+RUN python3 -c "\
+import os, torch, huggingface_hub; \
+setattr(huggingface_hub, 'cached_download', lambda *a, **k: None) if not hasattr(huggingface_hub, 'cached_download') else None; \
+os.environ['ESRGAN_MODEL_DIR'] = '/app/models/esrgan'; \
+from RealESRGAN import RealESRGAN; \
+device = torch.device('cpu'); \
+model = RealESRGAN(device, scale=2); \
+model.load_weights('/app/models/esrgan/RealESRGAN_x2.pth', download=False); \
+print('Real-ESRGAN verification successful - model loads correctly'); \
 "
 
 # Copy application code
@@ -141,6 +154,9 @@ ENV LOG_LEVEL=info
 # HuggingFace cache (must match build-time location)
 ENV HF_HOME=/app/models/huggingface
 ENV TRANSFORMERS_CACHE=/app/models/huggingface
+
+# ESRGAN model cache (must match build-time location)
+ENV ESRGAN_MODEL_DIR=/app/models/esrgan
 
 # CORS configuration (update for production)
 ENV CORS_ORIGINS=*
