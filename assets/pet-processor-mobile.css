@@ -613,28 +613,7 @@
     display: block;
   }
 
-  /* Icons for on-demand effects (Ink Wash, Marker) - show before image loads */
-  .effect-grid .effect-btn[data-effect="ink_wash"] .style-card__image-wrapper::before,
-  .effect-grid .effect-btn[data-effect="sketch"] .style-card__image-wrapper::before {
-    content: attr(data-icon);
-    font-size: 1.5rem;
-    position: absolute;
-    z-index: 0;
-  }
-
-  .effect-grid .effect-btn[data-effect="ink_wash"] .style-card__image-wrapper::before {
-    content: '🖋️';
-  }
-
-  .effect-grid .effect-btn[data-effect="sketch"] .style-card__image-wrapper::before {
-    content: '✏️';
-  }
-
-  /* Hide icon when image is loaded (for progressive enhancement) */
-  .effect-grid .effect-btn[data-effect="ink_wash"] .style-card__image[src]:not([src=""]) ~ ::before,
-  .effect-grid .effect-btn[data-effect="sketch"] .style-card__image[src]:not([src=""]) ~ ::before {
-    display: none;
-  }
+  /* Icons removed per user request - thumbnails only for all effects */
 
   /* Compact labels */
   .effect-grid .style-card__label {
