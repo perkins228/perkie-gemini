@@ -93,7 +93,11 @@
               <label class="inline-effect-btn active" data-effect="enhancedblackwhite">
                 <div class="inline-effect-content">
                   <div class="inline-effect-image-wrapper">
-                    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100'%3E%3Crect fill='%23f5f5f5' width='100' height='100'/%3E%3C/svg%3E" alt="Black & White" class="inline-effect-image" data-style-preview="bw">
+                    {% if pet_block and pet_block.settings.style_preview_bw != blank %}
+                      <img src="{{ pet_block.settings.style_preview_bw | image_url: width: 100 }}" alt="Black & White" class="inline-effect-image" data-style-preview="bw">
+                    {% else %}
+                      <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100'%3E%3Crect fill='%23f5f5f5' width='100' height='100'/%3E%3C/svg%3E" alt="Black & White" class="inline-effect-image" data-style-preview="bw">
+                    {% endif %}
                   </div>
                   <p class="inline-effect-label">Black & White</p>
                 </div>
@@ -101,7 +105,11 @@
               <label class="inline-effect-btn" data-effect="color">
                 <div class="inline-effect-content">
                   <div class="inline-effect-image-wrapper">
-                    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100'%3E%3Crect fill='%23f5f5f5' width='100' height='100'/%3E%3C/svg%3E" alt="Color" class="inline-effect-image" data-style-preview="color">
+                    {% if pet_block and pet_block.settings.style_preview_color != blank %}
+                      <img src="{{ pet_block.settings.style_preview_color | image_url: width: 100 }}" alt="Color" class="inline-effect-image" data-style-preview="color">
+                    {% else %}
+                      <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100'%3E%3Crect fill='%23f5f5f5' width='100' height='100'/%3E%3C/svg%3E" alt="Color" class="inline-effect-image" data-style-preview="color">
+                    {% endif %}
                   </div>
                   <p class="inline-effect-label">Color</p>
                 </div>
@@ -109,7 +117,11 @@
               <label class="inline-effect-btn" data-effect="ink_wash">
                 <div class="inline-effect-content">
                   <div class="inline-effect-image-wrapper">
-                    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100'%3E%3Crect fill='%23f5f5f5' width='100' height='100'/%3E%3C/svg%3E" alt="Ink Wash" class="inline-effect-image" data-style-preview="ink_wash">
+                    {% if pet_block and pet_block.settings.style_preview_stencil != blank %}
+                      <img src="{{ pet_block.settings.style_preview_stencil | image_url: width: 100 }}" alt="Ink Wash" class="inline-effect-image" data-style-preview="ink_wash">
+                    {% else %}
+                      <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100'%3E%3Crect fill='%23f5f5f5' width='100' height='100'/%3E%3C/svg%3E" alt="Ink Wash" class="inline-effect-image" data-style-preview="ink_wash">
+                    {% endif %}
                   </div>
                   <p class="inline-effect-label">Ink Wash</p>
                 </div>
@@ -117,7 +129,11 @@
               <label class="inline-effect-btn" data-effect="sketch">
                 <div class="inline-effect-content">
                   <div class="inline-effect-image-wrapper">
-                    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100'%3E%3Crect fill='%23f5f5f5' width='100' height='100'/%3E%3C/svg%3E" alt="Marker" class="inline-effect-image" data-style-preview="sketch">
+                    {% if pet_block and pet_block.settings.style_preview_sketch != blank %}
+                      <img src="{{ pet_block.settings.style_preview_sketch | image_url: width: 100 }}" alt="Marker" class="inline-effect-image" data-style-preview="sketch">
+                    {% else %}
+                      <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100'%3E%3Crect fill='%23f5f5f5' width='100' height='100'/%3E%3C/svg%3E" alt="Marker" class="inline-effect-image" data-style-preview="sketch">
+                    {% endif %}
                   </div>
                   <p class="inline-effect-label">Marker</p>
                 </div>

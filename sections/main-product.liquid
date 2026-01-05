@@ -629,7 +629,15 @@
                   {%- endif -%}
                 {%- endfor -%}
                 {%- if has_custom_tag -%}
-                  {%- render 'inline-preview-mvp', product: product -%}
+                  {%- comment -%} Find pet selector block for preview images {%- endcomment -%}
+                  {%- assign pet_selector_block = nil -%}
+                  {%- for b in section.blocks -%}
+                    {%- if b.type == 'ks_pet_selector' -%}
+                      {%- assign pet_selector_block = b -%}
+                      {%- break -%}
+                    {%- endif -%}
+                  {%- endfor -%}
+                  {%- render 'inline-preview-mvp', product: product, pet_block: pet_selector_block -%}
                 {%- endif -%}
               {%- when 'trust_indicators' -%}
                 <div class="product__trust-indicators" {{ block.shopify_attributes }}>
