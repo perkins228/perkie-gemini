@@ -722,17 +722,6 @@ class CropProcessor {
     const dpr = window.devicePixelRatio || 1;
     const { x, y, width, height } = this.state.cropBox;
 
-    // Create output canvas
-    const outputCanvas = document.createElement('canvas');
-    outputCanvas.width = width * dpr;
-    outputCanvas.height = height * dpr;
-    const outputCtx = outputCanvas.getContext('2d');
-
-    // Fill canvas with white background (required for JPEG export)
-    // Transparent areas will render as black without this fill
-    outputCtx.fillStyle = '#ffffff';
-    outputCtx.fillRect(0, 0, width * dpr, height * dpr);
-
     // Calculate image position relative to crop box
     const img = this.state.image;
     const canvasWidth = this.canvas.width / dpr;
@@ -764,7 +753,19 @@ class CropProcessor {
     const sourceWidth = width * scaleX;
     const sourceHeight = height * scaleY;
 
-    // Draw cropped region
+    // Create output canvas at SOURCE image resolution (not display resolution)
+    // This preserves full quality from the original image
+    const outputCanvas = document.createElement('canvas');
+    outputCanvas.width = Math.round(sourceWidth);
+    outputCanvas.height = Math.round(sourceHeight);
+    const outputCtx = outputCanvas.getContext('2d');
+
+    // Fill canvas with white background (required for JPEG export)
+    // Transparent areas will render as black without this fill
+    outputCtx.fillStyle = '#ffffff';
+    outputCtx.fillRect(0, 0, outputCanvas.width, outputCanvas.height);
+
+    // Draw cropped region at full source resolution (no downsampling)
     outputCtx.drawImage(
       img,
       Math.max(0, sourceX),
@@ -772,8 +773,8 @@ class CropProcessor {
       Math.min(sourceWidth, img.width - sourceX),
       Math.min(sourceHeight, img.height - sourceY),
       0, 0,
-      width * dpr,
-      height * dpr
+      outputCanvas.width,
+      outputCanvas.height
     );
 
     // If circle, apply circular mask
@@ -781,9 +782,9 @@ class CropProcessor {
       outputCtx.globalCompositeOperation = 'destination-in';
       outputCtx.beginPath();
       outputCtx.arc(
-        (width * dpr) / 2,
-        (height * dpr) / 2,
-        (width * dpr) / 2,
+        outputCanvas.width / 2,
+        outputCanvas.height / 2,
+        outputCanvas.width / 2,
         0,
         Math.PI * 2
       );
