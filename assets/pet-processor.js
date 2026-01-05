@@ -1014,7 +1014,7 @@ class PetProcessor {
                 <label class="effect-btn style-card active" data-effect="enhancedblackwhite">
                   <div class="style-card__content">
                     <div class="style-card__image-wrapper">
-                      <img src="" alt="Black & White style preview" class="style-card__image" data-style-preview="bw">
+                      <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100'%3E%3Crect fill='%23f5f5f5' width='100' height='100'/%3E%3C/svg%3E" alt="Black & White style preview" class="style-card__image" data-style-preview="bw">
                     </div>
                     <p class="style-card__label">Black & White</p>
                   </div>
@@ -1022,7 +1022,7 @@ class PetProcessor {
                 <label class="effect-btn style-card" data-effect="color">
                   <div class="style-card__content">
                     <div class="style-card__image-wrapper">
-                      <img src="" alt="Color style preview" class="style-card__image" data-style-preview="color">
+                      <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100'%3E%3Crect fill='%23f5f5f5' width='100' height='100'/%3E%3C/svg%3E" alt="Color style preview" class="style-card__image" data-style-preview="color">
                     </div>
                     <p class="style-card__label">Color</p>
                   </div>
@@ -1030,7 +1030,7 @@ class PetProcessor {
                 <label class="effect-btn style-card" data-effect="ink_wash">
                   <div class="style-card__content">
                     <div class="style-card__image-wrapper">
-                      <img src="" alt="Ink Wash style preview" class="style-card__image" data-style-preview="ink_wash">
+                      <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100'%3E%3Crect fill='%23f5f5f5' width='100' height='100'/%3E%3C/svg%3E" alt="Ink Wash style preview" class="style-card__image" data-style-preview="ink_wash">
                     </div>
                     <p class="style-card__label">Ink Wash</p>
                   </div>
@@ -1038,7 +1038,7 @@ class PetProcessor {
                 <label class="effect-btn style-card" data-effect="sketch">
                   <div class="style-card__content">
                     <div class="style-card__image-wrapper">
-                      <img src="" alt="Marker style preview" class="style-card__image" data-style-preview="sketch">
+                      <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100'%3E%3Crect fill='%23f5f5f5' width='100' height='100'/%3E%3C/svg%3E" alt="Marker style preview" class="style-card__image" data-style-preview="sketch">
                     </div>
                     <p class="style-card__label">Marker</p>
                   </div>
