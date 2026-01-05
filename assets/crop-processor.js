@@ -760,10 +760,12 @@ class CropProcessor {
     outputCanvas.height = Math.round(sourceHeight);
     const outputCtx = outputCanvas.getContext('2d');
 
-    // Fill canvas with white background (required for JPEG export)
-    // Transparent areas will render as black without this fill
-    outputCtx.fillStyle = '#ffffff';
-    outputCtx.fillRect(0, 0, outputCanvas.width, outputCanvas.height);
+    // Fill canvas with white background for rectangle crops (required for JPEG export)
+    // Skip for circle crops to preserve transparency in corners
+    if (!this.state.isCircle) {
+      outputCtx.fillStyle = '#ffffff';
+      outputCtx.fillRect(0, 0, outputCanvas.width, outputCanvas.height);
+    }
 
     // Draw cropped region at full source resolution (no downsampling)
     outputCtx.drawImage(
@@ -803,11 +805,21 @@ class CropProcessor {
     const canvas = this.getCroppedCanvas();
     if (!canvas) return null;
 
+    // Use PNG for circle crops to preserve transparency
+    // Use JPEG for rectangle crops (smaller file size)
+    const isCircle = this.state.isCircle;
+    const mimeType = isCircle ? 'image/png' : 'image/jpeg';
+    const extension = isCircle ? '.png' : '.jpg';
+    const quality = isCircle ? undefined : 0.92;
+
+    // Update filename extension if needed
+    const finalFilename = filename.replace(/\.(jpg|jpeg|png)$/i, extension);
+
     return new Promise((resolve) => {
       canvas.toBlob((blob) => {
-        const file = new File([blob], filename, { type: 'image/jpeg' });
+        const file = new File([blob], finalFilename, { type: mimeType });
         resolve(file);
-      }, 'image/jpeg', 0.92);
+      }, mimeType, quality);
     });
   }
 
