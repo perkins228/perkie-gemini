@@ -13,7 +13,7 @@
 
 class GeminiAPIClient {
   constructor() {
-    this.baseUrl = 'https://gemini-artistic-api-753651513695.us-central1.run.app';
+    this.baseUrl = 'https://gemini-artistic-api-3km6z2qpyq-uc.a.run.app';
     this.cache = new Map();
     this.pending = new Map();
     this.maxRetries = 3;

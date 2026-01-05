@@ -17,7 +17,7 @@
 
 class DirectUploadHandler {
     constructor() {
-        this.geminiApiUrl = 'https://gemini-artistic-api-753651513695.us-central1.run.app';
+        this.geminiApiUrl = 'https://gemini-artistic-api-3km6z2qpyq-uc.a.run.app';
         this.maxRetries = 3;
         this.uploadTimeout = 60000; // 60 seconds for large files
         this.enableFallback = true; // Fallback to InSPyReNet if direct upload fails
