@@ -883,18 +883,20 @@
           console.warn('⚠️ Gemini quota exhausted - only B&W and Color available today');
 
           // Render locked thumbnails for Ink Wash and Marker (prevents broken images)
-          this.renderLockedThumbnail('ink_wash');
-          this.renderLockedThumbnail('sketch');
+          this.renderLockedThumbnail('ink_wash', 'AI Limit', 'Try B&W/Color');
+          this.renderLockedThumbnail('sketch', 'AI Limit', 'Try B&W/Color');
 
           // Update UI to show quota exhausted state (buttons disabled, badges, etc.)
           if (this.geminiUI && typeof this.geminiUI.updateUI === 'function') {
             this.geminiUI.updateUI();
           }
-        }
+        } else {
+          // Handle all other errors (network, API, etc.)
+          console.warn('⚠️ Gemini AI unavailable - showing fallback thumbnails');
 
-        // Check if it's a network error
-        if (error.message && error.message.includes('network')) {
-          console.warn('⚠️ Network error during Gemini generation - check connectivity');
+          // Render locked thumbnails with "AI Unavailable" message
+          this.renderLockedThumbnail('ink_wash', 'AI Unavailable', 'Try again later');
+          this.renderLockedThumbnail('sketch', 'AI Unavailable', 'Try again later');
         }
       }
     }
@@ -968,11 +970,13 @@
     }
 
     /**
-     * Render locked thumbnail when Gemini quota exhausted
+     * Render locked thumbnail when Gemini is unavailable
      * Replaces broken image with professional lock icon + helpful messaging
      * @param {string} effectName - 'ink_wash' or 'sketch'
+     * @param {string} primaryText - Main message (default: 'AI Limit')
+     * @param {string} secondaryText - Subtext (default: 'Try B&W/Color')
      */
-    renderLockedThumbnail(effectName) {
+    renderLockedThumbnail(effectName, primaryText = 'AI Limit', secondaryText = 'Try B&W/Color') {
       const btn = this.modal.querySelector(`[data-effect="${effectName}"]`);
       if (!btn) {
         console.warn(`🔒 Button not found for ${effectName}`);
@@ -994,7 +998,7 @@
       // Hide the image element (prevents broken image icon)
       thumbnail.style.display = 'none';
 
-      // Create lock overlay
+      // Create lock overlay with custom messages
       const overlay = document.createElement('div');
       overlay.className = 'inline-thumbnail-locked-overlay';
       overlay.innerHTML = `
@@ -1002,8 +1006,8 @@
           <path d="M12 2C9.243 2 7 4.243 7 7v3H6c-1.103 0-2 .897-2 2v8c0 1.103.897 2 2 2h12c1.103 0 2-.897 2-2v-8c0-1.103-.897-2-2-2h-1V7c0-2.757-2.243-5-5-5zm-3 5c0-1.654 1.346-3 3-3s3 1.346 3 3v3H9V7zm9 13H6v-8h12v8z" fill="currentColor"/>
           <circle cx="12" cy="16" r="1.5" fill="currentColor"/>
         </svg>
-        <span class="locked-primary-text">AI Limit</span>
-        <span class="locked-secondary-text">Try B&W/Color</span>
+        <span class="locked-primary-text">${primaryText}</span>
+        <span class="locked-secondary-text">${secondaryText}</span>
       `;
 
       // Add to thumbnail wrapper (parent of image)
@@ -1020,7 +1024,7 @@
         this.showQuotaExhaustedMessage();
       });
 
-      console.log(`🔒 ${effectName} thumbnail locked (quota exhausted)`);
+      console.log(`🔒 ${effectName} thumbnail locked: ${primaryText}`);
     }
 
     /**
