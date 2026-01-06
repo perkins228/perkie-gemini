@@ -1691,6 +1691,9 @@ class PetProcessor {
 
           // Update button states - Ink Wash and Marker should now be enabled
           this.updateEffectButtonStates();
+
+          // Update thumbnails with generated AI images (progressive enhancement)
+          this.updateStyleCardPreviews(this.currentPet);
         }
 
         // Reset Gemini generation flag
