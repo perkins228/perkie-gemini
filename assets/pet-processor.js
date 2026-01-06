@@ -940,6 +940,19 @@ class PetProcessor {
       if (this.geminiEnabled) {
         console.log('🎨 Gemini AI effects enabled - Ink Wash and Marker styles available');
 
+        // Check quota on initialization to get accurate state BEFORE updating UI
+        this.geminiClient.checkQuota().then(() => {
+          console.log('🎨 Initial quota check complete:', this.geminiClient.quotaState);
+
+          // Update button states after quota check completes
+          this.updateEffectButtonStates();
+        }).catch(err => {
+          console.warn('🎨 Initial quota check failed, using default:', err);
+
+          // Still update buttons even if quota check fails (will use default state)
+          this.updateEffectButtonStates();
+        });
+
         // Initialize UI after container is rendered
         setTimeout(() => {
           this.geminiUI = new GeminiEffectsUI(this.geminiClient);
@@ -947,10 +960,6 @@ class PetProcessor {
 
           // Start midnight quota reset checker
           this.geminiUI.checkQuotaReset();
-
-          // Update button states now that Gemini is initialized
-          // This ensures buttons reflect geminiEnabled = true for restored sessions
-          this.updateEffectButtonStates();
         }, 100);
       } else {
         console.log('🎨 Gemini AI effects disabled by feature flag');
