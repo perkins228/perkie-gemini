@@ -1630,13 +1630,18 @@ class PetProcessor {
       return results;
     });
 
-    // DON'T AWAIT - continue immediately to show results to user
+    // DON'T AWAIT - Fire both GCS uploads AND Gemini generation in background
+    // This allows showResult() to be called immediately after BiRefNet completes (~15s)
+    // Gemini will update thumbnails progressively when ready (~37s later)
 
-    // Generate Gemini AI effects (Modern + Classic) if enabled
+    // Generate Gemini AI effects (Modern + Classic) in background if enabled
     const SKIP_GEMINI_FOR_TESTING = false;  // Re-activated 2026-01-05
     if (!SKIP_GEMINI_FOR_TESTING && this.geminiEnabled && this.geminiClient) {
-      try {
-        // Set Gemini generation flag and reset main processing flag
+      // Get background-removed image for Gemini
+      const processedImage = data.processed_image || effectsData.color || effectsData.enhancedblackwhite;
+
+      if (processedImage) {
+        // Set flags for background generation
         this.geminiGenerating = true;
         this.isProcessing = false;  // Main processing complete, allow UI interactions
 
@@ -1644,82 +1649,80 @@ class PetProcessor {
         this.updateProgressWithTimer(85, '✨ Generating AI artistic styles...', null);
         timing.gemini.start = Date.now();
 
-        // Get background-removed image for Gemini
-        const processedImage = data.processed_image || effectsData.color || effectsData.enhancedblackwhite;
+        // Convert to data URL if needed
+        const imageDataUrl = processedImage.startsWith('data:')
+          ? processedImage
+          : `data:image/png;base64,${processedImage}`;
 
-        if (processedImage) {
-          // Convert to data URL if needed
-          const imageDataUrl = processedImage.startsWith('data:')
-            ? processedImage
-            : `data:image/png;base64,${processedImage}`;
+        // Fire-and-forget: Generate in background, don't block UI
+        this.geminiClient.batchGenerate(imageDataUrl, {
+          sessionId: this.getSessionId()
+        }).then(geminiResults => {
+          // SUCCESS: Gemini completed in background
+          timing.gemini.end = Date.now();
+          console.log(`⏱️ Gemini API (background): ${timing.gemini.end - timing.gemini.start}ms`);
 
-          // Batch generate both Modern and Classic styles
-          const geminiResults = await this.geminiClient.batchGenerate(imageDataUrl, {
-            sessionId: this.getSessionId()
-          });
+          // Only update if user hasn't uploaded a new image
+          if (this.currentPet && this.currentPet.effects) {
+            // Add Gemini effects to current pet's effects object
+            this.currentPet.effects.ink_wash = {
+              gcsUrl: geminiResults.ink_wash.url,
+              dataUrl: null,
+              cacheHit: geminiResults.ink_wash.cacheHit,
+              processingTime: geminiResults.ink_wash.processingTime
+            };
 
-          // Add Gemini effects to effects object
-          effects.ink_wash = {
-            gcsUrl: geminiResults.ink_wash.url,
-            dataUrl: null, // Gemini effects use Cloud Storage URLs
-            cacheHit: geminiResults.ink_wash.cacheHit,
-            processingTime: geminiResults.ink_wash.processingTime
-          };
+            this.currentPet.effects.sketch = {
+              gcsUrl: geminiResults.sketch.url,
+              dataUrl: null,
+              cacheHit: geminiResults.sketch.cacheHit,
+              processingTime: geminiResults.sketch.processingTime
+            };
 
-          effects.sketch = {
-            gcsUrl: geminiResults.sketch.url,
-            dataUrl: null, // Gemini effects use Cloud Storage URLs
-            cacheHit: geminiResults.sketch.cacheHit,
-            processingTime: geminiResults.sketch.processingTime
-          };
+            // Store quota information
+            if (geminiResults.quota) {
+              this.geminiQuota = geminiResults.quota;
+              if (this.geminiUI) {
+                this.geminiUI.updateUI();
+              }
+            }
 
-          // Store quota information
-          if (geminiResults.quota) {
-            this.geminiQuota = geminiResults.quota;
+            console.log('🎨 Gemini AI effects generated (background):', {
+              ink_wash: geminiResults.ink_wash.cacheHit ? 'cached' : 'generated',
+              sketch: geminiResults.sketch.cacheHit ? 'cached' : 'generated',
+              quota: geminiResults.quota
+            });
 
-            // Update UI with new quota state
+            // Update thumbnails and button states progressively
+            this.updateStyleCardPreviews(this.currentPet);
+            this.updateEffectButtonStates();
+          } else {
+            console.log('🎨 Gemini completed but user uploaded new image - discarding results');
+          }
+
+          // Reset generation flag
+          this.geminiGenerating = false;
+        }).catch(error => {
+          // ERROR: Gemini failed (quota, network, etc.)
+          timing.gemini.end = Date.now();
+          this.geminiGenerating = false;
+
+          console.error('🎨 Gemini generation failed (graceful degradation):', error);
+
+          // Graceful degradation - users still have B&W and Color
+          if (error.quotaExhausted) {
+            console.log('🎨 Gemini quota exhausted - only B&W and Color available');
+
             if (this.geminiUI) {
               this.geminiUI.updateUI();
             }
           }
 
-          console.log('🎨 Gemini AI effects generated:', {
-            ink_wash: geminiResults.ink_wash.cacheHit ? 'cached' : 'generated',
-            sketch: geminiResults.sketch.cacheHit ? 'cached' : 'generated',
-            quota: geminiResults.quota
-          });
-
-          // Update button states - Ink Wash and Marker should now be enabled
-          this.updateEffectButtonStates();
-
-          // Update thumbnails with generated AI images (progressive enhancement)
-          this.updateStyleCardPreviews(this.currentPet);
-        }
-
-        // Reset Gemini generation flag
-        this.geminiGenerating = false;
-        timing.gemini.end = Date.now();
-        console.log(`⏱️ Gemini API (including network): ${timing.gemini.end - timing.gemini.start}ms`);
-      } catch (error) {
-        // Reset Gemini generation flag on error
-        this.geminiGenerating = false;
-        timing.gemini.end = Date.now();
-
-        console.error('🎨 Gemini generation failed (graceful degradation):', error);
-
-        // Graceful degradation - don't fail the whole process
-        // Users still have B&W and Color effects
-        if (error.quotaExhausted) {
-          console.log('🎨 Gemini quota exhausted - only B&W and Color available');
-
-          // Update UI to show quota exhausted state
-          if (this.geminiUI) {
-            this.geminiUI.updateUI();
+          // Update button states to show AI effects unavailable
+          if (this.currentPet) {
+            this.updateEffectButtonStates();
           }
-
-          // Update button states - Modern and Classic should be disabled due to quota
-          this.updateEffectButtonStates();
-        }
+        });
       }
     }
 
