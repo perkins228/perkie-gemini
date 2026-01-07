@@ -3,8 +3,9 @@
   Type: ks-pet-processor-v5
 {%- endcomment -%}
 
-{{ 'pet-processor-v5.css' | asset_url | stylesheet_tag }}
-{{ 'pet-processor-mobile.css' | asset_url | stylesheet_tag }}
+{%- comment -%} Cache busting v2.0: Force CDN to serve new CSS with spinner (not hourglass) {%- endcomment -%}
+<link rel="stylesheet" href="{{ 'pet-processor-v5.css' | asset_url }}?v=2.0">
+<link rel="stylesheet" href="{{ 'pet-processor-mobile.css' | asset_url }}?v=2.0">
 {{ 'effect-comparison.css' | asset_url | stylesheet_tag }}
 {{ 'crop-processor.css' | asset_url | stylesheet_tag }}
 {%- comment -%} Simple social sharing replaces complex 38KB implementation {%- endcomment -%}
