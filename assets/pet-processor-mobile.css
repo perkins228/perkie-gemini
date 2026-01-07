@@ -639,7 +639,7 @@
     height: 24px;
     margin: -12px 0 0 -12px;
     border: 2.5px solid rgba(255, 255, 255, 0.3);
-    border-top-color: #FF6B35;
+    border-top-color: rgb(var(--color-button));
     border-radius: 50%;
     animation: spinner-rotate 1s linear infinite;
     z-index: 2;
