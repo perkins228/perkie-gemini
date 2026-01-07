@@ -1964,6 +1964,10 @@ class PetProcessor {
           btn.disabled = false;
           btn.classList.remove('effect-btn--loading', 'effect-btn--disabled', 'effect-btn--ready');
           btn.title = `View ${effectLabel} effect`;
+
+          // Remove loading accessibility attributes
+          btn.removeAttribute('aria-label');
+          btn.removeAttribute('aria-busy');
           return;
         }
 
@@ -1996,6 +2000,10 @@ class PetProcessor {
           btn.classList.add('effect-btn--loading');
           btn.classList.remove('effect-btn--disabled', 'effect-btn--ready');
           btn.title = `Generating ${effectLabel} effect...`;
+
+          // Add accessibility attributes for screen readers
+          btn.setAttribute('aria-label', `Generating ${effectLabel} effect, please wait`);
+          btn.setAttribute('aria-busy', 'true');
           return;
         }
 

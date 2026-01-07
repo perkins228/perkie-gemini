@@ -378,6 +378,10 @@
   to { transform: rotate(360deg); }
 }
 
+@keyframes spinner-rotate {
+  to { transform: rotate(360deg); }
+}
+
 .effect-btn.active {
   border-color: rgb(var(--color-button));
   background: rgba(var(--color-button), 0.1);
@@ -1211,14 +1215,30 @@
   box-shadow: 0 0 0 2px rgba(255, 165, 0, 0.3);
 }
 
-.style-card.effect-btn--loading .style-card__image-wrapper::after {
-  content: '⏳';
+/* Spinner overlay (circular loader) */
+.style-card.effect-btn--loading .style-card__image-wrapper::before {
+  content: '';
   position: absolute;
   top: 50%;
   left: 50%;
-  transform: translate(-50%, -50%);
-  font-size: 2rem;
-  animation: spin 1s linear infinite;
+  width: 28px;
+  height: 28px;
+  margin: -14px 0 0 -14px;
+  border: 3px solid rgba(255, 255, 255, 0.3);
+  border-top-color: #FF6B35;
+  border-radius: 50%;
+  animation: spinner-rotate 1s linear infinite;
+  z-index: 2;
+}
+
+/* Semi-transparent backdrop for contrast */
+.style-card.effect-btn--loading .style-card__image-wrapper::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  border-radius: 6px;
+  z-index: 1;
 }
 
 /* Disabled state for style cards */

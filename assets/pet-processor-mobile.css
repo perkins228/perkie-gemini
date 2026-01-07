@@ -629,13 +629,34 @@
   }
 
   /* Loading state for on-demand effects */
+  /* Spinner overlay (circular loader) - matches desktop but smaller */
+  .effect-grid .effect-btn--loading .style-card__image-wrapper::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 24px;
+    height: 24px;
+    margin: -12px 0 0 -12px;
+    border: 2.5px solid rgba(255, 255, 255, 0.3);
+    border-top-color: #FF6B35;
+    border-radius: 50%;
+    animation: spinner-rotate 1s linear infinite;
+    z-index: 2;
+  }
+
+  /* Backdrop for contrast */
   .effect-grid .effect-btn--loading .style-card__image-wrapper::after {
     content: '';
     position: absolute;
     inset: 0;
-    background: rgba(var(--color-button), 0.1);
+    background: rgba(0, 0, 0, 0.4);
     border-radius: 6px;
-    animation: pulse 1.5s ease-in-out infinite;
+    z-index: 1;
+  }
+
+  @keyframes spinner-rotate {
+    to { transform: rotate(360deg); }
   }
 
   @keyframes pulse {
