@@ -1523,17 +1523,17 @@ class PetProcessor {
       initialMessage = '⚡ Fast processing mode active...';
       timeRemaining = '15 seconds remaining';
     } else if (warmthState === 'cold' || isFirstTime) {
-      // Cold API or first-time user: 75-85 seconds
-      estimatedTime = 80000;
-      initialMessage = isFirstTime ? 
-        '🤖 First-time setup - loading specialized pet AI...' : 
+      // Cold API or first-time user: 55-65 seconds (50s actual + 10s buffer)
+      estimatedTime = 60000;
+      initialMessage = isFirstTime ?
+        '🤖 First-time setup - loading specialized pet AI...' :
         '🧠 Warming up AI model for premium quality...';
-      timeRemaining = '80 seconds remaining';
+      timeRemaining = '60 seconds remaining';
     } else {
-      // Unknown state: Conservative estimate
-      estimatedTime = 45000;
+      // Unknown state: Conservative estimate (35s actual + 5s buffer)
+      estimatedTime = 40000;
       initialMessage = '📤 Processing your pet photo...';
-      timeRemaining = '45 seconds remaining';
+      timeRemaining = '40 seconds remaining';
     }
     
     const startTime = Date.now();
@@ -2193,51 +2193,51 @@ class PetProcessor {
         }
       }, 12000);
       
-    } else if (estimatedTime >= 70000) {
-      // Cold start processing (75-85s)
+    } else if (estimatedTime >= 55000) {
+      // Cold start processing (55-65s)
       setTimeout(() => {
         if (!this.processingComplete) {
           this.updateProgressWithTimer(15, '📦 Loading AI models into memory...', null);
         }
-      }, 10000);
-      
+      }, 8000);
+
       setTimeout(() => {
         if (!this.processingComplete) {
           this.updateProgressWithTimer(30, '🔍 Analyzing your pet\'s unique features...', null);
         }
-      }, 25000);
-      
+      }, 19000);
+
       setTimeout(() => {
         if (!this.processingComplete) {
           this.updateProgressWithTimer(50, '🎨 Creating professional-quality effects...', null);
         }
-      }, 45000);
-      
+      }, 34000);
+
       setTimeout(() => {
         if (!this.processingComplete) {
           this.updateProgressWithTimer(75, '✨ Perfecting your pet\'s transformation...', null);
         }
-      }, 65000);
-      
+      }, 49000);
+
     } else {
-      // Conservative processing (unknown state: 45s)
+      // Conservative processing (unknown state: 40s)
       setTimeout(() => {
         if (!this.processingComplete) {
           this.updateProgressWithTimer(25, '🔍 Analyzing your pet\'s unique features...', null);
         }
-      }, 10000);
-      
+      }, 9000);
+
       setTimeout(() => {
         if (!this.processingComplete) {
           this.updateProgressWithTimer(50, '🎨 Creating professional-quality effects...', null);
         }
-      }, 22000);
-      
+      }, 20000);
+
       setTimeout(() => {
         if (!this.processingComplete) {
           this.updateProgressWithTimer(75, '✨ Perfecting your pet\'s transformation...', null);
         }
-      }, 34000);
+      }, 30000);
     }
   }
   
