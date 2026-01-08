@@ -121,20 +121,41 @@
                     <span class="mockup-card__price">
                       from {{ product.price_min | money }}
                     </span>
-                    {%- comment -%} Count unique colors from Color option {%- endcomment -%}
-                    {%- assign color_count = 0 -%}
-                    {%- for option in product.options_with_values -%}
-                      {%- assign option_name_lower = option.name | downcase -%}
-                      {%- if option_name_lower == 'color' or option_name_lower == 'colour' -%}
-                        {%- assign color_count = option.values | size -%}
-                        {%- break -%}
+                    {%- comment -%} Show variant count based on settings {%- endcomment -%}
+                    {%- if section.settings.variant_display != 'none' -%}
+                      {%- assign variant_count = 0 -%}
+                      {%- assign variant_type = section.settings.variant_display -%}
+                      {%- for option in product.options_with_values -%}
+                        {%- assign option_name_lower = option.name | downcase -%}
+                        {%- case variant_type -%}
+                          {%- when 'color' -%}
+                            {%- if option_name_lower == 'color' or option_name_lower == 'colour' -%}
+                              {%- assign variant_count = option.values | size -%}
+                              {%- break -%}
+                            {%- endif -%}
+                          {%- when 'size' -%}
+                            {%- if option_name_lower == 'size' or option_name_lower == 'sizes' -%}
+                              {%- assign variant_count = option.values | size -%}
+                              {%- break -%}
+                            {%- endif -%}
+                          {%- when 'material' -%}
+                            {%- if option_name_lower == 'material' or option_name_lower == 'materials' -%}
+                              {%- assign variant_count = option.values | size -%}
+                              {%- break -%}
+                            {%- endif -%}
+                          {%- when 'style' -%}
+                            {%- if option_name_lower == 'style' or option_name_lower == 'styles' -%}
+                              {%- assign variant_count = option.values | size -%}
+                              {%- break -%}
+                            {%- endif -%}
+                        {%- endcase -%}
+                      {%- endfor -%}
+                      {%- if variant_count > 1 -%}
+                        <span class="mockup-card__variants-count">
+                          {{ variant_count }} {{ variant_type | append: 's' }}
+                        </span>
                       {%- endif -%}
-                    {%- endfor -%}
-                    {% if color_count > 1 %}
-                      <span class="mockup-card__variants-count">
-                        {{ color_count }} colors
-                      </span>
-                    {% endif %}
+                    {%- endif -%}
                   </div>
                 </div>
 
@@ -244,6 +265,20 @@
       "id": "show_hero_badge",
       "label": "Show badge on first product",
       "default": true
+    },
+    {
+      "type": "select",
+      "id": "variant_display",
+      "label": "Show variant count",
+      "default": "color",
+      "options": [
+        { "value": "none", "label": "Don't show" },
+        { "value": "color", "label": "Colors" },
+        { "value": "size", "label": "Sizes" },
+        { "value": "material", "label": "Materials" },
+        { "value": "style", "label": "Styles" }
+      ],
+      "info": "Choose which product variant to display count for (e.g., '5 colors')"
     },
     {
       "type": "header",
