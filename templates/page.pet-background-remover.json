@@ -41,7 +41,7 @@
     "ks_product_mockup_grid_main": {
       "type": "ks-product-mockup-grid",
       "settings": {
-        "heading": "See Your Pet on Our Best-Sellers",
+        "heading": "",
         "subheading": "Click any product to customize and order",
         "show_hero_badge": false,
         "show_print_zones": true,
