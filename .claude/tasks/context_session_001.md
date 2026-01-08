@@ -337,7 +337,260 @@ Implemented two enhancements to the product mockup grid feature:
 - Better product visualization with purpose-built mockup templates
 - Improved UX for mobile users who crop frequently
 
-**Pending Commit**: Changes ready for commit and push to staging
+**Commit**: `619e09d` - feat(mockup-grid): Add crop tool integration and custom mockup templates
+**Pushed to**: staging branch
+
+---
+
+### 2026-01-07 - Revised Gemini Background Removal Strategy (Critical Constraint)
+
+**What was done**:
+Re-analyzed the Gemini-BiRefNet pipeline integration after user identified a critical constraint: Gemini generates AI interpretations, NOT exact replicas of input images.
+
+**Problem Identified**:
+The original mask transfer approach assumes Gemini output has same composition as input. This is FALSE because:
+- Pet pose/proportions may change
+- Pet may be repositioned in frame
+- Artistic elements extend beyond original pet boundaries (brush strokes, ink splatters)
+- Original mask won't align with transformed pet
+
+**Options Analyzed**:
+
+1. **Mask Transfer (Original Plan)** - HIGH RISK
+   - May clip artistic elements or leave background visible
+   - Could work if Gemini preserves composition (needs testing)
+
+2. **Re-Segment Gemini Output** - MEDIUM RISK
+   - Send Gemini output to BiRefNet for new mask
+   - Adds +2-3s latency per effect
+   - Segmentation accuracy on illustrations unknown
+
+3. **Prompt Engineering** - HIGH RISK
+   - Request transparent or solid-color background
+   - Gemini compliance unpredictable
+   - Image models typically output RGB, not RGBA
+
+4. **Accept Artistic Backgrounds** - LOW RISK
+   - Frame as feature: "Portrait styles" vs "Cutout styles"
+   - Zero implementation effort
+   - Reduces Gemini effect utility for product mockups
+
+5. **Hybrid with Quality Fallback** - NOT RECOMMENDED
+   - Over-engineered, adds complexity
+
+**Key Recommendation**: TEST FIRST
+Do NOT implement any approach until Phase 0 testing validates:
+- Q1: How much does Gemini transform composition?
+- Q2: Can BiRefNet segment illustrations?
+- Q3: Does Gemini respect background prompts?
+
+**Documentation Created**:
+- `.claude/doc/gemini-background-removal-revised-strategy.md`
+  - Full analysis of all 5 options
+  - Risk assessment matrix
+  - Test plan specification
+  - Implementation paths for each option
+
+**Priority of Options** (if testing passes):
+1. Re-Segment (Option 2) - Most reliable if segmentation works
+2. Mask Transfer (Option 1) - Fastest if composition preserved
+3. Accept BG (Option 4) - Fallback if nothing works
+4. Prompt Control (Option 3) - Only if proven compliant
+
+**Next Steps**:
+1. Create test harness: `testing/gemini-background-removal-test.html`
+2. Run Phase 0 tests with 20+ pet images
+3. Document results with visual examples
+4. Make go/no-go decision based on data
+
+---
+
+### 2026-01-07 - Crop Transparency Loss Bug - Root Cause Analysis Complete
+
+**What was done**:
+Investigated and identified root cause of transparency loss when cropping BiRefNet-processed pet images with transparent backgrounds.
+
+**Problem Reported**:
+User reported that cropping processed pet images (which have transparent backgrounds from BiRefNet) results in cropped images with solid white backgrounds, breaking the product mockup feature.
+
+**Investigation Results**:
+Found TWO critical bugs in `assets/crop-processor.js`:
+
+1. **Display Canvas Alpha Channel Disabled** (Line 151-153)
+   - Canvas context initialized with `alpha: false`
+   - Prevents transparency rendering during crop interface
+   - Impact: Moderate (affects display, not final output)
+
+2. **JPEG Export for Non-Circle Crops** (Lines 804-823, 763-768) - CRITICAL
+   - Code assumes only circle crops need transparency
+   - Square/Rectangle/Landscape/Portrait crops use JPEG format
+   - JPEG doesn't support alpha channel
+   - White background explicitly filled before export
+   - Impact: CRITICAL - Destroys transparency on 75% of crops
+
+**Root Cause**:
+Design flaw where code conflates two independent concerns:
+- **Crop shape** (circle, square, rectangle) - User's framing choice
+- **Background transparency** - Already determined by BiRefNet processing
+
+BiRefNet returns ALL images with transparent backgrounds, regardless of crop shape. The crop tool should preserve transparency for all shapes, not just circles.
+
+**Fix Strategy**: Always Export PNG (Option A)
+- Remove `alpha: false` from display canvas context
+- Remove white background fill from output canvas
+- Always use PNG format (supports transparency)
+- Remove circle/non-circle conditional logic
+- Simplest, most correct solution
+
+**Alternative Options Considered**:
+- Option B: Detect transparency in source (over-engineered)
+- Option C: User-selectable format (adds cognitive load)
+Both rejected in favor of Option A simplicity.
+
+**Documentation Created**:
+- `.claude/doc/crop-transparency-loss-fix-plan.md` (comprehensive plan)
+  - Root cause analysis with code line references
+  - 3 specific code changes required
+  - 6 test cases for validation
+  - Impact analysis (file size, performance, UX)
+  - Deployment plan and rollback strategy
+
+**Files Requiring Changes**:
+- `assets/crop-processor.js` (3 changes):
+  1. Line 151-153: Enable alpha channel on display canvas
+  2. Line 763-768: Remove white background fill
+  3. Line 804-823: Always export PNG format
+
+**Testing Plan**:
+- Test Case 1: Square crop with transparent background
+- Test Case 2: Rectangle crop (Landscape 4:3)
+- Test Case 3: Rectangle crop (Portrait 3:4)
+- Test Case 4: Circle crop (regression test)
+- Test Case 5: Product mockup grid integration
+- Test Case 6: File format validation
+
+**Impact Assessment**:
+- File size increase: 10-30% (acceptable for correctness)
+- Performance impact: <100ms (negligible)
+- Code complexity: Reduced (removes conditional logic)
+- User experience: Significantly improved (transparency preserved)
+
+**Timeline Estimate**: 45-65 minutes total
+- Implementation: 30-45 minutes
+- Deployment & Validation: 15-20 minutes
+
+**Next Steps**:
+1. User reviews plan at `.claude/doc/crop-transparency-loss-fix-plan.md`
+2. Implement 3 code changes to `crop-processor.js`
+3. Test locally with all 6 test cases
+4. Commit and push to main branch
+5. Validate on Shopify test URL
+
+**Priority**: High (blocks product mockup grid feature for non-circle crops)
+**Complexity**: Low (3 simple code changes)
+**Risk**: Very Low (PNG is safer format than JPEG for transparency)
+
+---
+
+### 2026-01-07 - Re-Segmentation Pipeline Implementation Complete
+
+**What was done**:
+Implemented the re-segmentation pipeline to remove solid backgrounds from Gemini AI-generated effects (Ink Wash and Marker), making them transparent like the BiRefNet effects.
+
+**User Testing Validated**: User manually tested Gemini outputs in the V5 processor and confirmed BiRefNet accurately removes backgrounds from AI-generated images.
+
+**Approach Chosen**: Re-Segmentation (Option 2)
+- Mask Transfer rejected: Gemini doesn't preserve exact composition
+- Re-segmentation works: BiRefNet can segment stylized illustrations
+
+**Files Modified**:
+
+1. **`assets/pet-processor.js`** - Multiple changes:
+
+   a. **Added `resegmentGeminiEffect()` helper method** (lines 1895-1939)
+      - Fetches Gemini image from GCS URL
+      - Sends to BiRefNet `/remove-background` endpoint
+      - Returns transparent data URL
+      ```javascript
+      async resegmentGeminiEffect(imageUrl) {
+        // Fetch Gemini image, send to BiRefNet, return transparent version
+      }
+      ```
+
+   b. **Integrated re-segmentation into Gemini completion handler** (lines 1714-1753)
+      - After Gemini generates effects, runs re-segmentation on both in parallel
+      - Stores transparent versions in `effectData.dataUrl` with `transparent: true`
+      - Updates UI twice: initial (solid bg), then after re-segmentation (transparent)
+      ```javascript
+      // Process both effects in parallel
+      const [inkWashResult, sketchResult] = await Promise.all([
+        this.resegmentGeminiEffect(geminiResults.ink_wash.url),
+        this.resegmentGeminiEffect(geminiResults.sketch.url)
+      ]);
+      ```
+
+   c. **Updated image URL preference throughout** (5 locations)
+      - Changed from `gcsUrl || dataUrl` to `dataUrl || gcsUrl`
+      - Ensures transparent version is displayed when available
+      - Modified in:
+        - `updateStyleCardPreviews()` (line 2265)
+        - `switchEffect()` (lines 2010, 2021)
+        - Session restoration (line 689)
+        - Crop interface (line 1463)
+
+   d. **Updated cart/save flow for transparent AI effects** (lines 2454-2495)
+      - Detects Gemini effects with `transparent: true` flag
+      - Uploads transparent version to GCS with `_transparent` suffix
+      - Stores in `effectData.transparentGcsUrl`
+      - Ensures production orders use transparent version
+
+**New Data Flow**:
+```
+1. BiRefNet generates B&W + Color (transparent)
+   ↓
+2. Gemini generates Ink Wash + Marker (solid background)
+   ↓
+3. UI shows solid bg versions immediately (fast feedback)
+   ↓
+4. Re-segmentation sends both to BiRefNet in parallel
+   ↓
+5. BiRefNet returns transparent versions
+   ↓
+6. UI updates with transparent versions
+   ↓
+7. On cart save: uploads transparent version to GCS
+```
+
+**Performance Impact**:
+- Added latency: ~2-3s total for both effects (parallel processing)
+- This happens after initial UI feedback, so perceived performance unchanged
+- User sees effects immediately, transparency applied as background task
+
+**Console Output (Expected)**:
+```
+🔄 Starting background removal for AI effects...
+🔄 Re-segmenting Gemini effect for transparent background...
+🔄 Re-segmenting Gemini effect for transparent background...
+✅ Re-segmentation complete: 1500ms
+✅ Re-segmentation complete: 1600ms
+⏱️ AI effects re-segmentation: 1650ms
+✅ Ink Wash: transparent background applied
+✅ Marker: transparent background applied
+🎨 AI effects now have transparent backgrounds
+```
+
+**Graceful Degradation**:
+- If re-segmentation fails, effect keeps solid background
+- Warning logged but not blocking
+- User can still use effect (just with background)
+
+**Next Steps**:
+1. Test end-to-end flow on staging
+2. Verify transparent effects display in product mockup grid
+3. Confirm cart saves with transparent GCS URLs
+4. Test on mobile (70% traffic)
+
+**Pending Commit**: Implementation complete, ready for testing
 
 ---
 

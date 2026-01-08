@@ -685,7 +685,8 @@ class PetProcessor {
         if (img) {
           const selectedEffectData = this.currentPet.effects[this.currentPet.selectedEffect];
           if (selectedEffectData) {
-            img.src = selectedEffectData.gcsUrl || selectedEffectData.dataUrl;
+            // Prefer dataUrl (transparent for Gemini effects), fallback to gcsUrl
+            img.src = selectedEffectData.dataUrl || selectedEffectData.gcsUrl;
           }
         }
       } else {
@@ -1458,8 +1459,8 @@ class PetProcessor {
       return;
     }
 
-    // Get the image URL (prefer GCS URL, fallback to data URL)
-    const imageUrl = effectData.gcsUrl || effectData.dataUrl;
+    // Get the image URL (prefer dataUrl for transparent Gemini effects, fallback to gcsUrl)
+    const imageUrl = effectData.dataUrl || effectData.gcsUrl;
     if (!imageUrl) {
       console.warn('No image URL found for effect:', selectedEffect);
       return;
@@ -1669,26 +1670,28 @@ class PetProcessor {
         // Fire-and-forget: Generate in background, don't block UI
         this.geminiClient.batchGenerate(imageDataUrl, {
           sessionId: this.getSessionId()
-        }).then(geminiResults => {
+        }).then(async geminiResults => {
           // SUCCESS: Gemini completed in background
           timing.gemini.end = Date.now();
           console.log(`⏱️ Gemini API (background): ${timing.gemini.end - timing.gemini.start}ms`);
 
           // Only update if user hasn't uploaded a new image
           if (this.currentPet && this.currentPet.effects) {
-            // Add Gemini effects to current pet's effects object
+            // Add Gemini effects to current pet's effects object (initial - with solid backgrounds)
             this.currentPet.effects.ink_wash = {
               gcsUrl: geminiResults.ink_wash.url,
               dataUrl: null,
               cacheHit: geminiResults.ink_wash.cacheHit,
-              processingTime: geminiResults.ink_wash.processingTime
+              processingTime: geminiResults.ink_wash.processingTime,
+              transparent: false  // Will be set to true after re-segmentation
             };
 
             this.currentPet.effects.sketch = {
               gcsUrl: geminiResults.sketch.url,
               dataUrl: null,
               cacheHit: geminiResults.sketch.cacheHit,
-              processingTime: geminiResults.sketch.processingTime
+              processingTime: geminiResults.sketch.processingTime,
+              transparent: false  // Will be set to true after re-segmentation
             };
 
             // Store quota information
@@ -1705,9 +1708,50 @@ class PetProcessor {
               quota: geminiResults.quota
             });
 
-            // Update thumbnails and button states progressively
+            // Update thumbnails and button states progressively (shows solid bg versions first)
             this.updateStyleCardPreviews(this.currentPet);
             this.updateEffectButtonStates();
+
+            // ============================================================
+            // RE-SEGMENTATION: Remove solid backgrounds from Gemini effects
+            // Run both in parallel for speed, then update UI when done
+            // ============================================================
+            console.log('🔄 Starting background removal for AI effects...');
+            const resegmentStart = Date.now();
+
+            // Process both effects in parallel
+            const [inkWashResult, sketchResult] = await Promise.all([
+              this.resegmentGeminiEffect(geminiResults.ink_wash.url),
+              this.resegmentGeminiEffect(geminiResults.sketch.url)
+            ]);
+
+            const resegmentTime = Date.now() - resegmentStart;
+            console.log(`⏱️ AI effects re-segmentation: ${resegmentTime}ms`);
+
+            // Update effects with transparent versions (if still same pet)
+            if (this.currentPet && this.currentPet.effects) {
+              if (inkWashResult.success) {
+                this.currentPet.effects.ink_wash.dataUrl = inkWashResult.dataUrl;
+                this.currentPet.effects.ink_wash.transparent = true;
+                console.log('✅ Ink Wash: transparent background applied');
+              } else {
+                console.warn('⚠️ Ink Wash: keeping solid background (re-segmentation failed)');
+              }
+
+              if (sketchResult.success) {
+                this.currentPet.effects.sketch.dataUrl = sketchResult.dataUrl;
+                this.currentPet.effects.sketch.transparent = true;
+                console.log('✅ Marker: transparent background applied');
+              } else {
+                console.warn('⚠️ Marker: keeping solid background (re-segmentation failed)');
+              }
+
+              // Update UI with transparent versions
+              this.updateStyleCardPreviews(this.currentPet);
+              this.updateEffectButtonStates();
+
+              console.log('🎨 AI effects now have transparent backgrounds');
+            }
           } else {
             console.log('🎨 Gemini completed but user uploaded new image - discarding results');
           }
@@ -1885,7 +1929,59 @@ class PetProcessor {
       return '';
     }
   }
-  
+
+  /**
+   * Re-segment a Gemini-generated image through BiRefNet to remove solid background
+   * Gemini produces artistic effects with solid backgrounds - this makes them transparent
+   * @param {string} imageUrl - GCS URL of the Gemini-generated image
+   * @returns {Promise<{dataUrl: string, success: boolean}>} - Transparent image as data URL
+   */
+  async resegmentGeminiEffect(imageUrl) {
+    const startTime = Date.now();
+    console.log('🔄 Re-segmenting Gemini effect for transparent background...');
+
+    try {
+      // Fetch the Gemini image
+      const response = await fetch(imageUrl);
+      if (!response.ok) {
+        throw new Error(`Failed to fetch Gemini image: ${response.status}`);
+      }
+      const blob = await response.blob();
+
+      // Send to BiRefNet for background removal
+      const formData = new FormData();
+      formData.append('file', blob, 'gemini-effect.png');
+
+      const birefnetResponse = await fetch(
+        `${this.apiUrl}/remove-background?format=webp`,
+        {
+          method: 'POST',
+          body: formData
+        }
+      );
+
+      if (!birefnetResponse.ok) {
+        throw new Error(`BiRefNet re-segmentation failed: ${birefnetResponse.status}`);
+      }
+
+      const result = await birefnetResponse.json();
+      const elapsed = Date.now() - startTime;
+      console.log(`✅ Re-segmentation complete: ${elapsed}ms`);
+
+      // BiRefNet returns data URL with transparent background
+      return {
+        dataUrl: result.image,
+        success: true
+      };
+    } catch (error) {
+      console.error('❌ Re-segmentation failed:', error);
+      return {
+        dataUrl: null,
+        success: false
+      };
+    }
+  }
+
   switchEffect(button) {
     if (!button || !this.currentPet) return;
 
@@ -1909,10 +2005,10 @@ class PetProcessor {
     });
     button.classList.add('active');
 
-    // Update image - all effects now use GCS URLs (prefer GCS, fallback to dataUrl)
+    // Update image - prefer dataUrl (transparent for Gemini effects), fallback to gcsUrl
     const img = this.container.querySelector('.pet-image');
     if (img) {
-      const imageUrl = effectData.gcsUrl || effectData.dataUrl;
+      const imageUrl = effectData.dataUrl || effectData.gcsUrl;
       if (imageUrl) {
         img.src = imageUrl;
       }
@@ -1923,7 +2019,7 @@ class PetProcessor {
     this.selectedEffect = effect;
 
     // Dispatch effectChanged event for product mockup grid
-    const effectUrl = effectData.gcsUrl || effectData.dataUrl;
+    const effectUrl = effectData.dataUrl || effectData.gcsUrl;
     if (effectUrl) {
       document.dispatchEvent(new CustomEvent('effectChanged', {
         detail: {
@@ -2164,9 +2260,10 @@ class PetProcessor {
         const imgElement = this.container.querySelector(selector);
 
         if (imgElement && effectData) {
-          // All effects now use GCS URLs (CORS fixed)
-          // Prefer GCS URL, fallback to dataUrl if upload failed
-          const imageUrl = effectData.gcsUrl || effectData.dataUrl;
+          // For Gemini effects (ink_wash, sketch): prefer dataUrl (transparent version from re-segmentation)
+          // For BiRefNet effects (color, enhancedblackwhite): prefer gcsUrl (already transparent)
+          // Fallback chain: dataUrl -> gcsUrl (ensures transparent AI effects are used when available)
+          const imageUrl = effectData.dataUrl || effectData.gcsUrl;
           if (imageUrl) {
             imgElement.src = imageUrl;
           }
@@ -2354,12 +2451,35 @@ class PetProcessor {
       return false;
     }
 
-    // Upload to GCS if needed (InSPyReNet effects only - Gemini already has gcsUrl)
+    // Upload to GCS if needed
+    // For Gemini effects with transparent backgrounds: upload the transparent dataUrl to replace solid background
+    // For InSPyReNet effects: upload if not already uploaded
     console.log('📤 Uploading processed image to GCS if needed...');
     let gcsUrl = effectData.gcsUrl || '';
 
-    // Upload processed image if not already uploaded (InSPyReNet effects)
-    if (!gcsUrl && effectData.dataUrl) {
+    // For Gemini effects with transparent backgrounds, upload the transparent version
+    // This replaces the original Gemini output (solid background) with transparent version
+    const isGeminiEffect = selectedEffect === 'ink_wash' || selectedEffect === 'sketch';
+    const hasTransparentVersion = effectData.dataUrl && effectData.transparent === true;
+
+    if (isGeminiEffect && hasTransparentVersion) {
+      // Upload transparent version to GCS (replaces solid background)
+      console.log('📤 Uploading transparent AI effect to GCS...');
+      const transparentGcsUrl = await this.uploadToGCS(
+        effectData.dataUrl,
+        this.currentPet.id,
+        'processed',
+        `${selectedEffect}_transparent`
+      );
+      if (transparentGcsUrl) {
+        gcsUrl = transparentGcsUrl;
+        effectData.transparentGcsUrl = transparentGcsUrl; // Store transparent version URL
+        console.log(`✅ Transparent AI effect uploaded: ${transparentGcsUrl}`);
+      } else {
+        console.warn('⚠️ Transparent AI effect upload failed, using original');
+      }
+    } else if (!gcsUrl && effectData.dataUrl) {
+      // InSPyReNet effects or Gemini without transparent version
       gcsUrl = await this.uploadToGCS(
         effectData.dataUrl,
         this.currentPet.id,
