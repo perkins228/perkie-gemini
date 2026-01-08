@@ -95,8 +95,8 @@
                               --pet-height: {{ section.settings[pos_height] | default: 60 }}%;
                               --pet-rotation: {{ section.settings[pos_rotation] | default: 0 }}deg;">
 
-                  {%- comment -%} Print Zone Debug Box - Only visible when enabled in settings {%- endcomment -%}
-                  {% if section.settings.show_print_zones %}
+                  {%- comment -%} Print Zone Debug Box - Only visible in theme editor when enabled {%- endcomment -%}
+                  {% if request.design_mode and section.settings.show_print_zones %}
                     <div class="mockup-card__zone-preview"
                          style="--zone-top: {{ section.settings[pos_top] | default: 20 }}%;
                                 --zone-left: {{ section.settings[pos_left] | default: 20 }}%;
@@ -257,7 +257,7 @@
       "id": "show_print_zones",
       "label": "Show print zone boxes",
       "default": false,
-      "info": "Shows red dashed boxes indicating where pet images appear on each product. Use to position and size pets correctly, then DISABLE before saving to live store."
+      "info": "Shows red dashed boxes where pet images appear. Only visible in theme editor - never shown to customers on live site."
     },
     {
       "type": "text",
