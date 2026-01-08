@@ -161,7 +161,9 @@
 
                 {%- comment -%} CTA Button {%- endcomment -%}
                 <span class="mockup-card__cta">
-                  See on {{ product.type | default: product.title | truncatewords: 2, '' }}
+                  {%- assign cta_text = section.settings.cta_text | default: 'See on Product' -%}
+                  {%- assign product_type_text = product.type | default: product.title | truncatewords: 2, '' -%}
+                  {{ cta_text | replace: '{product}', product_type_text }}
                   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M5 12h14M12 5l7 7-7 7"/>
                   </svg>
@@ -279,6 +281,13 @@
         { "value": "style", "label": "Styles" }
       ],
       "info": "Choose which product variant to display count for (e.g., '5 colors')"
+    },
+    {
+      "type": "text",
+      "id": "cta_text",
+      "label": "Button text",
+      "default": "See on Product",
+      "info": "Use {product} to insert product type (e.g., 'See on {product}' becomes 'See on Mug')"
     },
     {
       "type": "header",
