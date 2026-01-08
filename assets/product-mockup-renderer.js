@@ -225,25 +225,47 @@ class ProductMockupRenderer {
   }
 
   /**
-   * Update all mockup pet overlays with new effect URL
+   * Update all mockup pet overlays with new effect URL and dynamic scaling
+   * Detects pet bounding box and applies CSS transforms to normalize pet size
    * @param {string} effectUrl - URL of the processed pet image
    */
-  updateAllMockups(effectUrl) {
+  async updateAllMockups(effectUrl) {
     if (!this.itemsContainer || !effectUrl) return;
 
     const petOverlays = this.itemsContainer.querySelectorAll('[data-pet-overlay]');
+
+    // Detect bounding box once for all mockups
+    let transformValues = null;
+    try {
+      const boundingBox = await this.detectPetBoundingBox(effectUrl);
+      transformValues = this.calculateDynamicScale(boundingBox);
+      console.log('[ProductMockupRenderer] Pet bounding box:', boundingBox);
+      console.log('[ProductMockupRenderer] Dynamic scale:', transformValues);
+    } catch (error) {
+      console.warn('[ProductMockupRenderer] Bounding box detection failed, using default scale:', error);
+    }
 
     petOverlays.forEach((img, index) => {
       // Stagger the reveal for visual effect
       setTimeout(() => {
         img.src = effectUrl;
+
+        // Apply dynamic scaling if available
+        if (transformValues) {
+          const { scale, translateX, translateY } = transformValues;
+          // Get the rotation from CSS custom property
+          const rotation = getComputedStyle(img).getPropertyValue('--pet-rotation').trim() || '0deg';
+          // Apply combined transform: rotation + scale + translation
+          img.style.transform = `rotate(${rotation}) scale(${scale.toFixed(2)}) translate(${translateX.toFixed(1)}%, ${translateY.toFixed(1)}%)`;
+        }
+
         img.classList.add('visible');
       }, index * 50);
     });
 
     this.currentEffectUrl = effectUrl;
 
-    console.log(`[ProductMockupRenderer] Updated ${petOverlays.length} mockups with effect`);
+    console.log(`[ProductMockupRenderer] Updated ${petOverlays.length} mockups with dynamic scaling`);
   }
 
   /**
@@ -386,6 +408,101 @@ class ProductMockupRenderer {
    */
   getCurrentEffectUrl() {
     return this.currentEffectUrl;
+  }
+
+  /**
+   * Detect bounding box of non-transparent pixels in an image
+   * Used to calculate the actual pet size within the transparent frame
+   * @param {string} imageUrl - URL of the transparent pet image
+   * @returns {Promise<Object>} Bounding box info with fillRatio and center coordinates
+   */
+  async detectPetBoundingBox(imageUrl) {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
+
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = img.width;
+        canvas.height = img.height;
+        ctx.drawImage(img, 0, 0);
+
+        let imageData;
+        try {
+          imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        } catch (e) {
+          // CORS or security error - return default values
+          console.warn('[ProductMockupRenderer] Canvas security error, using default scale');
+          resolve({ fillRatio: 1, centerX: 50, centerY: 50 });
+          return;
+        }
+
+        const data = imageData.data;
+        let minX = canvas.width, minY = canvas.height;
+        let maxX = 0, maxY = 0;
+
+        // Scan for non-transparent pixels (alpha > 10 threshold)
+        for (let y = 0; y < canvas.height; y++) {
+          for (let x = 0; x < canvas.width; x++) {
+            const alpha = data[(y * canvas.width + x) * 4 + 3];
+            if (alpha > 10) {
+              minX = Math.min(minX, x);
+              minY = Math.min(minY, y);
+              maxX = Math.max(maxX, x);
+              maxY = Math.max(maxY, y);
+            }
+          }
+        }
+
+        // No opaque pixels found - return default values
+        if (maxX < minX) {
+          resolve({ fillRatio: 1, centerX: 50, centerY: 50 });
+          return;
+        }
+
+        const boundingWidth = maxX - minX;
+        const boundingHeight = maxY - minY;
+        const petArea = boundingWidth * boundingHeight;
+        const totalArea = canvas.width * canvas.height;
+
+        resolve({
+          fillRatio: petArea / totalArea,
+          centerX: ((minX + maxX) / 2 / canvas.width) * 100,
+          centerY: ((minY + maxY) / 2 / canvas.height) * 100
+        });
+      };
+
+      img.onerror = () => {
+        console.warn('[ProductMockupRenderer] Failed to load image for bounding box detection');
+        resolve({ fillRatio: 1, centerX: 50, centerY: 50 });
+      };
+
+      img.src = imageUrl;
+    });
+  }
+
+  /**
+   * Calculate CSS transform values to normalize pet size
+   * Scales pets to a consistent target fill ratio regardless of original framing
+   * @param {Object} boundingBox - Result from detectPetBoundingBox
+   * @param {number} targetFill - Target fill ratio (default 0.5 = 50%)
+   * @returns {Object} CSS transform values: scale, translateX, translateY
+   */
+  calculateDynamicScale(boundingBox, targetFill = 0.5) {
+    const { fillRatio, centerX, centerY } = boundingBox;
+
+    // Scale factor to reach target fill (sqrt because area scales quadratically)
+    const scaleFactor = Math.sqrt(targetFill / fillRatio);
+
+    // Clamp to reasonable bounds (0.6x to 2.0x)
+    const clampedScale = Math.max(0.6, Math.min(2.0, scaleFactor));
+
+    // Offset to keep pet centered after scaling
+    const offsetX = (50 - centerX) * (clampedScale - 1);
+    const offsetY = (50 - centerY) * (clampedScale - 1);
+
+    return { scale: clampedScale, translateX: offsetX, translateY: offsetY };
   }
 
   /**
