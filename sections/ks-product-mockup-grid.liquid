@@ -44,6 +44,8 @@
             {%- assign pos_left = 'product_' | append: i | append: '_left' -%}
             {%- assign pos_width = 'product_' | append: i | append: '_width' -%}
             {%- assign pos_rotation = 'product_' | append: i | append: '_rotation' -%}
+            {%- assign mockup_template_setting = 'product_' | append: i | append: '_mockup_template' -%}
+            {%- assign mockup_template = section.settings[mockup_template_setting] -%}
 
             <div class="mockup-card {% if forloop.first %}mockup-card--hero{% endif %} {% if forloop.index > 3 %}mockup-card--expandable{% endif %}"
                  data-product-handle="{{ product.handle }}"
@@ -57,16 +59,28 @@
               <a href="{{ product.url }}" class="mockup-card__link" data-mockup-link>
                 {%- comment -%} Image Container with Overlay {%- endcomment -%}
                 <div class="mockup-card__image-container">
-                  {%- comment -%} Product Template Image (Background) {%- endcomment -%}
-                  <img src="{{ product.featured_image | image_url: width: 800 }}"
-                       srcset="{{ product.featured_image | image_url: width: 400 }} 400w,
-                               {{ product.featured_image | image_url: width: 800 }} 800w"
-                       sizes="(max-width: 749px) 50vw, 220px"
-                       alt="{{ product.title | escape }}"
-                       class="mockup-card__template"
-                       loading="{% if forloop.index <= 3 %}eager{% else %}lazy{% endif %}"
-                       width="800"
-                       height="600">
+                  {%- comment -%} Product Template Image (Background) - Custom mockup or product image {%- endcomment -%}
+                  {%- if mockup_template != blank -%}
+                    <img src="{{ mockup_template | image_url: width: 800 }}"
+                         srcset="{{ mockup_template | image_url: width: 400 }} 400w,
+                                 {{ mockup_template | image_url: width: 800 }} 800w"
+                         sizes="(max-width: 749px) 50vw, 220px"
+                         alt="{{ product.title | escape }} mockup"
+                         class="mockup-card__template"
+                         loading="{% if forloop.index <= 3 %}eager{% else %}lazy{% endif %}"
+                         width="800"
+                         height="600">
+                  {%- else -%}
+                    <img src="{{ product.featured_image | image_url: width: 800 }}"
+                         srcset="{{ product.featured_image | image_url: width: 400 }} 400w,
+                                 {{ product.featured_image | image_url: width: 800 }} 800w"
+                         sizes="(max-width: 749px) 50vw, 220px"
+                         alt="{{ product.title | escape }}"
+                         class="mockup-card__template"
+                         loading="{% if forloop.index <= 3 %}eager{% else %}lazy{% endif %}"
+                         width="800"
+                         height="600">
+                  {%- endif -%}
 
                   {%- comment -%} Pet Image Overlay - Positioned via CSS variables {%- endcomment -%}
                   <img src=""
@@ -248,6 +262,12 @@
       "label": "Product 1"
     },
     {
+      "type": "image_picker",
+      "id": "product_1_mockup_template",
+      "label": "Mockup Template Image",
+      "info": "Upload a blank product mockup. Falls back to product image if not set."
+    },
+    {
       "type": "range",
       "id": "product_1_top",
       "label": "Pet position - Top %",
@@ -295,6 +315,12 @@
       "type": "product",
       "id": "product_2",
       "label": "Product 2"
+    },
+    {
+      "type": "image_picker",
+      "id": "product_2_mockup_template",
+      "label": "Mockup Template Image",
+      "info": "Upload a blank product mockup. Falls back to product image if not set."
     },
     {
       "type": "range",
@@ -346,6 +372,12 @@
       "label": "Product 3"
     },
     {
+      "type": "image_picker",
+      "id": "product_3_mockup_template",
+      "label": "Mockup Template Image",
+      "info": "Upload a blank product mockup. Falls back to product image if not set."
+    },
+    {
       "type": "range",
       "id": "product_3_top",
       "label": "Pet position - Top %",
@@ -393,6 +425,12 @@
       "type": "product",
       "id": "product_4",
       "label": "Product 4"
+    },
+    {
+      "type": "image_picker",
+      "id": "product_4_mockup_template",
+      "label": "Mockup Template Image",
+      "info": "Upload a blank product mockup. Falls back to product image if not set."
     },
     {
       "type": "range",
@@ -444,6 +482,12 @@
       "label": "Product 5"
     },
     {
+      "type": "image_picker",
+      "id": "product_5_mockup_template",
+      "label": "Mockup Template Image",
+      "info": "Upload a blank product mockup. Falls back to product image if not set."
+    },
+    {
       "type": "range",
       "id": "product_5_top",
       "label": "Pet position - Top %",
@@ -491,6 +535,12 @@
       "type": "product",
       "id": "product_6",
       "label": "Product 6"
+    },
+    {
+      "type": "image_picker",
+      "id": "product_6_mockup_template",
+      "label": "Mockup Template Image",
+      "info": "Upload a blank product mockup. Falls back to product image if not set."
     },
     {
       "type": "range",
@@ -542,6 +592,12 @@
       "label": "Product 7"
     },
     {
+      "type": "image_picker",
+      "id": "product_7_mockup_template",
+      "label": "Mockup Template Image",
+      "info": "Upload a blank product mockup. Falls back to product image if not set."
+    },
+    {
       "type": "range",
       "id": "product_7_top",
       "label": "Pet position - Top %",
@@ -589,6 +645,12 @@
       "type": "product",
       "id": "product_8",
       "label": "Product 8"
+    },
+    {
+      "type": "image_picker",
+      "id": "product_8_mockup_template",
+      "label": "Mockup Template Image",
+      "info": "Upload a blank product mockup. Falls back to product image if not set."
     },
     {
       "type": "range",
@@ -640,6 +702,12 @@
       "label": "Product 9"
     },
     {
+      "type": "image_picker",
+      "id": "product_9_mockup_template",
+      "label": "Mockup Template Image",
+      "info": "Upload a blank product mockup. Falls back to product image if not set."
+    },
+    {
       "type": "range",
       "id": "product_9_top",
       "label": "Pet position - Top %",
@@ -687,6 +755,12 @@
       "type": "product",
       "id": "product_10",
       "label": "Product 10"
+    },
+    {
+      "type": "image_picker",
+      "id": "product_10_mockup_template",
+      "label": "Mockup Template Image",
+      "info": "Upload a blank product mockup. Falls back to product image if not set."
     },
     {
       "type": "range",

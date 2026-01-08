@@ -191,12 +191,153 @@ Core implementation of product mockup grid feature completed.
    - Verify grid appears below processor
    - Click a product and verify pet data transfers
 
+**Commit**: `a8538dd` - feat(conversion): Add product mockup grid for processed pet images
+**Pushed to**: staging branch
+
 **Next Steps**:
-1. Deploy to Shopify test environment
+1. ~~Deploy to Shopify test environment~~ ✅ Pushed to staging
 2. Configure products in theme editor
 3. Test on mobile devices
 4. Refine positioning values per product type
 5. Create custom mockup template images (Phase 2)
+
+---
+
+### 2026-01-07 - Gemini-BiRefNet Pipeline Integration Analysis
+
+**What was done**:
+Analyzed architecture options for removing solid backgrounds from Gemini AI-generated effects (Ink Wash, Marker) to match the transparent-background B&W and Color effects from BiRefNet.
+
+**Problem Statement**:
+- Gemini generates artistic effects with solid/artistic backgrounds
+- Need transparent backgrounds to match B&W and Color effects
+- Current pipeline has BiRefNet and Gemini running in parallel but not integrated
+
+**Architecture Options Evaluated**:
+
+1. **Option A: Frontend Round-Trip** - REJECTED
+   - Send Gemini output back to BiRefNet via frontend
+   - Too slow: +6-10s network overhead
+
+2. **Option B: BiRefNet Calls Gemini** - REJECTED
+   - Internal API call from BiRefNet to Gemini
+   - Too tightly coupled, complicates deployments
+
+3. **Option C: New Orchestrator Service** - REJECTED
+   - New service to chain both APIs
+   - Over-engineered for the problem
+
+4. **Option D: Mask Transfer (Hybrid)** - RECOMMENDED
+   - BiRefNet returns segmentation mask in response
+   - Frontend applies mask to Gemini output via canvas
+   - Fastest: +600ms vs +6-10s for alternatives
+   - Most accurate: Uses original pet segmentation
+
+**Key Technical Insight**:
+Re-segmenting Gemini output would likely fail because:
+- Ink wash style has soft, flowing edges that confuse segmentation
+- BiRefNet is trained on photos, not illustrations
+- The original pet mask is already the correct mask for the stylized version
+
+**Performance Analysis**:
+| Stage | Current | Proposed | Change |
+|-------|---------|----------|--------|
+| BiRefNet + Effects | ~5s | ~5s | Same |
+| Mask Extract | N/A | +50ms | New |
+| Gemini Batch | ~11s | ~11s | Same |
+| Mask Application | N/A | ~50ms | New |
+| **Total** | ~15s | ~15.6s | +0.6s |
+
+**Implementation Requirements**:
+
+Backend (BiRefNet API):
+- Add `return_mask` query parameter to `/api/v2/process-with-effects`
+- Extract and encode mask from alpha channel
+- Include mask (PNG, L mode) in JSON response
+
+Frontend (Pet Processor):
+- Request mask from BiRefNet API
+- Store mask in `currentPet.mask`
+- Implement `applyMaskToImage()` canvas helper
+- Fetch Gemini images and apply mask after generation completes
+
+**Documentation Created**:
+- `.claude/doc/gemini-birefnet-pipeline-integration-plan.md` (comprehensive plan)
+
+**Estimated Effort**: 8-12 hours total
+- Backend changes: 2-3 hours
+- Frontend changes: 4-6 hours
+- Testing: 2-3 hours
+
+**Next Steps**:
+1. Review plan with stakeholders
+2. Implement backend mask output (Phase 1)
+3. Implement frontend mask application (Phase 2)
+4. Test mask quality with diverse pet photos
+5. Deploy to staging for validation
+
+---
+
+### 2026-01-07 - Crop Tool Integration & Custom Mockup Templates
+
+**What was done**:
+Implemented two enhancements to the product mockup grid feature:
+
+1. **Crop Tool Integration** - Mockups now update when customer crops their pet image
+2. **Custom Mockup Templates** - Added ability to upload blank mockup images per product in theme editor
+
+**Files Modified**:
+
+1. `assets/pet-processor.js`
+   - Added `petCropped` event dispatch after crop tool completes (line ~1484)
+   - Event includes: effect name, croppedUrl, sessionKey, timestamp
+
+2. `assets/product-mockup-renderer.js`
+   - Added `petCropped` event listener in `bindEvents()` method
+   - Calls `updateAllMockups(croppedUrl)` when user crops
+   - Tracks crop usage for analytics
+
+3. `sections/ks-product-mockup-grid.liquid`
+   - Added `image_picker` setting for each product (10 total): `product_X_mockup_template`
+   - Updated Liquid template with conditional rendering:
+     - If custom mockup template uploaded: use `mockup_template | image_url`
+     - Otherwise: fall back to `product.featured_image | image_url`
+
+**Event Flow (Crop)**:
+```
+1. User clicks crop button on processed effect
+   ↓
+2. CropProcessor opens with current effect image
+   ↓
+3. User crops and confirms
+   ↓
+4. pet-processor.js stores croppedUrl in currentPet.effects
+   ↓
+5. petCropped event dispatched
+   ↓
+6. ProductMockupRenderer receives event
+   ↓
+7. All product mockups update with cropped image
+```
+
+**Theme Editor Settings Added**:
+- Each product slot (1-10) now has:
+  - Product picker (existing)
+  - **Mockup Template Image** (new) - `image_picker` type
+  - Pet positioning controls (existing: top, left, width, rotation)
+
+**User Instructions**:
+1. In Theme Editor → Pet Background Remover page → Product Mockup Grid section
+2. For each product, optionally upload a "Mockup Template Image"
+3. This should be a blank/empty version of the product (e.g., blank canvas, empty mug)
+4. If not uploaded, the product's featured image is used instead
+
+**Impact**:
+- Crop changes now reflect immediately in product mockups
+- Better product visualization with purpose-built mockup templates
+- Improved UX for mobile users who crop frequently
+
+**Pending Commit**: Changes ready for commit and push to staging
 
 ---
 

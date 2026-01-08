@@ -1480,6 +1480,18 @@ class PetProcessor {
         }
 
         console.log('✅ Crop applied to effect:', selectedEffect);
+
+        // Dispatch petCropped event for mockup grid integration
+        document.dispatchEvent(new CustomEvent('petCropped', {
+          detail: {
+            effect: selectedEffect,
+            croppedUrl: cropResult.croppedUrl,
+            sessionKey: this.currentPet?.id,
+            timestamp: Date.now()
+          },
+          bubbles: true
+        }));
+        console.log('📤 petCropped event dispatched');
       }
     } catch (error) {
       console.error('Crop error:', error);

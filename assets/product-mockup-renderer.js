@@ -45,6 +45,23 @@ class ProductMockupRenderer {
       }
     });
 
+    // Listen for pet cropped events (after user uses crop tool)
+    document.addEventListener('petCropped', (e) => {
+      if (this.isInitialized && e.detail?.croppedUrl) {
+        console.log('[ProductMockupRenderer] Pet cropped', e.detail);
+        this.updateAllMockups(e.detail.croppedUrl);
+
+        // Update current effect URL to cropped version
+        this.currentEffectUrl = e.detail.croppedUrl;
+
+        // Track crop usage
+        this.trackEvent('pet_cropped', {
+          effect: e.detail.effect,
+          has_session: !!e.detail.sessionKey
+        });
+      }
+    });
+
     // Bind expand/collapse toggle
     if (this.toggleBtn) {
       this.toggleBtn.addEventListener('click', () => this.toggleExpand());
