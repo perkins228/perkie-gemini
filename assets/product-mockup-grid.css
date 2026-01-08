@@ -533,6 +533,40 @@
 }
 
 /* =============================================================================
+   Print Zone Debug Preview
+   ============================================================================= */
+
+.mockup-card__zone-preview {
+  position: absolute;
+  top: var(--zone-top, 20%);
+  left: var(--zone-left, 20%);
+  width: var(--zone-width, 60%);
+  height: var(--zone-height, 60%);
+  background: rgba(255, 0, 0, 0.15);
+  border: 2px dashed #ff0000;
+  border-radius: 4px;
+  pointer-events: none;
+  z-index: 100;
+  box-sizing: border-box;
+}
+
+/* Add a label showing dimensions */
+.mockup-card__zone-preview::after {
+  content: 'Print Zone';
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  background: rgba(255, 0, 0, 0.9);
+  color: white;
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: 2px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* =============================================================================
    Print Styles
    ============================================================================= */
 

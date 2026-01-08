@@ -43,6 +43,7 @@
             {%- assign pos_top = 'product_' | append: i | append: '_top' -%}
             {%- assign pos_left = 'product_' | append: i | append: '_left' -%}
             {%- assign pos_width = 'product_' | append: i | append: '_width' -%}
+            {%- assign pos_height = 'product_' | append: i | append: '_height' -%}
             {%- assign pos_rotation = 'product_' | append: i | append: '_rotation' -%}
             {%- assign mockup_template_setting = 'product_' | append: i | append: '_mockup_template' -%}
             {%- assign mockup_template = section.settings[mockup_template_setting] -%}
@@ -54,6 +55,7 @@
                  data-pet-top="{{ section.settings[pos_top] | default: 20 }}"
                  data-pet-left="{{ section.settings[pos_left] | default: 20 }}"
                  data-pet-width="{{ section.settings[pos_width] | default: 60 }}"
+                 data-pet-height="{{ section.settings[pos_height] | default: 60 }}"
                  data-pet-rotation="{{ section.settings[pos_rotation] | default: 0 }}">
 
               <a href="{{ product.url }}" class="mockup-card__link" data-mockup-link>
@@ -90,7 +92,18 @@
                        style="--pet-top: {{ section.settings[pos_top] | default: 20 }}%;
                               --pet-left: {{ section.settings[pos_left] | default: 20 }}%;
                               --pet-width: {{ section.settings[pos_width] | default: 60 }}%;
+                              --pet-height: {{ section.settings[pos_height] | default: 60 }}%;
                               --pet-rotation: {{ section.settings[pos_rotation] | default: 0 }}deg;">
+
+                  {%- comment -%} Print Zone Debug Box - Only visible when enabled in settings {%- endcomment -%}
+                  {% if section.settings.show_print_zones %}
+                    <div class="mockup-card__zone-preview"
+                         style="--zone-top: {{ section.settings[pos_top] | default: 20 }}%;
+                                --zone-left: {{ section.settings[pos_left] | default: 20 }}%;
+                                --zone-width: {{ section.settings[pos_width] | default: 60 }}%;
+                                --zone-height: {{ section.settings[pos_height] | default: 60 }}%;">
+                    </div>
+                  {% endif %}
 
                   {%- comment -%} Hero Badge for First Product {%- endcomment -%}
                   {% if forloop.first and section.settings.show_hero_badge %}
@@ -182,6 +195,7 @@
               top: {{ section.settings[pos_top] | default: 20 }},
               left: {{ section.settings[pos_left] | default: 20 }},
               width: {{ section.settings[pos_width] | default: 60 }},
+              height: {{ section.settings[pos_height] | default: 60 }},
               rotation: {{ section.settings[pos_rotation] | default: 0 }}
             }
           }{% unless forloop.last %},{% endunless %}
@@ -233,6 +247,17 @@
       "id": "show_hero_badge",
       "label": "Show badge on first product",
       "default": true
+    },
+    {
+      "type": "header",
+      "content": "Print Zone Preview (Editor Only)"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_print_zones",
+      "label": "Show print zone boxes",
+      "default": false,
+      "info": "Shows red boxes where pet images will appear. Disable before publishing."
     },
     {
       "type": "text",
@@ -299,6 +324,16 @@
     },
     {
       "type": "range",
+      "id": "product_1_height",
+      "label": "Pet image height %",
+      "min": 20,
+      "max": 100,
+      "step": 5,
+      "default": 60,
+      "unit": "%"
+    },
+    {
+      "type": "range",
       "id": "product_1_rotation",
       "label": "Pet image rotation",
       "min": -45,
@@ -346,6 +381,16 @@
       "type": "range",
       "id": "product_2_width",
       "label": "Pet image width %",
+      "min": 20,
+      "max": 100,
+      "step": 5,
+      "default": 60,
+      "unit": "%"
+    },
+    {
+      "type": "range",
+      "id": "product_2_height",
+      "label": "Pet image height %",
       "min": 20,
       "max": 100,
       "step": 5,
@@ -409,6 +454,16 @@
     },
     {
       "type": "range",
+      "id": "product_3_height",
+      "label": "Pet image height %",
+      "min": 20,
+      "max": 100,
+      "step": 5,
+      "default": 60,
+      "unit": "%"
+    },
+    {
+      "type": "range",
       "id": "product_3_rotation",
       "label": "Pet image rotation",
       "min": -45,
@@ -456,6 +511,16 @@
       "type": "range",
       "id": "product_4_width",
       "label": "Pet image width %",
+      "min": 20,
+      "max": 100,
+      "step": 5,
+      "default": 60,
+      "unit": "%"
+    },
+    {
+      "type": "range",
+      "id": "product_4_height",
+      "label": "Pet image height %",
       "min": 20,
       "max": 100,
       "step": 5,
@@ -519,6 +584,16 @@
     },
     {
       "type": "range",
+      "id": "product_5_height",
+      "label": "Pet image height %",
+      "min": 20,
+      "max": 100,
+      "step": 5,
+      "default": 60,
+      "unit": "%"
+    },
+    {
+      "type": "range",
       "id": "product_5_rotation",
       "label": "Pet image rotation",
       "min": -45,
@@ -566,6 +641,16 @@
       "type": "range",
       "id": "product_6_width",
       "label": "Pet image width %",
+      "min": 20,
+      "max": 100,
+      "step": 5,
+      "default": 60,
+      "unit": "%"
+    },
+    {
+      "type": "range",
+      "id": "product_6_height",
+      "label": "Pet image height %",
       "min": 20,
       "max": 100,
       "step": 5,
@@ -629,6 +714,16 @@
     },
     {
       "type": "range",
+      "id": "product_7_height",
+      "label": "Pet image height %",
+      "min": 20,
+      "max": 100,
+      "step": 5,
+      "default": 60,
+      "unit": "%"
+    },
+    {
+      "type": "range",
       "id": "product_7_rotation",
       "label": "Pet image rotation",
       "min": -45,
@@ -676,6 +771,16 @@
       "type": "range",
       "id": "product_8_width",
       "label": "Pet image width %",
+      "min": 20,
+      "max": 100,
+      "step": 5,
+      "default": 60,
+      "unit": "%"
+    },
+    {
+      "type": "range",
+      "id": "product_8_height",
+      "label": "Pet image height %",
       "min": 20,
       "max": 100,
       "step": 5,
@@ -739,6 +844,16 @@
     },
     {
       "type": "range",
+      "id": "product_9_height",
+      "label": "Pet image height %",
+      "min": 20,
+      "max": 100,
+      "step": 5,
+      "default": 60,
+      "unit": "%"
+    },
+    {
+      "type": "range",
       "id": "product_9_rotation",
       "label": "Pet image rotation",
       "min": -45,
@@ -786,6 +901,16 @@
       "type": "range",
       "id": "product_10_width",
       "label": "Pet image width %",
+      "min": 20,
+      "max": 100,
+      "step": 5,
+      "default": 60,
+      "unit": "%"
+    },
+    {
+      "type": "range",
+      "id": "product_10_height",
+      "label": "Pet image height %",
       "min": 20,
       "max": 100,
       "step": 5,
