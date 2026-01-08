@@ -43,7 +43,7 @@
       "settings": {
         "heading": "See Your Pet on Our Best-Sellers",
         "subheading": "Click any product to customize and order",
-        "show_hero_badge": true,
+        "show_hero_badge": false,
         "hero_badge_text": "Most Popular",
         "expand_button_text": "See All 10 Products",
         "collapse_button_text": "Show Less",
