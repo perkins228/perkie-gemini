@@ -1964,13 +1964,20 @@ class PetProcessor {
         throw new Error(`BiRefNet re-segmentation failed: ${birefnetResponse.status}`);
       }
 
-      const result = await birefnetResponse.json();
+      // BiRefNet /remove-background returns raw binary image data, not JSON
+      // Convert the binary response to a data URL
+      const imageBlob = await birefnetResponse.blob();
+      const dataUrl = await new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result);
+        reader.readAsDataURL(imageBlob);
+      });
+
       const elapsed = Date.now() - startTime;
       console.log(`✅ Re-segmentation complete: ${elapsed}ms`);
 
-      // BiRefNet returns data URL with transparent background
       return {
-        dataUrl: result.image,
+        dataUrl: dataUrl,
         success: true
       };
     } catch (error) {
