@@ -249,7 +249,6 @@
 }
 
 /* Pet image overlay - positioned via CSS custom properties */
-/* Dynamic scaling applied via JS based on pet bounding box detection */
 .mockup-card__pet {
   position: absolute;
   top: var(--pet-top, 20%);
@@ -257,10 +256,9 @@
   width: var(--pet-width, 60%);
   height: auto;
   object-fit: contain;
-  transform-origin: center center;
   transform: rotate(var(--pet-rotation, 0deg));
   pointer-events: none;
-  transition: opacity 0.3s ease, transform 0.3s ease;
+  transition: opacity 0.3s ease;
   opacity: 0;
 }
 
