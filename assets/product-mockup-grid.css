@@ -254,7 +254,7 @@
   top: var(--pet-top, 20%);
   left: var(--pet-left, 20%);
   width: var(--pet-width, 60%);
-  height: auto;
+  height: var(--pet-height, 60%);
   object-fit: contain;
   transform: rotate(var(--pet-rotation, 0deg));
   pointer-events: none;
