@@ -121,24 +121,21 @@
                     <span class="mockup-card__price">
                       from {{ product.price_min | money }}
                     </span>
-                    {% if product.variants.size > 1 %}
+                    {%- comment -%} Count unique colors from Color option {%- endcomment -%}
+                    {%- assign color_count = 0 -%}
+                    {%- for option in product.options_with_values -%}
+                      {%- assign option_name_lower = option.name | downcase -%}
+                      {%- if option_name_lower == 'color' or option_name_lower == 'colour' -%}
+                        {%- assign color_count = option.values | size -%}
+                        {%- break -%}
+                      {%- endif -%}
+                    {%- endfor -%}
+                    {% if color_count > 1 %}
                       <span class="mockup-card__variants-count">
-                        {{ product.variants.size }} sizes
+                        {{ color_count }} colors
                       </span>
                     {% endif %}
                   </div>
-
-                  {%- comment -%} Star Rating if available {%- endcomment -%}
-                  {% if product.metafields.reviews.rating.value != blank %}
-                    <div class="mockup-card__rating">
-                      {% render 'star-rating', rating: product.metafields.reviews.rating.value %}
-                      {% if product.metafields.reviews.rating_count.value != blank %}
-                        <span class="mockup-card__review-count">
-                          ({{ product.metafields.reviews.rating_count.value }})
-                        </span>
-                      {% endif %}
-                    </div>
-                  {% endif %}
                 </div>
 
                 {%- comment -%} CTA Button {%- endcomment -%}
