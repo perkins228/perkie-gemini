@@ -1910,6 +1910,19 @@ class PetProcessor {
     this.currentPet.selectedEffect = effect;
     this.selectedEffect = effect;
 
+    // Dispatch effectChanged event for product mockup grid
+    const effectUrl = effectData.gcsUrl || effectData.dataUrl;
+    if (effectUrl) {
+      document.dispatchEvent(new CustomEvent('effectChanged', {
+        detail: {
+          effect: effect,
+          effectUrl: effectUrl,
+          sessionKey: this.currentPet.id
+        },
+        bubbles: true
+      }));
+    }
+
     // Show share button after effect selection
     if (this.sharing) {
       this.sharing.showShareButton();
@@ -2063,7 +2076,57 @@ class PetProcessor {
 
       // Update style card preview images with actual processed images
       this.updateStyleCardPreviews(result);
+
+      // Dispatch event for product mockup grid to display
+      this.dispatchProcessingComplete(result);
     });
+  }
+
+  /**
+   * Dispatch petProcessingComplete event for product mockup grid integration
+   * Called after processing completes and result is displayed
+   * @param {Object} result - Processing result containing effects
+   */
+  dispatchProcessingComplete(result) {
+    if (!result || !result.effects || !this.currentPet) {
+      console.warn('[PetProcessor] Cannot dispatch processing complete - missing data');
+      return;
+    }
+
+    try {
+      // Get the current selected effect (default to enhancedblackwhite)
+      const selectedEffect = this.selectedEffect || 'enhancedblackwhite';
+      const effectData = result.effects[selectedEffect];
+      const effectUrl = effectData?.gcsUrl || effectData?.dataUrl;
+
+      // Prepare effects object with GCS URLs
+      const effects = {};
+      for (const [key, value] of Object.entries(result.effects)) {
+        if (value && (value.gcsUrl || value.dataUrl)) {
+          effects[key] = {
+            gcsUrl: value.gcsUrl || null,
+            dataUrl: value.dataUrl || null
+          };
+        }
+      }
+
+      const eventDetail = {
+        sessionKey: this.currentPet.id,
+        selectedEffect: selectedEffect,
+        effectUrl: effectUrl,
+        effects: effects,
+        timestamp: Date.now()
+      };
+
+      console.log('[PetProcessor] Dispatching petProcessingComplete event', eventDetail);
+
+      document.dispatchEvent(new CustomEvent('petProcessingComplete', {
+        detail: eventDetail,
+        bubbles: true
+      }));
+    } catch (error) {
+      console.error('[PetProcessor] Error dispatching processing complete event:', error);
+    }
   }
 
   /**

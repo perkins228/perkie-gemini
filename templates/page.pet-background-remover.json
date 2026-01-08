@@ -22,7 +22,7 @@
       "name": "Pet Photo Processor v5",
       "settings": {
         "heading": "Preview Your Perkie Print",
-        "subheading": "Don’t worry—this is just a mockup! You can leave a note for our artist to make sure your Perkie Print is a true work of art.",
+        "subheading": "Don't worry—this is just a mockup! You can leave a note for our artist to make sure your Perkie Print is a true work of art.",
         "enable_product_integration": true,
         "cart_success_message": "Your Perkie Print has been saved!",
         "session_expiry_days": 7,
@@ -36,6 +36,17 @@
         "subheading_size": 18,
         "pt": 16,
         "pb": 4
+      }
+    },
+    "ks_product_mockup_grid_main": {
+      "type": "ks-product-mockup-grid",
+      "settings": {
+        "heading": "See Your Pet on Our Best-Sellers",
+        "subheading": "Click any product to customize and order",
+        "show_hero_badge": true,
+        "hero_badge_text": "Most Popular",
+        "expand_button_text": "See All 10 Products",
+        "collapse_button_text": "Show Less"
       }
     },
     "how_it_works": {
@@ -246,6 +257,7 @@
   "order": [
     "main",
     "ks_pet_processor_v5_gTVPB9",
+    "ks_product_mockup_grid_main",
     "how_it_works",
     "multicolumn_embKFy",
     "collapsible_content_6TRteB",
