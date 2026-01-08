@@ -150,7 +150,7 @@ class CropProcessor {
   initCanvas() {
     this.ctx = this.canvas.getContext('2d', {
       willReadFrequently: false, // Optimized for rendering
-      alpha: false
+      alpha: true // Enable transparency support for BiRefNet images
     });
 
     // Set canvas size to container size
@@ -758,14 +758,12 @@ class CropProcessor {
     const outputCanvas = document.createElement('canvas');
     outputCanvas.width = Math.round(sourceWidth);
     outputCanvas.height = Math.round(sourceHeight);
-    const outputCtx = outputCanvas.getContext('2d');
+    const outputCtx = outputCanvas.getContext('2d', {
+      alpha: true // Enable alpha channel for transparency preservation
+    });
 
-    // Fill canvas with white background for rectangle crops (required for JPEG export)
-    // Skip for circle crops to preserve transparency in corners
-    if (!this.state.isCircle) {
-      outputCtx.fillStyle = '#ffffff';
-      outputCtx.fillRect(0, 0, outputCanvas.width, outputCanvas.height);
-    }
+    // No background fill - preserve transparency from BiRefNet processing
+    // BiRefNet images always have transparent backgrounds regardless of crop shape
 
     // Draw cropped region at full source resolution (no downsampling)
     outputCtx.drawImage(
@@ -801,16 +799,14 @@ class CropProcessor {
    * @param {string} filename
    * @returns {Promise<File>}
    */
-  async getCroppedFile(filename = 'cropped-pet.jpg') {
+  async getCroppedFile(filename = 'cropped-pet.png') {
     const canvas = this.getCroppedCanvas();
     if (!canvas) return null;
 
-    // Use PNG for circle crops to preserve transparency
-    // Use JPEG for rectangle crops (smaller file size)
-    const isCircle = this.state.isCircle;
-    const mimeType = isCircle ? 'image/png' : 'image/jpeg';
-    const extension = isCircle ? '.png' : '.jpg';
-    const quality = isCircle ? undefined : 0.92;
+    // Always use PNG to preserve transparency from BiRefNet processing
+    // BiRefNet returns transparent backgrounds for all images, regardless of crop shape
+    const mimeType = 'image/png';
+    const extension = '.png';
 
     // Update filename extension if needed
     const finalFilename = filename.replace(/\.(jpg|jpeg|png)$/i, extension);
@@ -819,7 +815,7 @@ class CropProcessor {
       canvas.toBlob((blob) => {
         const file = new File([blob], finalFilename, { type: mimeType });
         resolve(file);
-      }, mimeType, quality);
+      }, mimeType); // No quality parameter for PNG (lossless)
     });
   }
 
