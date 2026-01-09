@@ -157,7 +157,8 @@
         "step_3": {
           "type": "step",
           "settings": {
-            "icon_svg": "<text x=\"24\" y=\"36\" font-size=\"48\" text-anchor=\"middle\">🖼️</text>",
+            "icon_svg": "",
+            "icon_image": "shopify://shop_images/product_icon_1_2f19c39e-a8e5-4111-ad50-01750e19273b.png",
             "title": "3. Choose A Product",
             "desc": "Pick a product to showcase your artwork"
           }
