@@ -148,8 +148,8 @@
         "step_2": {
           "type": "step",
           "settings": {
-            "icon_svg": "<text x=\"24\" y=\"36\" font-size=\"48\" text-anchor=\"middle\">🎨</text>",
-            "icon_image": "shopify://shop_images/Gemini_Generated_Image_4hl8av4hl8av4hl8.png",
+            "icon_svg": "",
+            "icon_image": "shopify://shop_images/style_icon_fb2c3def-ff7e-47ee-8b9d-8cd063b992a1.png",
             "title": "2. Select Your Style",
             "desc": "Choose between 4 beautiful effects: Black & White, Color, Ink Wash and Marker"
           }
