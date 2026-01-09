@@ -596,21 +596,7 @@
   box-sizing: border-box;
 }
 
-/* Add a label showing dimensions */
-.mockup-card__zone-preview::after {
-  content: 'Print Zone';
-  position: absolute;
-  top: 4px;
-  left: 4px;
-  background: rgba(255, 0, 0, 0.9);
-  color: white;
-  font-size: 10px;
-  font-weight: 600;
-  padding: 2px 6px;
-  border-radius: 2px;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
+/* Label removed for cleaner view - zone box speaks for itself */
 
 /* =============================================================================
    Print Styles
