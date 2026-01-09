@@ -981,7 +981,7 @@
     background: rgba(var(--color-foreground), 0.02);
     border: 1px solid rgba(var(--color-foreground), 0.08);
     border-radius: 16px;
-    padding: 1.5rem;
+    padding: 1rem; /* Reduced from 1.5rem for tighter layout */
   }
 
   /* LEFT column: Controls (fixed width for compact layout) */
@@ -1007,13 +1007,13 @@
   .ks-pet-processor-section .section-header {
     display: block !important;
     text-align: center;
-    margin-bottom: 2rem;
+    margin-bottom: 1.5rem; /* Reduced from 2rem */
   }
 
   /* Effect grid wrapper - fills left column width */
   .processor-controls .effect-grid-wrapper {
     margin-top: 0;
-    margin-bottom: 1.25rem;
+    margin-bottom: 1rem; /* Reduced from 1.25rem */
     display: flex;
     flex-direction: column;
     align-items: stretch; /* Fill available width */
@@ -1022,7 +1022,7 @@
 
   /* Choose Style heading - clear hierarchy */
   .processor-controls .effect-grid-heading {
-    margin-bottom: 0.75rem;
+    margin-bottom: 0.5rem; /* Reduced from 0.75rem */
     font-size: 0.9375rem; /* ~15px */
     font-weight: 600;
     text-transform: uppercase;
@@ -1033,7 +1033,7 @@
   /* Style selector 2x2 grid on desktop - fills left column */
   .processor-controls .effect-grid.style-selector__grid {
     grid-template-columns: repeat(2, 1fr) !important; /* 2x2 grid */
-    gap: 1rem; /* Comfortable spacing */
+    gap: 0.75rem; /* Reduced from 1rem for tighter layout */
     width: 100%; /* Fill available width */
     margin: 0;
   }
@@ -1057,7 +1057,7 @@
   .processor-controls .crop-btn,
   .processor-controls .try-another-btn {
     width: 100%; /* Full width of left column */
-    margin-top: 0.75rem;
+    margin-top: 0.5rem; /* Reduced from 0.75rem */
     margin-left: 0;
     margin-right: 0;
   }
@@ -1188,7 +1188,7 @@
 /* Desktop: Position scroll hint below processor */
 @media (min-width: 1024px) and (hover: hover) {
   .scroll-hint-container {
-    padding: 1rem 1rem 0;
+    padding: 0.5rem 1rem 0; /* Reduced from 1rem top padding */
     margin-top: 0;
   }
 
