@@ -207,6 +207,7 @@
         "text_7x7EPe",
         "button_bdt4J7"
       ],
+      "disabled": true,
       "name": "Free Gift Card Offer ",
       "settings": {
         "image": "shopify://shop_images/digitalgiftcard_square_25.jpg",
@@ -265,7 +266,7 @@
         "button_aAJmk9"
       ],
       "settings": {
-        "image": "shopify://shop_images/Holiday_GG_Gif.gif",
+        "image": "shopify://shop_images/2024_Valentines_Day_Sale_Banner_Square_no_Text.jpg",
         "height": "medium",
         "desktop_image_width": "medium",
         "layout": "image_first",
