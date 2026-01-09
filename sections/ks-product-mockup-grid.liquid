@@ -173,9 +173,10 @@
 
                 {%- comment -%} CTA Button {%- endcomment -%}
                 <span class="mockup-card__cta">
-                  {%- assign cta_text = section.settings.cta_text | default: 'See on Product' -%}
+                  {%- assign cta_text = section.settings.cta_text | default: 'Customize Now' -%}
                   {%- assign product_type_text = product.type | default: product.title | truncatewords: 2, '' -%}
-                  {{ cta_text | replace: '{product}', product_type_text }}
+                  {%- assign placeholder = '{product}' -%}
+                  {{ cta_text | replace: placeholder, product_type_text }}
                   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M5 12h14M12 5l7 7-7 7"/>
                   </svg>
