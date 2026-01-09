@@ -7,7 +7,7 @@
 {{ 'product-mockup-grid.css' | asset_url | stylesheet_tag }}
 
 <section id="product-mockup-grid-{{ section.id }}"
-         class="product-mockup-grid-section"
+         class="product-mockup-grid-section color-{{ section.settings.color_scheme }}"
          data-section-id="{{ section.id }}"
          data-section-type="ks-product-mockup-grid"
          style="display: none;">
@@ -283,6 +283,12 @@
       "content": "Display Options"
     },
     {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "Color scheme",
+      "default": "scheme-1"
+    },
+    {
       "type": "checkbox",
       "id": "show_hero_badge",
       "label": "Show badge on first product",
@@ -291,7 +297,7 @@
     {
       "type": "select",
       "id": "variant_display",
-      "label": "Show variant count",
+      "label": "Show variant count (global)",
       "default": "color",
       "options": [
         { "value": "none", "label": "Don't show" },
@@ -300,14 +306,14 @@
         { "value": "material", "label": "Materials" },
         { "value": "style", "label": "Styles" }
       ],
-      "info": "Choose which product variant to display count for (e.g., '5 colors')"
+      "info": "Default variant to display. Can be overridden per product below."
     },
     {
       "type": "text",
       "id": "cta_text",
       "label": "Button text",
-      "default": "See on Product",
-      "info": "Use {product} to insert product type (e.g., 'See on {product}' becomes 'See on Mug')"
+      "default": "Customize Now",
+      "info": "Use {product} to insert product type (e.g., 'Customize {product}' becomes 'Customize Mug')"
     },
     {
       "type": "header",
