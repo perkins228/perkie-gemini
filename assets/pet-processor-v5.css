@@ -940,6 +940,11 @@
   }
 }
 
+/* Inline section header - hidden by default on all devices */
+.inline-section-header {
+  display: none;
+}
+
 /* Desktop side-by-side layout - only when result is shown and for mouse/trackpad users */
 @media (min-width: 1024px) and (hover: hover) {
   /* Increase container width for desktop */
@@ -974,9 +979,9 @@
     align-items: flex-start;
   }
 
-  /* LEFT column: Preview (fixed width, sticky) - SWAPPED for above-fold optimization */
+  /* RIGHT column: Preview (fixed width, sticky) */
   .pet-processor-container.has-result .processor-preview {
-    order: 1; /* Visual order: appears first (left) */
+    order: 2; /* Visual order: appears second (right) */
     flex: 0 0 var(--desktop-left-column); /* 400px fixed width */
     position: sticky;
     top: 20px;
@@ -984,11 +989,38 @@
     display: block;
   }
 
-  /* RIGHT column: Controls (flexible width) - SWAPPED for above-fold optimization */
+  /* LEFT column: Controls (flexible width) */
   .pet-processor-container.has-result .processor-controls {
-    order: 2; /* Visual order: appears second (right) */
+    order: 1; /* Visual order: appears first (left) */
     flex: 1;
     min-width: 320px; /* Minimum width for controls */
+  }
+
+  /* Inline section header - shown in left column on desktop result view */
+  .pet-processor-container.has-result .inline-section-header {
+    display: block !important; /* Override hidden attribute */
+    margin-bottom: 1.5rem;
+    text-align: left;
+  }
+
+  .inline-section-heading {
+    font-size: clamp(24px, 3vw, 32px);
+    font-weight: 600;
+    line-height: 1.2;
+    margin: 0 0 0.5rem 0;
+    color: rgb(var(--color-foreground));
+  }
+
+  .inline-section-subheading {
+    font-size: clamp(14px, 1.5vw, 16px);
+    line-height: 1.5;
+    margin: 0;
+    color: rgba(var(--color-foreground), 0.7);
+  }
+
+  /* Hide original section header when result is displayed on desktop */
+  .ks-pet-processor-section:has(.has-result) .section-header {
+    display: none;
   }
 
   /* Effect grid wrapper spacing */

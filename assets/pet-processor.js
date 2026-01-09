@@ -1016,6 +1016,12 @@ class PetProcessor {
               </button>
             </div>
             
+            <!-- Inline Section Heading (desktop side-by-side layout only) -->
+            <div class="inline-section-header" hidden>
+              <h2 class="inline-section-heading"></h2>
+              <p class="inline-section-subheading"></p>
+            </div>
+
             <!-- Effect Selection (shown in result view) -->
             <div class="effect-grid-wrapper" hidden>
               <h3 class="effect-grid-heading">Choose Style</h3>
@@ -2103,6 +2109,26 @@ class PetProcessor {
       // Show result elements in left column
       const leftResultElements = this.container.querySelectorAll('.processor-controls .effect-grid-wrapper, .processor-controls .action-buttons');
       leftResultElements.forEach(el => el.hidden = false);
+
+      // Show inline section header for desktop side-by-side layout
+      const inlineSectionHeader = this.container.querySelector('.inline-section-header');
+      if (inlineSectionHeader) {
+        inlineSectionHeader.hidden = false;
+        // Copy heading text from original section header
+        const section = this.container.closest('.ks-pet-processor-section');
+        if (section) {
+          const originalHeading = section.querySelector('.section-heading');
+          const originalSubheading = section.querySelector('.section-subheading');
+          const inlineHeading = inlineSectionHeader.querySelector('.inline-section-heading');
+          const inlineSubheading = inlineSectionHeader.querySelector('.inline-section-subheading');
+          if (originalHeading && inlineHeading) {
+            inlineHeading.textContent = originalHeading.textContent;
+          }
+          if (originalSubheading && inlineSubheading) {
+            inlineSubheading.textContent = originalSubheading.textContent;
+          }
+        }
+      }
 
       // Show result view in right column
       const rightResultView = this.container.querySelector('.processor-preview .result-view');
