@@ -973,46 +973,71 @@
     gap: var(--desktop-gap);
     align-items: flex-start;
   }
-  
-  /* Left column: Controls (fixed width) */
-  .pet-processor-container.has-result .processor-controls {
-    flex: 0 0 var(--desktop-left-column);
+
+  /* LEFT column: Preview (fixed width, sticky) - SWAPPED for above-fold optimization */
+  .pet-processor-container.has-result .processor-preview {
+    order: 1; /* Visual order: appears first (left) */
+    flex: 0 0 var(--desktop-left-column); /* 400px fixed width */
     position: sticky;
     top: 20px;
     max-height: calc(100vh - 40px);
-    overflow-y: auto;
-  }
-  
-  /* Right column: Preview (flexible width) */
-  .pet-processor-container.has-result .processor-preview {
-    flex: 1;
-    min-width: var(--desktop-right-min);
     display: block;
   }
-  
-  /* Move effect grid to left column on desktop */
-  .processor-controls .effect-grid-wrapper {
-    margin-top: 1.5rem;
+
+  /* RIGHT column: Controls (flexible width) - SWAPPED for above-fold optimization */
+  .pet-processor-container.has-result .processor-controls {
+    order: 2; /* Visual order: appears second (right) */
+    flex: 1;
+    min-width: 320px; /* Minimum width for controls */
   }
-  
-  /* Stack action buttons vertically in left column */
+
+  /* Effect grid wrapper spacing */
+  .processor-controls .effect-grid-wrapper {
+    margin-top: 0; /* No top margin - preview visible alongside */
+    margin-bottom: 1.5rem;
+  }
+
+  /* Style selector 2x2 grid on desktop (compact for right column) */
+  .processor-controls .effect-grid.style-selector__grid {
+    grid-template-columns: repeat(2, 1fr) !important; /* 2x2 grid */
+    gap: 1rem;
+    max-width: none; /* Remove width constraint */
+  }
+
+  /* Stack action buttons vertically in right column */
   .processor-controls .action-buttons {
     flex-direction: column;
     gap: 0.75rem;
   }
-  
+
   .processor-controls .action-buttons button {
     width: 100%;
+    max-width: none; /* Full width in right column */
   }
-  
-  /* Preview area styling */
+
+  /* Crop button full width */
+  .processor-controls .crop-btn {
+    width: 100%;
+    max-width: none;
+  }
+
+  /* Preview area styling - constrained height for above-fold optimization */
   .processor-preview .pet-image-container {
-    min-height: 500px;
+    min-height: auto; /* Remove fixed minimum */
+    max-height: 500px; /* Cap height for compact layout */
     display: flex;
     align-items: center;
     justify-content: center;
     background: rgba(var(--color-foreground), 0.03);
     border-radius: 12px;
+    overflow: hidden;
+  }
+
+  .processor-preview .pet-image {
+    width: 100%;
+    height: auto;
+    max-height: 500px;
+    object-fit: contain;
   }
   
   /* Processing overlay for left column */
@@ -1028,6 +1053,30 @@
     justify-content: center;
     border-radius: 12px;
     z-index: 10;
+  }
+}
+
+/* Large Desktop (1440px+) - Larger preview for premium displays */
+@media (min-width: 1440px) and (hover: hover) {
+  .pet-processor-container.has-result .processor-preview {
+    flex: 0 0 500px; /* +100px for larger screens */
+  }
+
+  .processor-preview .pet-image-container,
+  .processor-preview .pet-image {
+    max-height: 560px;
+  }
+}
+
+/* XL Desktop (1920px+) - Even larger preview for 4K displays */
+@media (min-width: 1920px) and (hover: hover) {
+  .pet-processor-container.has-result .processor-preview {
+    flex: 0 0 600px; /* +200px for 4K displays */
+  }
+
+  .processor-preview .pet-image-container,
+  .processor-preview .pet-image {
+    max-height: 620px;
   }
 }
 
@@ -1047,23 +1096,29 @@
   }
 }
 
-/* Graceful degradation for older browsers */
+/* Graceful degradation for older browsers (side-by-side: preview left, controls right) */
 @supports not (display: flex) {
   @media (min-width: 1024px) {
     .processor-columns {
       display: table;
       width: 100%;
     }
-    
+
     .processor-controls,
     .processor-preview {
       display: table-cell;
       vertical-align: top;
     }
-    
-    .processor-controls {
+
+    /* Preview on left (fixed width) */
+    .processor-preview {
       width: var(--desktop-left-column);
       padding-right: var(--desktop-gap);
+    }
+
+    /* Controls on right (flexible) */
+    .processor-controls {
+      width: auto;
     }
   }
 }
@@ -1071,7 +1126,8 @@
 /* Preview placeholder for desktop */
 .preview-placeholder {
   display: none; /* Hidden on mobile */
-  min-height: 500px;
+  min-height: 300px; /* Reduced to match compact preview */
+  max-height: 500px;
   background: rgba(var(--color-foreground), 0.03);
   border-radius: 12px;
   flex-direction: column;
