@@ -84,6 +84,7 @@
         "product_4_rotation": 0,
         "product_4_variant_display": "color",
         "product_5": "lightweight-personalized-pet-in-pocket-cropped-tee",
+        "product_5_mockup_template": "shopify://shop_images/cropped_pocket_tee_mockup.png",
         "product_5_top": 20,
         "product_5_left": 20,
         "product_5_width": 60,
