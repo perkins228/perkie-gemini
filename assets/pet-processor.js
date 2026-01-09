@@ -1117,6 +1117,16 @@ class PetProcessor {
             </div>
           </div>
         </div>
+
+        <!-- Scroll Hint - Encourages product discovery -->
+        <div class="scroll-hint-container" data-scroll-hint>
+          <p class="scroll-hint-text">See your pet on our products</p>
+          <span class="scroll-hint-arrow">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 5v14M5 12l7 7 7-7"/>
+            </svg>
+          </span>
+        </div>
       </div>
     `;
   }
@@ -2156,6 +2166,10 @@ class PetProcessor {
       // Update style card preview images with actual processed images
       this.updateStyleCardPreviews(result);
 
+      // Show scroll hint for product discovery (desktop only)
+      const scrollHint = this.container.querySelector('[data-scroll-hint]');
+      if (scrollHint) scrollHint.classList.add('visible');
+
       // Dispatch event for product mockup grid to display
       this.dispatchProcessingComplete(result);
     });
@@ -2839,6 +2853,10 @@ class PetProcessor {
     // Remove side-by-side layout class
     const container = this.container.querySelector('.pet-processor-container');
     if (container) container.classList.remove('has-result');
+
+    // Hide scroll hint
+    const scrollHint = this.container.querySelector('[data-scroll-hint]');
+    if (scrollHint) scrollHint.classList.remove('visible');
 
     // Show upload zone
     const uploadZone = this.container.querySelector('[data-upload-zone]');

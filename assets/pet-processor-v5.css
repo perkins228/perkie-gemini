@@ -1065,7 +1065,7 @@
   /* Preview area styling - constrained height for above-fold optimization */
   .processor-preview .pet-image-container {
     min-height: auto; /* Remove fixed minimum */
-    max-height: 500px; /* Cap height for compact layout */
+    max-height: 400px; /* Reduced from 500px to bring products above fold */
     display: flex;
     align-items: center;
     justify-content: center;
@@ -1077,7 +1077,7 @@
   .processor-preview .pet-image {
     width: 100%;
     height: auto;
-    max-height: 500px;
+    max-height: 400px; /* Reduced from 500px */
     object-fit: contain;
   }
   
@@ -1105,7 +1105,7 @@
 
   .processor-preview .pet-image-container,
   .processor-preview .pet-image {
-    max-height: 560px;
+    max-height: 450px; /* Reduced from 560px */
   }
 }
 
@@ -1117,7 +1117,78 @@
 
   .processor-preview .pet-image-container,
   .processor-preview .pet-image {
-    max-height: 620px;
+    max-height: 500px; /* Reduced from 620px */
+  }
+}
+
+/* =============================================================================
+   Scroll Hint - Encourages discovery of Product Grid below
+   ============================================================================= */
+
+.scroll-hint-container {
+  display: none; /* Hidden by default, shown via JS when result displayed */
+  text-align: center;
+  padding: 1.5rem 1rem;
+  margin-top: 0.5rem;
+  animation: fadeInUp 0.5s ease 0.3s both;
+}
+
+.scroll-hint-container.visible {
+  display: block;
+}
+
+.scroll-hint-text {
+  font-size: 0.9375rem;
+  color: rgba(var(--color-foreground), 0.7);
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+}
+
+.scroll-hint-arrow {
+  display: inline-block;
+  width: 24px;
+  height: 24px;
+  color: rgb(var(--color-button));
+  animation: bounce 2s ease-in-out infinite;
+}
+
+.scroll-hint-arrow svg {
+  width: 100%;
+  height: 100%;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes bounce {
+  0%, 20%, 50%, 80%, 100% {
+    transform: translateY(0);
+  }
+  40% {
+    transform: translateY(6px);
+  }
+  60% {
+    transform: translateY(3px);
+  }
+}
+
+/* Desktop: Position scroll hint below processor */
+@media (min-width: 1024px) and (hover: hover) {
+  .scroll-hint-container {
+    padding: 1rem 1rem 0;
+    margin-top: 0;
+  }
+
+  .scroll-hint-text {
+    font-size: 0.875rem;
   }
 }
 
