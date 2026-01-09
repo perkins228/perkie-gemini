@@ -139,7 +139,8 @@
         "step_1": {
           "type": "step",
           "settings": {
-            "icon_svg": "<text x=\"24\" y=\"36\" font-size=\"48\" text-anchor=\"middle\">📤</text>",
+            "icon_svg": "",
+            "icon_image": "shopify://shop_images/upload_icon_3c7bc573-435e-4691-8178-986c614a9647.png",
             "title": "1. Upload Your Photo",
             "desc": "Choose a well-lit, high-resolution photo of your pet (JPG/PNG, max 10MB)"
           }
