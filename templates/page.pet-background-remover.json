@@ -44,7 +44,7 @@
         "heading": "Love it?",
         "subheading": "Click any product to customize and order",
         "show_hero_badge": false,
-        "variant_display": "color",
+        "variant_display": "style",
         "show_print_zones": true,
         "hero_badge_text": "Most Popular",
         "expand_button_text": "See More",
