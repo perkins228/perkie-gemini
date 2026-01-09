@@ -940,9 +940,9 @@
   }
 }
 
-/* Inline section header - hidden by default on all devices */
+/* Inline section header - hidden on all devices (keep original header visible) */
 .inline-section-header {
-  display: none;
+  display: none !important;
 }
 
 /* Desktop side-by-side layout - only when result is shown and for mouse/trackpad users */
@@ -979,94 +979,86 @@
     align-items: flex-start;
   }
 
-  /* RIGHT column: Preview (fixed width, sticky) */
+  /* LEFT column: Controls (fixed width for compact layout) */
+  .pet-processor-container.has-result .processor-controls {
+    order: 1; /* Visual order: appears first (left) */
+    flex: 0 0 380px; /* Fixed width for compact controls */
+    min-width: 320px;
+    max-width: 420px; /* Cap for ultra-wide displays */
+  }
+
+  /* RIGHT column: Preview (flexible, fills remaining space) */
   .pet-processor-container.has-result .processor-preview {
     order: 2; /* Visual order: appears second (right) */
-    flex: 0 0 var(--desktop-left-column); /* 400px fixed width */
+    flex: 1; /* Grows to fill remaining space - larger preview */
+    min-width: 400px; /* Minimum preview size */
     position: sticky;
     top: 20px;
     max-height: calc(100vh - 40px);
     display: block;
   }
 
-  /* LEFT column: Controls (flexible width) */
-  .pet-processor-container.has-result .processor-controls {
-    order: 1; /* Visual order: appears first (left) */
-    flex: 1;
-    min-width: 320px; /* Minimum width for controls */
+  /* Keep original section header visible and centered on desktop */
+  .ks-pet-processor-section .section-header {
+    display: block !important;
+    text-align: center;
+    margin-bottom: 2rem;
   }
 
-  /* Inline section header - shown in left column on desktop result view */
-  .pet-processor-container.has-result .inline-section-header {
-    display: block !important; /* Override hidden attribute */
-    margin-bottom: 1.5rem;
-    text-align: left;
+  /* Effect grid wrapper - fills left column width */
+  .processor-controls .effect-grid-wrapper {
+    margin-top: 0;
+    margin-bottom: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch; /* Fill available width */
+    width: 100%;
   }
 
-  .inline-section-heading {
-    font-size: clamp(24px, 3vw, 32px);
+  /* Choose Style heading - clear hierarchy */
+  .processor-controls .effect-grid-heading {
+    margin-bottom: 0.75rem;
+    font-size: 0.9375rem; /* ~15px */
     font-weight: 600;
-    line-height: 1.2;
-    margin: 0 0 0.5rem 0;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
     color: rgb(var(--color-foreground));
   }
 
-  .inline-section-subheading {
-    font-size: clamp(14px, 1.5vw, 16px);
-    line-height: 1.5;
-    margin: 0;
-    color: rgba(var(--color-foreground), 0.7);
-  }
-
-  /* Hide original section header when result is displayed on desktop */
-  .ks-pet-processor-section:has(.has-result) .section-header {
-    display: none;
-  }
-
-  /* Effect grid wrapper - left aligned, compact */
-  .processor-controls .effect-grid-wrapper {
-    margin-top: 0;
-    margin-bottom: 1rem;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start; /* Left align all children */
-  }
-
-  /* Choose Style heading - compact */
-  .processor-controls .effect-grid-heading {
-    margin-bottom: 0.5rem;
-    font-size: 0.875rem;
-  }
-
-  /* Style selector 2x2 grid on desktop (compact for left column - 50% smaller) */
+  /* Style selector 2x2 grid on desktop - fills left column */
   .processor-controls .effect-grid.style-selector__grid {
     grid-template-columns: repeat(2, 1fr) !important; /* 2x2 grid */
-    gap: 0.5rem; /* Reduced gap for smaller buttons */
-    max-width: 200px; /* Constrain grid width for 50% smaller buttons */
-    margin: 0; /* Remove any auto margin */
+    gap: 1rem; /* Comfortable spacing */
+    width: 100%; /* Fill available width */
+    margin: 0;
   }
 
-  /* Smaller style cards on desktop (50% reduction) */
+  /* Style cards - comfortable size for left column */
   .processor-controls .style-card__image-wrapper {
-    max-width: 80px;
-    max-height: 80px;
+    max-width: 140px;
+    max-height: 140px;
   }
 
   .processor-controls .style-card__label {
-    font-size: 0.7rem; /* Smaller label text */
+    font-size: 0.8rem;
   }
 
   .processor-controls .style-card__content {
-    gap: 0.25rem; /* Tighter spacing */
+    gap: 0.5rem;
   }
 
-  /* Action buttons (Crop and Try Another Pet) - left aligned */
+  /* Action buttons (Crop and Try Another Pet) - full width */
   .processor-controls .crop-btn,
   .processor-controls .try-another-btn {
-    max-width: 200px; /* Match style grid width */
-    margin-top: 0.5rem;
-    margin-left: 0; /* Left align */
-    margin-right: auto; /* Push to left */
+    width: 100%; /* Full width of left column */
+    margin-top: 0.75rem;
+    margin-left: 0;
+    margin-right: 0;
+  }
+
+  /* Ensure all controls fill left column width */
+  .pet-processor-container.has-result .processor-controls > * {
+    width: 100%;
   }
 
   /* Preview area styling - constrained height for above-fold optimization */
@@ -1104,10 +1096,10 @@
   }
 }
 
-/* Large Desktop (1440px+) - Larger preview for premium displays */
+/* Large Desktop (1440px+) - Slightly larger left column */
 @media (min-width: 1440px) and (hover: hover) {
-  .pet-processor-container.has-result .processor-preview {
-    flex: 0 0 500px; /* +100px for larger screens */
+  .pet-processor-container.has-result .processor-controls {
+    flex: 0 0 400px; /* +20px for larger screens */
   }
 
   .processor-preview .pet-image-container,
@@ -1116,10 +1108,10 @@
   }
 }
 
-/* XL Desktop (1920px+) - Even larger preview for 4K displays */
+/* XL Desktop (1920px+) - Even larger left column for 4K displays */
 @media (min-width: 1920px) and (hover: hover) {
-  .pet-processor-container.has-result .processor-preview {
-    flex: 0 0 600px; /* +200px for 4K displays */
+  .pet-processor-container.has-result .processor-controls {
+    flex: 0 0 420px; /* +40px for 4K displays */
   }
 
   .processor-preview .pet-image-container,
@@ -1144,7 +1136,7 @@
   }
 }
 
-/* Graceful degradation for older browsers (side-by-side: preview left, controls right) */
+/* Graceful degradation for older browsers (side-by-side: controls left, preview right) */
 @supports not (display: flex) {
   @media (min-width: 1024px) {
     .processor-columns {
@@ -1158,14 +1150,14 @@
       vertical-align: top;
     }
 
-    /* Preview on left (fixed width) */
-    .processor-preview {
-      width: var(--desktop-left-column);
+    /* Controls on left (fixed width) */
+    .processor-controls {
+      width: 380px;
       padding-right: var(--desktop-gap);
     }
 
-    /* Controls on right (flexible) */
-    .processor-controls {
+    /* Preview on right (flexible) */
+    .processor-preview {
       width: auto;
     }
   }
