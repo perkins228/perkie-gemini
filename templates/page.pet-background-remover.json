@@ -122,7 +122,7 @@
         "product_9_width": 30,
         "product_9_height": 45,
         "product_9_rotation": 0,
-        "product_9_variant_display": "",
+        "product_9_variant_display": "size",
         "product_10": "card",
         "product_10_mockup_template": "shopify://shop_images/card_mockup.jpg",
         "product_10_top": 20,
