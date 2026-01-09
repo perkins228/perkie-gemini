@@ -157,6 +157,8 @@
         "text_RKpxyW",
         "button_rVdAJk"
       ],
+      "disabled": true,
+      "name": "Need it by xmas?",
       "settings": {
         "desktop_content_position": "center",
         "content_alignment": "center",
@@ -228,6 +230,8 @@
         "column_NPWkmY",
         "column_YhWTtF"
       ],
+      "disabled": true,
+      "name": "Xmas deadlines",
       "settings": {
         "title": "",
         "heading_size": "h1",
@@ -289,6 +293,8 @@
         "button_9RLTic",
         "heading_6KwbFT"
       ],
+      "disabled": true,
+      "name": "Link to holiday shipping policy",
       "settings": {
         "desktop_content_position": "center",
         "content_alignment": "center",
@@ -338,7 +344,8 @@
         "text_RGLP3x",
         "button_rEa79g"
       ],
-      "name": "t:sections.image-with-text.presets.name",
+      "disabled": true,
+      "name": "So you missed the xmas deadline?",
       "settings": {
         "image": "shopify://shop_images/Digital_Download_Holiday_Queue_Email_Delivery-phone2.png",
         "height": "adapt",
