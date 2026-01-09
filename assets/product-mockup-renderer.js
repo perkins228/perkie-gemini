@@ -72,6 +72,42 @@ class ProductMockupRenderer {
 
     // Bind product card clicks
     this.bindCardClicks();
+
+    // Bind "Try Another Pet" button (relocated from email section)
+    this.bindTryAnotherPet();
+  }
+
+  /**
+   * Bind "Try Another Pet" button click handler
+   */
+  bindTryAnotherPet() {
+    const tryAnotherBtn = this.section?.querySelector('[data-try-another-pet]');
+    if (tryAnotherBtn) {
+      tryAnotherBtn.addEventListener('click', () => this.handleTryAnotherPet());
+    }
+  }
+
+  /**
+   * Handle "Try Another Pet" button click
+   * Dispatches event for pet processor to reset
+   */
+  handleTryAnotherPet() {
+    console.log('[ProductMockupRenderer] Try Another Pet clicked');
+
+    // Dispatch event for pet processor to handle reset
+    document.dispatchEvent(new CustomEvent('tryAnotherPet'));
+
+    // Scroll to processor section
+    const processor = document.querySelector('.pet-processor-container');
+    if (processor) {
+      processor.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    // Hide the mockup grid
+    this.hide();
+
+    // Track analytics
+    this.trackEvent('try_another_pet_clicked');
   }
 
   /**
