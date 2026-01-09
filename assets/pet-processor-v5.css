@@ -1033,7 +1033,12 @@
     margin: 0;
   }
 
-  /* Style cards - comfortable size for left column */
+  /* Style cards - comfortable size for left column, centered */
+  .processor-controls .style-card__content {
+    align-items: center; /* Center the image wrapper horizontally */
+    gap: 0.5rem;
+  }
+
   .processor-controls .style-card__image-wrapper {
     max-width: 140px;
     max-height: 140px;
@@ -1041,10 +1046,6 @@
 
   .processor-controls .style-card__label {
     font-size: 0.8rem;
-  }
-
-  .processor-controls .style-card__content {
-    gap: 0.5rem;
   }
 
   /* Action buttons (Crop and Try Another Pet) - full width */
