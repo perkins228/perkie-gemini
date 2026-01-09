@@ -1029,28 +1029,37 @@
     margin-bottom: 1.5rem;
   }
 
-  /* Style selector 2x2 grid on desktop (compact for right column) */
+  /* Style selector 2x2 grid on desktop (compact for left column - 50% smaller) */
   .processor-controls .effect-grid.style-selector__grid {
     grid-template-columns: repeat(2, 1fr) !important; /* 2x2 grid */
-    gap: 1rem;
-    max-width: none; /* Remove width constraint */
+    gap: 0.5rem; /* Reduced gap for smaller buttons */
+    max-width: 200px; /* Constrain grid width for 50% smaller buttons */
   }
 
-  /* Stack action buttons vertically in right column */
-  .processor-controls .action-buttons {
-    flex-direction: column;
-    gap: 0.75rem;
+  /* Smaller style cards on desktop (50% reduction) */
+  .processor-controls .style-card__image-wrapper {
+    max-width: 80px;
+    max-height: 80px;
   }
 
-  .processor-controls .action-buttons button {
+  .processor-controls .style-card__label {
+    font-size: 0.7rem; /* Smaller label text */
+  }
+
+  .processor-controls .style-card__content {
+    gap: 0.25rem; /* Tighter spacing */
+  }
+
+  /* Action buttons (Crop and Try Another Pet) */
+  .processor-controls .crop-btn,
+  .processor-controls .try-another-btn {
     width: 100%;
-    max-width: none; /* Full width in right column */
+    max-width: 200px; /* Match style grid width */
+    margin-top: 0.5rem;
   }
 
-  /* Crop button full width */
-  .processor-controls .crop-btn {
-    width: 100%;
-    max-width: none;
+  .processor-controls .try-another-btn {
+    margin-top: 0.5rem;
   }
 
   /* Preview area styling - constrained height for above-fold optimization */

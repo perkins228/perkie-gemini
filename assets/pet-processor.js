@@ -1065,9 +1065,12 @@ class PetProcessor {
               <button class="btn-secondary crop-btn" aria-label="Crop image">
                 ✂️ Crop Image
               </button>
-            </div>
 
-            <!-- Actions div removed - email capture and try another pet relocated to product mockup grid -->
+              <!-- Try Another Pet Button - same styling as crop button -->
+              <button class="btn-secondary try-another-btn" aria-label="Process another pet image">
+                ↻ Try Another Pet
+              </button>
+            </div>
 
             <!-- Error View -->
             <div class="error-view" hidden>
@@ -1203,6 +1206,7 @@ class PetProcessor {
     // Action buttons
     this.container.querySelector('.crop-btn')?.addEventListener('click', () => this.handleCropClick());
     this.container.querySelector('.try-again-btn')?.addEventListener('click', () => this.reset());
+    this.container.querySelector('.try-another-btn')?.addEventListener('click', async () => await this.processAnother());
 
     // Listen for "Try Another Pet" event from mockup grid
     document.addEventListener('tryAnotherPet', async () => await this.processAnother());

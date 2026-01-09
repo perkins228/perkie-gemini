@@ -611,38 +611,3 @@
     display: none !important;
   }
 }
-
-/* =============================================================================
-   Try Another Pet Button (Relocated from email section)
-   ============================================================================= */
-
-.try-another-pet-container {
-  text-align: center;
-  padding: 24px 16px 0;
-  margin-top: 24px;
-  border-top: 1px solid rgba(var(--color-foreground), 0.1);
-}
-
-.try-another-pet-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 15px;
-  font-weight: 500;
-  color: rgba(var(--color-foreground), 0.7);
-  background: none;
-  border: none;
-  padding: 12px 24px;
-  cursor: pointer;
-  transition: color 0.2s ease;
-}
-
-.try-another-pet-btn:hover {
-  color: rgb(var(--color-foreground));
-}
-
-.try-another-pet-btn:focus-visible {
-  outline: 2px solid rgb(var(--color-button));
-  outline-offset: 2px;
-  border-radius: 4px;
-}
