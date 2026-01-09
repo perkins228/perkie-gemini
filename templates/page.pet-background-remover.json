@@ -64,6 +64,7 @@
         "product_2_height": 25,
         "product_2_rotation": 0,
         "product_3": "personalized-pet-coffee-mug",
+        "product_3_mockup_template": "shopify://shop_images/AdobeStock_541562808_1.png",
         "product_3_top": 20,
         "product_3_left": 20,
         "product_3_width": 60,
