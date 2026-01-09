@@ -67,8 +67,75 @@ class ProductMockupRenderer {
       this.toggleBtn.addEventListener('click', () => this.toggleExpand());
     }
 
+    // Bind carousel navigation (desktop only)
+    this.bindCarouselNavigation();
+
     // Bind product card clicks
     this.bindCardClicks();
+  }
+
+  /**
+   * Bind carousel navigation buttons (desktop only)
+   */
+  bindCarouselNavigation() {
+    if (!this.section) return;
+
+    const prevBtn = this.section.querySelector('[data-carousel-prev]');
+    const nextBtn = this.section.querySelector('[data-carousel-next]');
+
+    if (prevBtn) {
+      prevBtn.addEventListener('click', () => this.scrollCarousel('prev'));
+    }
+    if (nextBtn) {
+      nextBtn.addEventListener('click', () => this.scrollCarousel('next'));
+    }
+
+    // Update button states on scroll
+    if (this.itemsContainer) {
+      this.itemsContainer.addEventListener('scroll', () => this.updateCarouselButtons());
+      // Initial state
+      setTimeout(() => this.updateCarouselButtons(), 100);
+    }
+  }
+
+  /**
+   * Scroll carousel in specified direction
+   * @param {string} direction - 'prev' or 'next'
+   */
+  scrollCarousel(direction) {
+    if (!this.itemsContainer) return;
+
+    const card = this.itemsContainer.querySelector('.mockup-card');
+    if (!card) return;
+
+    const cardWidth = card.offsetWidth + 16; // Include gap
+    const scrollAmount = cardWidth * 3; // Scroll 3 cards at a time
+
+    if (direction === 'prev') {
+      this.itemsContainer.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
+    } else {
+      this.itemsContainer.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+    }
+  }
+
+  /**
+   * Update carousel navigation button states
+   */
+  updateCarouselButtons() {
+    if (!this.section || !this.itemsContainer) return;
+
+    const prevBtn = this.section.querySelector('[data-carousel-prev]');
+    const nextBtn = this.section.querySelector('[data-carousel-next]');
+
+    const scrollLeft = this.itemsContainer.scrollLeft;
+    const maxScroll = this.itemsContainer.scrollWidth - this.itemsContainer.clientWidth;
+
+    if (prevBtn) {
+      prevBtn.disabled = scrollLeft <= 0;
+    }
+    if (nextBtn) {
+      nextBtn.disabled = scrollLeft >= maxScroll - 1;
+    }
   }
 
   /**

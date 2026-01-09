@@ -132,17 +132,109 @@
   gap: 12px;
 }
 
-/* Desktop: 5-column grid */
+/* Desktop: Horizontal carousel */
 @media screen and (min-width: 750px) {
+  .mockup-grid__container {
+    position: relative;
+  }
+
   .mockup-grid__items {
-    grid-template-columns: repeat(5, 1fr);
+    display: flex;
     gap: 16px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE/Edge */
+    padding: 4px 0 8px; /* Allow for card shadows */
+  }
+
+  .mockup-grid__items::-webkit-scrollbar {
+    display: none; /* Chrome/Safari */
+  }
+
+  .mockup-grid__items .mockup-card {
+    flex: 0 0 calc(20% - 13px); /* ~5 visible cards */
+    scroll-snap-align: start;
+    min-width: 200px;
   }
 }
 
 @media screen and (min-width: 990px) {
   .mockup-grid__items {
     gap: 20px;
+  }
+
+  .mockup-grid__items .mockup-card {
+    flex: 0 0 calc(20% - 16px);
+    min-width: 220px;
+  }
+}
+
+/* =============================================================================
+   Carousel Navigation Arrows (Desktop Only)
+   ============================================================================= */
+
+.mockup-grid__nav {
+  display: none;
+}
+
+@media screen and (min-width: 750px) {
+  .mockup-grid__nav {
+    display: flex;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 10;
+  }
+
+  .mockup-grid__nav--prev {
+    left: -20px;
+  }
+
+  .mockup-grid__nav--next {
+    right: -20px;
+  }
+
+  .mockup-grid__nav-btn {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: rgb(var(--color-background));
+    border: 1px solid rgba(var(--color-foreground), 0.1);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    color: rgb(var(--color-foreground));
+  }
+
+  .mockup-grid__nav-btn:hover {
+    background: rgba(var(--color-foreground), 0.05);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
+
+  .mockup-grid__nav-btn:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+  }
+
+  .mockup-grid__nav-btn svg {
+    width: 20px;
+    height: 20px;
+  }
+}
+
+@media screen and (min-width: 990px) {
+  .mockup-grid__nav--prev {
+    left: -24px;
+  }
+
+  .mockup-grid__nav--next {
+    right: -24px;
   }
 }
 
@@ -163,18 +255,26 @@
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
 }
 
-/* Hero card (first product) spans full width on mobile */
+/* Hero card (first product) spans full width on mobile grid */
 .mockup-card--hero {
   grid-column: 1 / -1;
 }
 
+/* Desktop carousel: hero card is same size as others */
 @media screen and (min-width: 750px) {
   .mockup-card--hero {
-    grid-column: auto; /* Normal size on desktop */
+    grid-column: auto; /* Normal size for carousel */
+    flex: 0 0 calc(20% - 13px);
   }
 }
 
-/* Expandable cards (products 4-10) hidden by default on mobile */
+@media screen and (min-width: 990px) {
+  .mockup-card--hero {
+    flex: 0 0 calc(20% - 16px);
+  }
+}
+
+/* Expandable cards (products 6-10) hidden by default on mobile */
 .mockup-card--expandable {
   display: none;
 }
@@ -195,9 +295,11 @@
   }
 }
 
+/* Desktop carousel: all cards visible and flex display */
 @media screen and (min-width: 750px) {
   .mockup-card--expandable {
-    display: block; /* Always visible on desktop */
+    display: flex; /* Always visible, flex for carousel */
+    flex-direction: column;
   }
 }
 
