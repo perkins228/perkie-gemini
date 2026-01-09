@@ -1023,10 +1023,19 @@
     display: none;
   }
 
-  /* Effect grid wrapper spacing */
+  /* Effect grid wrapper - left aligned, compact */
   .processor-controls .effect-grid-wrapper {
-    margin-top: 0; /* No top margin - preview visible alongside */
-    margin-bottom: 1.5rem;
+    margin-top: 0;
+    margin-bottom: 1rem;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start; /* Left align all children */
+  }
+
+  /* Choose Style heading - compact */
+  .processor-controls .effect-grid-heading {
+    margin-bottom: 0.5rem;
+    font-size: 0.875rem;
   }
 
   /* Style selector 2x2 grid on desktop (compact for left column - 50% smaller) */
@@ -1034,6 +1043,7 @@
     grid-template-columns: repeat(2, 1fr) !important; /* 2x2 grid */
     gap: 0.5rem; /* Reduced gap for smaller buttons */
     max-width: 200px; /* Constrain grid width for 50% smaller buttons */
+    margin: 0; /* Remove any auto margin */
   }
 
   /* Smaller style cards on desktop (50% reduction) */
@@ -1050,16 +1060,13 @@
     gap: 0.25rem; /* Tighter spacing */
   }
 
-  /* Action buttons (Crop and Try Another Pet) */
+  /* Action buttons (Crop and Try Another Pet) - left aligned */
   .processor-controls .crop-btn,
   .processor-controls .try-another-btn {
-    width: 100%;
     max-width: 200px; /* Match style grid width */
     margin-top: 0.5rem;
-  }
-
-  .processor-controls .try-another-btn {
-    margin-top: 0.5rem;
+    margin-left: 0; /* Left align */
+    margin-right: auto; /* Push to left */
   }
 
   /* Preview area styling - constrained height for above-fold optimization */
