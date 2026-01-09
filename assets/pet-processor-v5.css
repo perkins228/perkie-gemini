@@ -977,6 +977,11 @@
     display: flex;
     gap: var(--desktop-gap);
     align-items: flex-start;
+    /* Shared background for unified block appearance */
+    background: rgba(var(--color-foreground), 0.02);
+    border: 1px solid rgba(var(--color-foreground), 0.08);
+    border-radius: 16px;
+    padding: 1.5rem;
   }
 
   /* LEFT column: Controls (fixed width for compact layout) */
