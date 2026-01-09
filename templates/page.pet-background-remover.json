@@ -43,10 +43,10 @@
       "settings": {
         "heading": "Love it?",
         "subheading": "Click any product to customize and order",
-        "color_scheme": "scheme-1",
+        "color_scheme": "scheme-2",
         "show_hero_badge": false,
         "variant_display": "color",
-        "cta_text": "Customize Now",
+        "cta_text": "Customize",
         "show_print_zones": true,
         "hero_badge_text": "Most Popular",
         "expand_button_text": "See More",
