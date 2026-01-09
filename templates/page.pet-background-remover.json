@@ -166,7 +166,8 @@
         "step_4": {
           "type": "step",
           "settings": {
-            "icon_svg": "<text x=\"24\" y=\"36\" font-size=\"48\" text-anchor=\"middle\">🛒</text>",
+            "icon_svg": "",
+            "icon_image": "shopify://shop_images/cart_icon_bd420dc8-2bdd-41e2-a4e5-7a7adb4d81d9.png",
             "title": "4. Add to Cart & Order",
             "desc": "Choose your product and our artists will create your custom print"
           }
