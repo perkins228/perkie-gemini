@@ -1461,3 +1461,23 @@
   display: none;
 }
 
+/* =============================================================================
+   Highlight Pulse Animation
+   Used when user clicks "Crop your image" from mockup grid
+   ============================================================================= */
+
+@keyframes highlight-pulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(var(--color-button), 0.7);
+  }
+  50% {
+    box-shadow: 0 0 0 8px rgba(var(--color-button), 0);
+  }
+}
+
+.highlight-pulse {
+  animation: highlight-pulse 0.6s ease-in-out 3;
+  outline: 2px solid rgb(var(--color-button));
+  outline-offset: 2px;
+}
+

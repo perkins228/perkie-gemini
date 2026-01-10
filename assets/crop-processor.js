@@ -47,7 +47,9 @@ class CropProcessor {
       isPinching: false,
       touches: [],
       lastPinchDistance: 0,
-      lastPinchMidpoint: { x: 0, y: 0 }
+      lastPinchMidpoint: { x: 0, y: 0 },
+      suggestedBounds: null, // Detected pet bounding box with padding
+      showSuggestedFrame: true // Toggle for suggested frame overlay
     };
 
     // DOM Elements (will be set in init)
@@ -114,6 +116,10 @@ class CropProcessor {
             <button class="crop-aspect-btn" data-aspect="portrait" aria-label="Portrait 3:4 crop">
               <span class="aspect-icon portrait-icon"></span>
               <span class="aspect-label">3:4</span>
+            </button>
+            <button class="crop-snap-btn" data-snap-to-pet aria-label="Snap crop to pet">
+              <span class="snap-icon">&#8982;</span>
+              <span class="snap-label">Snap to Pet</span>
             </button>
           </div>
 
@@ -197,6 +203,13 @@ class CropProcessor {
       img.onload = () => {
         this.state.image = img;
         this.state.imageLoaded = true;
+
+        // Detect pet bounding box for suggested crop region
+        this.state.suggestedBounds = this.detectSubjectBounds();
+        if (this.state.suggestedBounds) {
+          console.log('[CropProcessor] Pet bounds detected, snap-to-pet available');
+        }
+
         this.initCropBox();
         this.render();
 
@@ -346,6 +359,9 @@ class CropProcessor {
     this.container.querySelectorAll('.crop-aspect-btn').forEach(btn => {
       btn.addEventListener('click', () => this.setAspectRatio(btn.dataset.aspect));
     });
+
+    // Snap to pet button
+    this.container.querySelector('[data-snap-to-pet]')?.addEventListener('click', () => this.snapToSuggestion());
 
     // Crop scale controls
     this.container.querySelector('[data-zoom="in"]')?.addEventListener('click', () => this.scaleCropUp());
@@ -603,6 +619,137 @@ class CropProcessor {
   }
 
   /**
+   * Detect subject bounds from transparent image
+   * Scans alpha channel to find bounding box of non-transparent pixels
+   * Adds 15% padding for comfortable framing
+   */
+  detectSubjectBounds() {
+    if (!this.state.image) return null;
+
+    const img = this.state.image;
+
+    // Create temporary canvas to read pixel data
+    const tempCanvas = document.createElement('canvas');
+    tempCanvas.width = img.width;
+    tempCanvas.height = img.height;
+    const tempCtx = tempCanvas.getContext('2d', { willReadFrequently: true });
+    tempCtx.drawImage(img, 0, 0);
+
+    const imageData = tempCtx.getImageData(0, 0, img.width, img.height);
+    const { data, width, height } = imageData;
+
+    let minX = width, minY = height, maxX = 0, maxY = 0;
+    let hasContent = false;
+
+    // Scan for non-transparent pixels
+    for (let y = 0; y < height; y++) {
+      for (let x = 0; x < width; x++) {
+        const alpha = data[(y * width + x) * 4 + 3];
+        if (alpha > 10) {  // Non-transparent threshold
+          hasContent = true;
+          minX = Math.min(minX, x);
+          minY = Math.min(minY, y);
+          maxX = Math.max(maxX, x);
+          maxY = Math.max(maxY, y);
+        }
+      }
+    }
+
+    if (!hasContent) return null;
+
+    // Calculate content dimensions
+    const contentWidth = maxX - minX;
+    const contentHeight = maxY - minY;
+
+    // Add 15% padding
+    const padX = contentWidth * 0.15;
+    const padY = contentHeight * 0.15;
+
+    // Return bounds in source image coordinates
+    return {
+      sourceX: Math.max(0, minX - padX),
+      sourceY: Math.max(0, minY - padY),
+      sourceWidth: Math.min(width - minX + padX, contentWidth + 2 * padX),
+      sourceHeight: Math.min(height - minY + padY, contentHeight + 2 * padY),
+      // Store original content bounds for reference
+      contentMinX: minX,
+      contentMinY: minY,
+      contentMaxX: maxX,
+      contentMaxY: maxY
+    };
+  }
+
+  /**
+   * Calculate suggested bounds in canvas coordinates
+   * Converts source image bounds to display canvas coordinates
+   */
+  calculateSuggestedCanvasBounds() {
+    if (!this.state.image || !this.state.suggestedBounds) return null;
+
+    const dpr = window.devicePixelRatio || 1;
+    const canvasWidth = this.canvas.width / dpr;
+    const canvasHeight = this.canvas.height / dpr;
+
+    const img = this.state.image;
+    const imgAspect = img.width / img.height;
+    const canvasAspect = canvasWidth / canvasHeight;
+
+    let drawWidth, drawHeight;
+
+    if (imgAspect > canvasAspect) {
+      drawWidth = canvasWidth;
+      drawHeight = drawWidth / imgAspect;
+    } else {
+      drawHeight = canvasHeight;
+      drawWidth = drawHeight * imgAspect;
+    }
+
+    const drawX = (canvasWidth - drawWidth) / 2 + this.state.pan.x;
+    const drawY = (canvasHeight - drawHeight) / 2 + this.state.pan.y;
+
+    // Scale factors from source to display
+    const scaleX = drawWidth / img.width;
+    const scaleY = drawHeight / img.height;
+
+    const bounds = this.state.suggestedBounds;
+
+    return {
+      x: drawX + bounds.sourceX * scaleX,
+      y: drawY + bounds.sourceY * scaleY,
+      width: bounds.sourceWidth * scaleX,
+      height: bounds.sourceHeight * scaleY
+    };
+  }
+
+  /**
+   * Snap crop box to suggested pet bounds
+   */
+  snapToSuggestion() {
+    const canvasBounds = this.calculateSuggestedCanvasBounds();
+    if (!canvasBounds) {
+      console.warn('[CropProcessor] No suggested bounds available');
+      return;
+    }
+
+    // Apply suggested bounds as crop box
+    this.state.cropBox = {
+      x: canvasBounds.x,
+      y: canvasBounds.y,
+      width: canvasBounds.width,
+      height: canvasBounds.height
+    };
+
+    // Clear aspect ratio selection (custom bounds)
+    this.state.aspectRatio = 'custom';
+    this.state.isCircle = false;
+    this.updateAspectButtons();
+
+    this.render();
+
+    console.log('[CropProcessor] Snapped to pet bounds');
+  }
+
+  /**
    * Render the crop interface
    */
   render() {
@@ -681,6 +828,76 @@ class CropProcessor {
     if (this.config.gridEnabled && !this.state.isCircle) {
       this.drawGrid();
     }
+
+    // Draw suggested frame overlay (if enabled and not snapped)
+    if (this.state.showSuggestedFrame && this.state.aspectRatio !== 'custom') {
+      this.drawSuggestedFrame();
+    }
+  }
+
+  /**
+   * Draw suggested frame overlay for optimal pet cropping
+   * Shows orange dashed border where pet content is detected
+   */
+  drawSuggestedFrame() {
+    const canvasBounds = this.calculateSuggestedCanvasBounds();
+    if (!canvasBounds) return;
+
+    const { x, y, width, height } = canvasBounds;
+
+    // Save context state
+    this.ctx.save();
+
+    // Draw outer glow for visibility
+    this.ctx.strokeStyle = 'rgba(255, 200, 100, 0.3)';
+    this.ctx.lineWidth = 6;
+    this.ctx.setLineDash([12, 6]);
+    this.ctx.strokeRect(x, y, width, height);
+
+    // Draw main suggested frame border
+    this.ctx.strokeStyle = 'rgba(255, 200, 100, 0.9)';
+    this.ctx.lineWidth = 2;
+    this.ctx.setLineDash([8, 4]);
+    this.ctx.strokeRect(x, y, width, height);
+
+    // Reset line dash
+    this.ctx.setLineDash([]);
+
+    // Draw corner indicators for emphasis
+    const cornerSize = Math.min(20, width * 0.1, height * 0.1);
+    this.ctx.strokeStyle = 'rgba(255, 200, 100, 1)';
+    this.ctx.lineWidth = 3;
+
+    // Top-left corner
+    this.ctx.beginPath();
+    this.ctx.moveTo(x, y + cornerSize);
+    this.ctx.lineTo(x, y);
+    this.ctx.lineTo(x + cornerSize, y);
+    this.ctx.stroke();
+
+    // Top-right corner
+    this.ctx.beginPath();
+    this.ctx.moveTo(x + width - cornerSize, y);
+    this.ctx.lineTo(x + width, y);
+    this.ctx.lineTo(x + width, y + cornerSize);
+    this.ctx.stroke();
+
+    // Bottom-left corner
+    this.ctx.beginPath();
+    this.ctx.moveTo(x, y + height - cornerSize);
+    this.ctx.lineTo(x, y + height);
+    this.ctx.lineTo(x + cornerSize, y + height);
+    this.ctx.stroke();
+
+    // Bottom-right corner
+    this.ctx.beginPath();
+    this.ctx.moveTo(x + width - cornerSize, y + height);
+    this.ctx.lineTo(x + width, y + height);
+    this.ctx.lineTo(x + width, y + height - cornerSize);
+    this.ctx.stroke();
+
+    // Restore context state
+    this.ctx.restore();
   }
 
   /**

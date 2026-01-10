@@ -72,6 +72,46 @@ class ProductMockupRenderer {
 
     // Bind product card clicks
     this.bindCardClicks();
+
+    // Bind crop suggestion link
+    this.bindCropSuggestionLink();
+  }
+
+  /**
+   * Bind crop suggestion link click handler
+   * Scrolls to and triggers crop button when user clicks "Crop your image" link
+   */
+  bindCropSuggestionLink() {
+    if (!this.section) return;
+
+    const cropLink = this.section.querySelector('[data-scroll-to-crop]');
+    if (cropLink) {
+      cropLink.addEventListener('click', () => {
+        // Find the crop button in the pet processor section
+        const cropBtn = document.querySelector('[data-crop-button], .btn-crop, [data-action="crop"]');
+
+        if (cropBtn) {
+          // Scroll to the crop button
+          cropBtn.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+          // Highlight the button briefly
+          cropBtn.classList.add('highlight-pulse');
+          setTimeout(() => cropBtn.classList.remove('highlight-pulse'), 2000);
+
+          // Optionally trigger the crop tool after scroll completes
+          setTimeout(() => {
+            cropBtn.click();
+          }, 500);
+
+          // Track the interaction
+          this.trackEvent('crop_suggestion_clicked', {
+            source: 'mockup_grid'
+          });
+        } else {
+          console.warn('[ProductMockupRenderer] Crop button not found');
+        }
+      });
+    }
   }
 
   /**
