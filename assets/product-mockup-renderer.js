@@ -88,7 +88,8 @@ class ProductMockupRenderer {
     if (cropLink) {
       cropLink.addEventListener('click', () => {
         // Find the crop button in the pet processor section
-        const cropBtn = document.querySelector('[data-crop-button], .btn-crop, [data-action="crop"]');
+        // Primary selector: .crop-btn (the main crop button in effect grid)
+        const cropBtn = document.querySelector('.crop-btn, [data-crop-button], [data-action="crop"]');
 
         if (cropBtn) {
           // Scroll to the crop button
@@ -98,17 +99,18 @@ class ProductMockupRenderer {
           cropBtn.classList.add('highlight-pulse');
           setTimeout(() => cropBtn.classList.remove('highlight-pulse'), 2000);
 
-          // Optionally trigger the crop tool after scroll completes
+          // Trigger the crop tool after scroll completes
           setTimeout(() => {
             cropBtn.click();
-          }, 500);
+            console.log('[ProductMockupRenderer] Crop button clicked');
+          }, 600);
 
           // Track the interaction
           this.trackEvent('crop_suggestion_clicked', {
             source: 'mockup_grid'
           });
         } else {
-          console.warn('[ProductMockupRenderer] Crop button not found');
+          console.warn('[ProductMockupRenderer] Crop button not found - selectors tried: .crop-btn, [data-crop-button], [data-action="crop"]');
         }
       });
     }
