@@ -661,9 +661,9 @@ class CropProcessor {
     const contentWidth = maxX - minX;
     const contentHeight = maxY - minY;
 
-    // Add 15% padding
-    const padX = contentWidth * 0.15;
-    const padY = contentHeight * 0.15;
+    // Add 5% padding
+    const padX = contentWidth * 0.05;
+    const padY = contentHeight * 0.05;
 
     // Return bounds in source image coordinates
     return {
