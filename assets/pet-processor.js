@@ -703,6 +703,31 @@ class PetProcessor {
             img.src = selectedEffectData.dataUrl || selectedEffectData.gcsUrl;
           }
         }
+
+        // === CRITICAL: Populate style card thumbnails with cached images ===
+        // Without this, thumbnails show placeholders instead of user's pet
+        this.updateStyleCardPreviews({ effects: this.currentPet.effects });
+
+        // Highlight the selected effect button
+        const selectedBtn = this.container.querySelector(`[data-effect="${this.currentPet.selectedEffect}"]`);
+        if (selectedBtn) {
+          this.container.querySelectorAll('.effect-btn').forEach(btn => btn.classList.remove('active'));
+          selectedBtn.classList.add('active');
+        }
+
+        // Dispatch event for mockup grid restoration
+        // This triggers ProductMockupRenderer to show product previews
+        const selectedEffectUrl = this.currentPet.effects[this.currentPet.selectedEffect]?.gcsUrl ||
+                                   this.currentPet.effects[this.currentPet.selectedEffect]?.dataUrl;
+        if (selectedEffectUrl) {
+          this.dispatchProcessingComplete({
+            effects: this.currentPet.effects,
+            sessionKey: this.currentPet.id,
+            selectedEffect: this.currentPet.selectedEffect,
+            isRestoration: true // Flag to skip animations in mockup grid
+          });
+          console.log('📤 Dispatched petProcessingComplete for mockup grid restoration');
+        }
       } else {
         console.log('🔄 Pet found but no valid effects to restore');
       }
