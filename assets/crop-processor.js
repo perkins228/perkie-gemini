@@ -837,64 +837,40 @@ class CropProcessor {
 
   /**
    * Draw suggested frame overlay for optimal pet cropping
-   * Shows pink dashed border where pet content is detected
+   * Shows subtle pink dashed border where pet content is detected
+   * UX Design: "Whisper, not shout" - helpful hint, not command
    */
   drawSuggestedFrame() {
     const canvasBounds = this.calculateSuggestedCanvasBounds();
     if (!canvasBounds) return;
 
     const { x, y, width, height } = canvasBounds;
+    const isMobile = window.innerWidth < 768;
 
     // Save context state
     this.ctx.save();
 
-    // Draw outer glow for visibility (pink theme)
-    this.ctx.strokeStyle = 'rgba(236, 72, 153, 0.3)';
-    this.ctx.lineWidth = 6;
-    this.ctx.setLineDash([12, 6]);
+    // Main suggested border - subtle pink dashed line
+    // 50% opacity for "background hint" visual layer
+    // Sparse dash pattern [4, 8] = 4px dash, 8px gap for less visual noise
+    this.ctx.strokeStyle = 'rgba(236, 72, 153, 0.5)';
+    this.ctx.lineWidth = isMobile ? 1.5 : 2;
+    this.ctx.setLineDash([4, 8]);
     this.ctx.strokeRect(x, y, width, height);
 
-    // Draw main suggested frame border (pink theme)
-    this.ctx.strokeStyle = 'rgba(236, 72, 153, 0.9)';
-    this.ctx.lineWidth = 2;
-    this.ctx.setLineDash([8, 4]);
-    this.ctx.strokeRect(x, y, width, height);
+    // Corner dots (desktop only) - subtle reference points
+    if (!isMobile) {
+      this.ctx.setLineDash([]);
+      this.ctx.fillStyle = 'rgba(236, 72, 153, 0.4)';
+      const dotSize = 3;
 
-    // Reset line dash
-    this.ctx.setLineDash([]);
-
-    // Draw corner indicators for emphasis (pink theme)
-    const cornerSize = Math.min(20, width * 0.1, height * 0.1);
-    this.ctx.strokeStyle = 'rgba(236, 72, 153, 1)';
-    this.ctx.lineWidth = 3;
-
-    // Top-left corner
-    this.ctx.beginPath();
-    this.ctx.moveTo(x, y + cornerSize);
-    this.ctx.lineTo(x, y);
-    this.ctx.lineTo(x + cornerSize, y);
-    this.ctx.stroke();
-
-    // Top-right corner
-    this.ctx.beginPath();
-    this.ctx.moveTo(x + width - cornerSize, y);
-    this.ctx.lineTo(x + width, y);
-    this.ctx.lineTo(x + width, y + cornerSize);
-    this.ctx.stroke();
-
-    // Bottom-left corner
-    this.ctx.beginPath();
-    this.ctx.moveTo(x, y + height - cornerSize);
-    this.ctx.lineTo(x, y + height);
-    this.ctx.lineTo(x + cornerSize, y + height);
-    this.ctx.stroke();
-
-    // Bottom-right corner
-    this.ctx.beginPath();
-    this.ctx.moveTo(x + width - cornerSize, y + height);
-    this.ctx.lineTo(x + width, y + height);
-    this.ctx.lineTo(x + width, y + height - cornerSize);
-    this.ctx.stroke();
+      this.ctx.beginPath();
+      this.ctx.arc(x, y, dotSize, 0, Math.PI * 2);
+      this.ctx.arc(x + width, y, dotSize, 0, Math.PI * 2);
+      this.ctx.arc(x, y + height, dotSize, 0, Math.PI * 2);
+      this.ctx.arc(x + width, y + height, dotSize, 0, Math.PI * 2);
+      this.ctx.fill();
+    }
 
     // Restore context state
     this.ctx.restore();
