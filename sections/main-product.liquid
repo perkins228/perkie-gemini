@@ -87,18 +87,33 @@
       const productId = {{ product.id }};
       const selectorKey = `perkie_pet_selector_${productId}`;
 
+      // Get the original image URL from processor data
+      const originalImageUrl = processorPetData.originalUrl || processorPetData.gcsUrl;
+      const effectUrls = processorPetData.effects || effects;
+
+      // Get a display URL (prefer enhancedblackwhite for visual preview)
+      let displayUrl = originalImageUrl;
+      if (effectUrls) {
+        if (effectUrls.enhancedblackwhite?.gcsUrl) {
+          displayUrl = effectUrls.enhancedblackwhite.gcsUrl;
+        } else if (effectUrls.color?.gcsUrl) {
+          displayUrl = effectUrls.color.gcsUrl;
+        }
+      }
+
       // Create pet selector state with all effects
       const selectorState = {
         petCount: 1, // Start with 1 pet
-        pets: [
-          {
+        pets: {
+          1: {
             id: sessionKey,
-            name: '', // Name collected on product page
+            name: processorPetData.name || '', // Use pet name from processor if available
             artistNote: artistNote || processorPetData.artistNote || '',
-            effects: processorPetData.effects || effects, // All effect URLs
+            effects: effectUrls, // All effect URLs
+            fileCount: 1, // Indicate that image exists
             timestamp: processorPetData.timestamp || Date.now()
           }
-        ],
+        },
         timestamp: Date.now()
       };
 
@@ -106,6 +121,22 @@
       try {
         localStorage.setItem(selectorKey, JSON.stringify(selectorState));
         console.log('✅ Bridge: Saved to pet selector storage:', selectorKey);
+
+        // Also set the upload zone keys so image displays in pet selector
+        if (displayUrl) {
+          localStorage.setItem('pet_1_image_url', displayUrl);
+          console.log('✅ Bridge: Set pet_1_image_url:', displayUrl);
+
+          // Set file metadata for UI display
+          const fileMetadata = [{
+            name: processorPetData.filename || 'Processed Pet Photo',
+            size: 0, // Unknown from GCS
+            type: 'image/png'
+          }];
+          localStorage.setItem('pet_1_file_metadata', JSON.stringify(fileMetadata));
+          console.log('✅ Bridge: Set pet_1_file_metadata');
+        }
+
         return true;
       } catch (error) {
         console.error('❌ Bridge: Failed to save pet selector state:', error);
@@ -219,6 +250,71 @@
 
   {% assign variant_images = product.images | where: 'attached_to_variant?', true | map: 'src' %}
   <div class="page-width">
+    {% comment %} Back to Previews Link - Shows when customer came from processor page {% endcomment %}
+    <div id="back-to-previews" class="back-to-previews" style="display: none;">
+      <a href="/pages/custom-image-processing?from=product" class="back-to-previews__link" id="back-to-previews-link">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="m15 18-6-6 6-6"/>
+        </svg>
+        <span>Back to Previews</span>
+      </a>
+    </div>
+    <style>
+      .back-to-previews {
+        padding: 12px 0;
+        margin-bottom: 8px;
+      }
+      .back-to-previews__link {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        color: var(--color-primary, #C42775);
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: 500;
+        transition: opacity 0.2s ease;
+      }
+      .back-to-previews__link:hover {
+        opacity: 0.8;
+        text-decoration: underline;
+      }
+      .back-to-previews__link svg {
+        flex-shrink: 0;
+      }
+      @media screen and (max-width: 749px) {
+        .back-to-previews {
+          padding: 10px 0;
+          margin-bottom: 4px;
+        }
+        .back-to-previews__link {
+          font-size: 13px;
+        }
+      }
+    </style>
+    <script>
+      // Show "Back to Previews" link if came from processor
+      (function() {
+        var urlParams = new URLSearchParams(window.location.search);
+        var fromProcessor = urlParams.get('from') === 'processor';
+
+        if (fromProcessor) {
+          var backLink = document.getElementById('back-to-previews');
+          var backLinkAnchor = document.getElementById('back-to-previews-link');
+
+          if (backLink) {
+            backLink.style.display = 'block';
+          }
+
+          // Set returning flag when clicking back
+          if (backLinkAnchor) {
+            backLinkAnchor.addEventListener('click', function() {
+              sessionStorage.setItem('returning_from_product', 'true');
+            });
+          }
+        }
+      })();
+    </script>
+
     <div
       class="product product--{{ section.settings.media_size }} product--{{ section.settings.media_position }} product--{{ section.settings.gallery_layout }} product--mobile-{{ section.settings.mobile_thumbnails }} grid grid--1-col {% if product.media.size > 0 %}grid--2-col-tablet{% else %}product--no-media{% endif %}"
       {% comment %} KondaSoft {% endcomment %}

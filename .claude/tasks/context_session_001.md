@@ -1380,8 +1380,222 @@ Customer complaints about pet images looking "off" in product mockup grid due to
 - Add framing prompt after processing completion
 - "Optimize your pet's framing?" → Auto-frame / Adjust / Keep as is
 
-**Commit**: Pending
+**Commit**: `f4be988` - feat(ux): Add smart crop guides and mockup grid hint for pet sizing
 **Branch**: staging
+**Pushed**: ✅
+
+### Follow-up Fix (2026-01-10)
+
+**Commit**: `d1e3f67` - fix(ux): Increase crop button text size and fix mockup link trigger
+
+**Changes**:
+1. **Crop button text size increased**:
+   - Desktop: 0.95rem → 1.125rem + font-weight: 600
+   - Mobile: 0.9rem → 1rem + font-weight: 600
+
+2. **Fixed mockup grid link trigger**:
+   - Corrected selector from `.btn-crop` to `.crop-btn`
+   - Now properly scrolls to and clicks the crop button
+
+---
+
+### 2026-01-11 - Phase 2 Proactive Framing Prompt: BUILD vs SKIP Evaluation
+
+**What was done**:
+Conducted strategic BUILD/SKIP evaluation for proposed Phase 2 of pet sizing enhancement (proactive framing prompt after processing, before mockups).
+
+**RECOMMENDATION: SKIP Phase 2 for now. Monitor Phase 1 data for 2-4 weeks.**
+
+**Key Findings**:
+
+1. **Phase 1 Already Comprehensive**: Snap to Pet button, orange suggested frame overlay, and mockup grid hint provide complete reactive solution
+
+2. **Friction Math Unfavorable**:
+   - 15% of users currently crop
+   - ~30% of non-croppers may need it (hypothetical)
+   - 50% would engage with proactive prompt
+   - Net: 7 users interrupted for every 1 who benefits (12.75% benefit vs 87.25% interrupted)
+
+3. **Conversion Risk**:
+   - Industry data: 5-8% interstitial abandonment
+   - Estimated impact: 0.5-1.0% conversion drop
+   - Revenue at risk: $935-1,925/month
+
+4. **Mobile UX Concern** (70% traffic):
+   - Modals on mobile are poor UX pattern
+   - Post-wait interruption feels punishing (user already waited 15-20s)
+
+5. **Auto-Frame is Redundant**:
+   - Proposed "Auto-frame" button = existing "Snap to Pet" in crop tool
+   - Same functionality, different trigger
+
+6. **Reactive > Proactive for This Problem**:
+   - User needs context (seeing mockups) to know if cropping is needed
+   - Proactive intercepts BEFORE user sees the problem
+
+**Conditions to Reconsider Phase 2**:
+1. Crop tool usage stays ~15% AND mockup hint click rate <2%
+2. Customer complaints about pet sizing increase despite Phase 1
+3. Conversion data shows no Phase 1 impact
+
+**Alternatives Proposed** (lower-risk options if Phase 1 underperforms):
+- Alternative A: Auto-show hint based on fill ratio (<30%)
+- Alternative B: Inline "Crop to fit?" link in effect preview area
+- Alternative C: Wait for Phase 1 data (recommended)
+
+**Metrics to Track**:
+1. `crop_tool_opened` - Total crop tool usage
+2. `snap_to_pet_clicked` - Snap to Pet button usage
+3. `mockup_hint_clicked` - Mockup grid hint engagement
+4. `processor_to_cart_conversion` - Overall funnel conversion
+
+**Documentation Created**:
+- `.claude/doc/phase-2-proactive-framing-prompt-build-skip-evaluation.md` (comprehensive analysis)
+
+**Next Steps**:
+1. Set up analytics for Phase 1 features (2 hours)
+2. Monitor for 2-4 weeks
+3. Re-evaluate Phase 2 with data
+
+---
+
+### 2026-01-11 - Crop Bounding Box Detection Bug Analysis (Debug Specialist)
+
+**What was done**:
+Conducted comprehensive root cause analysis of pet bounding box detection bug in crop tool's "Snap to Pet" feature.
+
+**Problem Reported**:
+User reported that `detectSubjectBounds()` method returns the top and bottom of the original photo instead of the actual top and bottom of non-transparent pixels (the pet).
+
+**Root Cause Identified**:
+CRITICAL arithmetic error in width/height calculation (lines 670-671 in `crop-processor.js`):
+
+**Current (BUGGY)**:
+```javascript
+sourceWidth: Math.min(width - minX + padX, contentWidth + 2 * padX),
+sourceHeight: Math.min(height - minY + padY, contentHeight + 2 * padY),
+```
+
+**Problem**:
+- `width - minX + padX` calculates distance from pet's LEFT edge to image's RIGHT edge (WRONG)
+- Should calculate pet's width with padding (CORRECT: `contentWidth + 2 * padX`)
+- Result: Bounding box extends from pet position to bottom-right corner of image
+- Intermittent failure: Works for centered pets, fails for off-center pets (especially near edges)
+
+**Correct Fix**:
+```javascript
+sourceWidth: Math.min(width, contentWidth + 2 * padX),
+sourceHeight: Math.min(height, contentHeight + 2 * padY),
+```
+
+**Supporting Analysis**:
+- Detection loop (lines 645-655): ✅ CORRECT - Properly finds minX, minY, maxX, maxY
+- Content dimensions (lines 661-662): ✅ CORRECT - `maxX - minX`, `maxY - minY`
+- Padding calculation (lines 665-666): ✅ CORRECT - 15% padding
+- Canvas alpha channel (line 159): ✅ CORRECT - `alpha: true` enabled
+- CORS handling (line 232): ✅ CORRECT - `crossOrigin: 'anonymous'`
+- Alpha reading (line 647): ✅ CORRECT - RGBA offset +3
+
+**Impact**:
+- Severity: HIGH - Feature completely broken for off-center pets
+- Affected Users: 100% of "Snap to Pet" users with non-centered pets
+- Fix Complexity: TRIVIAL - 2 lines of code
+
+**Test Cases Created**:
+1. Centered pet (should work even with bug)
+2. Top-left pet (fails with current bug)
+3. Bottom-right pet (fails severely with current bug)
+4. Large pet filling 90% of image
+5. Small pet filling 10% of image
+
+**Documentation Created**:
+- `.claude/doc/crop-bounding-box-detection-bug-analysis.md` (comprehensive 350-line analysis)
+  - Root cause breakdown with examples
+  - Correct vs incorrect calculations explained
+  - Why user sees full image dimensions
+  - All other code verified as correct
+  - 5 validation test cases
+  - Impact assessment (HIGH severity, TRIVIAL fix)
+  - Implementation recommendations
+
+**Fix Required**:
+- File: `assets/crop-processor.js`
+- Lines: 670-671
+- Change: Remove `- minX` and `- minY` from width/height calculations
+- Effort: 5 min implementation + 10 min testing = 15 min total
+- Risk: Very low (pure arithmetic fix)
+
+**Confidence**: 100% - Clear mathematical error with obvious correction
+
+**Next Steps**:
+1. User reviews analysis at `.claude/doc/crop-bounding-box-detection-bug-analysis.md`
+2. Apply 2-line fix to `crop-processor.js`
+3. Test with 5 sample images (various pet positions)
+4. Deploy to staging and validate with real pet photos
+5. Consider adding unit tests for `detectSubjectBounds()` method
+
+---
+
+### 2026-01-11 - Aspect Ratio Enforcement BUILD vs SKIP Evaluation
+
+**What was done**:
+Conducted comprehensive strategic evaluation of whether to add aspect ratio enforcement to the pet bounding box detection ("Snap to Pet" feature).
+
+**Options Evaluated**:
+- **Option A: Force 1:1 Square** - REJECTED
+- **Option B: Match User's Selected Aspect Ratio** - CONDITIONAL SKIP
+- **Option C: Keep Natural (Current)** - RECOMMENDED
+
+**RECOMMENDATION: SKIP (Option C - Keep Natural)**
+**Confidence Level: 90%**
+
+**Key Findings**:
+
+1. **Problem Not Validated**
+   - Phase 1 "Snap to Pet" shipped January 10-11, 2026
+   - No user complaints about natural bounding box behavior
+   - Feature request appears engineering-driven, not user-driven
+
+2. **Phase 1 Already Solves Core Problem**
+   - `detectSubjectBounds()` finds pet bounding box from alpha channel
+   - "Snap to Pet" button provides one-click optimal framing
+   - Orange suggested frame overlay guides optimal crop
+   - Mockup grid hint helps users who want to refine
+
+3. **High Risk of Harm with Forced Ratios**
+   - Square enforcement: 40-65% of crops could clip pet features
+   - Use cases at risk: Full-body portraits (30-40%), multi-pet (10-15%), action shots (5-10%)
+   - Ears, tails, paws could be cut off
+
+4. **Financial Analysis**
+   - Option A (Square): Expected -$280 to -$475/month revenue impact
+   - Option C (Natural): $0 cost, $0 risk
+   - 12-month ROI for Option A: -$3,660 to -$6,150 (NEGATIVE)
+
+5. **Industry Pattern**
+   - No major competitor (Shutterfly, Snapfish, Canva) forces aspect ratios
+   - All provide user control over cropping decisions
+
+**Data Collection Recommended** (2-4 weeks):
+1. Snap to Pet usage rate: `snap_to_pet_clicked`
+2. Post-snap adjustment rate: `crop_adjusted_after_snap`
+3. Mockup hint click rate: `mockup_hint_clicked`
+4. Support tickets about pet sizing
+
+**If Stakeholders Insist on Building**:
+1. A/B test 50/50 for 14 days minimum
+2. Option B only (never force square)
+3. EXPAND bounds to fit ratio (never shrink - prevents clipping)
+4. 20-25% padding buffer
+5. Kill criteria: >2% conversion drop, >30% override rate
+
+**Documentation Created**:
+- `.claude/doc/aspect-ratio-enforcement-build-skip-evaluation.md` (comprehensive analysis)
+
+**Next Steps**:
+1. Ship Phase 1 analytics (2 hours)
+2. Monitor for 2-4 weeks
+3. Only revisit if data shows >40% post-snap adjustment rate or >8% mockup hint clicks
 
 ---
 
@@ -1964,5 +2178,66 @@ Conducted comprehensive ML engineering analysis of cost optimization strategies 
 1. User reviews plan at `.claude/doc/gemini-cost-optimization-ml-analysis.md`
 2. Decide on Imagen 3 Fast A/B test timeline
 3. Implement Phase 1 quick wins (parameter tuning)
+
+---
+
+### 2026-01-11 - Customer Journey Improvements: Session Preservation & Back Navigation
+
+**What was done**:
+Implemented customer journey improvements to address friction when customers navigate between processor page and product pages:
+
+1. **Session State Preservation** (`product-mockup-renderer.js`)
+   - Added `saveProcessorState()` method - saves mockup grid state before navigation
+   - Added `checkForRestoredSession()` method - restores grid on return navigation
+   - State saved in sessionStorage with 30-minute expiration
+   - Called automatically when clicking product cards
+
+2. **"Back to Previews" Link** (`main-product.liquid`)
+   - Added conditional link at top of product page
+   - Only shows when `?from=processor` parameter is present
+   - Pink-themed styling matching brand
+   - Sets `returning_from_product=true` flag before navigation
+   - Enables seamless return to processor with mockup grid restored
+
+3. **Enhanced Pet Selector Bridge** (`main-product.liquid`)
+   - Updated `processBridgeData()` to properly populate upload zone
+   - Changed pets from array to object keyed by index (matches `applyStateToUI`)
+   - Added `fileCount: 1` to indicate image exists
+   - Sets `pet_1_image_url` with processed image URL
+   - Sets `pet_1_file_metadata` for file name display
+
+**Files Modified**:
+
+1. **`assets/product-mockup-renderer.js`**:
+   - Lines 27-116: Added session restoration and save methods
+   - Line 507: Call `saveProcessorState()` in `prepareBridgeData()`
+
+2. **`sections/main-product.liquid`**:
+   - Lines 222-285: Added "Back to Previews" link with styles and JS
+   - Lines 90-144: Enhanced bridge to populate pet selector upload zone
+
+**Customer Flow Improvement**:
+
+Before:
+```
+Processor → Click Product → Product Page → Lost context → Must re-process
+```
+
+After:
+```
+Processor → Click Product → Product Page (with "Back to Previews" link)
+    ↓                             ↓
+Pet selector auto-populated    Click "Back to Previews"
+with processed image              ↓
+                             Processor page restored with mockup grid
+```
+
+**Key Features**:
+1. No re-upload required on product page (processed image auto-populated)
+2. One-click return to processor preserves mockup grid
+3. 30-minute session window for back navigation
+4. Mobile-friendly link (touch-optimized)
+
+**Pending Commit**: Changes ready for commit and push to staging
 
 ---

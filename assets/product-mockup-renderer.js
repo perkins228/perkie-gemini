@@ -24,7 +24,95 @@ class ProductMockupRenderer {
     // Don't auto-initialize - wait for pet processing to complete
     this.bindEvents();
 
+    // Check if returning from product page with preserved session
+    this.checkForRestoredSession();
+
     console.log('[ProductMockupRenderer] Initialized, waiting for pet processing');
+  }
+
+  /**
+   * Check if user is returning from product page and should restore mockup grid
+   * Called during initialization to provide seamless back navigation
+   */
+  checkForRestoredSession() {
+    try {
+      // Check URL for return navigation indicator
+      const urlParams = new URLSearchParams(window.location.search);
+      const isReturning = urlParams.get('from') === 'product' ||
+                          sessionStorage.getItem('returning_from_product') === 'true';
+
+      if (!isReturning) {
+        return;
+      }
+
+      console.log('[ProductMockupRenderer] User returning from product page, checking saved state');
+
+      // Clear the return indicator
+      sessionStorage.removeItem('returning_from_product');
+
+      // Check for saved processor state
+      const savedState = sessionStorage.getItem('processor_mockup_state');
+      if (!savedState) {
+        console.log('[ProductMockupRenderer] No saved processor state found');
+        return;
+      }
+
+      const state = JSON.parse(savedState);
+
+      // Validate state freshness (expire after 30 minutes)
+      const MAX_AGE = 30 * 60 * 1000;
+      if (Date.now() - state.timestamp > MAX_AGE) {
+        console.log('[ProductMockupRenderer] Saved state expired');
+        sessionStorage.removeItem('processor_mockup_state');
+        return;
+      }
+
+      // Restore pet data and show grid
+      this.currentPetData = state.petData;
+      this.currentEffectUrl = state.effectUrl;
+
+      if (this.currentEffectUrl) {
+        console.log('[ProductMockupRenderer] Restoring mockup grid from saved state');
+
+        // Show the section immediately without waiting for pet processing
+        this.show();
+        this.updateAllMockups(this.currentEffectUrl);
+        this.isInitialized = true;
+
+        // Track restoration
+        this.trackEvent('session_restored', {
+          effect: state.petData?.selectedEffect || 'unknown'
+        });
+      }
+    } catch (error) {
+      console.error('[ProductMockupRenderer] Failed to restore session:', error);
+      sessionStorage.removeItem('processor_mockup_state');
+    }
+  }
+
+  /**
+   * Save processor state before navigating to product page
+   * Enables seamless return navigation without re-processing
+   */
+  saveProcessorState() {
+    if (!this.currentPetData || !this.currentEffectUrl) {
+      console.warn('[ProductMockupRenderer] No state to save');
+      return;
+    }
+
+    try {
+      const state = {
+        petData: this.currentPetData,
+        effectUrl: this.currentEffectUrl,
+        isExpanded: this.isExpanded,
+        timestamp: Date.now()
+      };
+
+      sessionStorage.setItem('processor_mockup_state', JSON.stringify(state));
+      console.log('[ProductMockupRenderer] Processor state saved for return navigation');
+    } catch (error) {
+      console.error('[ProductMockupRenderer] Failed to save processor state:', error);
+    }
   }
 
   /**
@@ -414,6 +502,9 @@ class ProductMockupRenderer {
 
       // Also set backup in localStorage
       localStorage.setItem('processor_to_product_bridge_backup', JSON.stringify(bridgeData));
+
+      // Save processor state for return navigation
+      this.saveProcessorState();
 
       console.log('[ProductMockupRenderer] Bridge data prepared', bridgeData);
     } catch (error) {
