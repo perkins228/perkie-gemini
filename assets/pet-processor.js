@@ -516,12 +516,26 @@ class PetProcessor {
     try {
       console.log('🔄 Attempting to restore session from localStorage');
 
-      // === NEW: Check for pet selector uploaded images FIRST ===
-      const petSelectorImage = await this.checkPetSelectorUploads();
-      if (petSelectorImage) {
-        console.log('📸 Found uploaded image from pet selector, auto-loading...');
-        await this.loadPetSelectorImage(petSelectorImage);
-        return; // Early return - don't check PetStorage
+      // === PRIORITY: Check if returning from product page ===
+      // If returning, skip pet selector check to avoid re-processing
+      const urlParams = new URLSearchParams(window.location.search);
+      const isReturningFromProduct = urlParams.get('from') === 'product' ||
+                                      sessionStorage.getItem('returning_from_product') === 'true';
+
+      if (isReturningFromProduct) {
+        console.log('🔙 Returning from product page - restoring from PetStorage without re-processing');
+        // Clear the return indicator (ProductMockupRenderer will also clear it)
+        sessionStorage.removeItem('returning_from_product');
+        // Skip pet selector check - go straight to PetStorage restoration
+        // The mockup grid will be restored by ProductMockupRenderer.checkForRestoredSession()
+      } else {
+        // === Check for pet selector uploaded images (only for NEW uploads) ===
+        const petSelectorImage = await this.checkPetSelectorUploads();
+        if (petSelectorImage) {
+          console.log('📸 Found uploaded image from pet selector, auto-loading...');
+          await this.loadPetSelectorImage(petSelectorImage);
+          return; // Early return - don't check PetStorage
+        }
       }
 
       // === EXISTING: Check PetStorage for processed pets ===
