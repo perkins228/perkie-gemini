@@ -669,8 +669,8 @@ class CropProcessor {
     return {
       sourceX: Math.max(0, minX - padX),
       sourceY: Math.max(0, minY - padY),
-      sourceWidth: Math.min(width - minX + padX, contentWidth + 2 * padX),
-      sourceHeight: Math.min(height - minY + padY, contentHeight + 2 * padY),
+      sourceWidth: Math.min(width, contentWidth + 2 * padX),
+      sourceHeight: Math.min(height, contentHeight + 2 * padY),
       // Store original content bounds for reference
       contentMinX: minX,
       contentMinY: minY,
