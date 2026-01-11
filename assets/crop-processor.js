@@ -837,7 +837,7 @@ class CropProcessor {
 
   /**
    * Draw suggested frame overlay for optimal pet cropping
-   * Shows orange dashed border where pet content is detected
+   * Shows pink dashed border where pet content is detected
    */
   drawSuggestedFrame() {
     const canvasBounds = this.calculateSuggestedCanvasBounds();
@@ -848,14 +848,14 @@ class CropProcessor {
     // Save context state
     this.ctx.save();
 
-    // Draw outer glow for visibility
-    this.ctx.strokeStyle = 'rgba(255, 200, 100, 0.3)';
+    // Draw outer glow for visibility (pink theme)
+    this.ctx.strokeStyle = 'rgba(236, 72, 153, 0.3)';
     this.ctx.lineWidth = 6;
     this.ctx.setLineDash([12, 6]);
     this.ctx.strokeRect(x, y, width, height);
 
-    // Draw main suggested frame border
-    this.ctx.strokeStyle = 'rgba(255, 200, 100, 0.9)';
+    // Draw main suggested frame border (pink theme)
+    this.ctx.strokeStyle = 'rgba(236, 72, 153, 0.9)';
     this.ctx.lineWidth = 2;
     this.ctx.setLineDash([8, 4]);
     this.ctx.strokeRect(x, y, width, height);
@@ -863,9 +863,9 @@ class CropProcessor {
     // Reset line dash
     this.ctx.setLineDash([]);
 
-    // Draw corner indicators for emphasis
+    // Draw corner indicators for emphasis (pink theme)
     const cornerSize = Math.min(20, width * 0.1, height * 0.1);
-    this.ctx.strokeStyle = 'rgba(255, 200, 100, 1)';
+    this.ctx.strokeStyle = 'rgba(236, 72, 153, 1)';
     this.ctx.lineWidth = 3;
 
     // Top-left corner
