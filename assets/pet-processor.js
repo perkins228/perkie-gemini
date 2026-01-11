@@ -523,11 +523,119 @@ class PetProcessor {
                                       sessionStorage.getItem('returning_from_product') === 'true';
 
       if (isReturningFromProduct) {
-        console.log('🔙 Returning from product page - restoring from PetStorage without re-processing');
+        console.log('🔙 Returning from product page - checking sessionStorage for saved state');
         // Clear the return indicator (ProductMockupRenderer will also clear it)
         sessionStorage.removeItem('returning_from_product');
-        // Skip pet selector check - go straight to PetStorage restoration
-        // The mockup grid will be restored by ProductMockupRenderer.checkForRestoredSession()
+
+        // === FIX: Read from sessionStorage.processor_mockup_state ===
+        // When clicking products in mockup grid, only sessionStorage is saved (not PetStorage)
+        // ProductMockupRenderer.saveProcessorState() saves to processor_mockup_state
+        const savedState = sessionStorage.getItem('processor_mockup_state');
+        if (savedState) {
+          try {
+            const state = JSON.parse(savedState);
+
+            // Validate state freshness (expire after 30 minutes)
+            const MAX_AGE = 30 * 60 * 1000;
+            if (Date.now() - state.timestamp > MAX_AGE) {
+              console.log('🔙 Saved state expired, clearing');
+              sessionStorage.removeItem('processor_mockup_state');
+            } else if (state.petData && state.petData.effects) {
+              console.log('🔙 Restoring from sessionStorage.processor_mockup_state');
+
+              // Reconstruct currentPet from saved state
+              this.currentPet = {
+                id: state.petData.sessionKey || `pet_restored_${Date.now()}`,
+                filename: 'Pet',
+                effects: {},
+                selectedEffect: state.petData.selectedEffect || 'enhancedblackwhite'
+              };
+
+              // Restore all effects from saved state
+              for (const [effectName, effectData] of Object.entries(state.petData.effects)) {
+                if (effectData && (effectData.dataUrl || effectData.gcsUrl)) {
+                  this.currentPet.effects[effectName] = {
+                    gcsUrl: effectData.gcsUrl || '',
+                    dataUrl: effectData.dataUrl || null,
+                    cacheHit: true
+                  };
+                }
+              }
+
+              const effectCount = Object.keys(this.currentPet.effects).length;
+              if (effectCount > 0) {
+                console.log(`✅ [SessionStorage] Restored ${effectCount} effect(s):`, Object.keys(this.currentPet.effects));
+
+                // Show the result view
+                this.showResult({ effects: this.currentPet.effects });
+
+                // === Explicitly show views after RAF schedules ===
+                setTimeout(() => {
+                  const uploadZone = this.container.querySelector('.upload-zone');
+                  const effectGrid = this.container.querySelector('.effect-grid-wrapper');
+                  const resultView = this.container.querySelector('.processor-preview .result-view');
+                  const placeholder = this.container.querySelector('.preview-placeholder');
+                  const container = this.container.querySelector('.pet-processor-container');
+                  const inlineHeader = this.container.querySelector('.inline-section-header');
+
+                  if (uploadZone && !uploadZone.hidden) {
+                    uploadZone.hidden = true;
+                    console.log('🔧 [SessionStorage Restoration] Hiding upload zone');
+                  }
+                  if (effectGrid && effectGrid.hidden) {
+                    effectGrid.hidden = false;
+                    console.log('🔧 [SessionStorage Restoration] Showing effect grid');
+                  }
+                  if (resultView && resultView.hidden) {
+                    resultView.hidden = false;
+                    console.log('🔧 [SessionStorage Restoration] Showing result view');
+                  }
+                  if (placeholder && placeholder.style.display !== 'none') {
+                    placeholder.style.display = 'none';
+                    console.log('🔧 [SessionStorage Restoration] Hiding placeholder');
+                  }
+                  if (container && !container.classList.contains('has-result')) {
+                    container.classList.add('has-result');
+                    console.log('🔧 [SessionStorage Restoration] Adding has-result class');
+                  }
+                  if (inlineHeader && inlineHeader.hidden) {
+                    inlineHeader.hidden = false;
+                    console.log('🔧 [SessionStorage Restoration] Showing inline header');
+                  }
+                }, 50);
+
+                // Set initial image to selected effect
+                const img = this.container.querySelector('.pet-image');
+                if (img) {
+                  const selectedEffectData = this.currentPet.effects[this.currentPet.selectedEffect];
+                  if (selectedEffectData) {
+                    img.src = selectedEffectData.dataUrl || selectedEffectData.gcsUrl;
+                  }
+                }
+
+                // Update style card thumbnails
+                this.updateStyleCardPreviews({ effects: this.currentPet.effects });
+
+                // Dispatch event for mockup grid
+                document.dispatchEvent(new CustomEvent('petProcessingComplete', {
+                  detail: {
+                    sessionKey: this.currentPet.id,
+                    selectedEffect: this.currentPet.selectedEffect,
+                    effects: this.currentPet.effects,
+                    isRestored: true
+                  }
+                }));
+
+                return; // Successfully restored from sessionStorage
+              }
+            }
+          } catch (parseError) {
+            console.error('❌ Failed to parse processor_mockup_state:', parseError);
+          }
+        }
+
+        console.log('🔙 No valid sessionStorage state, falling back to PetStorage');
+        // Fall through to PetStorage check below
       } else {
         // === Check for pet selector uploaded images (only for NEW uploads) ===
         const petSelectorImage = await this.checkPetSelectorUploads();
