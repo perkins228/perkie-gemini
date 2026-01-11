@@ -858,20 +858,6 @@ class CropProcessor {
     this.ctx.setLineDash([4, 8]);
     this.ctx.strokeRect(x, y, width, height);
 
-    // Corner dots (desktop only) - subtle reference points
-    if (!isMobile) {
-      this.ctx.setLineDash([]);
-      this.ctx.fillStyle = 'rgba(236, 72, 153, 0.4)';
-      const dotSize = 3;
-
-      this.ctx.beginPath();
-      this.ctx.arc(x, y, dotSize, 0, Math.PI * 2);
-      this.ctx.arc(x + width, y, dotSize, 0, Math.PI * 2);
-      this.ctx.arc(x, y + height, dotSize, 0, Math.PI * 2);
-      this.ctx.arc(x + width, y + height, dotSize, 0, Math.PI * 2);
-      this.ctx.fill();
-    }
-
     // Restore context state
     this.ctx.restore();
   }
