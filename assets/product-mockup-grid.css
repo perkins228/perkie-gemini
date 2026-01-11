@@ -175,7 +175,7 @@
   gap: 12px;
 }
 
-/* Desktop: Horizontal carousel with visible scrollbar */
+/* Desktop: 2x5 grid layout (2 rows, 5 columns) */
 @media screen and (min-width: 750px) {
   .product-mockup-grid-section {
     padding: 16px 0 48px; /* Reduced from 24px to bring grid above fold */
@@ -186,40 +186,25 @@
   }
 
   .mockup-grid__items {
-    display: flex;
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
     gap: 16px;
-    overflow-x: auto;
-    scroll-snap-type: x mandatory;
-    scroll-behavior: smooth;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: thin; /* Firefox - show thin scrollbar */
-    scrollbar-color: rgba(var(--color-foreground), 0.3) transparent; /* Firefox scrollbar colors */
-    padding: 4px 0 16px; /* Extra bottom padding for scrollbar */
+    /* Remove carousel/scroll properties */
+    overflow-x: visible;
+    scroll-snap-type: none;
+    padding: 4px 0;
   }
 
-  /* Styled scrollbar for Chrome/Safari/Edge */
+  /* No scrollbar needed for grid layout */
   .mockup-grid__items::-webkit-scrollbar {
-    height: 8px;
-  }
-
-  .mockup-grid__items::-webkit-scrollbar-track {
-    background: rgba(var(--color-foreground), 0.05);
-    border-radius: 4px;
-  }
-
-  .mockup-grid__items::-webkit-scrollbar-thumb {
-    background: rgba(var(--color-foreground), 0.2);
-    border-radius: 4px;
-  }
-
-  .mockup-grid__items::-webkit-scrollbar-thumb:hover {
-    background: rgba(var(--color-foreground), 0.35);
+    display: none;
   }
 
   .mockup-grid__items .mockup-card {
-    flex: 0 0 calc(20% - 13px); /* ~5 visible cards */
-    scroll-snap-align: start;
-    min-width: 200px;
+    /* Reset flex properties, use grid sizing */
+    flex: none;
+    min-width: auto;
+    scroll-snap-align: none;
   }
 }
 
@@ -227,15 +212,10 @@
   .mockup-grid__items {
     gap: 20px;
   }
-
-  .mockup-grid__items .mockup-card {
-    flex: 0 0 calc(20% - 16px);
-    min-width: 220px;
-  }
 }
 
 /* =============================================================================
-   Carousel Navigation - Hidden (using scrollbar instead)
+   Navigation - Hidden (desktop uses 2x5 grid, mobile uses expand toggle)
    ============================================================================= */
 
 .mockup-grid__nav {
@@ -264,17 +244,10 @@
   grid-column: 1 / -1;
 }
 
-/* Desktop carousel: hero card is same size as others */
+/* Desktop grid: hero card is same size as others */
 @media screen and (min-width: 750px) {
   .mockup-card--hero {
-    grid-column: auto; /* Normal size for carousel */
-    flex: 0 0 calc(20% - 13px);
-  }
-}
-
-@media screen and (min-width: 990px) {
-  .mockup-card--hero {
-    flex: 0 0 calc(20% - 16px);
+    grid-column: auto; /* Normal size in 5-column grid */
   }
 }
 
@@ -299,11 +272,10 @@
   }
 }
 
-/* Desktop carousel: all cards visible and flex display */
+/* Desktop grid: all cards visible */
 @media screen and (min-width: 750px) {
   .mockup-card--expandable {
-    display: flex; /* Always visible, flex for carousel */
-    flex-direction: column;
+    display: block; /* Always visible in grid layout */
   }
 }
 
