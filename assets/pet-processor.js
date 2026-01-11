@@ -694,6 +694,55 @@ class PetProcessor {
         // Show the result view
         this.showResult({ effects: this.currentPet.effects });
 
+        // === CRITICAL FIX: Explicitly show views after RAF schedules ===
+        // showResult() uses requestAnimationFrame which is async.
+        // Ensure views are shown immediately for restoration flow.
+        setTimeout(() => {
+          // Double-check views are visible (RAF might not have fired yet)
+          const uploadZone = this.container.querySelector('.upload-zone');
+          const effectGrid = this.container.querySelector('.effect-grid-wrapper');
+          const resultView = this.container.querySelector('.processor-preview .result-view');
+          const placeholder = this.container.querySelector('.preview-placeholder');
+          const container = this.container.querySelector('.pet-processor-container');
+          const inlineHeader = this.container.querySelector('.inline-section-header');
+
+          // Hide upload zone
+          if (uploadZone && !uploadZone.hidden) {
+            uploadZone.hidden = true;
+            console.log('🔧 [Restoration] Explicitly hiding upload zone');
+          }
+
+          // Show effect grid
+          if (effectGrid && effectGrid.hidden) {
+            effectGrid.hidden = false;
+            console.log('🔧 [Restoration] Explicitly showing effect grid');
+          }
+
+          // Show result view
+          if (resultView && resultView.hidden) {
+            resultView.hidden = false;
+            console.log('🔧 [Restoration] Explicitly showing result view');
+          }
+
+          // Hide placeholder
+          if (placeholder && placeholder.style.display !== 'none') {
+            placeholder.style.display = 'none';
+            console.log('🔧 [Restoration] Explicitly hiding placeholder');
+          }
+
+          // Add has-result class
+          if (container && !container.classList.contains('has-result')) {
+            container.classList.add('has-result');
+            console.log('🔧 [Restoration] Explicitly adding has-result class');
+          }
+
+          // Show inline section header (desktop side-by-side layout)
+          if (inlineHeader && inlineHeader.hidden) {
+            inlineHeader.hidden = false;
+            console.log('🔧 [Restoration] Explicitly showing inline section header');
+          }
+        }, 50); // Small delay to let RAF callback fire first if it will
+
         // Set initial image to selected effect
         const img = this.container.querySelector('.pet-image');
         if (img) {

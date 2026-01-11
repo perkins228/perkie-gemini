@@ -77,6 +77,75 @@
 
 ---
 
+### 2026-01-11 - Session Restoration Upload Module Bug Analysis
+
+**Issue Reported**:
+- When clicking "Back to Previews" from product page (`?from=product`), main UI shows upload module instead of processed results
+- Product mockup grid correctly restores (shows pet images)
+- Pet data exists in PetStorage (proven by working mockup grid)
+
+**Root Cause Analysis Completed**:
+
+**Hypothesis**: `showResult()` method calls `hideAllViews()` which hides all UI elements, but may not properly re-show the result view components.
+
+**Code Flow Traced**:
+1. `PetProcessor.init()` → `render()` → `restoreSession()` → `initializeFeatures()`
+2. `restoreSession()` correctly detects `?from=product` (line 522-523)
+3. `restoreSession()` calls `showResult()` at line 695 when effects exist
+4. `showResult()` (line 2153) calls `hideAllViews()` in requestAnimationFrame
+5. `hideAllViews()` (line 2320) hides all views including result view
+6. **PROBABLE ISSUE**: Result view components not explicitly shown after hiding
+
+**Key Finding**:
+- `hideAllViews()` method (line 2320-2332) hides:
+  - upload-zone ✅
+  - effect-grid-wrapper ❌ (should be visible)
+  - processor-preview .result-view ❌ (should be visible)
+  - Shows preview-placeholder ❌ (should be hidden)
+
+**Likely Fix Location**: `assets/pet-processor.js` lines 2153-2300 (`showResult()` method)
+
+**Next Investigation Steps**:
+1. Read full `showResult()` implementation (lines 2153-2300)
+2. Identify where result view should be unhidden
+3. Add diagnostic logging to confirm execution
+4. Implement targeted fix
+
+**Documentation Created**:
+- `.claude/doc/session-restoration-upload-module-bug-debug-plan.md` - Complete RCA with investigation plan
+
+**Files Analyzed**:
+- `assets/pet-processor.js` (lines 448-740: constructor, init, restoreSession)
+- `assets/pet-processor.js` (lines 2153-2332: showResult, hideAllViews)
+- `assets/product-mockup-renderer.js` (lines 37-91: checkForRestoredSession - working correctly)
+
+### 2026-01-11 - Session Restoration View Fix Implemented
+
+**Issue**: When clicking "Back to Previews" from product page, upload module showed instead of processed results (while mockup grid correctly showed pet images).
+
+**Root Cause Analysis**:
+- `showResult()` uses `requestAnimationFrame` which is async
+- RAF callback schedules view changes for future frame
+- `restoreSession()` continues executing before RAF fires
+- Timing issue caused views to not update correctly during restoration
+
+**Fix Applied** (`assets/pet-processor.js` lines 697-744):
+- Added explicit view management after `showResult()` call
+- Uses `setTimeout(50ms)` to verify views are shown after RAF
+- Explicitly hides upload zone, shows effect grid, result view, inline header
+- Adds diagnostic logging with `🔧 [Restoration]` prefix
+
+**Files Modified**:
+- [pet-processor.js:697-744](assets/pet-processor.js#L697-L744) - Added explicit view restoration fallback
+
+**Testing Required**:
+1. Process pet image on custom-image-processing page
+2. Navigate to product page via mockup grid
+3. Click "Back to Previews" link
+4. Verify: upload zone hidden, effect grid visible, result view visible, mockup grid visible
+
+---
+
 ## Notes
 - Always append new work with timestamp
 - Archive when file > 400KB or task complete
