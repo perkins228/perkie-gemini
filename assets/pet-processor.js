@@ -1000,10 +1000,11 @@ class PetProcessor {
   }
 
   initializeFeatures() {
-    // Initialize comparison manager
-    if (typeof ComparisonManager !== 'undefined') {
-      this.comparisonManager = new ComparisonManager(this);
-    }
+    // DISABLED: Comparison manager not part of current customer journey
+    // Caused unexpected comparison overlay trigger when selecting effects
+    // if (typeof ComparisonManager !== 'undefined') {
+    //   this.comparisonManager = new ComparisonManager(this);
+    // }
 
     // Initialize social sharing
     if (typeof PetSocialSharing !== 'undefined') {

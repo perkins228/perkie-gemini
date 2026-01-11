@@ -6,7 +6,8 @@
 {%- comment -%} Cache busting v2.1: Pink spinner matching theme color palette {%- endcomment -%}
 <link rel="stylesheet" href="{{ 'pet-processor-v5.css' | asset_url }}?v=2.1">
 <link rel="stylesheet" href="{{ 'pet-processor-mobile.css' | asset_url }}?v=2.1">
-{{ 'effect-comparison.css' | asset_url | stylesheet_tag }}
+{%- comment -%} DISABLED: Comparison feature not in current customer journey {%- endcomment -%}
+{%- comment -%} {{ 'effect-comparison.css' | asset_url | stylesheet_tag }} {%- endcomment -%}
 {{ 'crop-processor.css' | asset_url | stylesheet_tag }}
 {%- comment -%} Simple social sharing replaces complex 38KB implementation {%- endcomment -%}
 {{ 'pet-social-sharing-simple.css' | asset_url | stylesheet_tag }}
