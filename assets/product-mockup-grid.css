@@ -175,7 +175,7 @@
   gap: 12px;
 }
 
-/* Desktop: 2x5 grid layout (2 rows, 5 columns) */
+/* Desktop: 4x4 grid layout (4 rows, 4 columns) */
 @media screen and (min-width: 750px) {
   .product-mockup-grid-section {
     padding: 16px 0 48px; /* Reduced from 24px to bring grid above fold */
@@ -187,7 +187,7 @@
 
   .mockup-grid__items {
     display: grid;
-    grid-template-columns: repeat(5, 1fr);
+    grid-template-columns: repeat(4, 1fr);
     gap: 16px;
     /* Remove carousel/scroll properties */
     overflow-x: visible;

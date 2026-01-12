@@ -98,9 +98,9 @@ if (!customElements.get('product-form')) {
 
                   // LAYER 1: Save customization + clear pet property fields after cart success
                   // This prevents carryover to next product while preserving processor bridge
+                  // NOTE: Pets are NOT cleared from Session Pet Gallery - they persist for multi-product purchases
                   self.savePetCustomization();  // Phase 2: Save for restoration
-                  self.clearPetPropertyFields(); // Phase 1: Clear form fields
-                  self.clearProcessedPets();     // Phase 1: Clear processed pet data
+                  self.clearPetPropertyFields(); // Phase 1: Clear form fields (NOT pet library)
                 });
               self.error = false;
               const quickAddModal = self.closest('quick-add-modal');
@@ -275,8 +275,10 @@ if (!customElements.get('product-form')) {
       }
 
       /**
-       * Clear processed pet data from localStorage after cart success
-       * This prevents processed pets from being reused for different products
+       * Clear processed pet data from localStorage
+       * DEPRECATED: No longer called automatically after cart success (2025-01-12)
+       * Pets now persist in Session Pet Gallery for multi-product purchases
+       * Kept for potential future use (e.g., manual "Clear Library" button)
        */
       clearProcessedPets() {
         try {

@@ -53,7 +53,7 @@
         Pet images will be overlaid via JavaScript
       {%- endcomment -%}
       <div class="mockup-grid__items" data-mockup-items>
-        {%- for i in (1..10) -%}
+        {%- for i in (1..16) -%}
           {%- assign product_setting = 'product_' | append: i -%}
           {%- assign product = section.settings[product_setting] -%}
 
@@ -67,7 +67,7 @@
             {%- assign mockup_template_setting = 'product_' | append: i | append: '_mockup_template' -%}
             {%- assign mockup_template = section.settings[mockup_template_setting] -%}
 
-            <div class="mockup-card {% if forloop.first %}mockup-card--hero{% endif %} {% if forloop.index > 5 %}mockup-card--expandable{% endif %}"
+            <div class="mockup-card {% if forloop.first %}mockup-card--hero{% endif %} {% if forloop.index > 8 %}mockup-card--expandable{% endif %}"
                  data-product-handle="{{ product.handle }}"
                  data-product-id="{{ product.id }}"
                  data-product-index="{{ forloop.index }}"
@@ -224,7 +224,7 @@
   window.productMockupGridConfig['{{ section.id }}'] = {
     sectionId: '{{ section.id }}',
     products: [
-      {%- for i in (1..10) -%}
+      {%- for i in (1..16) -%}
         {%- assign product_setting = 'product_' | append: i -%}
         {%- assign product = section.settings[product_setting] -%}
         {%- if product != blank -%}
@@ -1143,6 +1143,486 @@
     {
       "type": "select",
       "id": "product_10_variant_display",
+      "label": "Variant display",
+      "default": "",
+      "options": [
+        { "value": "", "label": "Use global setting" },
+        { "value": "none", "label": "Don't show" },
+        { "value": "color", "label": "Colors" },
+        { "value": "size", "label": "Sizes" },
+        { "value": "material", "label": "Materials" },
+        { "value": "style", "label": "Styles" }
+      ],
+      "info": "Override global variant display for this product"
+    },
+    {
+      "type": "header",
+      "content": "Product 11"
+    },
+    {
+      "type": "product",
+      "id": "product_11",
+      "label": "Product 11"
+    },
+    {
+      "type": "image_picker",
+      "id": "product_11_mockup_template",
+      "label": "Mockup Template Image",
+      "info": "Upload a blank product mockup. Falls back to product image if not set."
+    },
+    {
+      "type": "range",
+      "id": "product_11_top",
+      "label": "Pet position - Top %",
+      "min": 0,
+      "max": 80,
+      "step": 1,
+      "default": 20,
+      "unit": "%"
+    },
+    {
+      "type": "range",
+      "id": "product_11_left",
+      "label": "Pet position - Left %",
+      "min": 0,
+      "max": 80,
+      "step": 1,
+      "default": 20,
+      "unit": "%"
+    },
+    {
+      "type": "range",
+      "id": "product_11_width",
+      "label": "Pet image width %",
+      "min": 5,
+      "max": 100,
+      "step": 5,
+      "default": 60,
+      "unit": "%"
+    },
+    {
+      "type": "range",
+      "id": "product_11_height",
+      "label": "Pet image height %",
+      "min": 5,
+      "max": 100,
+      "step": 5,
+      "default": 60,
+      "unit": "%"
+    },
+    {
+      "type": "range",
+      "id": "product_11_rotation",
+      "label": "Pet image rotation",
+      "min": -45,
+      "max": 45,
+      "step": 1,
+      "default": 0,
+      "unit": "deg"
+    },
+    {
+      "type": "select",
+      "id": "product_11_variant_display",
+      "label": "Variant display",
+      "default": "",
+      "options": [
+        { "value": "", "label": "Use global setting" },
+        { "value": "none", "label": "Don't show" },
+        { "value": "color", "label": "Colors" },
+        { "value": "size", "label": "Sizes" },
+        { "value": "material", "label": "Materials" },
+        { "value": "style", "label": "Styles" }
+      ],
+      "info": "Override global variant display for this product"
+    },
+    {
+      "type": "header",
+      "content": "Product 12"
+    },
+    {
+      "type": "product",
+      "id": "product_12",
+      "label": "Product 12"
+    },
+    {
+      "type": "image_picker",
+      "id": "product_12_mockup_template",
+      "label": "Mockup Template Image",
+      "info": "Upload a blank product mockup. Falls back to product image if not set."
+    },
+    {
+      "type": "range",
+      "id": "product_12_top",
+      "label": "Pet position - Top %",
+      "min": 0,
+      "max": 80,
+      "step": 1,
+      "default": 20,
+      "unit": "%"
+    },
+    {
+      "type": "range",
+      "id": "product_12_left",
+      "label": "Pet position - Left %",
+      "min": 0,
+      "max": 80,
+      "step": 1,
+      "default": 20,
+      "unit": "%"
+    },
+    {
+      "type": "range",
+      "id": "product_12_width",
+      "label": "Pet image width %",
+      "min": 5,
+      "max": 100,
+      "step": 5,
+      "default": 60,
+      "unit": "%"
+    },
+    {
+      "type": "range",
+      "id": "product_12_height",
+      "label": "Pet image height %",
+      "min": 5,
+      "max": 100,
+      "step": 5,
+      "default": 60,
+      "unit": "%"
+    },
+    {
+      "type": "range",
+      "id": "product_12_rotation",
+      "label": "Pet image rotation",
+      "min": -45,
+      "max": 45,
+      "step": 1,
+      "default": 0,
+      "unit": "deg"
+    },
+    {
+      "type": "select",
+      "id": "product_12_variant_display",
+      "label": "Variant display",
+      "default": "",
+      "options": [
+        { "value": "", "label": "Use global setting" },
+        { "value": "none", "label": "Don't show" },
+        { "value": "color", "label": "Colors" },
+        { "value": "size", "label": "Sizes" },
+        { "value": "material", "label": "Materials" },
+        { "value": "style", "label": "Styles" }
+      ],
+      "info": "Override global variant display for this product"
+    },
+    {
+      "type": "header",
+      "content": "Product 13"
+    },
+    {
+      "type": "product",
+      "id": "product_13",
+      "label": "Product 13"
+    },
+    {
+      "type": "image_picker",
+      "id": "product_13_mockup_template",
+      "label": "Mockup Template Image",
+      "info": "Upload a blank product mockup. Falls back to product image if not set."
+    },
+    {
+      "type": "range",
+      "id": "product_13_top",
+      "label": "Pet position - Top %",
+      "min": 0,
+      "max": 80,
+      "step": 1,
+      "default": 20,
+      "unit": "%"
+    },
+    {
+      "type": "range",
+      "id": "product_13_left",
+      "label": "Pet position - Left %",
+      "min": 0,
+      "max": 80,
+      "step": 1,
+      "default": 20,
+      "unit": "%"
+    },
+    {
+      "type": "range",
+      "id": "product_13_width",
+      "label": "Pet image width %",
+      "min": 5,
+      "max": 100,
+      "step": 5,
+      "default": 60,
+      "unit": "%"
+    },
+    {
+      "type": "range",
+      "id": "product_13_height",
+      "label": "Pet image height %",
+      "min": 5,
+      "max": 100,
+      "step": 5,
+      "default": 60,
+      "unit": "%"
+    },
+    {
+      "type": "range",
+      "id": "product_13_rotation",
+      "label": "Pet image rotation",
+      "min": -45,
+      "max": 45,
+      "step": 1,
+      "default": 0,
+      "unit": "deg"
+    },
+    {
+      "type": "select",
+      "id": "product_13_variant_display",
+      "label": "Variant display",
+      "default": "",
+      "options": [
+        { "value": "", "label": "Use global setting" },
+        { "value": "none", "label": "Don't show" },
+        { "value": "color", "label": "Colors" },
+        { "value": "size", "label": "Sizes" },
+        { "value": "material", "label": "Materials" },
+        { "value": "style", "label": "Styles" }
+      ],
+      "info": "Override global variant display for this product"
+    },
+    {
+      "type": "header",
+      "content": "Product 14"
+    },
+    {
+      "type": "product",
+      "id": "product_14",
+      "label": "Product 14"
+    },
+    {
+      "type": "image_picker",
+      "id": "product_14_mockup_template",
+      "label": "Mockup Template Image",
+      "info": "Upload a blank product mockup. Falls back to product image if not set."
+    },
+    {
+      "type": "range",
+      "id": "product_14_top",
+      "label": "Pet position - Top %",
+      "min": 0,
+      "max": 80,
+      "step": 1,
+      "default": 20,
+      "unit": "%"
+    },
+    {
+      "type": "range",
+      "id": "product_14_left",
+      "label": "Pet position - Left %",
+      "min": 0,
+      "max": 80,
+      "step": 1,
+      "default": 20,
+      "unit": "%"
+    },
+    {
+      "type": "range",
+      "id": "product_14_width",
+      "label": "Pet image width %",
+      "min": 5,
+      "max": 100,
+      "step": 5,
+      "default": 60,
+      "unit": "%"
+    },
+    {
+      "type": "range",
+      "id": "product_14_height",
+      "label": "Pet image height %",
+      "min": 5,
+      "max": 100,
+      "step": 5,
+      "default": 60,
+      "unit": "%"
+    },
+    {
+      "type": "range",
+      "id": "product_14_rotation",
+      "label": "Pet image rotation",
+      "min": -45,
+      "max": 45,
+      "step": 1,
+      "default": 0,
+      "unit": "deg"
+    },
+    {
+      "type": "select",
+      "id": "product_14_variant_display",
+      "label": "Variant display",
+      "default": "",
+      "options": [
+        { "value": "", "label": "Use global setting" },
+        { "value": "none", "label": "Don't show" },
+        { "value": "color", "label": "Colors" },
+        { "value": "size", "label": "Sizes" },
+        { "value": "material", "label": "Materials" },
+        { "value": "style", "label": "Styles" }
+      ],
+      "info": "Override global variant display for this product"
+    },
+    {
+      "type": "header",
+      "content": "Product 15"
+    },
+    {
+      "type": "product",
+      "id": "product_15",
+      "label": "Product 15"
+    },
+    {
+      "type": "image_picker",
+      "id": "product_15_mockup_template",
+      "label": "Mockup Template Image",
+      "info": "Upload a blank product mockup. Falls back to product image if not set."
+    },
+    {
+      "type": "range",
+      "id": "product_15_top",
+      "label": "Pet position - Top %",
+      "min": 0,
+      "max": 80,
+      "step": 1,
+      "default": 20,
+      "unit": "%"
+    },
+    {
+      "type": "range",
+      "id": "product_15_left",
+      "label": "Pet position - Left %",
+      "min": 0,
+      "max": 80,
+      "step": 1,
+      "default": 20,
+      "unit": "%"
+    },
+    {
+      "type": "range",
+      "id": "product_15_width",
+      "label": "Pet image width %",
+      "min": 5,
+      "max": 100,
+      "step": 5,
+      "default": 60,
+      "unit": "%"
+    },
+    {
+      "type": "range",
+      "id": "product_15_height",
+      "label": "Pet image height %",
+      "min": 5,
+      "max": 100,
+      "step": 5,
+      "default": 60,
+      "unit": "%"
+    },
+    {
+      "type": "range",
+      "id": "product_15_rotation",
+      "label": "Pet image rotation",
+      "min": -45,
+      "max": 45,
+      "step": 1,
+      "default": 0,
+      "unit": "deg"
+    },
+    {
+      "type": "select",
+      "id": "product_15_variant_display",
+      "label": "Variant display",
+      "default": "",
+      "options": [
+        { "value": "", "label": "Use global setting" },
+        { "value": "none", "label": "Don't show" },
+        { "value": "color", "label": "Colors" },
+        { "value": "size", "label": "Sizes" },
+        { "value": "material", "label": "Materials" },
+        { "value": "style", "label": "Styles" }
+      ],
+      "info": "Override global variant display for this product"
+    },
+    {
+      "type": "header",
+      "content": "Product 16"
+    },
+    {
+      "type": "product",
+      "id": "product_16",
+      "label": "Product 16"
+    },
+    {
+      "type": "image_picker",
+      "id": "product_16_mockup_template",
+      "label": "Mockup Template Image",
+      "info": "Upload a blank product mockup. Falls back to product image if not set."
+    },
+    {
+      "type": "range",
+      "id": "product_16_top",
+      "label": "Pet position - Top %",
+      "min": 0,
+      "max": 80,
+      "step": 1,
+      "default": 20,
+      "unit": "%"
+    },
+    {
+      "type": "range",
+      "id": "product_16_left",
+      "label": "Pet position - Left %",
+      "min": 0,
+      "max": 80,
+      "step": 1,
+      "default": 20,
+      "unit": "%"
+    },
+    {
+      "type": "range",
+      "id": "product_16_width",
+      "label": "Pet image width %",
+      "min": 5,
+      "max": 100,
+      "step": 5,
+      "default": 60,
+      "unit": "%"
+    },
+    {
+      "type": "range",
+      "id": "product_16_height",
+      "label": "Pet image height %",
+      "min": 5,
+      "max": 100,
+      "step": 5,
+      "default": 60,
+      "unit": "%"
+    },
+    {
+      "type": "range",
+      "id": "product_16_rotation",
+      "label": "Pet image rotation",
+      "min": -45,
+      "max": 45,
+      "step": 1,
+      "default": 0,
+      "unit": "deg"
+    },
+    {
+      "type": "select",
+      "id": "product_16_variant_display",
       "label": "Variant display",
       "default": "",
       "options": [
