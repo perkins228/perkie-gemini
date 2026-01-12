@@ -2024,6 +2024,18 @@ class PetProcessor {
                   effects: this.currentPet.effects,  // Now includes all 4 effects
                   timestamp: Date.now()
                 };
+                console.log('📦 Saving Gemini effects to PetStorage:', {
+                  petId: this.currentPet.id,
+                  effectKeys: Object.keys(this.currentPet.effects),
+                  ink_wash: this.currentPet.effects.ink_wash ? {
+                    hasGcsUrl: !!this.currentPet.effects.ink_wash.gcsUrl,
+                    hasDataUrl: !!this.currentPet.effects.ink_wash.dataUrl
+                  } : 'NOT PRESENT',
+                  sketch: this.currentPet.effects.sketch ? {
+                    hasGcsUrl: !!this.currentPet.effects.sketch.gcsUrl,
+                    hasDataUrl: !!this.currentPet.effects.sketch.dataUrl
+                  } : 'NOT PRESENT'
+                });
                 PetStorage.save(this.currentPet.id, updatedPetData)
                   .then(() => {
                     console.log('✅ PetStorage updated with Gemini effects (ink_wash, sketch)');

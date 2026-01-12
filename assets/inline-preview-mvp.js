@@ -363,6 +363,19 @@
      */
     openWithPreProcessedEffects(data) {
       console.log('🎨 Opening inline preview with pre-processed effects:', data);
+      console.log('🔍 Effects breakdown:', {
+        effectKeys: Object.keys(data.effects || {}),
+        ink_wash: data.effects?.ink_wash ? {
+          hasGcsUrl: !!data.effects.ink_wash.gcsUrl,
+          hasDataUrl: !!data.effects.ink_wash.dataUrl,
+          gcsUrlStart: data.effects.ink_wash.gcsUrl?.substring(0, 50)
+        } : 'NOT PRESENT',
+        sketch: data.effects?.sketch ? {
+          hasGcsUrl: !!data.effects.sketch.gcsUrl,
+          hasDataUrl: !!data.effects.sketch.dataUrl,
+          gcsUrlStart: data.effects.sketch.gcsUrl?.substring(0, 50)
+        } : 'NOT PRESENT'
+      });
 
       // Store pet metadata
       this.petNumber = data.petNumber;

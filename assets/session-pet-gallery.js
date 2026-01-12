@@ -229,6 +229,19 @@
    */
   function selectPet(pet, petIndex) {
     console.log('[SessionPetGallery] Selected pet:', pet.sessionKey, 'for index:', petIndex);
+    console.log('[SessionPetGallery] 🔍 Pet effects breakdown:', {
+      effectKeys: Object.keys(pet.effects || {}),
+      ink_wash: pet.effects?.ink_wash ? {
+        hasGcsUrl: !!pet.effects.ink_wash.gcsUrl,
+        hasDataUrl: !!pet.effects.ink_wash.dataUrl,
+        type: typeof pet.effects.ink_wash
+      } : 'NOT PRESENT',
+      sketch: pet.effects?.sketch ? {
+        hasGcsUrl: !!pet.effects.sketch.gcsUrl,
+        hasDataUrl: !!pet.effects.sketch.dataUrl,
+        type: typeof pet.effects.sketch
+      } : 'NOT PRESENT'
+    });
 
     // Find the pet detail section
     var petDetail = document.querySelector('[data-pet-index="' + petIndex + '"]');
