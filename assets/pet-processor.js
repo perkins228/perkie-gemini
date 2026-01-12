@@ -516,11 +516,6 @@ class PetProcessor {
     try {
       console.log('🔄 Attempting to restore session from localStorage');
 
-      // === NEW: Check for recent pets FIRST and render Welcome Back gallery ===
-      // This ensures returning users always see their pet library
-      const recentPets = this.checkAndRenderWelcomeBackGallery();
-      const hasRecentPets = recentPets && recentPets.length > 0;
-
       // === PRIORITY: Check if returning from product page ===
       // If returning, skip pet selector check to avoid re-processing
       const urlParams = new URLSearchParams(window.location.search);
@@ -641,17 +636,14 @@ class PetProcessor {
 
         console.log('🔙 No valid sessionStorage state, falling back to PetStorage');
         // Fall through to PetStorage check below
-      } else if (!hasRecentPets) {
+      } else {
         // === Check for pet selector uploaded images (only for NEW uploads) ===
-        // Skip this if we have recent pets (user can use Upload New Pet button)
         const petSelectorImage = await this.checkPetSelectorUploads();
         if (petSelectorImage) {
           console.log('📸 Found uploaded image from pet selector, auto-loading...');
           await this.loadPetSelectorImage(petSelectorImage);
           return; // Early return - don't check PetStorage
         }
-      } else {
-        console.log('🐾 Has recent pets, showing Welcome Back gallery instead of auto-upload');
       }
 
       // === EXISTING: Check PetStorage for processed pets ===
@@ -1191,25 +1183,6 @@ class PetProcessor {
   render() {
     this.container.innerHTML = `
       <div class="pet-processor-container">
-        <!-- Welcome Back Section (shown when returning users have processed pets) -->
-        <div class="welcome-back-section" data-welcome-back hidden>
-          <div class="welcome-back-header">
-            <h3 class="welcome-back-title">Welcome Back!</h3>
-            <p class="welcome-back-subtitle">Your previously processed pets are ready to use</p>
-          </div>
-          <div class="welcome-back-gallery" data-welcome-gallery>
-            <!-- Pet cards will be inserted here by renderWelcomeBackGallery() -->
-          </div>
-          <button class="welcome-back-upload-btn" data-welcome-upload>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-              <polyline points="17 8 12 3 7 8"/>
-              <line x1="12" y1="3" x2="12" y2="15"/>
-            </svg>
-            Upload New Pet
-          </button>
-        </div>
-
         <!-- Two-column layout wrapper -->
         <div class="processor-columns">
           <!-- Left Column: Controls -->
@@ -1408,123 +1381,7 @@ class PetProcessor {
   }
 
   /**
-   * Render Welcome Back gallery with previously processed pets
-   * Shows a horizontal scrolling gallery of pet thumbnails for returning users
-   *
-   * @param {Array} recentPets - Array of pet objects from PetStorage.getRecentPets()
-   */
-  renderWelcomeBackGallery(recentPets) {
-    const welcomeSection = this.container.querySelector('[data-welcome-back]');
-    const galleryContainer = this.container.querySelector('[data-welcome-gallery]');
-
-    if (!welcomeSection || !galleryContainer || !recentPets || recentPets.length === 0) {
-      console.log('🐾 No pets to display in Welcome Back gallery');
-      return;
-    }
-
-    console.log(`🐾 Rendering Welcome Back gallery with ${recentPets.length} pet(s)`);
-
-    // Clear existing cards
-    galleryContainer.innerHTML = '';
-
-    // Create pet cards
-    recentPets.forEach((pet, index) => {
-      const card = document.createElement('div');
-      card.className = 'welcome-pet-card' + (index === 0 ? ' active' : '');
-      card.setAttribute('data-session-key', pet.sessionKey);
-      card.setAttribute('data-selected-effect', pet.selectedEffect || 'enhancedblackwhite');
-      card.setAttribute('role', 'button');
-      card.setAttribute('tabindex', '0');
-      card.setAttribute('aria-label', `View ${pet.sessionKey} - ${this.getEffectDisplayName(pet.selectedEffect)}`);
-
-      // Delete button
-      const deleteBtn = document.createElement('button');
-      deleteBtn.className = 'welcome-pet-card__delete';
-      deleteBtn.setAttribute('type', 'button');
-      deleteBtn.setAttribute('aria-label', 'Remove this pet');
-      deleteBtn.setAttribute('title', 'Remove pet');
-      deleteBtn.innerHTML = `
-        <svg width="10" height="10" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M1 1L11 11M1 11L11 1" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-        </svg>
-      `;
-
-      // Image wrapper
-      const imageWrapper = document.createElement('div');
-      imageWrapper.className = 'welcome-pet-card__image-wrapper';
-
-      // Image
-      const img = document.createElement('img');
-      img.className = 'welcome-pet-card__image';
-      img.src = pet.thumbnailUrl;
-      img.alt = 'Previously processed pet';
-      img.loading = 'lazy';
-      img.onerror = function() {
-        this.parentElement.style.backgroundColor = '#e5e7eb';
-        this.style.display = 'none';
-      };
-
-      imageWrapper.appendChild(img);
-      card.appendChild(deleteBtn);
-      card.appendChild(imageWrapper);
-
-      // Age text
-      if (pet.ageText) {
-        const meta = document.createElement('div');
-        meta.className = 'welcome-pet-card__meta';
-        meta.innerHTML = `<span class="welcome-pet-card__age">${this.escapeHtml(pet.ageText)}</span>`;
-        card.appendChild(meta);
-      }
-
-      // Click handler for card (select this pet)
-      card.addEventListener('click', (e) => {
-        if (e.target.closest('.welcome-pet-card__delete')) return; // Ignore if delete button clicked
-        this.selectWelcomeBackPet(pet, card);
-      });
-
-      // Keyboard handler
-      card.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault();
-          this.selectWelcomeBackPet(pet, card);
-        }
-      });
-
-      // Delete button handler
-      deleteBtn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        e.preventDefault();
-        this.deleteWelcomeBackPet(pet.sessionKey, card);
-      });
-
-      galleryContainer.appendChild(card);
-    });
-
-    // Show the welcome back section
-    welcomeSection.hidden = false;
-    console.log('✅ Welcome Back gallery rendered');
-  }
-
-  /**
-   * Handle selection of a pet from Welcome Back gallery
-   *
-   * @param {Object} pet - Pet data from PetStorage
-   * @param {HTMLElement} card - The clicked card element
-   */
-  selectWelcomeBackPet(pet, card) {
-    console.log('🐾 Selected pet from Welcome Back gallery:', pet.sessionKey);
-
-    // Update active state on cards
-    const allCards = this.container.querySelectorAll('.welcome-pet-card');
-    allCards.forEach(c => c.classList.remove('active'));
-    card.classList.add('active');
-
-    // Load this pet's data
-    this.loadPetFromStorage(pet);
-  }
-
-  /**
-   * Load a pet from Welcome Back gallery into the processor view
+   * Load a pet from storage into the processor view
    *
    * @param {Object} pet - Pet data object with sessionKey, effects, selectedEffect
    */
@@ -1610,134 +1467,6 @@ class PetProcessor {
   }
 
   /**
-   * Delete a pet from Welcome Back gallery
-   *
-   * @param {string} sessionKey - Pet session key to delete
-   * @param {HTMLElement} card - Card element to remove
-   */
-  deleteWelcomeBackPet(sessionKey, card) {
-    if (!confirm('Remove this pet from your library?')) {
-      return;
-    }
-
-    console.log('🗑️ Deleting pet from Welcome Back gallery:', sessionKey);
-
-    // Delete from PetStorage
-    if (typeof PetStorage !== 'undefined' && typeof PetStorage.delete === 'function') {
-      PetStorage.delete(sessionKey);
-    }
-
-    // Animate card removal
-    card.style.transition = 'opacity 0.2s ease, transform 0.2s ease';
-    card.style.opacity = '0';
-    card.style.transform = 'scale(0.8)';
-
-    setTimeout(() => {
-      if (card.parentNode) {
-        const wasActive = card.classList.contains('active');
-        card.parentNode.removeChild(card);
-
-        // Check remaining cards
-        const remainingCards = this.container.querySelectorAll('.welcome-pet-card');
-
-        if (remainingCards.length === 0) {
-          // Hide welcome back section and show upload zone
-          const welcomeSection = this.container.querySelector('[data-welcome-back]');
-          if (welcomeSection) welcomeSection.hidden = true;
-
-          const uploadZone = this.container.querySelector('.upload-zone');
-          if (uploadZone) uploadZone.hidden = false;
-        } else if (wasActive) {
-          // If deleted card was active, select the first remaining card
-          const firstCard = remainingCards[0];
-          firstCard.classList.add('active');
-          const newSessionKey = firstCard.getAttribute('data-session-key');
-          const newPet = PetStorage.get(newSessionKey);
-          if (newPet) {
-            // Rebuild pet object with required fields
-            const petData = {
-              sessionKey: newSessionKey,
-              effects: newPet.effects || {},
-              selectedEffect: newPet.selectedEffect || 'enhancedblackwhite'
-            };
-            this.loadPetFromStorage(petData);
-          }
-        }
-      }
-
-      // Show feedback toast
-      this.showDeleteFeedback();
-    }, 200);
-  }
-
-  /**
-   * Show brief feedback when pet is deleted
-   */
-  showDeleteFeedback() {
-    const existingFeedback = document.querySelector('.welcome-back-delete-feedback');
-    if (existingFeedback) {
-      existingFeedback.remove();
-    }
-
-    const feedback = document.createElement('div');
-    feedback.className = 'welcome-back-delete-feedback';
-    feedback.style.cssText = 'position:fixed;bottom:20px;left:50%;transform:translateX(-50%);' +
-      'background:#6b7280;color:white;padding:12px 24px;border-radius:8px;' +
-      'font-weight:500;font-size:14px;z-index:9999;box-shadow:0 4px 12px rgba(0,0,0,0.15);';
-    feedback.textContent = 'Pet removed from library';
-
-    document.body.appendChild(feedback);
-
-    setTimeout(() => {
-      feedback.style.transition = 'opacity 0.3s ease';
-      feedback.style.opacity = '0';
-      setTimeout(() => {
-        if (feedback.parentNode) {
-          feedback.parentNode.removeChild(feedback);
-        }
-      }, 300);
-    }, 2000);
-  }
-
-  /**
-   * Handle click on "Upload New Pet" button in Welcome Back section
-   */
-  handleWelcomeUploadClick() {
-    console.log('🐾 Upload New Pet clicked from Welcome Back section');
-
-    // Hide result view and show upload zone
-    const uploadZone = this.container.querySelector('.upload-zone');
-    const effectGrid = this.container.querySelector('.effect-grid-wrapper');
-    const resultView = this.container.querySelector('.processor-preview .result-view');
-    const placeholder = this.container.querySelector('.preview-placeholder');
-    const container = this.container.querySelector('.pet-processor-container');
-    const inlineHeader = this.container.querySelector('.inline-section-header');
-
-    // Clear current pet state
-    this.currentPet = null;
-    this.selectedEffect = 'enhancedblackwhite';
-
-    // Reset UI to upload state
-    if (uploadZone) uploadZone.hidden = false;
-    if (effectGrid) effectGrid.hidden = true;
-    if (resultView) resultView.hidden = true;
-    if (placeholder) placeholder.style.display = '';
-    if (container) container.classList.remove('has-result');
-    if (inlineHeader) inlineHeader.hidden = true;
-
-    // Clear active state from gallery cards
-    const allCards = this.container.querySelectorAll('.welcome-pet-card');
-    allCards.forEach(c => c.classList.remove('active'));
-
-    // Scroll to upload zone
-    uploadZone?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-
-    // Trigger file input
-    const fileInput = this.container.querySelector('.file-input');
-    fileInput?.click();
-  }
-
-  /**
    * Get effect display name for UI
    * @param {string} effectKey - Internal effect key
    * @returns {string} Human-readable name
@@ -1762,47 +1491,6 @@ class PetProcessor {
     const div = document.createElement('div');
     div.textContent = str;
     return div.innerHTML;
-  }
-
-  /**
-   * Check for recent pets and render Welcome Back gallery if found
-   * Called at the start of restoreSession() to ensure gallery is always shown
-   *
-   * @returns {Array|null} Array of recent pets or null if none found
-   */
-  checkAndRenderWelcomeBackGallery() {
-    try {
-      // Check if PetStorage is available
-      if (typeof PetStorage === 'undefined') {
-        console.log('🐾 PetStorage not available for Welcome Back gallery');
-        return null;
-      }
-
-      // Get recent pets from storage (up to 5)
-      const recentPets = PetStorage.getRecentPets(5);
-
-      if (!recentPets || recentPets.length === 0) {
-        console.log('🐾 No recent pets found for Welcome Back gallery');
-        return null;
-      }
-
-      console.log(`🐾 Found ${recentPets.length} recent pet(s) for Welcome Back gallery`);
-
-      // Render the Welcome Back gallery
-      this.renderWelcomeBackGallery(recentPets);
-
-      // Auto-load the most recent pet
-      const mostRecentPet = recentPets[0];
-      if (mostRecentPet) {
-        console.log(`🐾 Auto-loading most recent pet: ${mostRecentPet.sessionKey}`);
-        this.loadPetFromStorage(mostRecentPet);
-      }
-
-      return recentPets;
-    } catch (error) {
-      console.error('❌ Error checking for recent pets:', error);
-      return null;
-    }
   }
 
   bindEvents() {
@@ -1839,9 +1527,6 @@ class PetProcessor {
     this.container.querySelector('.crop-btn')?.addEventListener('click', () => this.handleCropClick());
     this.container.querySelector('.try-again-btn')?.addEventListener('click', () => this.reset());
     this.container.querySelector('.try-another-btn')?.addEventListener('click', async () => await this.processAnother());
-
-    // Welcome Back Upload button
-    this.container.querySelector('[data-welcome-upload]')?.addEventListener('click', () => this.handleWelcomeUploadClick());
 
     // Listen for "Try Another Pet" event from mockup grid
     document.addEventListener('tryAnotherPet', async () => await this.processAnother());
