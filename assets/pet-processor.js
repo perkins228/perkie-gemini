@@ -637,12 +637,42 @@ class PetProcessor {
         console.log('🔙 No valid sessionStorage state, falling back to PetStorage');
         // Fall through to PetStorage check below
       } else {
-        // === Check for pet selector uploaded images (only for NEW uploads) ===
-        const petSelectorImage = await this.checkPetSelectorUploads();
-        if (petSelectorImage) {
-          console.log('📸 Found uploaded image from pet selector, auto-loading...');
-          await this.loadPetSelectorImage(petSelectorImage);
-          return; // Early return - don't check PetStorage
+        // === FIX: Check PetStorage FIRST before checking pet selector uploads ===
+        // PetStorage may already have fully processed effects (including Gemini effects)
+        // Only fall through to pet selector uploads if no processed effects found
+
+        let hasPetStorageEffects = false;
+
+        if (typeof PetStorage !== 'undefined') {
+          try {
+            const recentPets = PetStorage.getRecentPets(1);
+            if (recentPets && recentPets.length > 0) {
+              const recentPet = recentPets[0];
+              const effectCount = Object.keys(recentPet.effects || {}).length;
+
+              // Check if pet was processed within last 30 minutes (fresh session)
+              const MAX_AGE = 30 * 60 * 1000;
+              const isRecent = (Date.now() - (recentPet.timestamp || 0)) < MAX_AGE;
+
+              if (effectCount > 0 && isRecent) {
+                console.log(`🔄 [Priority Check] PetStorage has ${effectCount} processed effect(s), skipping pet selector re-processing`);
+                hasPetStorageEffects = true;
+                // Fall through to PetStorage restoration below
+              }
+            }
+          } catch (err) {
+            console.warn('⚠️ PetStorage priority check failed:', err);
+          }
+        }
+
+        // Only check pet selector uploads if PetStorage doesn't have processed effects
+        if (!hasPetStorageEffects) {
+          const petSelectorImage = await this.checkPetSelectorUploads();
+          if (petSelectorImage) {
+            console.log('📸 Found uploaded image from pet selector, auto-loading...');
+            await this.loadPetSelectorImage(petSelectorImage);
+            return; // Early return - don't check PetStorage
+          }
         }
       }
 
