@@ -316,16 +316,21 @@ class PetStorage {
       var selectedEffect = pet.selectedEffect || 'enhancedblackwhite';
 
       if (pet.effects) {
-        // Try selected effect first
-        if (pet.effects[selectedEffect] && pet.effects[selectedEffect].gcsUrl) {
-          thumbnailUrl = pet.effects[selectedEffect].gcsUrl;
-        } else {
-          // Fall back to first available effect
+        // Try selected effect first - check both gcsUrl and dataUrl formats
+        if (pet.effects[selectedEffect]) {
+          var effectData = pet.effects[selectedEffect];
+          if (effectData.gcsUrl || effectData.dataUrl) {
+            thumbnailUrl = effectData.gcsUrl || effectData.dataUrl;
+          }
+        }
+
+        // Fall back to first available effect if selected effect has no URL
+        if (!thumbnailUrl) {
           var effectKeys = Object.keys(pet.effects);
           for (var i = 0; i < effectKeys.length; i++) {
             var effectData = pet.effects[effectKeys[i]];
-            if (effectData && effectData.gcsUrl) {
-              thumbnailUrl = effectData.gcsUrl;
+            if (effectData && (effectData.gcsUrl || effectData.dataUrl)) {
+              thumbnailUrl = effectData.gcsUrl || effectData.dataUrl;
               selectedEffect = effectKeys[i];
               break;
             }
