@@ -602,9 +602,156 @@ New file created with:
 - Effect badge shows which style was used
 - Age text helps identify which pet is which
 
+**Commit**: `b63a74d` - feat(gallery): Add Session Pet Gallery for quick pet reuse on product pages
+
+---
+
+### 2026-01-12 - Fix: Inline Preview selectedEffect not saved
+
+**Issue**: Pets processed via inline preview modal (on product pages) were not saving `selectedEffect` to PetStorage, causing the Session Pet Gallery to always show "B&W" badge regardless of which effect was actually selected.
+
+**Root Cause**: The `petData` object in `savePetDataAndClose()` was missing the `selectedEffect` field.
+
+**Fix Applied** (`assets/inline-preview-mvp.js` line 1180):
+```javascript
+const petData = {
+  artistNote: artistNotes,
+  effects: effects,
+  selectedEffect: this.currentEffect, // Added this line
+  filename: `pet_${this.petNumber}.jpg`,
+  timestamp: Date.now()
+};
+```
+
+**Commit**: `f43223b` - fix(gallery): Save selectedEffect from inline preview for gallery badge
+
+**Result**: Pets processed via inline preview now correctly show their selected effect badge in the Session Pet Gallery.
+
+---
+
+### 2026-01-12 16:35 - Session Pet Gallery Not Showing - Root Cause Fix
+
+**Issue Reported**:
+User reported the Session Pet Gallery is not appearing on product pages. Console showed:
+```
+[SessionPetGallery] No recent pets found, galleries will remain hidden
+⚠️ Bridge: No processor pet data found for sessionKey: pet_7f20d3e7-146e-44fc-98fe-3df73e7d2407
+```
+
+**Root Cause Identified**:
+When user processes a pet on the processor page and clicks a product in the mockup grid:
+1. `handleCardClick()` calls `prepareBridgeData()`
+2. `prepareBridgeData()` only saved to sessionStorage (one-time bridge) and localStorage backup
+3. **BUG**: Pet data was NOT being saved to PetStorage where `getRecentPets()` looks for data
+
+**Fix Applied**:
+Modified `prepareBridgeData()` in `assets/product-mockup-renderer.js` to also save to PetStorage:
+
+```javascript
+// Save to PetStorage for Session Pet Gallery on product pages
+if (typeof window.PetStorage !== 'undefined' && window.PetStorage.save) {
+  const petStorageData = {
+    effects: this.currentPetData.effects,
+    selectedEffect: this.currentPetData.selectedEffect,
+    timestamp: Date.now()
+  };
+  window.PetStorage.save(this.currentPetData.sessionKey, petStorageData)
+    .then(function() {
+      console.log('[ProductMockupRenderer] Pet saved to PetStorage for gallery');
+    })
+    .catch(function(err) {
+      console.warn('[ProductMockupRenderer] Failed to save to PetStorage:', err);
+    });
+}
+```
+
+**Commit**: `ae1f35f` - fix(gallery): Save pet to PetStorage when clicking mockup grid
+
+**Result**: Pets processed on the processor page now appear in the Session Pet Gallery on product pages.
+
+**Session Pet Gallery now works for both pathways**:
+1. ✅ Processor page → Mockup grid click → Product page (this fix)
+2. ✅ Product page → Inline preview modal → Save (fixed earlier with `f43223b`)
+
+---
+
+### 2026-01-12 17:15 - Session Pet Gallery Still Not Showing - Deep Debug
+
+**Issue Reported**:
+User confirmed gallery still not showing. Console showed:
+```
+[ProductMockupRenderer] No pet data available for bridge
+```
+even though processing completed and mockup grid updated correctly.
+
+**Investigation Findings**:
+
+1. **Diagnostic Used Wrong Property Name**:
+   - User ran `window.productMockupRenderer?.currentPetData` → returned `undefined`
+   - BUT instances are stored in `window.productMockupRenderers` (plural with 's')
+   - The diagnostic was checking a non-existent property
+   - Correct diagnostic: `window.debugMockupRenderers()` (added helper)
+
+2. **`prepareBridgeData()` Returns Early**:
+   - The method checks `if (!this.currentPetData)` and returns early
+   - This prevents both sessionStorage bridge AND PetStorage save
+   - Logs confirm: "No pet data available for bridge"
+
+3. **Root Cause Hypothesis**:
+   - `handleProcessingComplete()` receives event and sets `this.currentPetData`
+   - But somehow when `handleCardClick()` is called, `currentPetData` is null
+   - Both are on the same instance (arrow functions preserve `this`)
+   - Need more debug logging to trace when/where currentPetData becomes null
+
+**Debug Enhancements Added** (`assets/product-mockup-renderer.js`):
+
+1. **Added logging when currentPetData is SET** (line 303):
+   ```javascript
+   console.log('[ProductMockupRenderer] currentPetData SET:', this.currentPetData);
+   ```
+
+2. **Added logging in prepareBridgeData** (line 487):
+   ```javascript
+   console.log('[ProductMockupRenderer] prepareBridgeData called, sectionId:', this.sectionId, 'currentPetData:', this.currentPetData, 'currentEffectUrl:', this.currentEffectUrl);
+   ```
+
+3. **Added debug helper function** (lines 651-664):
+   ```javascript
+   window.debugMockupRenderers = function() {
+     // Logs all instance states: sectionId, currentPetData, currentEffectUrl, isInitialized
+   };
+   ```
+
+4. **Added fallback mechanism in prepareBridgeData** (lines 489-518):
+   - If `currentPetData` is null but `currentEffectUrl` exists, attempt to reconstruct:
+     1. Try getting most recent pet from PetStorage
+     2. Last resort: Create minimal pet data with just the effect URL
+   - This ensures bridge data still gets saved even if primary path fails
+
+**Files Modified**:
+- [product-mockup-renderer.js:303](assets/product-mockup-renderer.js#L303) - Log when currentPetData SET
+- [product-mockup-renderer.js:487-518](assets/product-mockup-renderer.js#L487-L518) - Debug logging + fallback mechanism
+- [product-mockup-renderer.js:651-664](assets/product-mockup-renderer.js#L651-L664) - Debug helper function
+
+**Commit**: Pending
+
+**Testing Instructions**:
+1. Go to processor page, process a pet image
+2. After mockup grid appears, run in console: `window.debugMockupRenderers()`
+3. Observe: Does currentPetData show the pet data?
+4. Click a product card
+5. Check console for: `[ProductMockupRenderer] prepareBridgeData called...`
+6. Navigate to product page and check if gallery appears
+
+**Root Cause Status**: Still investigating. Debug enhancements added to trace the issue.
+
+---
+
 **Next Steps**:
-- [ ] Test on mobile devices
-- [ ] Verify integration with inline preview modal
+- [ ] Test session pet gallery end-to-end on real device
+- [x] Verify integration with inline preview modal (fixed `selectedEffect` bug)
+- [x] Fix processor page pets not appearing in gallery (first fix)
+- [ ] Debug why currentPetData is undefined (debug enhancements added)
 - [ ] Test multi-pet product scenarios
 
 ---

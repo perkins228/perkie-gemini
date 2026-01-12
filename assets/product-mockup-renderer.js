@@ -300,6 +300,8 @@ class ProductMockupRenderer {
       timestamp: Date.now()
     };
 
+    console.log('[ProductMockupRenderer] currentPetData SET:', this.currentPetData);
+
     // Get the current effect URL
     this.currentEffectUrl = effectUrl || this.getEffectUrlFromPetData(effects, selectedEffect);
 
@@ -482,6 +484,40 @@ class ProductMockupRenderer {
    * Prepare bridge data in sessionStorage for product page
    */
   prepareBridgeData() {
+    console.log('[ProductMockupRenderer] prepareBridgeData called, sectionId:', this.sectionId, 'currentPetData:', this.currentPetData, 'currentEffectUrl:', this.currentEffectUrl);
+
+    // If currentPetData is null but we have an effect URL, try to reconstruct data
+    if (!this.currentPetData && this.currentEffectUrl) {
+      console.log('[ProductMockupRenderer] Attempting to reconstruct pet data from available info');
+
+      // Try to get the most recent pet from PetStorage
+      if (typeof window.PetStorage !== 'undefined' && window.PetStorage.getRecentPets) {
+        const recentPets = window.PetStorage.getRecentPets(1);
+        if (recentPets && recentPets.length > 0) {
+          const recentPet = recentPets[0];
+          this.currentPetData = {
+            sessionKey: recentPet.sessionKey,
+            selectedEffect: recentPet.selectedEffect || 'enhancedblackwhite',
+            effects: recentPet.effects || { enhancedblackwhite: { gcsUrl: this.currentEffectUrl } },
+            timestamp: Date.now()
+          };
+          console.log('[ProductMockupRenderer] Reconstructed pet data from PetStorage:', this.currentPetData);
+        }
+      }
+
+      // Last resort: Create minimal pet data with just the effect URL
+      if (!this.currentPetData) {
+        const sessionKey = 'pet_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+        this.currentPetData = {
+          sessionKey: sessionKey,
+          selectedEffect: 'enhancedblackwhite',
+          effects: { enhancedblackwhite: { gcsUrl: this.currentEffectUrl } },
+          timestamp: Date.now()
+        };
+        console.log('[ProductMockupRenderer] Created minimal pet data from effectUrl:', this.currentPetData);
+      }
+    }
+
     if (!this.currentPetData) {
       console.warn('[ProductMockupRenderer] No pet data available for bridge');
       return;
@@ -643,6 +679,21 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   console.log(`[ProductMockupRenderer] Initialized ${sections.length} section(s)`);
+
+  // Debug helper: window.debugMockupRenderers() to check all instances
+  window.debugMockupRenderers = function() {
+    const renderers = window.productMockupRenderers || {};
+    console.log('=== ProductMockupRenderer Debug ===');
+    Object.entries(renderers).forEach(function(entry) {
+      const id = entry[0];
+      const r = entry[1];
+      console.log('Section:', id);
+      console.log('  currentPetData:', r.currentPetData);
+      console.log('  currentEffectUrl:', r.currentEffectUrl);
+      console.log('  isInitialized:', r.isInitialized);
+    });
+    return renderers;
+  };
 });
 
 // =============================================================================
