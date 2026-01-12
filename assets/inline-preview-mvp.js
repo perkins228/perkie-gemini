@@ -410,6 +410,48 @@
       // Show the result view directly (skip processing)
       this.showResult();
 
+      // Check for missing Gemini effects (ink_wash, sketch)
+      // If they don't exist in the stored data, show locked thumbnails with appropriate message
+      const geminiEffects = ['ink_wash', 'sketch'];
+      const self = this;
+      geminiEffects.forEach(effectName => {
+        if (!effects[effectName]) {
+          console.log(`🔒 ${effectName} not in pre-processed effects, showing unavailable thumbnail`);
+          // Use renderLockedThumbnail for visual, then override click handler
+          self.renderLockedThumbnail(effectName, 'Not Available', 'Upload new image');
+
+          // Override the click handler to show appropriate message (not quota message)
+          const btn = self.modal.querySelector(`[data-effect="${effectName}"]`);
+          if (btn) {
+            const overlay = btn.querySelector('.inline-thumbnail-locked-overlay');
+            if (overlay) {
+              // Remove old handler by replacing with clone
+              const newOverlay = overlay.cloneNode(true);
+              overlay.parentNode.replaceChild(newOverlay, overlay);
+
+              // Add new handler with appropriate message
+              newOverlay.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                const message = '💡 This effect was not generated for this pet. Upload a new image on this page to get all 4 effects.';
+                if (self.geminiUI && typeof self.geminiUI.showToast === 'function') {
+                  self.geminiUI.showToast(message, 'info', 4000);
+                } else {
+                  alert(message);
+                }
+              });
+            }
+          }
+        }
+      });
+
+      // If selected effect is a missing Gemini effect, fall back to B&W
+      if (geminiEffects.includes(this.currentEffect) && !effects[this.currentEffect]) {
+        console.log(`⚠️ Selected effect ${this.currentEffect} not available, falling back to B&W`);
+        this.currentEffect = 'enhancedblackwhite';
+        this.selectEffect('enhancedblackwhite');
+      }
+
       console.log('✅ Pre-processed effects loaded successfully');
     }
 
