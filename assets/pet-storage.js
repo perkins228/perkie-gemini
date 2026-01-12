@@ -60,12 +60,19 @@ class PetStorage {
   
   /**
    * Get all pets
+   * NOTE: Excludes pet selector state keys (perkie_pet_selector_*) which have different structure
    */
   static getAll() {
     const pets = {};
     for (const key in localStorage) {
       if (key.startsWith(this.storagePrefix)) {
         const petId = key.replace(this.storagePrefix, '');
+        // Skip pet selector state entries (they have different structure)
+        // Pet selector uses: perkie_pet_selector_${productId} with { petCount, pets, style, font }
+        // PetStorage uses: perkie_pet_${petId} with { effects, timestamp }
+        if (petId.startsWith('selector_')) {
+          continue;
+        }
         pets[petId] = JSON.parse(localStorage.getItem(key));
       }
     }
