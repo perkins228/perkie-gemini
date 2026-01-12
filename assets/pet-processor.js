@@ -2015,6 +2015,23 @@ class PetProcessor {
               this.updateEffectButtonStates();
 
               console.log('🎨 AI effects now have transparent backgrounds');
+
+              // CRITICAL: Update PetStorage with Gemini effects (ink_wash, sketch)
+              // The initial save happened after BiRefNet (B&W + Color only)
+              // This update adds the Gemini effects so they appear in Session Pet Gallery
+              if (typeof PetStorage !== 'undefined' && this.currentPet && this.currentPet.id) {
+                const updatedPetData = {
+                  effects: this.currentPet.effects,  // Now includes all 4 effects
+                  timestamp: Date.now()
+                };
+                PetStorage.save(this.currentPet.id, updatedPetData)
+                  .then(() => {
+                    console.log('✅ PetStorage updated with Gemini effects (ink_wash, sketch)');
+                  })
+                  .catch((err) => {
+                    console.warn('⚠️ Failed to update PetStorage with Gemini effects:', err);
+                  });
+              }
             }
           } else {
             console.log('🎨 Gemini completed but user uploaded new image - discarding results');
