@@ -101,15 +101,42 @@ class ProductMockupRenderer {
     }
 
     try {
+      // Read fresh effects from PetStorage (may have Gemini effects added after BiRefNet)
+      // This ensures ink_wash and sketch are included in the saved state
+      let petDataToSave = this.currentPetData;
+
+      if (typeof window.PetStorage !== 'undefined' && window.PetStorage.get) {
+        const storedPet = window.PetStorage.get(this.currentPetData.sessionKey);
+        if (storedPet && storedPet.effects) {
+          const storedEffectCount = Object.keys(storedPet.effects).length;
+          const currentEffectCount = Object.keys(this.currentPetData.effects || {}).length;
+
+          if (storedEffectCount > currentEffectCount) {
+            console.log('[ProductMockupRenderer] Using fresh effects from PetStorage for state save:', {
+              stored: Object.keys(storedPet.effects),
+              current: Object.keys(this.currentPetData.effects || {})
+            });
+            // Create new object with fresh effects
+            petDataToSave = {
+              ...this.currentPetData,
+              effects: storedPet.effects
+            };
+          }
+        }
+      }
+
       const state = {
-        petData: this.currentPetData,
+        petData: petDataToSave,
         effectUrl: this.currentEffectUrl,
         isExpanded: this.isExpanded,
         timestamp: Date.now()
       };
 
       sessionStorage.setItem('processor_mockup_state', JSON.stringify(state));
-      console.log('[ProductMockupRenderer] Processor state saved for return navigation');
+      console.log('[ProductMockupRenderer] Processor state saved for return navigation', {
+        effectCount: Object.keys(petDataToSave.effects || {}).length,
+        effects: Object.keys(petDataToSave.effects || {})
+      });
     } catch (error) {
       console.error('[ProductMockupRenderer] Failed to save processor state:', error);
     }

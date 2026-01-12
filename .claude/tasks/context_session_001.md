@@ -1314,6 +1314,60 @@ const bridgeData = {
 - Session Pet Gallery should show all 4 effects available
 - "View Effects" modal should display Ink Wash and Marker effects
 
+**Commit**: `1ac024f`
+
+---
+
+### 2026-01-12 - FIX: Processor Return Navigation Missing Gemini Effects
+
+**Issue**: When navigating back to processor page (`?from=product`), only B&W and Color effects were being restored. Console showed:
+```
+✅ [SessionStorage] Restored 2 effect(s): (2) ['enhancedblackwhite', 'color']
+```
+
+**Root Cause**: Same issue as the bridge data fix - `saveProcessorState()` was saving stale `this.currentPetData.effects` (only B&W + Color) to sessionStorage before Gemini effects were added.
+
+**Fix Applied** (`product-mockup-renderer.js` lines 97-143):
+
+Modified `saveProcessorState()` to read fresh effects from PetStorage before saving to sessionStorage:
+
+```javascript
+saveProcessorState() {
+  // Read fresh effects from PetStorage (may have Gemini effects added after BiRefNet)
+  let petDataToSave = this.currentPetData;
+
+  if (typeof window.PetStorage !== 'undefined' && window.PetStorage.get) {
+    const storedPet = window.PetStorage.get(this.currentPetData.sessionKey);
+    if (storedPet && storedPet.effects) {
+      const storedEffectCount = Object.keys(storedPet.effects).length;
+      const currentEffectCount = Object.keys(this.currentPetData.effects || {}).length;
+
+      if (storedEffectCount > currentEffectCount) {
+        console.log('[ProductMockupRenderer] Using fresh effects from PetStorage for state save');
+        petDataToSave = { ...this.currentPetData, effects: storedPet.effects };
+      }
+    }
+  }
+
+  const state = {
+    petData: petDataToSave,  // Now includes Gemini effects
+    effectUrl: this.currentEffectUrl,
+    isExpanded: this.isExpanded,
+    timestamp: Date.now()
+  };
+
+  sessionStorage.setItem('processor_mockup_state', JSON.stringify(state));
+}
+```
+
+**Files Modified**:
+- [product-mockup-renderer.js:97-143](assets/product-mockup-renderer.js#L97-L143) - Read fresh effects in saveProcessorState()
+
+**Expected Result**:
+- Console should show: `[ProductMockupRenderer] Using fresh effects from PetStorage for state save: {stored: ['enhancedblackwhite', 'color', 'ink_wash', 'sketch'], current: ['enhancedblackwhite', 'color']}`
+- Console should show: `Processor state saved for return navigation {effectCount: 4, effects: ['enhancedblackwhite', 'color', 'ink_wash', 'sketch']}`
+- When returning to processor: `✅ [SessionStorage] Restored 4 effect(s)`
+
 **Commit**: Pending
 
 ---
