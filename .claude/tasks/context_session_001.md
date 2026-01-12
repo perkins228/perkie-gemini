@@ -1030,6 +1030,85 @@ Root cause: Preview button click handler only checked `localStorage` for traditi
 
 ---
 
+### 2026-01-12 - Welcome Back Mode Implementation on Processor Page
+
+**User Request**:
+- "I like option 2" - Implement Welcome Back mode with pet gallery on processor page
+- When returning users visit the processor, show their previously processed pets
+- Make "Try Another Pet" button more prominent
+
+**Implementation (Option 2 - Welcome Back Mode)**:
+
+**Changes Made**:
+
+1. **Welcome Back Section in render()** - [pet-processor.js:1185-1203](assets/pet-processor.js#L1185-L1203)
+   - Added `[data-welcome-back]` section at top of processor container
+   - Includes header ("Welcome Back!"), gallery container, and "Upload New Pet" button
+
+2. **renderWelcomeBackGallery()** - [pet-processor.js:1402-1498](assets/pet-processor.js#L1402-L1498)
+   - Renders horizontal scrolling gallery of pet thumbnails
+   - Each card shows thumbnail, age text, delete button
+   - Active card highlighted with theme color border
+
+3. **selectWelcomeBackPet() / loadPetFromStorage()** - [pet-processor.js:1500-1602](assets/pet-processor.js#L1500-L1602)
+   - Click handler loads selected pet without re-processing
+   - Updates UI to show result view with stored effects
+   - Dispatches petProcessingComplete for mockup grid
+
+4. **deleteWelcomeBackPet()** - [pet-processor.js:1604-1663](assets/pet-processor.js#L1604-L1663)
+   - Confirmation dialog before deletion
+   - Animated card removal
+   - Auto-selects next pet if deleted card was active
+   - Hides gallery when all pets deleted
+
+5. **handleWelcomeUploadClick()** - [pet-processor.js:1694-1730](assets/pet-processor.js#L1694-L1730)
+   - "Upload New Pet" button handler
+   - Clears current pet, shows upload zone, triggers file input
+
+6. **checkAndRenderWelcomeBackGallery()** - [pet-processor.js:1767-1806](assets/pet-processor.js#L1767-L1806)
+   - Called at start of restoreSession()
+   - Checks PetStorage.getRecentPets(5)
+   - Renders gallery and auto-loads most recent pet
+
+7. **Modified restoreSession()** - [pet-processor.js:519-655](assets/pet-processor.js#L519-L655)
+   - Now checks for recent pets FIRST (before pet selector uploads)
+   - If pets exist, renders Welcome Back gallery
+   - Skips auto-upload flow for users with existing pets
+
+8. **Welcome Back Gallery CSS** - [pet-processor-v5.css:1485-1720](assets/pet-processor-v5.css#L1485-L1720)
+   - Mobile-first design (72px thumbnails on mobile, 90px on desktop)
+   - Horizontal scrolling with snap
+   - Delete button visible on touch devices
+   - Desktop: inline gallery with upload button
+
+9. **Try Another Pet Button Enlarged** - [pet-processor-v5.css:546-574](assets/pet-processor-v5.css#L546-L574)
+   - Gradient background using theme color
+   - Box shadow for prominence
+   - Hover effects with transform
+
+**Files Modified**:
+- [pet-processor.js](assets/pet-processor.js) - Welcome Back mode logic
+- [pet-processor-v5.css](assets/pet-processor-v5.css) - Gallery + button styles
+
+**How It Works**:
+1. User visits processor page
+2. `checkAndRenderWelcomeBackGallery()` checks PetStorage
+3. If pets exist, renders Welcome Back gallery at top
+4. Most recent pet auto-loads into processor view
+5. User can click other pets to switch, or "Upload New Pet" for fresh upload
+6. All without re-processing - uses stored GCS URLs
+
+**Testing Required**:
+1. Visit processor with existing pets in localStorage - should show Welcome Back
+2. Click different pets in gallery - should switch displayed pet immediately
+3. Delete pet from gallery - should animate removal, select next pet
+4. Click "Upload New Pet" - should show upload zone, trigger file picker
+5. New user (no pets) - should show normal upload zone (no Welcome Back)
+
+**Commits Pending**: Changes ready for commit
+
+---
+
 ## Notes
 - Always append new work with timestamp
 - Archive when file > 400KB or task complete
