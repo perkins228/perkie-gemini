@@ -1177,6 +1177,7 @@
         const petData = {
           artistNote: artistNotes, // PetStorage uses singular 'artistNote'
           effects: effects,
+          selectedEffect: this.currentEffect, // For Session Pet Gallery thumbnail badge
           filename: `pet_${this.petNumber}.jpg`,
           timestamp: Date.now()
         };
