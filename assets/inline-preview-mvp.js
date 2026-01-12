@@ -351,6 +351,69 @@
     }
 
     /**
+     * Open modal with pre-processed effects from Session Gallery
+     * Skips processing entirely - effects are already generated
+     * @param {Object} data - Pet data from session gallery
+     * @param {number} data.petNumber - Pet number (1, 2, 3)
+     * @param {string} data.petName - Pet name
+     * @param {string} data.sessionKey - Session key for the pet
+     * @param {string} data.selectedEffect - Currently selected effect
+     * @param {Object} data.effects - Pre-processed effects { effectName: { gcsUrl, dataUrl, timestamp } }
+     * @param {string} data.artistNote - Artist notes
+     */
+    openWithPreProcessedEffects(data) {
+      console.log('🎨 Opening inline preview with pre-processed effects:', data);
+
+      // Store pet metadata
+      this.petNumber = data.petNumber;
+      this.petName = data.petName;
+
+      // Open the modal
+      this.openModal();
+
+      // Update header with pet name
+      this.updateHeader(data.petNumber, data.petName);
+
+      // Hide upload zone since we have pre-processed effects
+      if (this.uploadZone) {
+        this.uploadZone.hidden = true;
+      }
+
+      // Hide processing view, we're going straight to results
+      if (this.processingView) {
+        this.processingView.hidden = true;
+      }
+
+      // Convert effects from PetStorage format to inline preview format
+      // PetStorage: { effectName: { gcsUrl, dataUrl, timestamp } }
+      // InlinePreview: { effectName: urlString }
+      const effects = {};
+      for (const [effectName, effectData] of Object.entries(data.effects)) {
+        // Prefer GCS URL, fall back to dataUrl
+        effects[effectName] = effectData.gcsUrl || effectData.dataUrl || effectData;
+      }
+
+      // Set up currentPet with pre-processed effects
+      this.currentPet = {
+        sessionKey: data.sessionKey,
+        effects: effects
+      };
+
+      // Set the selected effect (default to B&W if not specified)
+      this.currentEffect = data.selectedEffect || 'enhancedblackwhite';
+
+      // Restore artist notes if provided
+      if (this.artistNotesInput && data.artistNote) {
+        this.artistNotesInput.value = data.artistNote;
+      }
+
+      // Show the result view directly (skip processing)
+      this.showResult();
+
+      console.log('✅ Pre-processed effects loaded successfully');
+    }
+
+    /**
      * Convert URL (GCS or data URL) to File object
      */
     async urlToFile(url, filename) {

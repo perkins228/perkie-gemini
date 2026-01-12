@@ -100,20 +100,20 @@
     card.setAttribute('data-session-key', pet.sessionKey);
     card.setAttribute('data-selected-effect', pet.selectedEffect);
 
-    // Get effect display name
-    var effectName = 'B&W';
-    if (typeof window.PetStorage.getEffectDisplayName === 'function') {
-      effectName = window.PetStorage.getEffectDisplayName(pet.selectedEffect);
-    }
-
-    // Build card HTML
+    // Build card HTML (badge removed per user request)
     var html = '<div class="session-pet-card__image-wrapper">' +
+      '<button type="button" class="session-pet-card__delete" ' +
+        'aria-label="Remove this pet from library" ' +
+        'title="Remove from library">' +
+        '<svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">' +
+          '<path d="M1 1L11 11M1 11L11 1" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>' +
+        '</svg>' +
+      '</button>' +
       '<img class="session-pet-card__image" ' +
         'src="' + escapeHtml(pet.thumbnailUrl) + '" ' +
         'alt="Previously processed pet" ' +
         'loading="lazy" ' +
         'onerror="this.parentElement.style.backgroundColor=\'#e5e7eb\'; this.style.display=\'none\';">' +
-      '<span class="session-pet-card__badge">' + escapeHtml(effectName) + '</span>' +
     '</div>';
 
     if (pet.ageText) {
@@ -123,6 +123,16 @@
     }
 
     card.innerHTML = html;
+
+    // Add delete button handler (must stop propagation to prevent card click)
+    var deleteBtn = card.querySelector('.session-pet-card__delete');
+    if (deleteBtn) {
+      deleteBtn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        e.preventDefault();
+        deletePet(pet.sessionKey, card);
+      });
+    }
 
     // Add click handler
     card.addEventListener('click', function() {
@@ -138,6 +148,78 @@
     });
 
     return card;
+  }
+
+  /**
+   * Delete a pet from the session library
+   * @param {string} sessionKey - Pet session key to delete
+   * @param {HTMLElement} card - Card element to remove from DOM
+   */
+  function deletePet(sessionKey, card) {
+    // Simple confirmation dialog
+    if (!confirm('Remove this pet from your library?')) {
+      return;
+    }
+
+    console.log('[SessionPetGallery] Deleting pet:', sessionKey);
+
+    // Delete from PetStorage
+    if (window.PetStorage && typeof window.PetStorage.delete === 'function') {
+      window.PetStorage.delete(sessionKey);
+    }
+
+    // Remove card from DOM with animation
+    card.style.transition = 'opacity 0.2s ease, transform 0.2s ease';
+    card.style.opacity = '0';
+    card.style.transform = 'scale(0.8)';
+
+    setTimeout(function() {
+      if (card.parentNode) {
+        var gallery = card.closest('[data-session-gallery]');
+        card.parentNode.removeChild(card);
+
+        // Hide gallery if no pets left
+        if (gallery) {
+          var remainingCards = gallery.querySelectorAll('.session-pet-card');
+          if (remainingCards.length === 0) {
+            gallery.style.display = 'none';
+          }
+        }
+      }
+
+      // Show confirmation toast
+      showDeleteFeedback();
+    }, 200);
+  }
+
+  /**
+   * Show brief feedback when pet is deleted
+   */
+  function showDeleteFeedback() {
+    var existingFeedback = document.querySelector('.session-pet-delete-feedback');
+    if (existingFeedback) {
+      existingFeedback.remove();
+    }
+
+    var feedback = document.createElement('div');
+    feedback.className = 'session-pet-delete-feedback';
+    feedback.style.cssText = 'position:fixed;bottom:20px;left:50%;transform:translateX(-50%);' +
+      'background:#6b7280;color:white;padding:12px 24px;border-radius:8px;' +
+      'font-weight:500;font-size:14px;z-index:9999;box-shadow:0 4px 12px rgba(0,0,0,0.15);' +
+      'animation:sessionFeedbackIn 0.3s ease;';
+    feedback.textContent = 'Pet removed from library';
+
+    document.body.appendChild(feedback);
+
+    // Remove after 2 seconds
+    setTimeout(function() {
+      feedback.style.animation = 'sessionFeedbackOut 0.3s ease forwards';
+      setTimeout(function() {
+        if (feedback.parentNode) {
+          feedback.parentNode.removeChild(feedback);
+        }
+      }, 300);
+    }, 2000);
   }
 
   /**

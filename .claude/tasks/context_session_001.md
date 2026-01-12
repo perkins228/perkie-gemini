@@ -733,7 +733,7 @@ even though processing completed and mockup grid updated correctly.
 - [product-mockup-renderer.js:487-518](assets/product-mockup-renderer.js#L487-L518) - Debug logging + fallback mechanism
 - [product-mockup-renderer.js:651-664](assets/product-mockup-renderer.js#L651-L664) - Debug helper function
 
-**Commit**: Pending
+**Commit**: `8129ce0` - debug(gallery): Add fallback mechanism and debug logging for currentPetData issue
 
 **Testing Instructions**:
 1. Go to processor page, process a pet image
@@ -747,12 +747,286 @@ even though processing completed and mockup grid updated correctly.
 
 ---
 
+### 2026-01-12 18:00 - Root Cause Analysis: Session Pet Gallery Not Showing
+
+**Issue**: Session Pet Gallery shows "No recent pets found" even though mockup grid displays processed pet.
+
+**CONFIRMED ROOT CAUSE**: `currentPetData` is null when `prepareBridgeData()` is called.
+
+**Analysis Flow**:
+
+1. **Processing completes** → `dispatchProcessingComplete()` dispatches `petProcessingComplete` event
+   - Location: `pet-processor.js:2413`
+   - Event detail includes: `sessionKey`, `selectedEffect`, `effectUrl`, `effects`
+
+2. **ProductMockupRenderer receives event** → `handleProcessingComplete()` sets instance properties
+   - Location: `product-mockup-renderer.js:290-326`
+   - Sets `this.currentPetData` (line 296-303) and `this.currentEffectUrl` (line 306)
+   - **CRITICAL LOG at line 303**: `console.log('[ProductMockupRenderer] currentPetData SET:', this.currentPetData);`
+
+3. **User clicks product card** → `handleCardClick()` calls `prepareBridgeData()`
+   - Location: `product-mockup-renderer.js:453-481`
+
+4. **prepareBridgeData() checks currentPetData** → Logs show it's null
+   - Location: `product-mockup-renderer.js:487`
+   - **Debug log shows**: `currentPetData: null` despite step 2 setting it
+
+**WHY IS currentPetData NULL?**
+
+The issue is NOT that `currentPetData` was never set. The log at line 303 should fire when processing completes. The question is:
+
+**Hypothesis 1: Multiple ProductMockupRenderer instances**
+- Line 677 creates new instance for EACH section found: `window.productMockupRenderers[sectionId] = new ProductMockupRenderer(sectionId);`
+- Each instance binds its own `petProcessingComplete` listener (line 123)
+- BUT only ONE section is on the processor page
+- When user clicks a card, `this` refers to correct instance
+
+**Hypothesis 2: Event listener registered on wrong instance**
+- Line 123: `document.addEventListener('petProcessingComplete', (e) => this.handleProcessingComplete(e.detail));`
+- Arrow function captures `this` correctly
+- Should work
+
+**Hypothesis 3: `handleProcessingComplete` never called** ⚠️ MOST LIKELY
+- Check: Is `petProcessingComplete` event being dispatched at all?
+- Check: Is `dispatchProcessingComplete()` (line 2380) returning early due to missing data?
+- Line 2381 check: `if (!result || !result.effects || !this.currentPet)`
+
+**ROOT CAUSE IDENTIFIED**:
+
+Looking at `dispatchProcessingComplete()` (lines 2380-2420):
+```javascript
+dispatchProcessingComplete(result) {
+  if (!result || !result.effects || !this.currentPet) {
+    console.warn('[PetProcessor] Cannot dispatch processing complete - missing data');
+    return;  // <-- EARLY RETURN!
+  }
+  // ... dispatch event
+}
+```
+
+The method returns early if `this.currentPet` is null. But when is `this.currentPet` set?
+
+Looking at `processFile()` and `processImage()` methods, `this.currentPet` should be set during processing. However, if there's any path where `showResult()` is called without `this.currentPet` being set, the event would never dispatch.
+
+**ACTUAL ROOT CAUSE**:
+
+The `dispatchProcessingComplete()` depends on `this.currentPet` being set in PetProcessor. If this value is null when `showResult()` is called (e.g., from sessionStorage restoration path on line 620), the event won't dispatch properly.
+
+Looking at line 620 (in `restoreSession()`):
+```javascript
+document.dispatchEvent(new CustomEvent('petProcessingComplete', {
+  detail: {
+    sessionKey: this.currentPet.id,
+    // ...
+  }
+}));
+```
+
+This DOES dispatch the event correctly during restoration.
+
+**FINAL ROOT CAUSE**: The fallback mechanism in `prepareBridgeData()` (lines 489-518) tries to reconstruct from PetStorage, but **PetStorage is empty** because `savePetData()` is never called automatically after processing.
+
+**Data Flow Gap**:
+1. Pet processed → `petProcessingComplete` dispatched → mockup renderer receives it
+2. Mockup renderer stores in `this.currentPetData` (in-memory only)
+3. **MISSING**: Pet data NEVER saved to PetStorage during normal processing flow
+4. User clicks card → `prepareBridgeData()` checks `this.currentPetData`
+5. If null for any reason, fallback checks PetStorage → EMPTY!
+
+**WHY currentPetData is null at click time**:
+
+Most likely: The instance that received the event is NOT the same instance whose card was clicked.
+
+On `DOMContentLoaded`:
+- `window.productMockupRenderers[sectionId]` created
+- Event listener bound
+
+But if there's JavaScript that re-renders the section (e.g., Shopify theme refresh, dynamic content load), a NEW instance could be created with `currentPetData = null`.
+
+**VERIFICATION NEEDED**:
+1. Is `[ProductMockupRenderer] currentPetData SET:` log appearing after processing?
+2. Is `window.debugMockupRenderers()` showing the data before card click?
+3. Are there multiple `[ProductMockupRenderer] Initialized` logs?
+
+---
+
+**PROPOSED FIX**:
+
+The cleanest fix is to **save to PetStorage immediately when `petProcessingComplete` is received**, not just when `prepareBridgeData()` is called. This ensures data persists regardless of instance lifecycle.
+
+**Fix Location**: `product-mockup-renderer.js` in `handleProcessingComplete()` method (lines 290-326)
+
+**Add after line 319** (`this.isInitialized = true;`):
+```javascript
+// Save to PetStorage immediately for Session Pet Gallery
+if (typeof window.PetStorage !== 'undefined' && window.PetStorage.save) {
+  const petStorageData = {
+    effects: this.currentPetData.effects,
+    selectedEffect: this.currentPetData.selectedEffect,
+    timestamp: Date.now()
+  };
+  window.PetStorage.save(this.currentPetData.sessionKey, petStorageData)
+    .then(() => console.log('[ProductMockupRenderer] Pet saved to PetStorage on processing complete'))
+    .catch(err => console.warn('[ProductMockupRenderer] Failed to save to PetStorage:', err));
+}
+```
+
+**Alternative Fix** (in PetProcessor):
+Call `savePetData()` automatically in `showResult()` or `dispatchProcessingComplete()` - but this may have side effects (GCS upload, etc.).
+
+---
+
 **Next Steps**:
 - [ ] Test session pet gallery end-to-end on real device
 - [x] Verify integration with inline preview modal (fixed `selectedEffect` bug)
 - [x] Fix processor page pets not appearing in gallery (first fix)
-- [ ] Debug why currentPetData is undefined (debug enhancements added)
+- [x] Debug why currentPetData is undefined - ROOT CAUSE FOUND
+- [x] Implement fix: Save to PetStorage on `petProcessingComplete` event
 - [ ] Test multi-pet product scenarios
+
+---
+
+### 2026-01-12 - ROOT CAUSE FIX IMPLEMENTED
+
+**Commit**: `8579ac9` - fix(gallery): Save pet to PetStorage immediately on processing complete
+
+**Root Cause Summary**:
+- `handleProcessingComplete()` stored pet data only in memory (`this.currentPetData`)
+- Data was NEVER persisted to localStorage (PetStorage)
+- Session Pet Gallery reads from PetStorage → found nothing
+- Fallback mechanism in `prepareBridgeData()` also found nothing because PetStorage was empty
+
+**Fix Applied** (product-mockup-renderer.js, lines 321-336):
+```javascript
+// Save to PetStorage immediately for Session Pet Gallery
+if (typeof window.PetStorage !== 'undefined' && window.PetStorage.save && this.currentPetData) {
+  const petStorageData = {
+    effects: this.currentPetData.effects,
+    selectedEffect: this.currentPetData.selectedEffect,
+    timestamp: Date.now()
+  };
+  window.PetStorage.save(this.currentPetData.sessionKey, petStorageData)
+    .then(function() {
+      console.log('[ProductMockupRenderer] Pet saved to PetStorage for Session Pet Gallery');
+    })
+    .catch(function(err) {
+      console.warn('[ProductMockupRenderer] Failed to save to PetStorage:', err);
+    });
+}
+```
+
+**Expected Result**:
+- After processing, console should show: `[ProductMockupRenderer] Pet saved to PetStorage for Session Pet Gallery`
+- Navigating to product page should show: `[SessionPetGallery] Found X recent pets`
+- Gallery should display the processed pet thumbnail
+
+**Testing Required**:
+1. Process pet on processor page
+2. Wait for mockup grid to appear
+3. Verify console shows the "Pet saved to PetStorage" log
+4. Click any product card
+5. Verify Session Pet Gallery appears on product page with pet thumbnail
+
+---
+
+### 2026-01-12 ~11:45 AM - Session Pet Gallery Data Format Fix
+
+**Problem**: Session Pet Gallery still not appearing despite `8579ac9` fix working (console showed "Pet saved to PetStorage for Session Pet Gallery").
+
+**Root Cause**: `getRecentPets()` in `pet-storage.js` only checked for `gcsUrl` format:
+```javascript
+if (effectData && effectData.gcsUrl) {  // ONLY gcsUrl!
+```
+
+But session restoration provides effects with `dataUrl` (base64) format, not `gcsUrl`.
+
+**Fix Applied** (`9ddd0a1`):
+Modified `getRecentPets()` to check BOTH formats:
+```javascript
+if (effectData && (effectData.gcsUrl || effectData.dataUrl)) {
+  thumbnailUrl = effectData.gcsUrl || effectData.dataUrl;
+```
+
+**Files Modified**:
+- `assets/pet-storage.js` (lines 318-339) - Updated getRecentPets() to handle both URL formats
+
+**Commit**: `9ddd0a1` - fix(gallery): Handle dataUrl format in getRecentPets() for Session Pet Gallery
+
+**Status**: Deployed, awaiting test verification.
+
+---
+
+### 2026-01-12 19:30 - Session Pet Gallery Improvements (3 Issues Fixed)
+
+**Issues Addressed** (from user feedback):
+1. Remove effect badge ("B&W") from pet thumbnails
+2. How customers can remove images from Session Library
+3. "View Effects" button shows "upload image first" error when clicking after selecting pet from gallery
+
+**Issue 1 Fix - Badge Removal**:
+Edited [session-pet-gallery.js:103-110](assets/session-pet-gallery.js#L103-L110) to remove badge HTML from card:
+```javascript
+// Build card HTML (badge removed per user request)
+var html = '<div class="session-pet-card__image-wrapper">' +
+  '<img class="session-pet-card__image" ...>' +
+'</div>';
+```
+
+**Issue 2 - Image Removal UX Research**:
+Consulted UX agent who recommended:
+- Corner X button (20px icon, 48px touch target for mobile)
+- Simple confirmation dialog
+- Toast notification "Pet removed from library"
+- Optional: "Clear all" behind menu
+
+**Issue 2 Implementation - Delete Button**:
+Added delete button to session gallery cards:
+
+1. **HTML/JS** (`session-pet-gallery.js`):
+   - Added delete button SVG to card HTML (lines 105-111)
+   - Added `deletePet()` function (lines 158-193) with:
+     - Confirmation dialog
+     - PetStorage.delete() call
+     - Animated card removal
+     - Gallery auto-hide when empty
+   - Added `showDeleteFeedback()` toast (lines 198-222)
+
+2. **CSS** (`ks-product-pet-selector-stitch.liquid` lines 1080-1126):
+   - Delete button positioned absolute top-right
+   - Hidden by default, shown on hover/focus
+   - Always visible on mobile (hover: none)
+   - Red background on hover
+   - 28px size on mobile for easy tap
+
+**Issue 3 Fix - View Effects for Gallery Pets**:
+Root cause: Preview button click handler only checked `localStorage` for traditional uploads, but Session Gallery stores data in `sessionStorage.session_gallery_pet_X`.
+
+1. **New Method** (`inline-preview-mvp.js` lines 353-414):
+   Added `openWithPreProcessedEffects(data)` method that:
+   - Opens modal directly with pre-processed effects
+   - Skips BiRefNet/Gemini processing entirely
+   - Converts effects from PetStorage format to inline preview format
+   - Restores artist notes if present
+   - Calls `showResult()` directly
+
+2. **Handler Update** (`ks-product-pet-selector-stitch.liquid` lines 2454-2478):
+   Modified Preview button click handler to:
+   - Check `sessionStorage.session_gallery_pet_X` first
+   - If found, call `openWithPreProcessedEffects()` instead of `openWithData()`
+   - Graceful fallback to normal flow if parsing fails
+
+**Files Modified**:
+- [session-pet-gallery.js](assets/session-pet-gallery.js) - Badge removal, delete button, feedback toast
+- [inline-preview-mvp.js:353-414](assets/inline-preview-mvp.js#L353-L414) - New openWithPreProcessedEffects() method
+- [ks-product-pet-selector-stitch.liquid:1080-1126](snippets/ks-product-pet-selector-stitch.liquid#L1080-L1126) - Delete button CSS
+- [ks-product-pet-selector-stitch.liquid:2454-2478](snippets/ks-product-pet-selector-stitch.liquid#L2454-L2478) - Gallery pet handler
+
+**Commits Pending**: Changes not yet committed
+
+**Testing Required**:
+1. Verify badge removed from gallery thumbnails
+2. Test delete button: hover shows button, click confirms, card removes with animation
+3. Test "View Effects" for gallery-selected pet: should open modal immediately with pre-processed effects
 
 ---
 
