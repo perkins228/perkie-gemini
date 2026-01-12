@@ -506,6 +506,22 @@ class ProductMockupRenderer {
       // Save processor state for return navigation
       this.saveProcessorState();
 
+      // Save to PetStorage for Session Pet Gallery on product pages
+      if (typeof window.PetStorage !== 'undefined' && window.PetStorage.save) {
+        const petStorageData = {
+          effects: this.currentPetData.effects,
+          selectedEffect: this.currentPetData.selectedEffect,
+          timestamp: Date.now()
+        };
+        window.PetStorage.save(this.currentPetData.sessionKey, petStorageData)
+          .then(function() {
+            console.log('[ProductMockupRenderer] Pet saved to PetStorage for gallery');
+          })
+          .catch(function(err) {
+            console.warn('[ProductMockupRenderer] Failed to save to PetStorage:', err);
+          });
+      }
+
       console.log('[ProductMockupRenderer] Bridge data prepared', bridgeData);
     } catch (error) {
       console.error('[ProductMockupRenderer] Failed to prepare bridge data:', error);
