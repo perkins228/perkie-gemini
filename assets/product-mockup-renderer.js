@@ -318,6 +318,23 @@ class ProductMockupRenderer {
 
     this.isInitialized = true;
 
+    // Save to PetStorage immediately for Session Pet Gallery
+    // This ensures data persists in localStorage even if instance is recreated
+    if (typeof window.PetStorage !== 'undefined' && window.PetStorage.save && this.currentPetData) {
+      const petStorageData = {
+        effects: this.currentPetData.effects,
+        selectedEffect: this.currentPetData.selectedEffect,
+        timestamp: Date.now()
+      };
+      window.PetStorage.save(this.currentPetData.sessionKey, petStorageData)
+        .then(function() {
+          console.log('[ProductMockupRenderer] Pet saved to PetStorage for Session Pet Gallery');
+        })
+        .catch(function(err) {
+          console.warn('[ProductMockupRenderer] Failed to save to PetStorage:', err);
+        });
+    }
+
     // Track analytics
     this.trackEvent('product_grid_displayed', {
       effect: selectedEffect,
