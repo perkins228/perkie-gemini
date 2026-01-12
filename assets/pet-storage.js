@@ -281,15 +281,124 @@ class PetStorage {
       const petId = key.replace('_metadata', '');
       return this.getMetadata(petId);
     }
-    
+
     if (key.includes('_')) {
       const parts = key.split('_');
       const petId = parts[0];
       const effect = parts[1];
       return this.getEffectUrl(petId, effect);
     }
-    
+
     return null;
+  }
+
+  /**
+   * Get recent pets for Session Pet Gallery display
+   * Returns pets sorted by timestamp (newest first), limited to specified count
+   * Used by product page pet selector to show "Use Previous Pet" options
+   *
+   * @param {number} limit - Maximum number of pets to return (default: 5)
+   * @returns {Array} Array of pet objects with thumbnailUrl, name, effects, sessionKey
+   */
+  static getRecentPets(limit) {
+    if (limit === undefined) limit = 5;
+
+    const allPets = this.getAll();
+    const petArray = [];
+
+    // Convert to array and add computed properties
+    Object.entries(allPets).forEach(function(entry) {
+      var sessionKey = entry[0];
+      var pet = entry[1];
+
+      // Get the best thumbnail URL (prefer B&W or first available effect)
+      var thumbnailUrl = null;
+      var selectedEffect = pet.selectedEffect || 'enhancedblackwhite';
+
+      if (pet.effects) {
+        // Try selected effect first
+        if (pet.effects[selectedEffect] && pet.effects[selectedEffect].gcsUrl) {
+          thumbnailUrl = pet.effects[selectedEffect].gcsUrl;
+        } else {
+          // Fall back to first available effect
+          var effectKeys = Object.keys(pet.effects);
+          for (var i = 0; i < effectKeys.length; i++) {
+            var effectData = pet.effects[effectKeys[i]];
+            if (effectData && effectData.gcsUrl) {
+              thumbnailUrl = effectData.gcsUrl;
+              selectedEffect = effectKeys[i];
+              break;
+            }
+          }
+        }
+      }
+
+      // Only include pets that have at least one valid effect URL
+      if (thumbnailUrl) {
+        petArray.push({
+          sessionKey: sessionKey,
+          thumbnailUrl: thumbnailUrl,
+          selectedEffect: selectedEffect,
+          effects: pet.effects || {},
+          artistNote: pet.artistNote || '',
+          timestamp: pet.timestamp || 0,
+          // Calculate age for display (e.g., "2 days ago")
+          ageText: PetStorage.getAgeText(pet.timestamp)
+        });
+      }
+    });
+
+    // Sort by timestamp (newest first)
+    petArray.sort(function(a, b) {
+      return b.timestamp - a.timestamp;
+    });
+
+    // Return limited results
+    return petArray.slice(0, limit);
+  }
+
+  /**
+   * Get human-readable age text from timestamp
+   * @param {number} timestamp - Unix timestamp in milliseconds
+   * @returns {string} Age text like "Just now", "2 hours ago", "3 days ago"
+   */
+  static getAgeText(timestamp) {
+    if (!timestamp) return '';
+
+    var now = Date.now();
+    var diffMs = now - timestamp;
+    var diffMins = Math.floor(diffMs / 60000);
+    var diffHours = Math.floor(diffMs / 3600000);
+    var diffDays = Math.floor(diffMs / 86400000);
+
+    if (diffMins < 5) return 'Just now';
+    if (diffMins < 60) return diffMins + ' min ago';
+    if (diffHours < 24) return diffHours + (diffHours === 1 ? ' hour ago' : ' hours ago');
+    if (diffDays < 7) return diffDays + (diffDays === 1 ? ' day ago' : ' days ago');
+    return 'Over a week ago';
+  }
+
+  /**
+   * Check if there are any recent pets available for the gallery
+   * @returns {boolean} True if at least one pet with valid effects exists
+   */
+  static hasRecentPets() {
+    return this.getRecentPets(1).length > 0;
+  }
+
+  /**
+   * Get effect display name for UI
+   * @param {string} effectKey - Internal effect key like 'enhancedblackwhite'
+   * @returns {string} Human-readable name like 'B&W'
+   */
+  static getEffectDisplayName(effectKey) {
+    var names = {
+      'enhancedblackwhite': 'B&W',
+      'color': 'Color',
+      'ink_wash': 'Ink Wash',
+      'sketch': 'Marker'
+    };
+    return names[effectKey] || effectKey;
   }
 }
 

@@ -138,11 +138,474 @@
 **Files Modified**:
 - [pet-processor.js:697-744](assets/pet-processor.js#L697-L744) - Added explicit view restoration fallback
 
+**Commit**: `d48d076`
+
 **Testing Required**:
 1. Process pet image on custom-image-processing page
 2. Navigate to product page via mockup grid
 3. Click "Back to Previews" link
 4. Verify: upload zone hidden, effect grid visible, result view visible, mockup grid visible
+
+---
+
+### 2026-01-11 - Marker Effect Black Background Bug Analysis
+
+**Issue Reported**:
+- Marker effect (internally "sketch") occasionally shows pet on solid black background instead of artistic style
+- Expected: Marker/sketch artistic rendering with transparent background
+- Actual (intermittent): Pet on solid black background, no artistic effect visible
+
+**Root Cause Analysis Completed**:
+
+**5 Hypotheses Identified (ranked by likelihood)**:
+
+1. **Race Condition - UI Update Timing** (VERY HIGH likelihood)
+   - User clicks marker before re-segmentation completes
+   - Button enabled at line 1755 BEFORE transparent version ready (line 1765+)
+   - Initial storage has `gcsUrl` with solid bg, `dataUrl: null` (lines 1731-1737)
+   - `switchEffect()` fallback chain `dataUrl || gcsUrl` uses solid bg version (line 2060)
+
+2. **Re-segmentation Failure - Silent Error** (HIGH likelihood)
+   - BiRefNet re-segmentation fails but effect remains visible
+   - Lines 1783-1789 log warning but don't remove failed effect
+   - Network timeout, CORS, or BiRefNet API errors
+   - Falls back to `gcsUrl` with solid background
+
+3. **Gemini Prompt Inconsistency** (MEDIUM likelihood)
+   - Gemini ignores "clean white background" instruction (line 34 in gemini_client.py)
+   - Model variability at temperature 0.7
+   - Generates black background instead of white
+
+4. **Cached Wrong Result** (LOW-MEDIUM likelihood)
+   - GCS or Gemini cache serves stale image with black bg
+   - Cache poisoning from previous failed re-segmentation
+
+5. **BiRefNet Re-segmentation Bug** (LOW likelihood)
+   - BiRefNet `/remove-background` returns black bg instead of transparent
+   - Format conversion issue (WebP encoding)
+
+**Code Flow Traced**:
+1. BiRefNet removes background from uploaded photo
+2. Background-removed image sent to Gemini API for artistic effect
+3. Gemini generates marker effect WITH solid background (white per prompt)
+4. Result stored temporarily: `{gcsUrl, dataUrl: null, transparent: false}` (lines 1731-1737)
+5. **CRITICAL**: Button enabled immediately (line 1755) - user can click now
+6. Re-segmentation runs in background (lines 1765-1789)
+7. BiRefNet removes solid background from Gemini result
+8. Transparent version stored: `{dataUrl, transparent: true}` (line 1784)
+9. UI updated with transparent version (line 1792)
+
+**Problem**: Steps 5-9 happen asynchronously. If user clicks between steps 5-6, they see solid background version.
+
+**Investigation Plan Created**:
+- Phase 1: Add diagnostic logging to confirm race condition
+- Phase 2: Reproduce with rapid clicking and timing tests
+- Phase 3: Implement fix based on confirmed hypothesis
+
+**Recommended Fixes**:
+1. **Race condition fix**: Disable marker button until re-segmentation completes
+2. **Re-segmentation retry**: Add exponential backoff retry logic (3 attempts)
+3. **Fallback validation**: Check `transparent` flag before displaying
+4. **Prompt strengthening**: Add explicit "PURE WHITE background (#FFFFFF)" instruction
+5. **Graceful degradation**: Hide effect if re-segmentation fails permanently
+
+**Documentation Created**:
+- `.claude/doc/marker-effect-black-background-debug-plan.md` - Complete RCA with 5 hypotheses, code flow analysis, investigation plan, and 4 targeted fixes
+
+**Files Analyzed**:
+- `assets/pet-processor.js` (lines 1692-1825: Gemini generation, 1975-2032: re-segmentation, 2034-2087: switchEffect)
+- `assets/gemini-api-client.js` (full client implementation)
+- `assets/gemini-effects-ui.js` (UI warning system)
+- `backend/gemini-artistic-api/src/core/gemini_client.py` (lines 30-35: marker prompt, 86-217: generation)
+
+**Next Steps**:
+1. Add diagnostic logging (Phase 1) - 1 hour
+2. Reproduce issue with test procedures (Phase 2) - 2-4 hours
+3. Implement targeted fix (Phase 3) - 2-3 hours
+4. Test on staging and deploy - 1-2 hours
+5. **Total estimated time**: 6-10 hours across multiple sessions
+
+**No code changes made** - This is a planning/analysis task only.
+
+---
+
+### 2026-01-11 - Comparison View Unexpected Trigger Bug Analysis
+
+**Issue Reported**:
+- When selecting Marker effect (or other effects), comparison overlay shows unexpectedly
+- Displays "CURRENT" and "COMPARE" labels when user only clicked (didn't long-press)
+- Expected: Click switches effect; Long-press shows comparison
+- Actual: Comparison overlay appears on normal clicks
+
+**Root Cause Analysis Completed**:
+
+**5 Hypotheses Identified (ranked by likelihood)**:
+
+1. **Touch/Mouse Event Overlap** (VERY HIGH likelihood)
+   - THREE separate event listeners on each effect button create conflicts
+   - `click` event from `setupEventListeners()` (line 1301)
+   - `touchstart`/`touchend` from ComparisonManager (lines 240-241)
+   - `mousedown`/`mouseup`/`mouseleave` from ComparisonManager (lines 244-246)
+   - On mobile: both `touchstart` AND `click` fire for same tap
+   - Timer starts before `touchend` can clear it
+
+2. **Event Handler Race Condition** (HIGH likelihood)
+   - 500ms timer starts on `touchstart` (line 254-258)
+   - `touchend` should clear timer but might fire too late
+   - Browser delays, scrolling, or processing can prevent timer clearing
+   - Quick taps (<200ms) still triggering 500ms timeout
+
+3. **Missing Event Prevention** (HIGH likelihood)
+   - No `e.preventDefault()` in touch handlers
+   - No `e.stopPropagation()` to prevent bubbling
+   - Touch events can fire multiple times if not prevented
+
+4. **Session Restoration Timing** (MEDIUM likelihood)
+   - Recent session restoration work added complex RAF timing
+   - ComparisonManager initialized in `initializeFeatures()`
+   - Potential state mismatch during restoration
+
+5. **Hidden Attribute Not Enforced** (LOW-MEDIUM likelihood)
+   - CSS might not properly handle `[hidden]` attribute
+   - Overlay template has `hidden` attribute but no CSS enforcement
+
+**Code Locations Analyzed**:
+- `assets/pet-processor.js` lines 220-450: ComparisonManager class
+- `assets/pet-processor.js` lines 1299-1302: Effect button click handlers
+- `assets/pet-processor.js` lines 2034-2087: switchEffect method
+- `assets/pet-processor.js` lines 1179-1192: Comparison overlay HTML template
+
+**Event Flow Problem**:
+```
+Normal tap (expected):
+  touchstart → touchend (clears timer) → click → switchEffect() ✅
+
+Buggy tap (actual):
+  touchstart → [timer starts] → processing delay → 500ms elapses →
+  enterComparisonMode() → touchend (too late) → comparison shows ❌
+```
+
+**Investigation Plan Created**:
+- Phase 1: Add diagnostic logging to track event sequence (30 min)
+- Phase 2: Reproduce with test procedures and analyze logs (1-2 hours)
+- Phase 3: Implement fix based on confirmed hypothesis (1-2 hours)
+- Phase 4: Regression testing and verification (1 hour)
+
+**Recommended Fixes**:
+
+**Primary Fix** (Fix Option A):
+- Add `preventNextClick` flag to ComparisonManager
+- Set flag when long-press timer fires
+- Check flag in click handler and prevent if set
+- Add `touchmove` handler to cancel on scroll/swipe
+
+**Secondary Fixes**:
+- Fix Option D: Explicit overlay reset in `switchEffect()`
+- CSS enforcement: `.comparison-overlay[hidden] { display: none !important; }`
+
+**Unlikely Needed**:
+- Fix Option B: Increase timer from 500ms to 700ms
+- Fix Option C: Change `passive: true` to `passive: false`
+
+**Documentation Created**:
+- `.claude/doc/comparison-view-unexpected-trigger-debug-plan.md` - Complete RCA with 5 hypotheses, event flow analysis, 4-phase investigation plan, 4 fix options with code examples, testing procedures, and estimated timeline
+
+**Files to Modify**:
+- `assets/pet-processor.js` (ComparisonManager class, click handlers, switchEffect)
+- Optional: CSS file for hidden attribute enforcement
+
+**Estimated Time**: 3.5-5.5 hours total
+
+**Risk Assessment**:
+- User Impact: MEDIUM (UX confusion, not breaking)
+- Fix Complexity: LOW-MEDIUM (event handling issue)
+- Regression Risk: LOW (isolated changes, clear test criteria)
+
+**Next Steps**:
+1. Add diagnostic logging (Phase 1)
+2. Reproduce issue with test procedures (Phase 2)
+3. Apply primary fix with preventNextClick flag (Phase 3)
+4. Complete regression tests (Phase 4)
+5. Deploy to staging and monitor
+
+### 2026-01-11 - Comparison View Fix - Disabled Legacy Feature
+
+**Issue**: ComparisonManager was causing unexpected comparison overlay when selecting effects.
+
+**Root Cause**: ComparisonManager is legacy code not part of current customer journey. It attaches long-press event handlers (touchstart/touchend/mousedown/mouseup) to effect buttons, causing comparison overlay to trigger unexpectedly.
+
+**Fix Applied**:
+1. Commented out ComparisonManager initialization in `initializeFeatures()` ([pet-processor.js:1003-1007](assets/pet-processor.js#L1003-L1007))
+2. Commented out `effect-comparison.css` loading in liquid template ([ks-pet-processor-v5.liquid:9-10](sections/ks-pet-processor-v5.liquid#L9-L10))
+
+**Result**:
+- No event listeners attached to effect buttons for comparison
+- No long-press timers set
+- Comparison overlay will never show
+- Effect switching works normally (click = switch, no long-press detection)
+
+**Files Modified**:
+- `assets/pet-processor.js` - Commented out ComparisonManager initialization
+- `sections/ks-pet-processor-v5.liquid` - Commented out CSS loading
+
+**Commit**: `f696af6`
+
+**Note**: HTML overlay remains in template (with `hidden` attribute) but is inert since manager is not initialized. Can be fully removed in future cleanup.
+
+---
+
+### 2026-01-11 - Session Restoration Fix V2 - Read from sessionStorage
+
+**Issue**: Previous fix (`d48d076`) didn't work because `savePetData()` is never called when user clicks product in mockup grid. Only `sessionStorage.processor_mockup_state` is saved.
+
+**Root Cause Analysis** (from console logs):
+```
+pet-processor.js:526 🔙 Returning from product page - restoring from PetStorage without re-processing
+pet-processor.js:565 🔄 No session to restore (no saved pets)
+```
+
+**Problem**:
+- When user clicks product in mockup grid → `ProductMockupRenderer.saveProcessorState()` saves to sessionStorage
+- BUT `PetStorage.save()` (localStorage) is never called
+- `restoreSession()` only checked PetStorage → found empty → showed upload module
+
+**Fix Applied** (`assets/pet-processor.js` lines 525-639):
+- When `isReturningFromProduct` is true, read from `sessionStorage.processor_mockup_state`
+- Parse `state.petData.effects` to reconstruct `this.currentPet`
+- Call `showResult()` with restored effects
+- Explicitly show views via setTimeout (same pattern as previous fix)
+- Fall back to PetStorage check only if sessionStorage is empty/expired
+
+**Files Modified**:
+- [pet-processor.js:525-639](assets/pet-processor.js#L525-L639) - New sessionStorage restoration logic
+
+**Commit**: `132b3f3`
+
+**Expected Console Output**:
+```
+🔙 Returning from product page - checking sessionStorage for saved state
+🔙 Restoring from sessionStorage.processor_mockup_state
+✅ [SessionStorage] Restored 4 effect(s): ['enhancedblackwhite', 'color', 'ink_wash', 'sketch']
+🔧 [SessionStorage Restoration] Hiding upload zone
+🔧 [SessionStorage Restoration] Showing effect grid
+```
+
+---
+
+### 2026-01-11 - Session Status Summary
+
+**Completed Fixes (Deployed to Staging)**:
+1. ✅ Session Restoration View Bug V1 (`d48d076`) - Added explicit view management after showResult()
+2. ✅ ComparisonManager Disabled (`f696af6`) - Legacy comparison overlay no longer triggers
+3. ✅ Session Restoration View Bug V2 (`132b3f3`) - Read from sessionStorage instead of PetStorage
+
+**On Hold**:
+- ⏸️ Marker Effect Black Background Issue - User requested to hold on this fix
+  - Root cause documented in `.claude/doc/marker-effect-black-background-debug-plan.md`
+  - Race condition between button enable and re-segmentation completion
+
+**Testing Required**:
+1. Process pet → Click product in mockup grid → Click "Back to Previews" → Verify:
+   - Console shows "Restoring from sessionStorage.processor_mockup_state"
+   - Effect grid visible (not upload module)
+   - Result view visible with processed pet image
+   - Style thumbnails show user's pet (not placeholders)
+2. Select any effect → Verify no comparison overlay appears
+
+---
+
+### 2026-01-11 - Desktop Product Mockup Grid UX Analysis
+
+**Request**: Analyze UX implications of changing desktop product mockup grid from horizontal scroll to 2x5 grid layout.
+
+**Current Implementation Analyzed**:
+- `assets/product-mockup-grid.css` - CSS for mobile grid, desktop horizontal carousel
+- `assets/product-mockup-renderer.js` - JS for carousel navigation, mockup overlays
+- `sections/ks-product-mockup-grid.liquid` - Liquid template with 10 product slots
+
+**Current Desktop Behavior** (750px+):
+- Horizontal scroll/carousel with `overflow-x: auto`
+- Cards sized at `20% - 13px` (about 5 visible at once)
+- Minimum card width: 200-220px
+- Navigation via scrollbar (arrow buttons hidden)
+- All 10 products accessible via scroll
+
+**Research Completed**:
+- E-commerce grid vs carousel conversion studies
+- Baymard Institute UX benchmarks
+- Nielsen Norman Group carousel research
+
+**Key Findings**:
+1. Grid layouts preferred for product browsing/comparison
+2. Carousel engagement drops 40% to 11% from first to last slide
+3. 46% of e-commerce homepage carousels have performance issues
+4. Users often skip carousels due to "banner blindness"
+5. Grid layouts allow rapid scanning and comparison
+
+**Analysis delivered to user** (see response below)
+
+**No code changes made** - Analysis and recommendation only
+
+---
+
+### 2026-01-11 - Multi-Product Reusable Upload Research
+
+**Request**: Research how competitors handle "upload once, use many times" for multi-product orders.
+
+**Research Completed**:
+
+#### Competitor Analysis
+
+**Custom Pet Portrait Services (Crown and Paw, West and Willow)**:
+- Per-order upload model, no persistent image library
+- Each product order requires separate photo upload
+- Crown and Paw offers unlimited revisions but no image reuse
+- West and Willow has bundle discounts but still requires per-order uploads
+
+**Photo Printing Platforms (Shutterfly, Snapfish)** - BEST PRACTICES:
+- Account-based persistent image library
+- Unlimited storage with active account (1 purchase every 18 months)
+- Photos stored in albums, searchable and reusable across products
+- Multi-source import (Instagram, Facebook, Flickr, Google)
+- "Turn photos into prints, photo books, or gifts in just a few clicks"
+
+**Print-on-Demand (Printify)**:
+- Design library with reusable assets
+- Templates can be saved and reused across products
+- Shutterstock integration for stock images
+
+**Design Platforms (Canva)** - REFERENCE PATTERN:
+- Brand Kit with cross-design asset reuse
+- "Effortlessly replace logos or images across existing designs in just a few clicks"
+- Demonstrates "upload once, reuse everywhere" pattern
+
+#### Current Perkie Implementation Analysis
+
+**Storage System** (from `pet-storage.js`):
+- `PetStorage` class using localStorage with `perkie_pet_` prefix
+- Stores: petId, artistNote, effects (with GCS URLs), timestamp
+- 5MB assumed quota with emergency cleanup at 80%
+- `sessionStorage.processor_mockup_state` for navigation (30-min expiry)
+- `window.perkiePets` global object for Shopify cart integration
+
+**Current Gap**:
+- No unified "My Pets" picker across product pages
+- Each product requires re-selection
+- No visual pet gallery on product pages
+
+#### Key Findings
+
+1. **Session Timeout Standards**:
+   - WooCommerce: 48 hours default
+   - Magento: 1 hour default
+   - Recommended for Perkie: 7 days for pet data (safe, no inventory constraints)
+
+2. **Guest Checkout Critical**:
+   - 26% abandon due to mandatory account creation
+   - 57% conversion increase with direct checkout
+   - Offer account creation POST-checkout, not before
+
+3. **Shopify Apps Available**:
+   - Upload-Lift, Uploadery, UploadKit, Mighty Image Uploader
+   - Focus on per-product uploads, not library-based reuse
+
+#### Recommendations for Perkie
+
+**Quick Wins (Low Effort)**:
+1. Extend localStorage expiry to 7 days
+2. Add "Use Previous Pet" selector on product pages
+3. Cross-product session flow with pre-populated picker
+
+**Medium-Term**:
+1. Pet Gallery Modal - unified picker for all product pages
+2. Cart Bundle UX - "Apply to all products" option
+3. Bundle discounts for multi-product orders
+
+**Long-Term (Account-Based)**:
+1. Customer accounts with server-side pet library
+2. Cross-device access via "My Pets" dashboard
+3. Social login integration (Google/Apple)
+
+**Documentation Created**:
+- Plan file: `C:\Users\perki\.claude\plans\vivid-juggling-aho-agent-a3fd3c1.md`
+
+**Files Analyzed**:
+- `assets/pet-storage.js` - Current localStorage implementation
+- `assets/product-mockup-renderer.js` - Session state management
+- `assets/pet-processor.js` - Security and image handling
+
+**No code changes made** - Research and analysis only
+
+---
+
+### 2026-01-11 - Phase 1: Session Pet Gallery Implementation
+
+**Request**: Implement Session Pet Gallery to allow customers to reuse previously processed pets on product pages without re-uploading.
+
+**Implementation Complete**:
+
+#### 1. PetStorage Helper Methods (`assets/pet-storage.js`)
+Added methods to support gallery display:
+- `getRecentPets(limit)` - Returns pets sorted by timestamp (newest first)
+- `getAgeText(timestamp)` - Human-readable age ("Just now", "2 hours ago", etc.)
+- `hasRecentPets()` - Quick check if any valid pets exist
+- `getEffectDisplayName(effectKey)` - Maps effect keys to display names (B&W, Color, etc.)
+
+#### 2. Gallery HTML Structure (`snippets/ks-product-pet-selector-stitch.liquid`)
+Added session pet gallery UI before upload zone in each pet detail section:
+- Gallery header with "Use a recent pet" label and toggle button
+- Horizontal scrollable container for pet cards
+- "or upload new" divider separator
+- Hidden by default, shown only if recent pets exist
+
+#### 3. Gallery CSS Styles (same file, lines 965-1163)
+- Mobile-first responsive design
+- 80px pet cards (72px on mobile)
+- Horizontal scroll with touch optimization
+- Effect badge overlay on each thumbnail
+- Age text below each card
+- Collapse/expand toggle functionality
+- Touch device optimizations (44px min target)
+
+#### 4. JavaScript Interaction Logic (`assets/session-pet-gallery.js`)
+New file created with:
+- `initSessionPetGalleries()` - Initializes all galleries on page load
+- `populateGallery()` - Creates pet cards from PetStorage data
+- `createPetCard()` - Individual card with image, badge, click handler
+- `selectPet()` - Handles pet selection and updates UI
+- `updateUploadZoneForSelectedPet()` - Shows selected pet in upload zone
+- `showSelectionFeedback()` - Toast notification on selection
+- `toggleGallery()` - Collapse/expand functionality
+- Dispatches `sessionPetSelected` custom event for integration
+
+**Files Modified**:
+- [pet-storage.js:303-402](assets/pet-storage.js#L303-L402) - Added getRecentPets and helper methods
+- [ks-product-pet-selector-stitch.liquid:82-98](snippets/ks-product-pet-selector-stitch.liquid#L82-L98) - Added gallery HTML
+- [ks-product-pet-selector-stitch.liquid:965-1163](snippets/ks-product-pet-selector-stitch.liquid#L965-L1163) - Added gallery CSS
+- [ks-product-pet-selector-stitch.liquid:1572-1573](snippets/ks-product-pet-selector-stitch.liquid#L1572-L1573) - Added script include
+
+**Files Created**:
+- [session-pet-gallery.js](assets/session-pet-gallery.js) - Gallery interaction logic (320 lines)
+
+**UX Flow**:
+1. Customer lands on product page
+2. If recent pets exist in localStorage, gallery appears before upload zone
+3. Thumbnail shows processed pet with effect badge and age
+4. Click thumbnail → pet selected, upload zone shows "Pet selected" state
+5. "View Effects" button enables to customize
+6. OR customer can upload new pet (traditional flow unchanged)
+
+**Key Design Decisions**:
+- Gallery hidden if no recent pets (clean UX for first-time users)
+- Horizontal scroll for mobile efficiency
+- Toast feedback on selection for clear confirmation
+- Effect badge shows which style was used
+- Age text helps identify which pet is which
+
+**Next Steps**:
+- [ ] Test on mobile devices
+- [ ] Verify integration with inline preview modal
+- [ ] Test multi-pet product scenarios
 
 ---
 
