@@ -1109,6 +1109,215 @@ Root cause: Preview button click handler only checked `localStorage` for traditi
 
 ---
 
+### 2026-01-12 21:45 - Pivot to Option 1 (Simple Restore)
+
+**Request**: User requested pivot from Option 2 (Welcome Back gallery UI on processor page) to Option 1 (simpler approach).
+
+**Changes Made**:
+1. Removed Welcome Back section HTML from `render()` method
+2. Removed gallery-related methods: `renderWelcomeBackGallery`, `selectWelcomeBackPet`, `deleteWelcomeBackPet`, `showDeleteFeedback`, `handleWelcomeUploadClick`, `checkAndRenderWelcomeBackGallery`
+3. Kept `loadPetFromStorage()` for basic restoration
+4. Removed Welcome Back Upload button event listener
+5. Removed ~235 lines of Welcome Back CSS from pet-processor-v5.css
+6. Simplified `restoreSession()` to remove gallery call references
+
+**Commit**: `2210e56` - refactor(processor): Pivot to Option 1 - simple pet auto-restore
+
+---
+
+### 2026-01-12 22:00 - Fix: PetStorage Not Updated After Gemini Effects Complete
+
+**Issue Reported**:
+Ink Wash and Marker effects NOT displayed when clicking "View Effects" in inline pet-selector on product page, even though they were generated successfully on the processor page.
+
+**Root Cause Analysis**:
+
+From console logs, the timing issue was identified:
+```
+1. BiRefNet completes → petProcessingComplete dispatched (only B&W + Color)
+2. ProductMockupRenderer saves to PetStorage (only B&W + Color)
+3. Gemini effects complete ~9.5 seconds LATER in background
+4. PetStorage is NEVER updated with ink_wash and sketch!
+5. Product page modal reads from PetStorage → "Not Available" for Gemini effects
+```
+
+**Console Evidence**:
+```
+🔒 ink_wash not in pre-processed effects, showing unavailable thumbnail
+🔒 sketch not in pre-processed effects, showing unavailable thumbnail
+```
+
+**Fix Applied** (`assets/pet-processor.js` lines 2019-2034):
+After Gemini effects complete with transparent backgrounds (line 2017), added PetStorage update:
+
+```javascript
+// CRITICAL: Update PetStorage with Gemini effects (ink_wash, sketch)
+// The initial save happened after BiRefNet (B&W + Color only)
+// This update adds the Gemini effects so they appear in Session Pet Gallery
+if (typeof PetStorage !== 'undefined' && this.currentPet && this.currentPet.id) {
+  const updatedPetData = {
+    effects: this.currentPet.effects,  // Now includes all 4 effects
+    timestamp: Date.now()
+  };
+  PetStorage.save(this.currentPet.id, updatedPetData)
+    .then(() => {
+      console.log('✅ PetStorage updated with Gemini effects (ink_wash, sketch)');
+    })
+    .catch((err) => {
+      console.warn('⚠️ Failed to update PetStorage with Gemini effects:', err);
+    });
+}
+```
+
+**Expected Result**:
+After processing, console should show:
+1. `🎨 AI effects now have transparent backgrounds`
+2. `✅ PetStorage updated with Gemini effects (ink_wash, sketch)`
+
+Then when clicking "View Effects" on product page, all 4 effects (B&W, Color, Ink Wash, Marker) should be available.
+
+**Files Modified**:
+- [pet-processor.js:2019-2034](assets/pet-processor.js#L2019-L2034) - Added PetStorage update after Gemini effects complete
+
+**Commit**: `b05029d` - fix(storage): Update PetStorage after Gemini effects complete
+
+---
+
+---
+
+### 2026-01-12 - Regression Fix: Session Restoration and Gemini Effects
+
+**Issues Reported**:
+1. "The custom-image-processing page doesn't show the last processed image when navigating back to the page, just the upload module"
+   - Console showed: `🔄 Restoring most recent pet: selector_/products/personalized-pet-portrait-in-black-frame`
+   - Followed by: `🔄 Pet found but no valid effects to restore`
+
+2. "The inline-processor still does not retrieve the ink wash and marker effects when the 'View Effects' button is pushed"
+
+**Root Cause Analysis (Issue 1)**:
+
+The pet selector on product pages saves state with key `perkie_pet_selector_${productId}` (e.g., `perkie_pet_selector_/products/personalized-pet-portrait-in-black-frame`).
+
+This key matches the PetStorage prefix `perkie_pet_`, so when `PetStorage.getAll()` runs:
+- It finds `perkie_pet_selector_/products/...` key
+- Extracts ID as `selector_/products/...` (removing prefix)
+- Returns this entry which has completely different structure:
+  - Pet selector state: `{ petCount, pets, style, font, timestamp }`
+  - PetStorage format: `{ effects: { effectName: { gcsUrl, dataUrl } }, timestamp }`
+
+The effects validation at `pet-processor.js:724-747` then fails because there's no `effects` object.
+
+**Fix Applied (Issue 1)**:
+Modified `PetStorage.getAll()` to skip keys where petId starts with `selector_`:
+
+```javascript
+// pet-storage.js lines 70-75
+if (petId.startsWith('selector_')) {
+  continue;
+}
+```
+
+**Commit**: `b473010` - fix(storage): Exclude pet selector state from PetStorage.getAll()
+
+**Root Cause Analysis (Issue 2)**:
+
+Still investigating. Added debugging to trace effects data flow:
+- `inline-preview-mvp.js:366-378` - logs effects breakdown when opening
+- `session-pet-gallery.js:232-244` - logs pet effects when selected
+- `pet-processor.js:2027-2038` - logs effects before PetStorage save
+
+Possible causes:
+1. Timing: User navigates to product page BEFORE Gemini effects complete (~10s after BiRefNet)
+2. Race condition: Multiple saves to PetStorage may overwrite Gemini effects
+3. Previous pets saved before fix was deployed only have B&W + Color
+
+**Commit**: `a1a527e` - debug(effects): Add logging to trace Gemini effects data flow
+
+**Files Modified**:
+- [pet-storage.js:70-75](assets/pet-storage.js#L70-L75) - Skip selector_ entries in getAll()
+- [inline-preview-mvp.js:366-378](assets/inline-preview-mvp.js#L366-L378) - Debug logging
+- [session-pet-gallery.js:232-244](assets/session-pet-gallery.js#L232-L244) - Debug logging
+- [pet-processor.js:2027-2038](assets/pet-processor.js#L2027-L2038) - Debug logging
+
+**Testing Required**:
+1. Clear browser localStorage/sessionStorage
+2. Process a new pet on processor page
+3. Wait for "✅ PetStorage updated with Gemini effects" in console
+4. Navigate to product page
+5. Select pet from Session Pet Gallery
+6. Click "View Effects" - should show all 4 effects
+7. Check console for effects breakdown at each step
+
+**Next Steps**:
+- User to test with fresh storage and review console logs
+- If Gemini effects still missing, check if timing issue (navigating before save completes)
+- May need to show loading state on product page until Gemini effects are available
+
+---
+
+### 2026-01-12 - ROOT CAUSE FIX: Gemini Effects Overwritten by Product Grid Click
+
+**Issue**: Console logs confirmed that Gemini effects ARE being saved correctly:
+```
+📦 Saving Gemini effects to PetStorage: {petId: 'pet_5d585ecf...', effectKeys: Array(4), ink_wash: {...}, sketch: {...}}
+✅ PetStorage updated with Gemini effects (ink_wash, sketch)
+```
+
+BUT on product page:
+```
+[SessionPetGallery] 🔍 Pet effects breakdown: {effectKeys: Array(2), ink_wash: 'NOT PRESENT', sketch: 'NOT PRESENT'}
+```
+
+**Root Cause**: `prepareBridgeData()` in `product-mockup-renderer.js` was OVERWRITING the complete Gemini data with stale data.
+
+**Timeline**:
+1. BiRefNet completes → `handleProcessingComplete()` sets `this.currentPetData.effects` (only B&W + Color)
+2. Gemini completes → `pet-processor.js` saves all 4 effects to PetStorage ✅
+3. User clicks product card → `prepareBridgeData()` saves stale `this.currentPetData.effects` to PetStorage ❌
+4. Product page reads PetStorage → Only sees B&W + Color (Gemini effects overwritten)
+
+**Fix Applied** (`product-mockup-renderer.js` lines 543-583):
+
+Changed `prepareBridgeData()` to:
+1. Read fresh effects from PetStorage BEFORE creating bridge data
+2. Use stored effects (with Gemini) if they have more effects than stale in-memory data
+3. REMOVED the duplicate PetStorage.save() that was overwriting Gemini effects
+
+```javascript
+// Start with current effects
+let effectsToUse = this.currentPetData.effects;
+
+// Read fresh effects from PetStorage (may have Gemini effects added after BiRefNet)
+if (typeof window.PetStorage !== 'undefined' && window.PetStorage.get) {
+  const storedPet = window.PetStorage.get(this.currentPetData.sessionKey);
+  if (storedPet && storedPet.effects) {
+    const storedEffectCount = Object.keys(storedPet.effects).length;
+    const currentEffectCount = Object.keys(this.currentPetData.effects || {}).length;
+
+    if (storedEffectCount > currentEffectCount) {
+      console.log('[ProductMockupRenderer] Using fresh effects from PetStorage (has Gemini effects)');
+      effectsToUse = storedPet.effects;
+    }
+  }
+}
+
+const bridgeData = {
+  // ... uses effectsToUse instead of stale this.currentPetData.effects
+};
+```
+
+**Files Modified**:
+- [product-mockup-renderer.js:543-583](assets/product-mockup-renderer.js#L543-L583) - Read fresh effects, removed overwrite
+
+**Expected Result**:
+- Console should show: `Using fresh effects from PetStorage (has Gemini effects): {stored: ['enhancedblackwhite', 'color', 'ink_wash', 'sketch'], current: ['enhancedblackwhite', 'color']}`
+- Session Pet Gallery should show all 4 effects available
+- "View Effects" modal should display Ink Wash and Marker effects
+
+**Commit**: Pending
+
+---
+
 ## Notes
 - Always append new work with timestamp
 - Archive when file > 400KB or task complete

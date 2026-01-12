@@ -541,10 +541,31 @@ class ProductMockupRenderer {
     }
 
     try {
+      // Start with current effects
+      let effectsToUse = this.currentPetData.effects;
+
+      // Read fresh effects from PetStorage (may have Gemini effects added after BiRefNet)
+      // pet-processor.js saves complete data including ink_wash/sketch after Gemini completes
+      if (typeof window.PetStorage !== 'undefined' && window.PetStorage.get) {
+        const storedPet = window.PetStorage.get(this.currentPetData.sessionKey);
+        if (storedPet && storedPet.effects) {
+          const storedEffectCount = Object.keys(storedPet.effects).length;
+          const currentEffectCount = Object.keys(this.currentPetData.effects || {}).length;
+
+          if (storedEffectCount > currentEffectCount) {
+            console.log('[ProductMockupRenderer] Using fresh effects from PetStorage (has Gemini effects):', {
+              stored: Object.keys(storedPet.effects),
+              current: Object.keys(this.currentPetData.effects || {})
+            });
+            effectsToUse = storedPet.effects;
+          }
+        }
+      }
+
       const bridgeData = {
         sessionKey: this.currentPetData.sessionKey,
         artistNote: '',
-        effects: this.currentPetData.effects,
+        effects: effectsToUse,
         selectedEffect: this.currentPetData.selectedEffect,
         timestamp: Date.now(),
         source: 'product_mockup_grid'
@@ -558,22 +579,6 @@ class ProductMockupRenderer {
 
       // Save processor state for return navigation
       this.saveProcessorState();
-
-      // Save to PetStorage for Session Pet Gallery on product pages
-      if (typeof window.PetStorage !== 'undefined' && window.PetStorage.save) {
-        const petStorageData = {
-          effects: this.currentPetData.effects,
-          selectedEffect: this.currentPetData.selectedEffect,
-          timestamp: Date.now()
-        };
-        window.PetStorage.save(this.currentPetData.sessionKey, petStorageData)
-          .then(function() {
-            console.log('[ProductMockupRenderer] Pet saved to PetStorage for gallery');
-          })
-          .catch(function(err) {
-            console.warn('[ProductMockupRenderer] Failed to save to PetStorage:', err);
-          });
-      }
 
       console.log('[ProductMockupRenderer] Bridge data prepared', bridgeData);
     } catch (error) {
