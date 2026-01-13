@@ -47,8 +47,8 @@
     </div>
   </div>
 
-  {% comment %} Pet Details Section {% endcomment %}
-  <div class="pet-selector__section">
+  {% comment %} Pet Details Section - Hidden until pet count is selected {% endcomment %}
+  <div class="pet-selector__section" data-pet-details-section hidden>
     <h2 class="pet-selector__section-heading">Pet Details</h2>
 
     {% comment %} Dynamic pet sections (1-3 based on selection) - All hidden initially {% endcomment %}
@@ -297,9 +297,9 @@
     </div>
   </div>
 
-  {% comment %} Font Selector - RESTORED: After Style for proper UX flow {% endcomment %}
+  {% comment %} Font Selector - Hidden until pet count is selected {% endcomment %}
   {% if product.metafields.custom.supports_font_styles == true %}
-  <div class="pet-selector__section">
+  <div class="pet-selector__section" data-font-section hidden>
     <h2 class="pet-selector__section-heading">Choose Font</h2>
     <div class="font-selector__grid">
 
@@ -1719,6 +1719,18 @@
         btn.classList.add('pet-count-btn--active');
       }
     });
+
+    // Show Pet Details section when pet count is selected (progressive disclosure)
+    const petDetailsSection = container.querySelector('[data-pet-details-section]');
+    if (petDetailsSection) {
+      petDetailsSection.hidden = (count === 0);
+    }
+
+    // Show Font section when pet count is selected (progressive disclosure)
+    const fontSection = container.querySelector('[data-font-section]');
+    if (fontSection) {
+      fontSection.hidden = (count === 0);
+    }
 
     updateFontPreviews();
     toggleStyleSection(); // Update style section visibility when pet count changes
