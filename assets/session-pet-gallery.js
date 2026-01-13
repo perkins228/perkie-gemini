@@ -302,12 +302,12 @@
       var preview = document.createElement('div');
       preview.className = 'session-pet-preview';
       // Single row: thumbnail + "Pet selected" + "Change" link (all inline)
-      preview.style.cssText = 'display:flex;align-items:center;gap:8px;width:100%;';
+      preview.style.cssText = 'display:flex;align-items:center;gap:12px;width:100%;';
 
       var img = document.createElement('img');
       img.src = pet.thumbnailUrl;
       img.alt = 'Selected pet';
-      img.style.cssText = 'width:40px;height:40px;object-fit:cover;border-radius:4px;flex-shrink:0;';
+      img.style.cssText = 'width:48px;height:48px;object-fit:cover;border-radius:6px;flex-shrink:0;';
 
       var text = document.createElement('span');
       text.textContent = 'Pet selected';
@@ -361,15 +361,11 @@
       previewBtn.textContent = 'View Effects';
     }
 
-    // Show the upload status wrapper
+    // Hide the upload status wrapper - "Pet selected" in upload zone is sufficient
+    // Removes redundant "Using previously processed pet" text
     var statusWrapper = petDetail.querySelector('[data-upload-status-wrapper]');
     if (statusWrapper) {
-      statusWrapper.style.display = 'flex';
-
-      var uploadStatus = statusWrapper.querySelector('[data-upload-status]');
-      if (uploadStatus) {
-        uploadStatus.innerHTML = '<span style="color:#16a34a;font-weight:500;">Using previously processed pet</span>';
-      }
+      statusWrapper.style.display = 'none';
     }
   }
 
