@@ -1368,6 +1368,310 @@ saveProcessorState() {
 - Console should show: `Processor state saved for return navigation {effectCount: 4, effects: ['enhancedblackwhite', 'color', 'ink_wash', 'sketch']}`
 - When returning to processor: `✅ [SessionStorage] Restored 4 effect(s)`
 
+**Commit**: `96997c5`
+
+---
+
+### 2026-01-12 - FIX: Processor Page RE-PROCESSING Instead of Displaying Saved Effects
+
+**Issue**: When navigating back to the processor page WITHOUT `?from=product`, the processor was re-running BiRefNet instead of displaying previously processed images from PetStorage. Console showed:
+```
+🔄 Attempting to restore session from localStorage
+🌐 Found GCS URL for pet 1, fetching...
+BiRefNet processing: 1522ms
+```
+
+**Root Cause**: In `restoreSession()`, the `else` branch (not returning from product) checked `checkPetSelectorUploads()` FIRST. This found the GCS URL from pet selector and re-processed the image, never reaching the PetStorage check that already had all 4 processed effects.
+
+**Code Flow Before Fix**:
+1. `restoreSession()` detects NOT returning from product (no `?from=product`)
+2. Goes to `else` branch (lines 639-647)
+3. Calls `checkPetSelectorUploads()` → finds GCS URL in `pet_X_image_url`
+4. Calls `loadPetSelectorImage()` → RE-PROCESSES via BiRefNet
+5. Returns early → never checks PetStorage
+
+**Fix Applied** (`pet-processor.js` lines 639-677):
+
+Modified the `else` branch to check PetStorage FIRST before checking pet selector uploads:
+
+```javascript
+} else {
+  // === FIX: Check PetStorage FIRST before checking pet selector uploads ===
+  let hasPetStorageEffects = false;
+
+  if (typeof PetStorage !== 'undefined') {
+    try {
+      const recentPets = PetStorage.getRecentPets(1);
+      if (recentPets && recentPets.length > 0) {
+        const recentPet = recentPets[0];
+        const effectCount = Object.keys(recentPet.effects || {}).length;
+
+        // Check if pet was processed within last 30 minutes
+        const MAX_AGE = 30 * 60 * 1000;
+        const isRecent = (Date.now() - (recentPet.timestamp || 0)) < MAX_AGE;
+
+        if (effectCount > 0 && isRecent) {
+          console.log(`🔄 [Priority Check] PetStorage has ${effectCount} processed effect(s), skipping pet selector re-processing`);
+          hasPetStorageEffects = true;
+          // Fall through to PetStorage restoration below
+        }
+      }
+    } catch (err) {
+      console.warn('⚠️ PetStorage priority check failed:', err);
+    }
+  }
+
+  // Only check pet selector uploads if PetStorage doesn't have processed effects
+  if (!hasPetStorageEffects) {
+    const petSelectorImage = await this.checkPetSelectorUploads();
+    if (petSelectorImage) {
+      console.log('📸 Found uploaded image from pet selector, auto-loading...');
+      await this.loadPetSelectorImage(petSelectorImage);
+      return; // Early return
+    }
+  }
+}
+```
+
+**Files Modified**:
+- [pet-processor.js:639-677](assets/pet-processor.js#L639-L677) - Priority check for PetStorage before pet selector uploads
+
+**Expected Result**:
+- Console should show: `🔄 [Priority Check] PetStorage has 4 processed effect(s), skipping pet selector re-processing`
+- Console should show: `✅ Session restored with 4 effect(s): ['enhancedblackwhite', 'color', 'ink_wash', 'sketch']`
+- NO BiRefNet re-processing when navigating back to processor page
+
+**Commit**: `6916144`
+
+---
+
+### 2026-01-12 - Session Restoration Approach Analysis
+
+**Request**: Analyze Option 1 (Silent Auto-Restore, commit `6916144`) vs Option 2 (Welcome Back Mode) for session restoration on processor page.
+
+**Analysis Summary**:
+
+| Criteria | Option 1 (Silent) | Option 2 (Welcome Back) | Winner |
+|----------|-------------------|------------------------|--------|
+| UX for navigate-back | Seamless, <500ms | Modal friction, adds tap | Option 1 |
+| Edge case handling | Clean fallbacks | Complex gallery sync | Option 1 |
+| Maintainability | ~0 new lines | ~500+ lines added | Option 1 |
+| Conversion risk | Low (preserves momentum) | Medium (forced pause 5-15% drop) | Option 1 |
+| Mobile performance | Optimal | Extra CSS/JS | Option 1 |
+
+**Recommendation**: Option 1 (Current Fix) is correct for the "navigate back" case (`?from=product`).
+
+**Key Reasons**:
+1. **Clear intent**: `?from=product` signals explicit return intent - no need to confirm
+2. **Mobile-first**: 70% mobile traffic needs fastest path
+3. **Conversion preservation**: Decision-phase users shouldn't be interrupted
+4. **Existing infrastructure**: Leverages PetStorage + sessionStorage already in place
+
+**When Welcome Back might fit (future)**:
+- Fresh processor visit without `?from=product` parameter
+- Multiple pets (>1) in storage requiring user selection
+- Pets older than 30 min but user intentionally returning
+
+**Hybrid approach for future**:
+1. `?from=product` → Silent restore (current)
+2. No param + multiple pets → Pet picker modal
+3. No param + single recent pet → Silent restore
+4. No param + expired/no pets → Upload zone
+
+**No code changes made** - Analysis only.
+
+---
+
+### 2026-01-12 - Session Pet Gallery Cart-Clear Bug Fix
+
+**Issue Reported**: Session Pet Gallery gets cleared when a product is added to cart, defeating the multi-product reuse feature.
+
+**Root Cause Analysis**:
+
+Found `clearProcessedPets()` being called in `assets/product-form.js` line 103:
+```javascript
+self.clearProcessedPets();     // Phase 1: Clear processed pet data
+```
+
+This function removes all `perkie_pet_pet_*` keys from localStorage after cart success, which defeats the entire purpose of Session Pet Gallery designed for multi-product purchases.
+
+**User Confirmation**: "Yes, pets should remain in the session library unless they are removed by the customer"
+
+**Fix Applied** (`assets/product-form.js`):
+
+1. **Removed** `clearProcessedPets()` call from cart success handler (line 103)
+2. **Updated** comment to clarify pets persist for multi-product purchases
+3. **Deprecated** `clearProcessedPets()` function with comment explaining it's no longer called automatically (kept for potential future "Clear Library" button)
+
+**Before**:
+```javascript
+self.savePetCustomization();  // Phase 2: Save for restoration
+self.clearPetPropertyFields(); // Phase 1: Clear form fields
+self.clearProcessedPets();     // Phase 1: Clear processed pet data
+```
+
+**After**:
+```javascript
+// NOTE: Pets are NOT cleared from Session Pet Gallery - they persist for multi-product purchases
+self.savePetCustomization();  // Phase 2: Save for restoration
+self.clearPetPropertyFields(); // Phase 1: Clear form fields (NOT pet library)
+```
+
+**Files Modified**:
+- `assets/product-form.js` - Removed `clearProcessedPets()` call, updated comments
+
+**Behavior Change**:
+- **Before**: Adding to cart cleared all processed pets from localStorage
+- **After**: Processed pets remain in Session Pet Gallery after cart add, allowing reuse on other products
+
+**No commit yet** - Ready for testing.
+
+---
+
+### 2026-01-12 - Product Mockup Grid Expansion to 16 Products
+
+**Request**: Expand the product mockup grid from 10 to 16 products with a 4x4 desktop layout.
+
+**Changes Applied**:
+
+1. **Liquid Template Updates** (`sections/ks-product-mockup-grid.liquid`):
+   - Changed product loops from `(1..10)` to `(1..16)` (lines 56, 227)
+   - Updated mobile expandable threshold from `> 5` to `> 8` (line 70)
+   - Added schema settings for products 11-16 with full positioning controls:
+     - `product_X_mockup_template` - Product reference
+     - `product_X_top`, `product_X_left` - Position (%)
+     - `product_X_width`, `product_X_height` - Size (%)
+     - `product_X_rotation` - Rotation (degrees)
+     - `product_X_variant_display` - Variant display mode
+
+2. **CSS Grid Layout Update** (`assets/product-mockup-grid.css`):
+   - Changed desktop grid from `repeat(5, 1fr)` to `repeat(4, 1fr)` (line 190)
+   - Results in 4x4 grid layout on desktop (4 rows × 4 columns = 16 products)
+
+**Resulting Behavior**:
+- **Desktop (≥750px)**: 4x4 grid showing all 16 products simultaneously
+- **Mobile (<750px)**: Shows first 8 products, remaining 8 hidden behind "See More Products" toggle
+
+**Files Modified**:
+- [ks-product-mockup-grid.liquid:56,70,227](sections/ks-product-mockup-grid.liquid) - Loop and threshold updates
+- [ks-product-mockup-grid.liquid:1169-1568](sections/ks-product-mockup-grid.liquid) - Schema settings for products 11-16
+- [product-mockup-grid.css:190](assets/product-mockup-grid.css) - Grid columns change
+
+**Testing Required**:
+1. Desktop: Verify 4x4 grid displays all 16 products
+2. Mobile: Verify first 8 products visible, toggle reveals remaining 8
+3. Theme Editor: Verify products 11-16 can be configured with full positioning controls
+
+**Commit**: Pending
+
+---
+
+### 2026-01-12 - Product Mockup Opacity Research
+
+**Request**: Research best practices for product mockup opacity in print-on-demand e-commerce, specifically for pet portrait overlays on product templates.
+
+**Research Questions Addressed**:
+1. What opacity do successful print-on-demand sites use for product mockups?
+2. Are there UX studies on mockup realism vs conversion?
+3. What's the standard approach for showing custom designs on product templates?
+4. Do print-on-demand sites use blend modes or just opacity?
+
+**Key Findings**:
+
+1. **No industry-standard opacity percentage exists** - Guidance is contextual: "adjust opacity until it looks realistic"
+
+2. **Blend modes are MORE important than opacity**:
+   - **Multiply** is the standard blend mode for fabric/t-shirt mockups
+   - Multiply makes designs appear "inside the garment, not on top of it"
+   - Overlay/Multiply combination for canvas/framed prints
+   - Shows product texture (ribbing, seams, wrinkles) through the design
+
+3. **Specific opacity values found**:
+   - Wall art mockups: 95% opacity for "closer to reality" (100% for brighter preview)
+   - T-shirt mockups: "90% makes it look more realistic" (mentioned once, not universal)
+   - Paper printing: 85-95% opacity standard (physical context, not digital)
+
+4. **The "pasted on" vs "printed" problem**:
+   - Generic mockups make "designs look 'stickered on,' flat, and fake"
+   - Realistic mockups show product texture through the design
+   - Lighting consistency, shadow matching, and displacement maps create realism
+   - Lifestyle mockups increase conversion by up to 50%
+
+5. **CSS implementation options**:
+   - `mix-blend-mode: multiply` - makes design interact with underlying texture
+   - `opacity: 0.9-0.95` - subtle reduction for realism
+   - Combination approach recommended for web
+
+**Recommendations for Perkie**:
+
+| Product Type | Recommended Approach |
+|--------------|---------------------|
+| T-shirts/Apparel | `mix-blend-mode: multiply` + `opacity: 0.9` |
+| Framed Prints | `opacity: 0.95-1.0` (prints should be crisp) |
+| Mugs/Ceramics | `mix-blend-mode: multiply` for wrap realism |
+| Canvas | `opacity: 0.95` + slight texture overlay |
+
+**Important Considerations**:
+- Pet portraits are CUSTOM art, not generic designs - customers want to see their pet clearly
+- Reducing opacity too much (e.g., 70-80%) may make pet details hard to see
+- For framed prints, 100% opacity is acceptable - the frame itself provides context
+- Test with actual pet images before implementing changes
+
+**Decision Guidance**:
+- If mockups currently look "pasted on", try `mix-blend-mode: multiply` first
+- If still too flat, add subtle opacity reduction (95%)
+- Never go below 85% opacity for pet portraits - clarity matters
+- Consider different settings per product type rather than global opacity
+
+**Sources Consulted**:
+- Dynamic Mockups, Printify, Printful documentation
+- Photoshop mockup tutorials (Adobe, Mockey.ai)
+- Baymard Institute e-commerce UX research
+- CSS-Tricks, MDN web documentation
+
+**No code changes made** - Research only
+
+---
+
+### 2026-01-13 - Product Mockup Blend Mode Implementation
+
+**Request**: Implement blend modes for fabric products while keeping framed prints at full opacity. User approved recommendation from previous research session.
+
+**Changes Applied**:
+
+1. **Liquid Template Update** (`sections/ks-product-mockup-grid.liquid` lines 70-94):
+   - Added `data-blend-category` attribute to mockup cards
+   - Blend category determined by product type and handle keywords:
+     - `fabric`: tees, shirts, sweatshirts, hoodies, totes, bags, pillows
+     - `ceramic`: mugs, cups
+     - `hard-surface`: phone cases
+     - `paper`: cards, stickers
+     - `framed`: frames, canvas, prints, posters
+     - `default`: fallback for unknown product types
+
+2. **CSS Blend Mode Rules** (`assets/product-mockup-grid.css` lines 339-378):
+   - Fabric products: `mix-blend-mode: multiply` + `opacity: 0.92`
+   - Ceramic products: `mix-blend-mode: multiply` + `opacity: 0.95`
+   - Hard surfaces: `mix-blend-mode: multiply` + `opacity: 0.95`
+   - Paper products: `mix-blend-mode: multiply` + `opacity: 0.97`
+   - Framed prints: `mix-blend-mode: normal` + `opacity: 1.0` (no change)
+   - Default fallback: `mix-blend-mode: multiply` + `opacity: 0.95`
+
+**Technical Implementation**:
+- Uses CSS attribute selectors: `.mockup-card[data-blend-category="fabric"] .mockup-card__pet.visible`
+- `mix-blend-mode: multiply` shows product texture through pet image, creating "printed on" effect
+- Higher opacity (92-97%) preserves pet portrait detail visibility
+- Framed prints remain at 100% because the pet image IS the product
+
+**Expected Result**:
+- Fabric products (tees, hoodies, totes, pillows) will show product texture through pet image
+- Framed prints and canvases display pet at full clarity
+- More realistic "printed on product" appearance vs "floating overlay" look
+
+**Files Modified**:
+- [ks-product-mockup-grid.liquid:70-94](sections/ks-product-mockup-grid.liquid#L70-L94) - Added blend category data attribute
+- [product-mockup-grid.css:339-378](assets/product-mockup-grid.css#L339-L378) - Added product-type-specific blend mode CSS
+
 **Commit**: Pending
 
 ---

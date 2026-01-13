@@ -336,6 +336,47 @@
   opacity: 1;
 }
 
+/* =============================================================================
+   Product-Type-Specific Blend Modes
+   Creates "printed on product" effect instead of floating overlay
+   ============================================================================= */
+
+/* Fabric products (tees, sweatshirts, totes, pillows) - multiply blend shows texture */
+.mockup-card[data-blend-category="fabric"] .mockup-card__pet.visible {
+  mix-blend-mode: multiply;
+  opacity: 0.92;
+}
+
+/* Ceramic products (mugs) - lighter blend for curved surfaces */
+.mockup-card[data-blend-category="ceramic"] .mockup-card__pet.visible {
+  mix-blend-mode: multiply;
+  opacity: 0.95;
+}
+
+/* Hard surfaces (phone cases) - subtle blend for smooth surfaces */
+.mockup-card[data-blend-category="hard-surface"] .mockup-card__pet.visible {
+  mix-blend-mode: multiply;
+  opacity: 0.95;
+}
+
+/* Paper products (cards, stickers) - very subtle blend */
+.mockup-card[data-blend-category="paper"] .mockup-card__pet.visible {
+  mix-blend-mode: multiply;
+  opacity: 0.97;
+}
+
+/* Framed prints - NO blend mode, full opacity (pet image IS the product) */
+.mockup-card[data-blend-category="framed"] .mockup-card__pet.visible {
+  mix-blend-mode: normal;
+  opacity: 1;
+}
+
+/* Default fallback - slight blend for unknown product types */
+.mockup-card[data-blend-category="default"] .mockup-card__pet.visible {
+  mix-blend-mode: multiply;
+  opacity: 0.95;
+}
+
 /* Badge styling */
 .mockup-card__badge {
   position: absolute;

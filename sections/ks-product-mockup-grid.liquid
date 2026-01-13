@@ -67,10 +67,31 @@
             {%- assign mockup_template_setting = 'product_' | append: i | append: '_mockup_template' -%}
             {%- assign mockup_template = section.settings[mockup_template_setting] -%}
 
+            {%- comment -%} Determine product type for blend mode styling {%- endcomment -%}
+            {%- assign product_type_lower = product.type | downcase -%}
+            {%- assign product_handle_lower = product.handle | downcase -%}
+            {%- assign blend_category = 'default' -%}
+            {%- if product_type_lower contains 'tee' or product_type_lower contains 'shirt' or product_type_lower contains 'sweatshirt' or product_type_lower contains 'hoodie' or product_type_lower contains 'apparel' or product_handle_lower contains 'tee' or product_handle_lower contains 'shirt' or product_handle_lower contains 'sweatshirt' or product_handle_lower contains 'hoodie' -%}
+              {%- assign blend_category = 'fabric' -%}
+            {%- elsif product_type_lower contains 'tote' or product_type_lower contains 'bag' or product_handle_lower contains 'tote' or product_handle_lower contains 'bag' -%}
+              {%- assign blend_category = 'fabric' -%}
+            {%- elsif product_type_lower contains 'pillow' or product_handle_lower contains 'pillow' -%}
+              {%- assign blend_category = 'fabric' -%}
+            {%- elsif product_type_lower contains 'mug' or product_type_lower contains 'cup' or product_handle_lower contains 'mug' or product_handle_lower contains 'cup' -%}
+              {%- assign blend_category = 'ceramic' -%}
+            {%- elsif product_type_lower contains 'frame' or product_type_lower contains 'canvas' or product_type_lower contains 'print' or product_type_lower contains 'poster' or product_handle_lower contains 'frame' or product_handle_lower contains 'canvas' or product_handle_lower contains 'print' or product_handle_lower contains 'poster' -%}
+              {%- assign blend_category = 'framed' -%}
+            {%- elsif product_type_lower contains 'phone' or product_type_lower contains 'case' or product_handle_lower contains 'phone' or product_handle_lower contains 'case' -%}
+              {%- assign blend_category = 'hard-surface' -%}
+            {%- elsif product_type_lower contains 'card' or product_type_lower contains 'sticker' or product_handle_lower contains 'card' or product_handle_lower contains 'sticker' -%}
+              {%- assign blend_category = 'paper' -%}
+            {%- endif -%}
+
             <div class="mockup-card {% if forloop.first %}mockup-card--hero{% endif %} {% if forloop.index > 8 %}mockup-card--expandable{% endif %}"
                  data-product-handle="{{ product.handle }}"
                  data-product-id="{{ product.id }}"
                  data-product-index="{{ forloop.index }}"
+                 data-blend-category="{{ blend_category }}"
                  data-pet-top="{{ section.settings[pos_top] | default: 20 }}"
                  data-pet-left="{{ section.settings[pos_left] | default: 20 }}"
                  data-pet-width="{{ section.settings[pos_width] | default: 60 }}"
