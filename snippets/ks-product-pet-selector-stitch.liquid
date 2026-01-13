@@ -63,12 +63,14 @@
           {% comment %} Pet's Name {% endcomment %}
           <div class="pet-detail__name-group">
             <h4 class="pet-detail__section-heading">
-              {% if i == 1 %}Pet's Name{% else %}Pet {{ i }}'s Name{% endif %}
+              {% if i == 1 %}Pet's Name{% else %}Pet {{ i }}'s Name{% endif %}<span class="required-indicator" aria-hidden="true">*</span>
             </h4>
             <input type="text"
                    class="pet-detail__name-input"
                    name="properties[Pet {{ i }} Name]"
                    placeholder="Enter name"
+                   required
+                   aria-required="true"
                    form="{{ product_form_id }}"
                    data-pet-name-input="{{ i }}">
           </div>
@@ -875,6 +877,13 @@
   color: var(--pet-selector-text);
   margin: 0 0 0.75rem 0;      /* 12px bottom spacing */
   line-height: 1.3;
+}
+
+/* Required field indicator (red asterisk) */
+.required-indicator {
+  color: #ff5964;
+  margin-left: 2px;
+  font-weight: 400;
 }
 
 /* Image actions container (vertical stack layout) */
