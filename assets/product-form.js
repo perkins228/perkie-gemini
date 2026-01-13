@@ -115,16 +115,27 @@ if (!customElements.get('product-form')) {
             config.headers['Content-Type'] = 'application/json';
             config.body = JSON.stringify(cartPayload);
 
+            // Enhanced debug logging for troubleshooting
             console.log('💰 [PetFee] Multi-item cart add:', { mainVariant: mainVariantId, feeVariant: feeVariantId, petCount });
+            console.log('💰 [PetFee] Full payload:', JSON.stringify(cartPayload, null, 2));
+            console.log('💰 [PetFee] Parsed IDs - main:', parseInt(mainVariantId), 'fee:', parseInt(feeVariantId), 'isNaN:', isNaN(parseInt(feeVariantId)));
           } else {
             // Standard single-item submission
             config.body = formData;
           }
 
           fetch(`${routes.cart_add_url}`, config)
-            .then((response) => response.json())
+            .then((response) => {
+              // Log response status for debugging 422 errors
+              if (!response.ok) {
+                console.error('💰 [PetFee] Cart add failed with status:', response.status);
+              }
+              return response.json();
+            })
             .then((response) => {
               if (response.status) {
+                // Enhanced error logging for debugging
+                console.error('💰 [PetFee] Cart error response:', JSON.stringify(response, null, 2));
                 publish(PUB_SUB_EVENTS.cartError, {
                   source: 'product-form',
                   productVariantId: formData.get('id'),

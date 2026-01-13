@@ -2008,7 +2008,183 @@ Cart shows: Product + $10 Additional Pet Fee
 3. Create 2 variants: "1 Extra Pet" ($10) and "2 Extra Pets" ($15)
 4. Copy variant IDs to Theme Settings > Pet Fee Configuration
 
-**Commit**: Pending
+**Commit**: `5f293d6` - feat(cart): Decouple pet count from variants, use separate fee line item
+
+---
+
+### 2026-01-13 - DEBUG: Shopify 422 "Cannot Find Variant" for Pet Fee Feature
+
+**Issue Reported**:
+- User confirmed variant IDs are correct and active in Shopify Admin
+- Console shows: `💰 Pet fee variant set to: 43422221402195`
+- `/cart/add` returns 422 error: "Cannot find variant"
+
+**Console Evidence**:
+```
+💰 Pet fee variant set to: 43422221402195
+💰 [PetFee] Multi-item cart add: Object
+/cart/add:1 Failed to load resource: the server responded with a status of 422 ()
+```
+
+**Root Cause Analysis**:
+
+Based on research into Shopify's `/cart/add.js` API and the specific 422 error, there are several potential root causes:
+
+**1. MOST LIKELY: Product Not Published to Online Store Sales Channel** (HIGH probability)
+- The fee product exists in Shopify Admin but may NOT be available on the "Online Store" sales channel
+- The `/cart/add.js` endpoint ONLY works with products/variants published to Online Store
+- Even if the variant ID is valid, Shopify returns 422 if the product isn't on Online Store
+
+**Verification Steps**:
+1. Go to Shopify Admin > Products > "Additional Pet Fee" product
+2. Check "Sales channels and apps" section in right sidebar
+3. Ensure "Online Store" is checked (not just active in admin)
+
+**2. NaN from parseInt Edge Case** (LOW-MEDIUM probability)
+- If `feeVariantId` has any unexpected characters, `parseInt()` returns NaN
+- NaN gets serialized as `null` in JSON, which Shopify rejects
+- Current code: `id: parseInt(feeVariantId)` on line 95
+
+**Fix if This is the Issue**:
+```javascript
+const parsedFeeId = parseInt(feeVariantId, 10);
+if (isNaN(parsedFeeId)) {
+  console.error('💰 [PetFee] Invalid fee variant ID:', feeVariantId);
+  // Fall back to single-item submission
+  config.body = formData;
+  // ... continue with normal flow
+}
+```
+
+**3. Hidden Product vs Draft Product** (MEDIUM probability)
+- "Hidden from Online Store" (availability = nowhere) may NOT work with cart API
+- Need to use "Available on Online Store" but "Not included in search/collections"
+- Verify: Product status must be "Active" (not Draft)
+
+**4. Shopify Multi-Product Cart API Limitation** (LOW probability)
+- Based on Shopify community forums, some users report 422 errors specifically when adding variants from DIFFERENT products in a single `/cart/add.js` call
+- The documented API suggests this SHOULD work, but edge cases exist
+- Quote from forum: "When it comes to variants of different products... it throws 422 Cannot find variant error"
+
+**Workaround if This is the Issue**:
+```javascript
+// Sequential cart adds instead of single multi-item
+await fetch('/cart/add.js', { body: JSON.stringify({ id: mainVariantId, quantity: 1, properties }) });
+await fetch('/cart/add.js', { body: JSON.stringify({ id: feeVariantId, quantity: 1, properties }) });
+```
+
+**Debugging Steps to Implement**:
+
+1. **Add detailed logging before fetch** (product-form.js ~line 116):
+```javascript
+console.log('💰 [PetFee] Cart payload:', JSON.stringify(cartPayload, null, 2));
+console.log('💰 [PetFee] Main variant type:', typeof mainVariantId, 'value:', mainVariantId);
+console.log('💰 [PetFee] Fee variant type:', typeof feeVariantId, 'value:', feeVariantId, 'parsed:', parseInt(feeVariantId));
+```
+
+2. **Log the actual 422 response body** (product-form.js ~line 126):
+```javascript
+.then((response) => {
+  console.log('💰 [PetFee] Response status:', response.status);
+  return response.json();
+})
+.then((response) => {
+  console.log('💰 [PetFee] Response body:', response);
+  // ... existing error handling
+})
+```
+
+3. **Validate variant ID format**:
+```javascript
+// Before creating items array
+const parsedMainId = parseInt(mainVariantId, 10);
+const parsedFeeId = parseInt(feeVariantId, 10);
+
+if (isNaN(parsedMainId) || isNaN(parsedFeeId)) {
+  console.error('💰 [PetFee] Invalid variant IDs:', { main: mainVariantId, fee: feeVariantId });
+  // Fall back to single-item submission
+}
+```
+
+**Recommended Immediate Actions**:
+
+1. **Verify Sales Channel** (most likely fix):
+   - Shopify Admin > Products > "Additional Pet Fee"
+   - Enable "Online Store" in Sales Channels
+   - Status must be "Active" (not Draft)
+
+2. **Test with Browser Console** (verify API works):
+   ```javascript
+   // Paste in console on product page to test fee variant directly
+   fetch('/cart/add.js', {
+     method: 'POST',
+     headers: { 'Content-Type': 'application/json' },
+     body: JSON.stringify({ id: 43422221402195, quantity: 1 })
+   }).then(r => r.json()).then(console.log).catch(console.error);
+   ```
+
+3. **Check variant exists and is purchasable**:
+   ```javascript
+   // Get variant info
+   fetch('/products/additional-pet-fee.js')
+     .then(r => r.json())
+     .then(p => console.log('Variants:', p.variants));
+   ```
+
+**Configuration Confirmed**:
+- `pet_fee_variant_2_pets`: 43422221369427 (settings_data.json)
+- `pet_fee_variant_3_pets`: 43422221402195 (settings_data.json)
+
+**Files Analyzed**:
+- [product-form.js:65-122](assets/product-form.js#L65-L122) - Cart submission logic
+- [ks-product-pet-selector-stitch.liquid:50](snippets/ks-product-pet-selector-stitch.liquid#L50) - Fee variant data attribute
+- [ks-product-pet-selector-stitch.liquid:1928-1936](snippets/ks-product-pet-selector-stitch.liquid#L1928-L1936) - storePetFeeVariant function
+- [config/settings_data.json:162-163](config/settings_data.json#L162-L163) - Variant ID configuration
+
+**Resources**:
+- [Shopify Cart API Reference](https://shopify.dev/docs/api/ajax/reference/cart)
+- [Community: 422 error even though product is in stock](https://community.shopify.dev/t/getting-422-error-from-cart-add-js-even-though-product-is-in-stock/16764)
+- [Community: /cart/add API not working for multiple products](https://community.shopify.dev/t/cart-add-api-not-working-for-multiple-products/11368)
+
+**Status**: Awaiting user to verify sales channel configuration
+
+---
+
+### 2026-01-13 - Enhanced Debug Logging Added
+
+**Issue Persists**: User confirmed variant IDs are correct and active, but 422 error continues.
+
+**Enhanced Logging Added** (`assets/product-form.js`):
+
+1. **Full payload logging** (lines 119-121):
+   ```javascript
+   console.log('💰 [PetFee] Full payload:', JSON.stringify(cartPayload, null, 2));
+   console.log('💰 [PetFee] Parsed IDs - main:', parseInt(mainVariantId), 'fee:', parseInt(feeVariantId), 'isNaN:', isNaN(parseInt(feeVariantId)));
+   ```
+
+2. **Error response logging** (lines 128-138):
+   ```javascript
+   if (!response.ok) {
+     console.error('💰 [PetFee] Cart add failed with status:', response.status);
+   }
+   // ...
+   console.error('💰 [PetFee] Cart error response:', JSON.stringify(response, null, 2));
+   ```
+
+**Key Verification Step**:
+Run this in browser console to test variant directly:
+```javascript
+fetch('/cart/add.js', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({ id: 43422221402195, quantity: 1 })
+}).then(r => r.json()).then(d => console.log('SUCCESS:', d)).catch(e => console.error('FAILED:', e));
+```
+
+If this fails, the product is NOT published to Online Store sales channel.
+
+**Files Modified**:
+- [product-form.js:118-138](assets/product-form.js#L118-L138) - Enhanced debug logging
 
 ---
 
