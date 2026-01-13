@@ -1863,6 +1863,31 @@
     ]
   },
   {
+    "name": "Pet Fee Configuration",
+    "settings": [
+      {
+        "type": "header",
+        "content": "Additional Pet Fee"
+      },
+      {
+        "type": "paragraph",
+        "content": "Configure the variant IDs for the 'Additional Pet Fee' product. This product should be hidden from the online store."
+      },
+      {
+        "type": "text",
+        "id": "pet_fee_variant_2_pets",
+        "label": "2-Pet Fee Variant ID ($10)",
+        "info": "Variant ID for 1 extra pet (2 pets total)"
+      },
+      {
+        "type": "text",
+        "id": "pet_fee_variant_3_pets",
+        "label": "3-Pet Fee Variant ID ($15)",
+        "info": "Variant ID for 2 extra pets (3 pets total)"
+      }
+    ]
+  },
+  {
     "name": "KS - Gift upsell",
     "settings": [
       {

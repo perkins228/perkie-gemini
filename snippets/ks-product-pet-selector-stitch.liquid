@@ -37,14 +37,22 @@
     <div class="pet-selector__count-grid">
       {% for i in (1..max_pets_per_product) %}
       <label class="pet-count-btn">
-        <span>{{ i }}</span>
+        <span class="pet-count-btn__number">{{ i }}</span>
+        {% if i == 2 %}
+          <span class="pet-count-btn__fee">(+$10)</span>
+        {% elsif i == 3 %}
+          <span class="pet-count-btn__fee">(+$15)</span>
+        {% endif %}
         <input type="radio"
                name="pet-count"
                value="{{ i }}"
-               data-pet-count-radio>
+               data-pet-count-radio
+               data-fee-variant="{% if i == 2 %}{{ settings.pet_fee_variant_2_pets }}{% elsif i == 3 %}{{ settings.pet_fee_variant_3_pets }}{% endif %}">
       </label>
       {% endfor %}
     </div>
+    {% comment %} Hidden input to store selected fee variant ID for cart submission {% endcomment %}
+    <input type="hidden" name="pet_fee_variant_id" value="" data-pet-fee-variant-input>
   </div>
 
   {% comment %} Pet Details Section - Hidden until pet count is selected {% endcomment %}
@@ -490,6 +498,7 @@
 
 .pet-count-btn {
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   height: 3.5rem;
@@ -501,6 +510,23 @@
   font-weight: 600;
   transition: all 0.2s;
   border: 2px solid transparent;
+  gap: 0.125rem;
+}
+
+.pet-count-btn__number {
+  line-height: 1;
+}
+
+.pet-count-btn__fee {
+  display: block;
+  font-size: 0.65rem;
+  color: #6b7280;
+  font-weight: 400;
+  line-height: 1;
+}
+
+.pet-count-btn:has(input:checked) .pet-count-btn__fee {
+  color: var(--pet-selector-primary);
 }
 
 .pet-count-btn input {
@@ -1898,12 +1924,26 @@
     console.log('✅ Variant selection updated');
   }
 
+  // Store pet fee variant ID based on pet count selection
+  function storePetFeeVariant(count, feeVariantId) {
+    const feeInput = container.querySelector('[data-pet-fee-variant-input]');
+    if (feeInput) {
+      // Only store fee variant for 2+ pets
+      feeInput.value = count > 1 ? feeVariantId : '';
+      console.log(`💰 Pet fee variant ${count > 1 ? 'set to: ' + feeVariantId : 'cleared (1 pet)'}`);
+    }
+    // Store pet count on container for cart submission logic
+    container.setAttribute('data-selected-pet-count', count);
+  }
+
   // Pet count change listener
   countRadios.forEach(radio => {
     radio.addEventListener('change', (e) => {
       const count = parseInt(e.target.value);
+      const feeVariantId = e.target.dataset.feeVariant || '';
       updatePetSections(count);
-      updateVariantSelection(count); // NEW: Update variant based on pet count
+      // REPLACED: updateVariantSelection(count) - fee now handled via separate product line item
+      storePetFeeVariant(count, feeVariantId);
       savePetSelectorStateImmediate(); // Save immediately on selection
     });
   });

@@ -61,7 +61,65 @@ if (!customElements.get('product-form')) {
             formData.append('sections_url', window.location.pathname);
             self.cart.setActiveElement(document.activeElement);
           }
-          config.body = formData;
+
+          // === PET FEE: Check for additional pet fee variant ===
+          const petSelector = document.querySelector('.pet-selector-stitch');
+          const feeVariantInput = petSelector ? petSelector.querySelector('[data-pet-fee-variant-input]') : null;
+          const feeVariantId = feeVariantInput ? feeVariantInput.value : '';
+
+          if (feeVariantId && !hasFiles) {
+            // Multi-item submission: main product + pet fee product
+            const mainVariantId = self.form.querySelector('[name="id"]').value;
+
+            // Collect properties from form
+            const properties = {};
+            self.form.querySelectorAll('[name^="properties["]').forEach(input => {
+              if (input.value) {
+                const match = input.name.match(/properties\[([^\]]+)\]/);
+                if (match) {
+                  properties[match[1]] = input.value;
+                }
+              }
+            });
+
+            const petCount = petSelector.getAttribute('data-selected-pet-count') || '1';
+            const productTitle = document.querySelector('.product__title')?.textContent?.trim() || 'Pet Product';
+
+            const items = [
+              {
+                id: parseInt(mainVariantId),
+                quantity: 1,
+                properties: properties
+              },
+              {
+                id: parseInt(feeVariantId),
+                quantity: 1,
+                properties: {
+                  '_linked_to_product': productTitle,
+                  '_pet_count': petCount,
+                  '_fee_type': 'additional_pets'
+                }
+              }
+            ];
+
+            // Build JSON body for multi-item cart add
+            const cartPayload = {
+              items: items
+            };
+
+            if (self.cart) {
+              cartPayload.sections = self.cart.getSectionsToRender().map((section) => section.id);
+              cartPayload.sections_url = window.location.pathname;
+            }
+
+            config.headers['Content-Type'] = 'application/json';
+            config.body = JSON.stringify(cartPayload);
+
+            console.log('💰 [PetFee] Multi-item cart add:', { mainVariant: mainVariantId, feeVariant: feeVariantId, petCount });
+          } else {
+            // Standard single-item submission
+            config.body = formData;
+          }
 
           fetch(`${routes.cart_add_url}`, config)
             .then((response) => response.json())

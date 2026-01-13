@@ -1778,6 +1778,236 @@ self.clearPetPropertyFields(); // Phase 1: Clear form fields (NOT pet library)
 **Files Modified**:
 - [session-pet-gallery.js](assets/session-pet-gallery.js) - Added Change button, enhanced clear function, added feedback toast
 
+**Commit**: `9a99783` - feat(gallery): Add "Change image" button to unselect pet from Session Gallery
+
+---
+
+### 2026-01-13 - Fix: Auto-Processing Bug on Processor Page Return
+
+**Issue Reported**: Sometimes when navigating back to the custom-image-processing page, the processor auto-runs and re-processes the last image uploaded instead of displaying already-processed results.
+
+**Root Cause Analysis** (debug-specialist agent):
+
+The `clearPetSelectorUploads()` function in `pet-processor.js` only cleared `pet_X_images` (base64 format) but **NOT** `pet_X_image_url` (GCS URL format).
+
+**Timeline of the Bug**:
+1. User uploads image on product page → `pet_1_image_url` saved to localStorage
+2. User navigates to processor → BiRefNet processes → `clearPetSelectorUploads()` called
+3. But: `clearPetSelectorUploads()` does NOT remove `pet_1_image_url` - only `pet_1_images`
+4. Later visit: User returns to processor WITHOUT `?from=product` parameter
+5. Priority Check fails: Pet > 30 minutes old OR PetStorage empty
+6. Fallback: `checkPetSelectorUploads()` finds the stale `pet_1_image_url`
+7. Re-Processing: `loadPetSelectorImage()` fetches from GCS and calls `processFile()`
+
+**Fix Applied** (`assets/pet-processor.js` lines 1114-1155):
+
+Modified `clearPetSelectorUploads()` to also clear:
+- `pet_X_image_url` (GCS URL format) - **PRIMARY FIX**
+- `pet_X_file_metadata` (metadata cleanup)
+
+```javascript
+// FIX: Also clear GCS URL format (pet_X_image_url)
+// This prevents re-processing when user returns to processor page
+// after the 30-minute PetStorage timeout expires
+const urlKey = `pet_${i}_image_url`;
+if (localStorage.getItem(urlKey)) {
+  localStorage.removeItem(urlKey);
+  cleared++;
+  console.log(`🧹 Cleared GCS URL upload: ${urlKey}`);
+}
+```
+
+**Files Modified**:
+- [pet-processor.js:1114-1155](assets/pet-processor.js#L1114-L1155) - Added GCS URL and metadata cleanup
+
+**Expected Result**:
+- After processing, both `pet_X_images` AND `pet_X_image_url` are cleared
+- Returning to processor page (without `?from=product`) will NOT re-process
+- Console shows: `🧹 Cleared GCS URL upload: pet_X_image_url`
+
+**Commit**: `d130e03` - fix(processor): Clear GCS URLs to prevent auto-reprocessing on page return
+
+---
+
+---
+
+### 2026-01-13 - VERIFICATION: clearPetSelectorUploads() Fix Has NO Impact on Order Fulfillment
+
+**Verification Request**: Analyze whether the fix in commit `d130e03` (clearing `pet_X_image_url` and `pet_X_file_metadata`) affects order fulfillment.
+
+**CONCLUSION: NO REGRESSION - Fix is SAFE**
+
+**Complete Data Flow Analysis**:
+
+#### 1. localStorage Keys - STAGING vs ORDER FULFILLMENT
+
+| Key Pattern | Purpose | Used For Fulfillment? | Cleared by Fix? |
+|-------------|---------|----------------------|-----------------|
+| `pet_X_image_url` | **STAGING**: Temp storage for processor auto-load | NO | YES (safe) |
+| `pet_X_images` | **STAGING**: Base64 fallback for offline | NO | YES (existing) |
+| `pet_X_file_metadata` | **STAGING**: File info for processor | NO | YES (safe) |
+| `perkie_pet_{petId}` | **BRIDGE**: PetStorage for Session Gallery | NO (not direct) | NO (untouched) |
+
+#### 2. Order Fulfillment Keys (Form Properties)
+
+The actual order data is stored in **hidden form fields**, NOT localStorage:
+
+```html
+<!-- Hidden fields submitted with cart (ks-product-pet-selector-stitch.liquid) -->
+<input name="properties[_pet_X_processed_image_url]">  <!-- GCS URL of processed image -->
+<input name="properties[_pet_X_artist_notes]">          <!-- Artist notes -->
+<input name="properties[_pet_X_filename]">              <!-- Filename -->
+<input name="properties[_pet_X_order_type]">            <!-- "Express Upload" -->
+<input name="properties[Pet X Images]">                 <!-- File input for Shopify CDN -->
+```
+
+These form fields are populated by:
+1. `inline-preview-mvp.js:savePetDataAndClose()` → PetStorage → form fields
+2. `ks-product-pet-selector-stitch.liquid:populateOrderProperties()` → form fields
+
+#### 3. Timing Analysis - When Keys Are Set vs Cleared
+
+**Timeline**:
+```
+1. Product Page: User uploads image
+   → pet_X_image_url SET in localStorage (for processor auto-load)
+   → pet_X_file_metadata SET in localStorage
+
+2. Processor Page: User navigates to processor (or inline modal opens)
+   → checkPetSelectorUploads() READS pet_X_image_url
+   → loadPetSelectorImage() fetches image from GCS
+   → processFile() processes via BiRefNet/Gemini
+   → clearPetSelectorUploads() CLEARS staging keys ← THE FIX
+
+3. After Processing:
+   → PetStorage.save() stores processed effects (perkie_pet_{id})
+   → NOT affected by clearPetSelectorUploads()
+
+4. Add to Cart:
+   → product-form.js reads from PetStorage
+   → Populates form hidden fields (properties[_pet_X_*])
+   → Form submits to Shopify → Order created
+```
+
+**Key Insight**: `pet_X_image_url` is a **one-way staging key** used ONLY to pass the upload from product page to processor. Once processing starts, the data is:
+1. Fetched from GCS URL
+2. Converted to File object
+3. Processed through BiRefNet/Gemini
+4. Saved to PetStorage (different key pattern)
+
+The staging key is no longer needed and was intentionally designed to be cleared.
+
+#### 4. Code Evidence - No Fulfillment Dependencies
+
+**Search Results for `pet_X_image_url` usage**:
+- `ks-product-pet-selector-stitch.liquid:2281` - SET after upload
+- `ks-product-pet-selector-stitch.liquid:2529` - READ for Preview button
+- `ks-product-pet-selector-stitch.liquid:2569` - READ for inline modal
+- `pet-processor.js:943` - READ in checkPetSelectorUploads()
+- **NO references** in `product-form.js` or cart submission code
+
+**Form field sources** (actual order data):
+- `properties[_pet_X_processed_image_url]` ← PetStorage, NOT pet_X_image_url
+- PetStorage uses `perkie_pet_{sessionKey}` prefix (completely different)
+
+#### 5. Edge Case Analysis
+
+| Scenario | Impact | Verdict |
+|----------|--------|---------|
+| User uploads, navigates to processor, processes | ✅ Works - URL read BEFORE clear | SAFE |
+| User uploads, closes browser, returns next day | ✅ Works - pet_X_image_url triggers reprocess | SAFE (now clears properly after) |
+| User uploads via Session Gallery (pre-processed) | ✅ Works - uses PetStorage, not pet_X_image_url | SAFE |
+| User adds to cart without processing | ⚠️ File-only upload | SAFE (uses file input, not localStorage) |
+
+#### 6. Verification Summary
+
+**Files Analyzed**:
+- `assets/pet-processor.js` (lines 935-1155) - checkPetSelectorUploads, clearPetSelectorUploads
+- `assets/product-form.js` (lines 190-275) - savePetCustomization, clearPetPropertyFields
+- `assets/pet-storage.js` - PetStorage class (completely separate prefix)
+- `snippets/ks-product-pet-selector-stitch.liquid` (lines 2260-2490) - Upload handlers, form fields
+- `snippets/order-custom-images.liquid` - Order fulfillment template
+
+**Confirmation**:
+- `pet_X_image_url` is NEVER read during cart submission
+- `pet_X_image_url` is NEVER included in order properties
+- Order fulfillment uses `properties[_pet_X_processed_image_url]` from PetStorage
+- The cleared keys are **staging-only** for processor auto-load
+
+**VERDICT: FIX IS SAFE - NO REGRESSION RISK**
+
+---
+
+### 2026-01-13 - Additional Pet Fee Implementation
+
+**Request**: Decouple "Number of Pets" selection from Shopify product variants. Instead of variant-based pricing, add a separate "Additional Pet Fee" line item to cart when 2+ pets selected.
+
+**Implementation Summary**:
+
+| Pet Count | Fee | Implementation |
+|-----------|-----|----------------|
+| 1 pet | $0 | No fee added |
+| 2 pets | +$10 | Fee variant added to cart |
+| 3 pets | +$15 | Fee variant added to cart |
+
+**Changes Made**:
+
+1. **Theme Settings** (`config/settings_schema.json`):
+   - Added "Pet Fee Configuration" settings group
+   - `pet_fee_variant_2_pets` - Variant ID for $10 fee
+   - `pet_fee_variant_3_pets` - Variant ID for $15 fee
+
+2. **Pet Count Buttons** (`snippets/ks-product-pet-selector-stitch.liquid` lines 38-56):
+   - Added `(+$10)` and `(+$15)` callouts to buttons 2 and 3
+   - Added `data-fee-variant` attribute with variant ID from settings
+   - Added hidden input `[data-pet-fee-variant-input]` to store selected fee variant
+
+3. **Pet Count Handler** (`snippets/ks-product-pet-selector-stitch.liquid` lines 1909-1931):
+   - Replaced `updateVariantSelection(count)` with `storePetFeeVariant(count, feeVariantId)`
+   - New function stores fee variant ID in hidden input
+   - Sets `data-selected-pet-count` attribute on container
+
+4. **CSS Styling** (`snippets/ks-product-pet-selector-stitch.liquid` lines 499-530):
+   - `.pet-count-btn` now uses flex-direction: column
+   - `.pet-count-btn__fee` styles for smaller gray text
+   - Fee text changes to theme color when selected
+
+5. **Cart Submission** (`assets/product-form.js` lines 65-122):
+   - Detects fee variant ID from hidden input
+   - If present, uses multi-item JSON submission with `items[]` array
+   - Main product + fee product added in single cart operation
+   - Fee line item includes `_linked_to_product`, `_pet_count`, `_fee_type` properties
+
+**Technical Flow**:
+```
+Customer selects 2 pets
+    ↓
+storePetFeeVariant(2, '12345') called
+    ↓
+Hidden input value = '12345'
+    ↓
+Customer clicks Add to Cart
+    ↓
+product-form.js detects fee variant
+    ↓
+JSON body: { items: [mainProduct, feeProduct] }
+    ↓
+Cart shows: Product + $10 Additional Pet Fee
+```
+
+**Files Modified**:
+- [config/settings_schema.json](config/settings_schema.json) - Pet fee settings
+- [ks-product-pet-selector-stitch.liquid:38-56](snippets/ks-product-pet-selector-stitch.liquid#L38-L56) - Button HTML
+- [ks-product-pet-selector-stitch.liquid:499-530](snippets/ks-product-pet-selector-stitch.liquid#L499-L530) - CSS styles
+- [ks-product-pet-selector-stitch.liquid:1909-1931](snippets/ks-product-pet-selector-stitch.liquid#L1909-L1931) - JS handler
+- [product-form.js:65-122](assets/product-form.js#L65-L122) - Cart submission
+
+**Manual Setup Required**:
+1. Create "Additional Pet Fee" product in Shopify Admin
+2. Mark as hidden from online store
+3. Create 2 variants: "1 Extra Pet" ($10) and "2 Extra Pets" ($15)
+4. Copy variant IDs to Theme Settings > Pet Fee Configuration
+
 **Commit**: Pending
 
 ---
