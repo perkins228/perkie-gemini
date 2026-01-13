@@ -1116,11 +1116,28 @@ class PetProcessor {
       let cleared = 0;
       // Clear up to 10 pet slots (pet_0 through pet_9)
       for (let i = 0; i < 10; i++) {
-        const key = `pet_${i}_images`;
-        if (localStorage.getItem(key)) {
-          localStorage.removeItem(key);
+        // Clear base64 format (pet_X_images)
+        const base64Key = `pet_${i}_images`;
+        if (localStorage.getItem(base64Key)) {
+          localStorage.removeItem(base64Key);
           cleared++;
-          console.log(`🧹 Cleared old upload: ${key}`);
+          console.log(`🧹 Cleared old upload: ${base64Key}`);
+        }
+
+        // FIX: Also clear GCS URL format (pet_X_image_url)
+        // This prevents re-processing when user returns to processor page
+        // after the 30-minute PetStorage timeout expires
+        const urlKey = `pet_${i}_image_url`;
+        if (localStorage.getItem(urlKey)) {
+          localStorage.removeItem(urlKey);
+          cleared++;
+          console.log(`🧹 Cleared GCS URL upload: ${urlKey}`);
+        }
+
+        // Clear metadata too (pet_X_file_metadata)
+        const metaKey = `pet_${i}_file_metadata`;
+        if (localStorage.getItem(metaKey)) {
+          localStorage.removeItem(metaKey);
         }
       }
 
