@@ -1672,6 +1672,112 @@ self.clearPetPropertyFields(); // Phase 1: Clear form fields (NOT pet library)
 - [ks-product-mockup-grid.liquid:70-94](sections/ks-product-mockup-grid.liquid#L70-L94) - Added blend category data attribute
 - [product-mockup-grid.css:339-378](assets/product-mockup-grid.css#L339-L378) - Added product-type-specific blend mode CSS
 
+**Commit**: `51faa06` - feat(mockup): Add product-type-specific blend modes for realistic mockup appearance
+
+---
+
+### 2026-01-13 - UX Research: Session Pet Gallery "Unselect" Pattern
+
+**Request**: Research best UX pattern for allowing customers to "unselect" a previously selected pet from the Session Pet Gallery without deleting it.
+
+**Current Flow Problem**:
+1. Customer sees Session Pet Gallery with previously processed pets
+2. Customer clicks a pet thumbnail to select it
+3. Upload zone is hidden, replaced with "Pet selected" message
+4. **GAP**: No way to unselect and return to upload zone without deleting the pet
+
+**Research Findings**:
+
+#### 1. Best UX Pattern: "Change Image" Text Link
+| Pattern | Recommendation | Reasoning |
+|---------|---------------|-----------|
+| X button | NOT recommended | Implies deletion; confusing when pet persists in library |
+| "Change" link | **RECOMMENDED** | Clear intent, doesn't imply deletion, large touch target |
+| Toggle (re-click) | NOT recommended | Undiscoverable; no visual affordance |
+| Swipe gesture | NOT recommended | Undiscoverable; accessibility issues |
+
+#### 2. Placement: Below Thumbnail
+```
+┌───────────┐
+│ [Pet      │  ✓ Pet selected
+│  Image]   │
+└───────────┘  Change image ←
+```
+- Below thumbnail keeps pet as hero
+- Left-aligned creates visual connection
+- Not overlaid = no accidental taps
+
+#### 3. Label: "Change image" (text only)
+- Clear and unambiguous
+- No icon needed (adds visual noise)
+- Avoid: "Remove," "Clear," "Unselect" (implies deletion)
+
+#### 4. Confirmation: INSTANT ACTION (No Confirmation)
+- Non-destructive action (pet stays in library)
+- Friction reduction for mobile (70% traffic)
+- Easy recovery (re-select from gallery)
+- Optional: Toast notification "Selection cleared"
+
+#### 5. Accessibility Requirements
+- Minimum 44x44px touch target
+- Keyboard accessible (native `<button>` or `tabindex`)
+- `aria-label="Change selected pet image"`
+- WCAG AA color contrast (4.5:1)
+- Non-color affordance (underlined)
+
+#### 6. E-Commerce Precedents
+- Amazon: "Change" link below cart item thumbnail
+- Shutterfly: "Replace Photo" button
+- Custom Ink: "Change Artwork" link
+- Etsy: "Edit" link next to selection
+
+**Implementation Recommendation**:
+```html
+<button
+  type="button"
+  class="session-pet-selected__change-btn"
+  aria-label="Change selected pet image"
+>
+  Change image
+</button>
+```
+
+**Behavior**:
+- Clicking shows upload zone
+- Hides "Pet selected" state
+- Pet REMAINS in Session Pet Gallery
+- Optional toast: "Selection cleared"
+
+**No code changes made** - UX research only
+
+---
+
+### 2026-01-13 - Implementation: "Change image" Button for Session Pet Gallery
+
+**Implemented** the UX research recommendations from above.
+
+**Changes Made**:
+
+1. **Added "Change image" button** to selected pet preview ([session-pet-gallery.js:323-351](assets/session-pet-gallery.js#L323-L351)):
+   - Text link style with underline
+   - Theme color using CSS variable
+   - 44px minimum touch target
+   - Hover opacity effect
+   - Calls `clearSessionGallerySelection()` on click
+
+2. **Enhanced `clearSessionGallerySelection()` function** ([session-pet-gallery.js:462-506](assets/session-pet-gallery.js#L462-L506)):
+   - Removes `has-files` class from upload zone
+   - Resets Preview button to disabled state
+   - Hides upload status wrapper
+   - Restores upload icon and text
+
+3. **Added `showChangeFeedback()` toast** ([session-pet-gallery.js:508-536](assets/session-pet-gallery.js#L508-L536)):
+   - "Selection cleared - upload a new image"
+   - Uses existing animation patterns
+
+**Files Modified**:
+- [session-pet-gallery.js](assets/session-pet-gallery.js) - Added Change button, enhanced clear function, added feedback toast
+
 **Commit**: Pending
 
 ---

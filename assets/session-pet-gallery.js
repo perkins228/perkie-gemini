@@ -301,7 +301,11 @@
 
       var preview = document.createElement('div');
       preview.className = 'session-pet-preview';
-      preview.style.cssText = 'display:flex;align-items:center;gap:8px;';
+      preview.style.cssText = 'display:flex;flex-direction:column;align-items:center;gap:8px;';
+
+      // Top row: thumbnail + "Pet selected" text
+      var topRow = document.createElement('div');
+      topRow.style.cssText = 'display:flex;align-items:center;gap:8px;';
 
       var img = document.createElement('img');
       img.src = pet.thumbnailUrl;
@@ -312,8 +316,39 @@
       text.textContent = 'Pet selected';
       text.style.cssText = 'font-weight:600;color:#16a34a;';
 
-      preview.appendChild(img);
-      preview.appendChild(text);
+      topRow.appendChild(img);
+      topRow.appendChild(text);
+      preview.appendChild(topRow);
+
+      // "Change image" button
+      var changeBtn = document.createElement('button');
+      changeBtn.type = 'button';
+      changeBtn.className = 'session-pet-change-btn';
+      changeBtn.setAttribute('aria-label', 'Change selected pet image');
+      changeBtn.textContent = 'Change image';
+      changeBtn.style.cssText = 'background:none;border:none;padding:8px 16px;' +
+        'color:rgb(var(--color-button,59,130,246));font-size:14px;font-weight:500;' +
+        'cursor:pointer;text-decoration:underline;text-underline-offset:2px;' +
+        'min-height:44px;transition:opacity 0.2s ease;';
+
+      // Store petIndex for the click handler
+      var currentPetIndex = petDetail.getAttribute('data-pet-index');
+      changeBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        clearSessionGallerySelection(currentPetIndex);
+        showChangeFeedback();
+      });
+
+      // Hover effect
+      changeBtn.addEventListener('mouseenter', function() {
+        this.style.opacity = '0.7';
+      });
+      changeBtn.addEventListener('mouseleave', function() {
+        this.style.opacity = '1';
+      });
+
+      preview.appendChild(changeBtn);
 
       // Hide upload icon and text, show preview
       var uploadIcon = uploadZone.querySelector('.pet-detail__upload-icon');
@@ -426,10 +461,11 @@
 
   /**
    * Clear session gallery selection for a pet index
-   * Called when user uploads a new image
+   * Called when user uploads a new image OR clicks "Change image"
    * @param {string} petIndex - Pet index to clear
    */
   function clearSessionGallerySelection(petIndex) {
+    console.log('[SessionPetGallery] Clearing selection for pet index:', petIndex);
     sessionStorage.removeItem('session_gallery_pet_' + petIndex);
 
     var petDetail = document.querySelector('[data-pet-index="' + petIndex + '"]');
@@ -441,12 +477,62 @@
       var preview = uploadZone.querySelector('.session-pet-preview');
       if (preview) preview.remove();
 
+      // Remove has-files class
+      uploadZone.classList.remove('has-files');
+
       // Restore upload icon and text
       var uploadIcon = uploadZone.querySelector('.pet-detail__upload-icon');
       var uploadText = uploadZone.querySelector('[data-upload-text]');
       if (uploadIcon) uploadIcon.style.display = '';
       if (uploadText) uploadText.style.display = '';
     }
+
+    // Reset Preview button state
+    var previewBtn = petDetail.querySelector('[data-pet-preview-btn]');
+    if (previewBtn) {
+      previewBtn.disabled = true;
+      previewBtn.textContent = 'Preview';
+    }
+
+    // Reset upload status wrapper
+    var statusWrapper = petDetail.querySelector('[data-upload-status-wrapper]');
+    if (statusWrapper) {
+      statusWrapper.style.display = 'none';
+      var uploadStatus = statusWrapper.querySelector('[data-upload-status]');
+      if (uploadStatus) {
+        uploadStatus.innerHTML = '';
+      }
+    }
+  }
+
+  /**
+   * Show brief feedback when selection is cleared
+   */
+  function showChangeFeedback() {
+    var existingFeedback = document.querySelector('.session-pet-change-feedback');
+    if (existingFeedback) {
+      existingFeedback.remove();
+    }
+
+    var feedback = document.createElement('div');
+    feedback.className = 'session-pet-change-feedback';
+    feedback.style.cssText = 'position:fixed;bottom:20px;left:50%;transform:translateX(-50%);' +
+      'background:#6b7280;color:white;padding:12px 24px;border-radius:8px;' +
+      'font-weight:500;font-size:14px;z-index:9999;box-shadow:0 4px 12px rgba(0,0,0,0.15);' +
+      'animation:sessionFeedbackIn 0.3s ease;';
+    feedback.textContent = 'Selection cleared - upload a new image';
+
+    document.body.appendChild(feedback);
+
+    // Remove after 2 seconds
+    setTimeout(function() {
+      feedback.style.animation = 'sessionFeedbackOut 0.3s ease forwards';
+      setTimeout(function() {
+        if (feedback.parentNode) {
+          feedback.parentNode.removeChild(feedback);
+        }
+      }, 300);
+    }, 2000);
   }
 
   // Initialize on DOM ready
