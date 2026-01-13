@@ -311,9 +311,10 @@
 
       var text = document.createElement('span');
       text.textContent = 'Pet selected';
-      text.style.cssText = 'font-weight:600;color:#16a34a;';
+      // flex:1 centers text between thumbnail and Change button
+      text.style.cssText = 'font-weight:600;color:#16a34a;flex:1;text-align:center;';
 
-      // "Change" button - shortened text, inline position
+      // "Change" button - shortened text, right-aligned via text flex:1
       var changeBtn = document.createElement('button');
       changeBtn.type = 'button';
       changeBtn.className = 'session-pet-change-btn';
@@ -322,7 +323,7 @@
       changeBtn.style.cssText = 'background:none;border:none;padding:8px 12px;' +
         'color:rgb(var(--color-button,59,130,246));font-size:14px;font-weight:500;' +
         'cursor:pointer;text-decoration:underline;text-underline-offset:2px;' +
-        'min-height:44px;transition:opacity 0.2s ease;margin-left:auto;flex-shrink:0;' +
+        'min-height:44px;transition:opacity 0.2s ease;flex-shrink:0;' +
         'outline-offset:2px;';
 
       // Store petIndex for the click handler
