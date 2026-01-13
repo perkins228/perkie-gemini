@@ -301,35 +301,29 @@
 
       var preview = document.createElement('div');
       preview.className = 'session-pet-preview';
-      preview.style.cssText = 'display:flex;flex-direction:column;align-items:center;gap:8px;';
-
-      // Top row: thumbnail + "Pet selected" text
-      var topRow = document.createElement('div');
-      topRow.style.cssText = 'display:flex;align-items:center;gap:8px;';
+      // Single row: thumbnail + "Pet selected" + "Change" link (all inline)
+      preview.style.cssText = 'display:flex;align-items:center;gap:8px;width:100%;';
 
       var img = document.createElement('img');
       img.src = pet.thumbnailUrl;
       img.alt = 'Selected pet';
-      img.style.cssText = 'width:40px;height:40px;object-fit:cover;border-radius:4px;';
+      img.style.cssText = 'width:40px;height:40px;object-fit:cover;border-radius:4px;flex-shrink:0;';
 
       var text = document.createElement('span');
       text.textContent = 'Pet selected';
       text.style.cssText = 'font-weight:600;color:#16a34a;';
 
-      topRow.appendChild(img);
-      topRow.appendChild(text);
-      preview.appendChild(topRow);
-
-      // "Change image" button
+      // "Change" button - shortened text, inline position
       var changeBtn = document.createElement('button');
       changeBtn.type = 'button';
       changeBtn.className = 'session-pet-change-btn';
       changeBtn.setAttribute('aria-label', 'Change selected pet image');
-      changeBtn.textContent = 'Change image';
-      changeBtn.style.cssText = 'background:none;border:none;padding:8px 16px;' +
+      changeBtn.textContent = 'Change';
+      changeBtn.style.cssText = 'background:none;border:none;padding:8px 12px;' +
         'color:rgb(var(--color-button,59,130,246));font-size:14px;font-weight:500;' +
         'cursor:pointer;text-decoration:underline;text-underline-offset:2px;' +
-        'min-height:44px;transition:opacity 0.2s ease;';
+        'min-height:44px;transition:opacity 0.2s ease;margin-left:auto;flex-shrink:0;' +
+        'outline-offset:2px;';
 
       // Store petIndex for the click handler
       var currentPetIndex = petDetail.getAttribute('data-pet-index');
@@ -348,6 +342,8 @@
         this.style.opacity = '1';
       });
 
+      preview.appendChild(img);
+      preview.appendChild(text);
       preview.appendChild(changeBtn);
 
       // Hide upload icon and text, show preview
