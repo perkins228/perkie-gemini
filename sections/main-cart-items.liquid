@@ -26,18 +26,8 @@
     }
   }
 
-  /* Pet fee cart ordering: display fees after their linked products */
-  cart-items table tbody {
-    display: flex;
-    flex-direction: column;
-  }
-  cart-items table tbody tr.cart-item {
-    display: table;
-    width: 100%;
-    table-layout: fixed;
-  }
+  /* Pet fee styling - positioning handled by JS reordering */
   cart-items table tbody tr.cart-item--fee {
-    order: 1; /* Push fee items after regular items (default order: 0) */
     background: #f9fafb;
     font-size: 0.95em;
   }
@@ -102,9 +92,12 @@
               </thead>
 
               <tbody>
-                {%- comment -%}Reverse order: oldest items first (FIFO){%- endcomment -%}
-                {%- for item in cart.items | reverse -%}
-                  <tr class="cart-item{% if item.properties._fee_type == 'additional_pets' %} cart-item--fee{% endif %}" id="CartItem-{{ item.index | plus: 1 }}">
+                {%- comment -%}LIFO order: newest items first (Shopify default). Fee grouping handled by JS.{%- endcomment -%}
+                {%- for item in cart.items -%}
+                  <tr class="cart-item{% if item.properties._fee_type == 'additional_pets' %} cart-item--fee{% endif %}"
+                      id="CartItem-{{ item.index | plus: 1 }}"
+                      {% if item.properties._fee_type == 'additional_pets' %}data-linked-to="{{ item.properties._linked_to_product | handle }}"{% endif %}
+                      data-product-handle="{{ item.product.handle }}">
                     <td class="cart-item__media">
                       {% if item.image %}
                         {% comment %} Leave empty space due to a:empty CSS display: none rule {% endcomment %}

@@ -461,6 +461,59 @@ class CartItems extends HTMLElement {
 
 customElements.define("cart-items", CartItems);
 
+/**
+ * Reorder fee items in cart to appear directly after their linked products.
+ * Called on page load and after cart updates.
+ */
+function reorderCartFees() {
+  const tbodies = document.querySelectorAll('cart-items tbody, cart-drawer-items tbody');
+
+  tbodies.forEach(tbody => {
+    const rows = Array.from(tbody.querySelectorAll('tr.cart-item'));
+    const fees = rows.filter(row => row.classList.contains('cart-item--fee'));
+
+    fees.forEach(feeRow => {
+      const linkedTo = feeRow.dataset.linkedTo;
+      if (!linkedTo) return;
+
+      // Find the product row this fee is linked to (by matching product handle)
+      const productRow = rows.find(row =>
+        !row.classList.contains('cart-item--fee') &&
+        row.dataset.productHandle &&
+        linkedTo.includes(row.dataset.productHandle.toLowerCase())
+      );
+
+      if (productRow && feeRow.previousElementSibling !== productRow) {
+        // Move fee directly after its linked product
+        productRow.after(feeRow);
+        console.log(`📦 [FeeSync] Moved fee after "${productRow.dataset.productHandle}"`);
+      }
+    });
+  });
+}
+
+// Run on initial load
+document.addEventListener('DOMContentLoaded', reorderCartFees);
+
+// Re-run after cart updates (observe DOM changes)
+const cartObserver = new MutationObserver((mutations) => {
+  for (const mutation of mutations) {
+    if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {
+      // Small delay to ensure DOM is fully updated
+      setTimeout(reorderCartFees, 50);
+      break;
+    }
+  }
+});
+
+// Observe cart containers for changes
+document.addEventListener('DOMContentLoaded', () => {
+  const cartContainers = document.querySelectorAll('cart-items, cart-drawer-items');
+  cartContainers.forEach(container => {
+    cartObserver.observe(container, { childList: true, subtree: true });
+  });
+});
+
 if (!customElements.get("cart-note")) {
   customElements.define(
     "cart-note",
