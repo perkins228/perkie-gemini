@@ -83,7 +83,9 @@ if (!customElements.get('product-form')) {
             });
 
             const petCount = petSelector.getAttribute('data-selected-pet-count') || '1';
-            const productTitle = document.querySelector('.product__title')?.textContent?.trim() || 'Pet Product';
+            // Normalize whitespace: .textContent includes newlines from nested HTML
+            const rawTitle = document.querySelector('.product__title')?.textContent || '';
+            const productTitle = rawTitle.replace(/\s+/g, ' ').trim() || 'Pet Product';
 
             const items = [
               {

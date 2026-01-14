@@ -390,23 +390,37 @@ class CartItems extends HTMLElement {
 
   async removeLinkedFees(productLineIndex) {
     try {
+      console.log(`🔍 [FeeSync] Checking for linked fees to remove (line ${productLineIndex})`);
       const cart = await fetch('/cart.js').then(r => r.json());
       const removedItem = cart.items[productLineIndex - 1];
-      if (!removedItem) return;
+      if (!removedItem) {
+        console.log('🔍 [FeeSync] No item found at line index, skipping');
+        return;
+      }
 
       const productTitle = removedItem.product_title;
+      // Normalize for comparison (handles malformed titles with extra whitespace)
+      const normalizedTitle = productTitle.replace(/\s+/g, ' ').trim().toLowerCase();
+      console.log(`🔍 [FeeSync] Looking for fees linked to: "${normalizedTitle}"`);
 
       // Find fee items linked to this product
       const feesToRemove = cart.items
         .map((item, idx) => ({ item, lineIndex: idx + 1 }))
-        .filter(({ item }) =>
-          item.properties &&
-          item.properties._fee_type === 'additional_pets' &&
-          item.properties._linked_to_product === productTitle
-        );
+        .filter(({ item }) => {
+          if (!item.properties || item.properties._fee_type !== 'additional_pets') {
+            return false;
+          }
+          const linkedTo = item.properties._linked_to_product || '';
+          const normalizedLinked = linkedTo.replace(/\s+/g, ' ').trim().toLowerCase();
+          console.log(`🔍 [FeeSync] Fee item linked to: "${normalizedLinked}" | Match: ${normalizedLinked === normalizedTitle}`);
+          return normalizedLinked === normalizedTitle;
+        });
+
+      console.log(`🔍 [FeeSync] Found ${feesToRemove.length} linked fee(s) to remove`);
 
       // Remove each linked fee (process in reverse to avoid index shifting)
       for (const { lineIndex } of feesToRemove.reverse()) {
+        console.log(`🗑️ [FeeSync] Removing fee at line ${lineIndex}`);
         await fetch('/cart/change.js', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -415,10 +429,10 @@ class CartItems extends HTMLElement {
       }
 
       if (feesToRemove.length > 0) {
-        console.log(`🗑️ Auto-removed ${feesToRemove.length} linked pet fee(s)`);
+        console.log(`✅ [FeeSync] Auto-removed ${feesToRemove.length} linked pet fee(s)`);
       }
     } catch (err) {
-      console.error('Failed to auto-remove linked fees:', err);
+      console.error('❌ [FeeSync] Failed to auto-remove linked fees:', err);
     }
   }
 }
