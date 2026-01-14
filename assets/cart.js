@@ -4,10 +4,32 @@ class CartRemoveButton extends HTMLElement {
 
     this.addEventListener("click", (event) => {
       event.preventDefault();
+
+      // Block removal for pet fee items
+      if (this.dataset.isFee === "true") {
+        event.stopImmediatePropagation();
+        this.showFeeRemovalNotice();
+        return;
+      }
+
       const cartItems =
         this.closest("cart-items") || this.closest("cart-drawer-items");
       cartItems.updateQuantity(this.dataset.index, 0, event);
     });
+  }
+
+  showFeeRemovalNotice() {
+    // Show non-intrusive toast notification
+    const notice = document.createElement('div');
+    notice.className = 'fee-removal-notice';
+    notice.textContent = 'This fee is automatically removed when you remove the linked product.';
+    notice.style.cssText = 'position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#333;color:#fff;padding:12px 20px;border-radius:8px;z-index:9999;font-size:14px;max-width:90%;text-align:center;';
+    document.body.appendChild(notice);
+    setTimeout(() => {
+      notice.style.opacity = '0';
+      notice.style.transition = 'opacity 0.3s';
+      setTimeout(() => notice.remove(), 300);
+    }, 3000);
   }
 }
 
@@ -170,6 +192,11 @@ class CartItems extends HTMLElement {
 
   updateQuantity(line, quantity, event, name, variantId) {
     this.enableLoading(line);
+
+    // If removing item (quantity = 0), auto-remove linked pet fees
+    if (quantity === 0) {
+      this.removeLinkedFees(line);
+    }
 
     const body = JSON.stringify({
       line,
@@ -359,6 +386,40 @@ class CartItems extends HTMLElement {
     cartDrawerItemElements.forEach((overlay) =>
       overlay.classList.add("hidden")
     );
+  }
+
+  async removeLinkedFees(productLineIndex) {
+    try {
+      const cart = await fetch('/cart.js').then(r => r.json());
+      const removedItem = cart.items[productLineIndex - 1];
+      if (!removedItem) return;
+
+      const productTitle = removedItem.product_title;
+
+      // Find fee items linked to this product
+      const feesToRemove = cart.items
+        .map((item, idx) => ({ item, lineIndex: idx + 1 }))
+        .filter(({ item }) =>
+          item.properties &&
+          item.properties._fee_type === 'additional_pets' &&
+          item.properties._linked_to_product === productTitle
+        );
+
+      // Remove each linked fee (process in reverse to avoid index shifting)
+      for (const { lineIndex } of feesToRemove.reverse()) {
+        await fetch('/cart/change.js', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ line: lineIndex, quantity: 0 })
+        });
+      }
+
+      if (feesToRemove.length > 0) {
+        console.log(`🗑️ Auto-removed ${feesToRemove.length} linked pet fee(s)`);
+      }
+    } catch (err) {
+      console.error('Failed to auto-remove linked fees:', err);
+    }
   }
 }
 

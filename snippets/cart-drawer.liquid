@@ -426,6 +426,7 @@
                                 <cart-remove-button
                                   id="CartDrawer-Remove-{{ item.index | plus: 1 }}"
                                   data-index="{{ item.index | plus: 1 }}"
+                                  data-is-fee="{% if item.properties._fee_type == 'additional_pets' %}true{% else %}false{% endif %}"
                                 >
                                   <button
                                     type="button"
