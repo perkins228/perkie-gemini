@@ -196,6 +196,7 @@ class CartItems extends HTMLElement {
     // If removing item (quantity = 0), auto-remove linked pet fees FIRST
     // IMPORTANT: Must await this to prevent race condition where UI refreshes
     // before fee removal completes (fee would still show in cart)
+    // v2: Fixed race condition by awaiting removeLinkedFees before main removal
     if (quantity === 0) {
       await this.removeLinkedFees(line);
     }
