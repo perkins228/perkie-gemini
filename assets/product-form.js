@@ -83,8 +83,10 @@ if (!customElements.get('product-form')) {
             });
 
             const petCount = petSelector.getAttribute('data-selected-pet-count') || '1';
-            // Normalize whitespace: .textContent includes newlines from nested HTML
-            const rawTitle = document.querySelector('.product__title')?.textContent || '';
+            // IMPORTANT: Target h1 directly - .product__title div contains both h1 AND hidden a>h2
+            // Using .textContent on parent would grab both, causing "Title Title" duplication
+            const rawTitle = document.querySelector('.product__title h1')?.textContent ||
+                             document.querySelector('.product__title')?.textContent || '';
             const productTitle = rawTitle.replace(/\s+/g, ' ').trim() || 'Pet Product';
 
             const items = [

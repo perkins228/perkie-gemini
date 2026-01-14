@@ -239,52 +239,59 @@
                             {{ 'products.product.quantity.label' | t }}
                           </label>
                           <div class="quantity-popover-container{% if has_qty_rules or has_vol_pricing %} quantity-popover-container--hover{% endif %}">
-                            {%- if has_qty_rules or has_vol_pricing -%}
-                              <button
-                                type="button"
-                                aria-expanded="false"
-                                class="quantity-popover__info-button quantity-popover__info-button--icon-only button button--tertiary small-hide medium-hide"
-                              >
-                                {{- 'icon-info.svg' | inline_asset_content -}}
-                              </button>
+                            {%- if item.properties._fee_type == 'additional_pets' -%}
+                              {%- comment -%}Fee items: Show static quantity, no controls{%- endcomment -%}
+                              <span class="cart-item__fee-quantity" style="padding: 0.5rem 1rem; color: #6b7280; font-size: 0.875rem;">
+                                Qty: 1
+                              </span>
+                            {%- else -%}
+                              {%- if has_qty_rules or has_vol_pricing -%}
+                                <button
+                                  type="button"
+                                  aria-expanded="false"
+                                  class="quantity-popover__info-button quantity-popover__info-button--icon-only button button--tertiary small-hide medium-hide"
+                                >
+                                  {{- 'icon-info.svg' | inline_asset_content -}}
+                                </button>
+                              {%- endif -%}
+                              <quantity-input class="quantity cart-quantity">
+                                <button class="quantity__button" name="minus" type="button">
+                                  <span class="visually-hidden">
+                                    {{- 'products.product.quantity.decrease' | t: product: item.product.title | escape -}}
+                                  </span>
+                                  <span class="svg-wrapper">
+                                    {{- 'icon-minus.svg' | inline_asset_content -}}
+                                  </span>
+                                </button>
+                                <input
+                                  class="quantity__input"
+                                  data-quantity-variant-id="{{ item.variant.id }}"
+                                  type="number"
+                                  name="updates[]"
+                                  value="{{ item.quantity }}"
+                                  {% # theme-check-disable %}
+                                  data-cart-quantity="{{ cart | item_count_for_variant: item.variant.id }}"
+                                  min="0"
+                                  data-min="{{ item.variant.quantity_rule.min }}"
+                                  {% if item.variant.quantity_rule.max != null %}
+                                    max="{{ item.variant.quantity_rule.max }}"
+                                  {% endif %}
+                                  step="{{ item.variant.quantity_rule.increment }}"
+                                  {% # theme-check-enable %}
+                                  aria-label="{{ 'products.product.quantity.input_label' | t: product: item.product.title | escape }}"
+                                  id="Quantity-{{ item.index | plus: 1 }}"
+                                  data-index="{{ item.index | plus: 1 }}"
+                                >
+                                <button class="quantity__button" name="plus" type="button">
+                                  <span class="visually-hidden">
+                                    {{- 'products.product.quantity.increase' | t: product: item.product.title | escape -}}
+                                  </span>
+                                  <span class="svg-wrapper">
+                                    {{- 'icon-plus.svg' | inline_asset_content -}}
+                                  </span>
+                                </button>
+                              </quantity-input>
                             {%- endif -%}
-                            <quantity-input class="quantity cart-quantity">
-                              <button class="quantity__button" name="minus" type="button">
-                                <span class="visually-hidden">
-                                  {{- 'products.product.quantity.decrease' | t: product: item.product.title | escape -}}
-                                </span>
-                                <span class="svg-wrapper">
-                                  {{- 'icon-minus.svg' | inline_asset_content -}}
-                                </span>
-                              </button>
-                              <input
-                                class="quantity__input"
-                                data-quantity-variant-id="{{ item.variant.id }}"
-                                type="number"
-                                name="updates[]"
-                                value="{{ item.quantity }}"
-                                {% # theme-check-disable %}
-                                data-cart-quantity="{{ cart | item_count_for_variant: item.variant.id }}"
-                                min="0"
-                                data-min="{{ item.variant.quantity_rule.min }}"
-                                {% if item.variant.quantity_rule.max != null %}
-                                  max="{{ item.variant.quantity_rule.max }}"
-                                {% endif %}
-                                step="{{ item.variant.quantity_rule.increment }}"
-                                {% # theme-check-enable %}
-                                aria-label="{{ 'products.product.quantity.input_label' | t: product: item.product.title | escape }}"
-                                id="Quantity-{{ item.index | plus: 1 }}"
-                                data-index="{{ item.index | plus: 1 }}"
-                              >
-                              <button class="quantity__button" name="plus" type="button">
-                                <span class="visually-hidden">
-                                  {{- 'products.product.quantity.increase' | t: product: item.product.title | escape -}}
-                                </span>
-                                <span class="svg-wrapper">
-                                  {{- 'icon-plus.svg' | inline_asset_content -}}
-                                </span>
-                              </button>
-                            </quantity-input>
                           </div>
                           {%- if item.properties._fee_type == 'additional_pets' -%}
                             <small class="cart-item__fee-note" style="color: #6b7280; font-size: 0.75rem;">
