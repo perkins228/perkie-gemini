@@ -176,7 +176,8 @@
                     </thead>
 
                     <tbody role="rowgroup">
-                      {%- for item in cart.items -%}
+                      {%- comment -%}Reverse order: oldest items first (FIFO){%- endcomment -%}
+                      {%- for item in cart.items | reverse -%}
                         <tr id="CartDrawer-Item-{{ item.index | plus: 1 }}" class="cart-item{% if item.properties._fee_type == 'additional_pets' %} cart-item--fee{% endif %}" role="row">
                           <td class="cart-item__media" role="cell" headers="CartDrawer-ColumnProductImage">
                             {% if item.image %}
