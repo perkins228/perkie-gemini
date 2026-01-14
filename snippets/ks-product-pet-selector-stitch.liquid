@@ -201,6 +201,24 @@
                value=""
                form="{{ product_form_id }}"
                data-artist-notes="{{ i }}">
+        <input type="hidden"
+               id="pet-{{ i }}-session-key"
+               name="properties[_pet_{{ i }}_session_key]"
+               value=""
+               form="{{ product_form_id }}"
+               data-pet-session-key="{{ i }}">
+        <input type="hidden"
+               id="pet-{{ i }}-selected-effect"
+               name="properties[_pet_{{ i }}_selected_effect]"
+               value=""
+               form="{{ product_form_id }}"
+               data-pet-selected-effect="{{ i }}">
+        <input type="hidden"
+               id="pet-{{ i }}-original-gcs-url"
+               name="properties[_pet_{{ i }}_original_gcs_url]"
+               value=""
+               form="{{ product_form_id }}"
+               data-pet-original-gcs-url="{{ i }}">
 
       </div>
       {% endfor %}
@@ -3287,6 +3305,39 @@
             filenameField.value = '';
             console.log(`ℹ️ Pet ${petNumber} has no filename - field cleared`);
           }
+        }
+
+        // Populate original GCS URL for fulfillment (stores original uploaded image)
+        const originalUrlField = document.querySelector(`[data-pet-original-gcs-url="${petNumber}"]`);
+        if (originalUrlField) {
+          if (pet.originalUrl && pet.originalUrl.trim() !== '') {
+            // SECURITY: Validate URL before populating
+            if (isValidGCSUrl(pet.originalUrl)) {
+              originalUrlField.value = pet.originalUrl;
+              console.log(`✅ Pet ${petNumber} original GCS URL: ${pet.originalUrl.substring(0, 60)}...`);
+            } else {
+              console.error(`❌ Invalid original GCS URL for Pet ${petNumber}, skipping`);
+              originalUrlField.value = '';
+            }
+          } else {
+            // Clear if no original URL available
+            originalUrlField.value = '';
+            console.log(`ℹ️ Pet ${petNumber} has no original GCS URL - field cleared`);
+          }
+        }
+
+        // Populate session key for this pet
+        const sessionKeyField = document.querySelector(`[data-pet-session-key="${petNumber}"]`);
+        if (sessionKeyField) {
+          sessionKeyField.value = pet.sessionKey || '';
+          console.log(`✅ Pet ${petNumber} session key: ${pet.sessionKey || 'none'}`);
+        }
+
+        // Populate selected effect for this pet
+        const selectedEffectField = document.querySelector(`[data-pet-selected-effect="${petNumber}"]`);
+        if (selectedEffectField) {
+          selectedEffectField.value = selectedStyle || 'enhancedblackwhite';
+          console.log(`✅ Pet ${petNumber} selected effect: ${selectedStyle}`);
         }
       }
 

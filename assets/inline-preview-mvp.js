@@ -743,6 +743,8 @@
         this.currentPet = {
           sessionKey: sessionKey, // Store for reuse in upload and save
           originalImage: null, // Will set if we upload to GCS later
+          originalUrl: null,  // GCS URL for original image (for fulfillment)
+          originalFile: correctedFile,  // Keep reference for upload
           processedImage: effects.enhancedblackwhite || effects.color,
           effects: {
             enhancedblackwhite: effects.enhancedblackwhite,
@@ -762,15 +764,27 @@
           warmthTracker.recordServiceCall('gemini', true, geminiTime);
         }
 
-        // Upload all effects to GCS to prevent localStorage quota issues
-        console.log('☁️ Uploading effects to GCS...');
+        // Upload all effects AND original to GCS
+        console.log('☁️ Uploading effects and original to GCS...');
         this.updateProgress('Saving images to cloud...', '⏱️ A few seconds...');
         timing.gcsUpload.start = Date.now();
 
         try {
-          const uploadedEffects = await this.uploadAllEffectsToGCS(this.currentPet.effects);
+          // Upload effects and original in parallel for speed
+          const [uploadedEffects, originalUrl] = await Promise.all([
+            this.uploadAllEffectsToGCS(this.currentPet.effects),
+            this.uploadOriginalToGCS(this.currentPet.originalFile, sessionKey)
+          ]);
+
           // Merge uploaded effects back (preserves Ink Wash/Marker that are already GCS URLs)
           this.currentPet.effects = { ...this.currentPet.effects, ...uploadedEffects };
+
+          // Store original URL for fulfillment
+          if (originalUrl) {
+            this.currentPet.originalUrl = originalUrl;
+            console.log(`✅ Original image uploaded to GCS: ${originalUrl}`);
+          }
+
           timing.gcsUpload.end = Date.now();
           console.log(`⏱️ GCS uploads: ${timing.gcsUpload.end - timing.gcsUpload.start}ms`);
         } catch (error) {
@@ -1295,6 +1309,7 @@
         const petData = {
           artistNote: artistNotes, // PetStorage uses singular 'artistNote'
           effects: effects,
+          originalUrl: this.currentPet.originalUrl || '', // GCS URL for original image (fulfillment)
           selectedEffect: this.currentEffect, // For Session Pet Gallery thumbnail badge
           filename: `pet_${this.petNumber}.jpg`,
           timestamp: Date.now()
@@ -1501,6 +1516,52 @@
 
       } catch (error) {
         console.error(`❌ InSPyReNet upload failed for ${effectName}:`, error);
+        return null;
+      }
+    }
+
+    /**
+     * Upload original image to GCS for fulfillment purposes
+     * @param {File} file - Original image file
+     * @param {string} sessionKey - Session identifier
+     * @returns {Promise<string|null>} GCS URL or null
+     */
+    async uploadOriginalToGCS(file, sessionKey) {
+      if (!file) {
+        console.warn('⚠️ No original file to upload');
+        return null;
+      }
+
+      try {
+        console.log('📤 Uploading original image to GCS for fulfillment...');
+
+        const formData = new FormData();
+        formData.append('file', file, file.name);
+        formData.append('session_id', sessionKey);
+        formData.append('image_type', 'original');
+        formData.append('tier', 'temporary'); // 7-day retention
+
+        const response = await fetch(
+          'https://inspirenet-bg-removal-api-725543555429.us-central1.run.app/store-image',
+          {
+            method: 'POST',
+            body: formData
+          }
+        );
+
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}`);
+        }
+
+        const result = await response.json();
+        if (result.success && result.url) {
+          console.log(`✅ Original image uploaded: ${result.url}`);
+          return result.url;
+        }
+
+        return null;
+      } catch (error) {
+        console.error('❌ Original image upload failed:', error);
         return null;
       }
     }

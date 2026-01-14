@@ -299,6 +299,7 @@
           {%- assign pet1_order_type = line_item.properties['_pet_1_order_type'] -%}
           {%- assign pet1_order_number = line_item.properties['Pet 1 Order Number'] | default: line_item.properties['_pet_1_previous_order_number'] -%}
           {%- assign pet1_processed_url = line_item.properties['_pet_1_processed_image_url'] -%}
+          {%- assign pet1_original_gcs_url = line_item.properties['_pet_1_original_gcs_url'] -%}
           {%- assign pet1_filename = line_item.properties['_pet_1_filename'] -%}
           {%- assign pet1_processing_state = line_item.properties['_pet_1_processing_state'] -%}
           {%- assign pet1_timestamp = line_item.properties['_pet_1_upload_timestamp'] -%}
@@ -354,6 +355,11 @@
                       📥 Processed Image
                     </a>
                   {%- endif -%}
+                  {%- if pet1_original_gcs_url != blank -%}
+                    <a href="{{ pet1_original_gcs_url }}" target="_blank" class="pet-action-link secondary">
+                      🖼️ Original (GCS)
+                    </a>
+                  {%- endif -%}
                   {%- if pet1_images != blank -%}
                     <a href="{{ pet1_images }}" target="_blank" class="pet-action-link secondary">
                       📷 Original Upload
@@ -361,7 +367,7 @@
                   {%- endif -%}
                 </div>
 
-                {%- if pet1_timestamp != blank or pet1_order_type != blank -%}
+                {%- if pet1_timestamp != blank or pet1_order_type != blank or pet1_original_gcs_url != blank -%}
                   <div class="technical-details">
                     <details>
                       <summary>Technical Details</summary>
@@ -376,7 +382,10 @@
                           <p><strong>Uploaded:</strong> {{ pet1_timestamp }}</p>
                         {%- endif -%}
                         {%- if pet1_processed_url != blank -%}
-                          <p><strong>Storage URL:</strong><br>{{ pet1_processed_url }}</p>
+                          <p><strong>Processed URL:</strong><br>{{ pet1_processed_url }}</p>
+                        {%- endif -%}
+                        {%- if pet1_original_gcs_url != blank -%}
+                          <p><strong>Original GCS URL:</strong><br>{{ pet1_original_gcs_url }}</p>
                         {%- endif -%}
                       </div>
                     </details>
@@ -393,6 +402,7 @@
           {%- assign pet2_order_type = line_item.properties['_pet_2_order_type'] -%}
           {%- assign pet2_order_number = line_item.properties['Pet 2 Order Number'] | default: line_item.properties['_pet_2_previous_order_number'] -%}
           {%- assign pet2_processed_url = line_item.properties['_pet_2_processed_image_url'] -%}
+          {%- assign pet2_original_gcs_url = line_item.properties['_pet_2_original_gcs_url'] -%}
           {%- assign pet2_filename = line_item.properties['_pet_2_filename'] -%}
           {%- assign pet2_processing_state = line_item.properties['_pet_2_processing_state'] -%}
           {%- assign pet2_timestamp = line_item.properties['_pet_2_upload_timestamp'] -%}
@@ -448,6 +458,11 @@
                       📥 Processed Image
                     </a>
                   {%- endif -%}
+                  {%- if pet2_original_gcs_url != blank -%}
+                    <a href="{{ pet2_original_gcs_url }}" target="_blank" class="pet-action-link secondary">
+                      🖼️ Original (GCS)
+                    </a>
+                  {%- endif -%}
                   {%- if pet2_images != blank -%}
                     <a href="{{ pet2_images }}" target="_blank" class="pet-action-link secondary">
                       📷 Original Upload
@@ -455,7 +470,7 @@
                   {%- endif -%}
                 </div>
 
-                {%- if pet2_timestamp != blank or pet2_order_type != blank -%}
+                {%- if pet2_timestamp != blank or pet2_order_type != blank or pet2_original_gcs_url != blank -%}
                   <div class="technical-details">
                     <details>
                       <summary>Technical Details</summary>
@@ -470,7 +485,10 @@
                           <p><strong>Uploaded:</strong> {{ pet2_timestamp }}</p>
                         {%- endif -%}
                         {%- if pet2_processed_url != blank -%}
-                          <p><strong>Storage URL:</strong><br>{{ pet2_processed_url }}</p>
+                          <p><strong>Processed URL:</strong><br>{{ pet2_processed_url }}</p>
+                        {%- endif -%}
+                        {%- if pet2_original_gcs_url != blank -%}
+                          <p><strong>Original GCS URL:</strong><br>{{ pet2_original_gcs_url }}</p>
                         {%- endif -%}
                       </div>
                     </details>
@@ -487,6 +505,7 @@
           {%- assign pet3_order_type = line_item.properties['_pet_3_order_type'] -%}
           {%- assign pet3_order_number = line_item.properties['Pet 3 Order Number'] | default: line_item.properties['_pet_3_previous_order_number'] -%}
           {%- assign pet3_processed_url = line_item.properties['_pet_3_processed_image_url'] -%}
+          {%- assign pet3_original_gcs_url = line_item.properties['_pet_3_original_gcs_url'] -%}
           {%- assign pet3_filename = line_item.properties['_pet_3_filename'] -%}
           {%- assign pet3_processing_state = line_item.properties['_pet_3_processing_state'] -%}
           {%- assign pet3_timestamp = line_item.properties['_pet_3_upload_timestamp'] -%}
@@ -542,6 +561,11 @@
                       📥 Processed Image
                     </a>
                   {%- endif -%}
+                  {%- if pet3_original_gcs_url != blank -%}
+                    <a href="{{ pet3_original_gcs_url }}" target="_blank" class="pet-action-link secondary">
+                      🖼️ Original (GCS)
+                    </a>
+                  {%- endif -%}
                   {%- if pet3_images != blank -%}
                     <a href="{{ pet3_images }}" target="_blank" class="pet-action-link secondary">
                       📷 Original Upload
@@ -549,7 +573,7 @@
                   {%- endif -%}
                 </div>
 
-                {%- if pet3_timestamp != blank or pet3_order_type != blank -%}
+                {%- if pet3_timestamp != blank or pet3_order_type != blank or pet3_original_gcs_url != blank -%}
                   <div class="technical-details">
                     <details>
                       <summary>Technical Details</summary>
@@ -564,7 +588,10 @@
                           <p><strong>Uploaded:</strong> {{ pet3_timestamp }}</p>
                         {%- endif -%}
                         {%- if pet3_processed_url != blank -%}
-                          <p><strong>Storage URL:</strong><br>{{ pet3_processed_url }}</p>
+                          <p><strong>Processed URL:</strong><br>{{ pet3_processed_url }}</p>
+                        {%- endif -%}
+                        {%- if pet3_original_gcs_url != blank -%}
+                          <p><strong>Original GCS URL:</strong><br>{{ pet3_original_gcs_url }}</p>
                         {%- endif -%}
                       </div>
                     </details>

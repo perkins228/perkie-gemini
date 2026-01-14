@@ -312,18 +312,19 @@ class ProductMockupRenderer {
 
   /**
    * Handle pet processing complete event
-   * @param {Object} detail - Event detail with effectUrl, selectedEffect, sessionKey
+   * @param {Object} detail - Event detail with effectUrl, selectedEffect, sessionKey, originalUrl
    */
   async handleProcessingComplete(detail) {
     if (!detail) return;
 
-    const { effectUrl, selectedEffect, sessionKey, effects } = detail;
+    const { effectUrl, selectedEffect, sessionKey, effects, originalUrl } = detail;
 
-    // Store pet data for bridge
+    // Store pet data for bridge (including originalUrl for fulfillment)
     this.currentPetData = {
       sessionKey,
       selectedEffect,
       effects,
+      originalUrl: originalUrl || '',  // GCS URL for original image
       timestamp: Date.now()
     };
 
@@ -351,6 +352,7 @@ class ProductMockupRenderer {
       const petStorageData = {
         effects: this.currentPetData.effects,
         selectedEffect: this.currentPetData.selectedEffect,
+        originalUrl: this.currentPetData.originalUrl || '',  // GCS URL for original image
         timestamp: Date.now()
       };
       window.PetStorage.save(this.currentPetData.sessionKey, petStorageData)
@@ -570,21 +572,29 @@ class ProductMockupRenderer {
     try {
       // Start with current effects
       let effectsToUse = this.currentPetData.effects;
+      let originalUrl = this.currentPetData.originalUrl || '';  // GCS URL for original image
 
       // Read fresh effects from PetStorage (may have Gemini effects added after BiRefNet)
       // pet-processor.js saves complete data including ink_wash/sketch after Gemini completes
       if (typeof window.PetStorage !== 'undefined' && window.PetStorage.get) {
         const storedPet = window.PetStorage.get(this.currentPetData.sessionKey);
-        if (storedPet && storedPet.effects) {
-          const storedEffectCount = Object.keys(storedPet.effects).length;
-          const currentEffectCount = Object.keys(this.currentPetData.effects || {}).length;
+        if (storedPet) {
+          // Always use originalUrl from storage if available (background upload may have completed)
+          if (storedPet.originalUrl) {
+            originalUrl = storedPet.originalUrl;
+          }
 
-          if (storedEffectCount > currentEffectCount) {
-            console.log('[ProductMockupRenderer] Using fresh effects from PetStorage (has Gemini effects):', {
-              stored: Object.keys(storedPet.effects),
-              current: Object.keys(this.currentPetData.effects || {})
-            });
-            effectsToUse = storedPet.effects;
+          if (storedPet.effects) {
+            const storedEffectCount = Object.keys(storedPet.effects).length;
+            const currentEffectCount = Object.keys(this.currentPetData.effects || {}).length;
+
+            if (storedEffectCount > currentEffectCount) {
+              console.log('[ProductMockupRenderer] Using fresh effects from PetStorage (has Gemini effects):', {
+                stored: Object.keys(storedPet.effects),
+                current: Object.keys(this.currentPetData.effects || {})
+              });
+              effectsToUse = storedPet.effects;
+            }
           }
         }
       }
@@ -593,6 +603,7 @@ class ProductMockupRenderer {
         sessionKey: this.currentPetData.sessionKey,
         artistNote: '',
         effects: effectsToUse,
+        originalUrl: originalUrl,  // GCS URL for original image (for fulfillment)
         selectedEffect: this.currentPetData.selectedEffect,
         timestamp: Date.now(),
         source: 'product_mockup_grid'

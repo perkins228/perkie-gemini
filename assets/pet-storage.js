@@ -11,12 +11,13 @@ class PetStorage {
    */
   static async save(petId, data) {
     // ✅ FIX: Declare at function scope so it's accessible in catch block
-    // Simplified storage: Only artist notes and effect GCS URLs
+    // Simplified storage: Artist notes, effect GCS URLs, and original image URL
     // Customer provides pet name, selects effect, and uploads image on product page
     const storageData = {
       petId,
       artistNote: data.artistNote || '',   // User-provided artist notes
       effects: data.effects || {},         // { style: { gcsUrl } } structure
+      originalUrl: data.originalUrl || '', // GCS URL for original image (for fulfillment)
       timestamp: Date.now()                // For cleanup/sorting
     };
 
@@ -159,6 +160,7 @@ class PetStorage {
         sessionKey: pet.petId,
         artistNote: pet.artistNote || '',
         effects: pet.effects || {},
+        originalUrl: pet.originalUrl || '',  // GCS URL for original image
         timestamp: pet.timestamp || Date.now()
       }))
     };
@@ -227,6 +229,7 @@ class PetStorage {
       sessionKey: sessionKey,
       artistNote: pet.artistNote || '',
       effects: pet.effects || {},
+      originalUrl: pet.originalUrl || '',  // GCS URL for original image
       timestamp: pet.timestamp || Date.now()
     };
   }
@@ -260,6 +263,7 @@ class PetStorage {
         sessionKey: sessionKey,
         effects: effectsMap,
         artistNote: pet.artistNote || '',
+        originalUrl: pet.originalUrl || '',  // GCS URL for original image
         timestamp: pet.timestamp || Date.now()
       });
     });
@@ -353,6 +357,7 @@ class PetStorage {
           selectedEffect: selectedEffect,
           effects: pet.effects || {},
           artistNote: pet.artistNote || '',
+          originalUrl: pet.originalUrl || '',  // GCS URL for original image
           timestamp: pet.timestamp || 0,
           // Calculate age for display (e.g., "2 days ago")
           ageText: PetStorage.getAgeText(pet.timestamp)

@@ -1658,10 +1658,10 @@ class PetProcessor {
     this.showProcessing();
 
     try {
-      // Process image with API (no longer uploading original)
+      // Process image with API (uploads original to GCS in background for fulfillment)
       const result = await this.callAPI(file);
 
-      // Store result (no originalUrl - customer will upload on product page)
+      // Store result (originalUrl uploaded in background, available via effects._originalUrl)
       this.currentPet = {
         id: `pet_${crypto.randomUUID()}`,
         filename: file.name,
@@ -1924,6 +1924,9 @@ class PetProcessor {
     timing.gcsUpload.start = Date.now();
     console.log('🚀 Starting background GCS uploads (not blocking UI)...');
 
+    // Track original URL for fulfillment (populated by background upload)
+    let originalUrl = null;
+
     const uploadPromises = effectNames.map(effectName =>
       this.uploadToGCS(
         dataUrls[effectName],
@@ -1946,8 +1949,27 @@ class PetProcessor {
       })
     );
 
+    // Upload ORIGINAL image to GCS for fulfillment (runs in parallel with effects)
+    const originalUploadPromise = this.uploadOriginalToGCS(file, this.getSessionId())
+      .then(url => {
+        if (url) {
+          originalUrl = url;
+          // Store in effects object for easy access
+          effects._originalUrl = url;
+          console.log(`✅ Original image uploaded to GCS: ${url}`);
+        }
+        return { effectName: '_original', gcsUrl: url };
+      })
+      .catch(err => {
+        console.warn('⚠️ Original image upload failed (non-blocking):', err);
+        return { effectName: '_original', gcsUrl: null };
+      });
+
+    // Combine effect uploads + original upload
+    const allUploadPromises = [...uploadPromises, originalUploadPromise];
+
     // Store pending uploads - awaited at cart time via ensureUploadsComplete()
-    this.pendingGcsUploads = Promise.all(uploadPromises).then(results => {
+    this.pendingGcsUploads = Promise.all(allUploadPromises).then(results => {
       timing.gcsUpload.end = Date.now();
       console.log(`⏱️ Background GCS uploads completed: ${timing.gcsUpload.end - timing.gcsUpload.start}ms`);
       this.pendingGcsUploads = null;  // Clear once complete
@@ -2589,11 +2611,15 @@ class PetProcessor {
         }
       }
 
+      // Get original URL from effects (uploaded in background)
+      const originalUrl = result.effects._originalUrl || null;
+
       const eventDetail = {
         sessionKey: this.currentPet.id,
         selectedEffect: selectedEffect,
         effectUrl: effectUrl,
         effects: effects,
+        originalUrl: originalUrl,  // GCS URL for original image (for fulfillment)
         timestamp: Date.now()
       };
 
@@ -3317,6 +3343,50 @@ class PetProcessor {
 
     } catch (error) {
       console.error(`❌ GCS upload error (${imageType}):`, error);
+      return null;
+    }
+  }
+
+  /**
+   * Convert File object to data URL
+   * @param {File} file - File object to convert
+   * @returns {Promise<string>} Data URL (data:image/...;base64,...)
+   */
+  fileToDataUrl(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  }
+
+  /**
+   * Upload original image to GCS for fulfillment purposes
+   * Runs in background (fire-and-forget) - does not block processing
+   * @param {File} file - Original image file
+   * @param {string} sessionKey - Pet session identifier
+   * @returns {Promise<string|null>} GCS public URL or null if failed
+   */
+  async uploadOriginalToGCS(file, sessionKey) {
+    try {
+      console.log('📤 Uploading original image to GCS for fulfillment...');
+
+      // Convert file to data URL
+      const dataUrl = await this.fileToDataUrl(file);
+
+      // Use existing uploadToGCS method with 'original' type
+      const gcsUrl = await this.uploadToGCS(dataUrl, sessionKey, 'original', 'source');
+
+      if (gcsUrl) {
+        console.log(`✅ Original image uploaded to GCS: ${gcsUrl}`);
+        return gcsUrl;
+      } else {
+        console.warn('⚠️ Original image upload failed');
+        return null;
+      }
+    } catch (error) {
+      console.error('❌ Original image upload error:', error);
       return null;
     }
   }
