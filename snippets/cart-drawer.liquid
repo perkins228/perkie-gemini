@@ -15,10 +15,15 @@
   .drawer {
     visibility: hidden;
   }
-  /* Pet fee styling - positioning handled by JS reordering */
+  /* Pet fee styling - FIFO order with CSS positioning */
+  cart-drawer-items table tbody {
+    display: flex;
+    flex-direction: column;
+  }
   cart-drawer-items table tbody tr.cart-item--fee {
     background: #f9fafb;
     font-size: 0.95em;
+    order: 1; /* Push fees after all products */
   }
 </style>
 
@@ -166,13 +171,11 @@
                     </thead>
 
                     <tbody role="rowgroup">
-                      {%- comment -%}LIFO order: newest items first (Shopify default). Fee grouping handled by JS.{%- endcomment -%}
-                      {%- for item in cart.items -%}
+                      {%- comment -%}FIFO order: oldest items first. Fees pushed to bottom via CSS order.{%- endcomment -%}
+                      {%- for item in cart.items | reverse -%}
                         <tr id="CartDrawer-Item-{{ item.index | plus: 1 }}"
                             class="cart-item{% if item.properties._fee_type == 'additional_pets' %} cart-item--fee{% endif %}"
-                            role="row"
-                            {% if item.properties._fee_type == 'additional_pets' %}data-linked-to="{{ item.properties._linked_to_product | handle }}"{% endif %}
-                            data-product-handle="{{ item.product.handle }}">
+                            role="row">
                           <td class="cart-item__media" role="cell" headers="CartDrawer-ColumnProductImage">
                             {% if item.image %}
                               {% comment %} Pet thumbnail container with mobile-first design {% endcomment %}
