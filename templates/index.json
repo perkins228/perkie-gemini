@@ -29,10 +29,10 @@
         "buttons_cp4CKC": {
           "type": "buttons",
           "settings": {
-            "button_label_1": "Button label",
+            "button_label_1": "Start My Free Preview",
             "button_link_1": "",
             "button_style_secondary_1": false,
-            "button_label_2": "Button label",
+            "button_label_2": "",
             "button_link_2": "",
             "button_style_secondary_2": false
           }
@@ -47,7 +47,7 @@
       "settings": {
         "image": "shopify://shop_images/ufo_phone.jpg",
         "image_2": "shopify://shop_images/UFO_homepage.png",
-        "image_overlay_opacity": 0,
+        "image_overlay_opacity": 10,
         "image_height": "medium",
         "image_behavior": "none",
         "desktop_content_position": "bottom-center",
