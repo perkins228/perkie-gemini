@@ -190,12 +190,14 @@ class CartItems extends HTMLElement {
     ];
   }
 
-  updateQuantity(line, quantity, event, name, variantId) {
+  async updateQuantity(line, quantity, event, name, variantId) {
     this.enableLoading(line);
 
-    // If removing item (quantity = 0), auto-remove linked pet fees
+    // If removing item (quantity = 0), auto-remove linked pet fees FIRST
+    // IMPORTANT: Must await this to prevent race condition where UI refreshes
+    // before fee removal completes (fee would still show in cart)
     if (quantity === 0) {
-      this.removeLinkedFees(line);
+      await this.removeLinkedFees(line);
     }
 
     const body = JSON.stringify({
