@@ -15,22 +15,15 @@
         "heading_diBRCf": {
           "type": "heading",
           "settings": {
-            "heading": "Image banner",
+            "heading": "Turn Your Camera Roll Into Art",
             "heading_size": "h1"
-          }
-        },
-        "text_HwbFUH": {
-          "type": "text",
-          "settings": {
-            "text": "Give customers details about the banner image(s) or content on the template.",
-            "text_style": "body"
           }
         },
         "buttons_cp4CKC": {
           "type": "buttons",
           "settings": {
             "button_label_1": "Start My Free Preview",
-            "button_link_1": "",
+            "button_link_1": "shopify://pages/custom-image-processing",
             "button_style_secondary_1": false,
             "button_label_2": "",
             "button_link_2": "",
@@ -40,7 +33,6 @@
       },
       "block_order": [
         "heading_diBRCf",
-        "text_HwbFUH",
         "buttons_cp4CKC"
       ],
       "name": "t:sections.image-banner.presets.name",
@@ -50,10 +42,10 @@
         "image_overlay_opacity": 10,
         "image_height": "medium",
         "image_behavior": "none",
-        "desktop_content_position": "bottom-center",
+        "desktop_content_position": "middle-center",
         "desktop_content_alignment": "center",
         "show_text_box": false,
-        "color_scheme": "scheme-f318d737-2be2-4346-8605-b2fbd6208608",
+        "color_scheme": "scheme-872ca72f-3acf-40b0-9717-028f5840921f",
         "stack_images_on_mobile": false,
         "mobile_content_alignment": "center",
         "show_text_below": true
