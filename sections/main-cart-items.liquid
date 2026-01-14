@@ -25,6 +25,22 @@
       padding-bottom: {{ section.settings.padding_bottom }}px;
     }
   }
+
+  /* Pet fee cart ordering: display fees after their linked products */
+  cart-items table tbody {
+    display: flex;
+    flex-direction: column;
+  }
+  cart-items table tbody tr.cart-item {
+    display: table;
+    width: 100%;
+    table-layout: fixed;
+  }
+  cart-items table tbody tr.cart-item--fee {
+    order: 1; /* Push fee items after regular items (default order: 0) */
+    background: #f9fafb;
+    font-size: 0.95em;
+  }
 {%- endstyle -%}
 
 {%- unless settings.cart_type == 'drawer' -%}
@@ -87,7 +103,7 @@
 
               <tbody>
                 {%- for item in cart.items -%}
-                  <tr class="cart-item" id="CartItem-{{ item.index | plus: 1 }}">
+                  <tr class="cart-item{% if item.properties._fee_type == 'additional_pets' %} cart-item--fee{% endif %}" id="CartItem-{{ item.index | plus: 1 }}">
                     <td class="cart-item__media">
                       {% if item.image %}
                         {% comment %} Leave empty space due to a:empty CSS display: none rule {% endcomment %}

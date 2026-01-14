@@ -196,13 +196,18 @@ class CartItems extends HTMLElement {
     // If removing item (quantity = 0), auto-remove linked pet fees FIRST
     // IMPORTANT: Must await this to prevent race condition where UI refreshes
     // before fee removal completes (fee would still show in cart)
-    // v2: Fixed race condition by awaiting removeLinkedFees before main removal
+    // v3: Fixed index shift bug - removeLinkedFees returns count of fees removed
+    //     that were BEFORE the target line, so we adjust the line index
+    let adjustedLine = line;
     if (quantity === 0) {
-      await this.removeLinkedFees(line);
+      const feesRemovedBefore = await this.removeLinkedFees(line);
+      // After removing fees that were before this item, its line index shifts down
+      adjustedLine = line - feesRemovedBefore;
+      console.log(`🔢 [FeeSync] Line index adjusted: ${line} → ${adjustedLine} (${feesRemovedBefore} fee(s) removed before)`);
     }
 
     const body = JSON.stringify({
-      line,
+      line: adjustedLine,
       quantity,
       sections: this.getSectionsToRender().map((section) => section.section),
       sections_url: window.location.pathname,
@@ -391,6 +396,12 @@ class CartItems extends HTMLElement {
     );
   }
 
+  /**
+   * Remove linked pet fees when a product is removed from cart.
+   * @param {number} productLineIndex - The 1-based line index of the product being removed
+   * @returns {Promise<number>} - Count of fees removed that were BEFORE the product line
+   *                              (used by caller to adjust the product's line index after removal)
+   */
   async removeLinkedFees(productLineIndex) {
     try {
       console.log(`🔍 [FeeSync] Checking for linked fees to remove (line ${productLineIndex})`);
@@ -398,7 +409,7 @@ class CartItems extends HTMLElement {
       const removedItem = cart.items[productLineIndex - 1];
       if (!removedItem) {
         console.log('🔍 [FeeSync] No item found at line index, skipping');
-        return;
+        return 0;
       }
 
       const productTitle = removedItem.product_title;
@@ -421,8 +432,16 @@ class CartItems extends HTMLElement {
 
       console.log(`🔍 [FeeSync] Found ${feesToRemove.length} linked fee(s) to remove`);
 
-      // Remove each linked fee (process in reverse to avoid index shifting)
-      for (const { lineIndex } of feesToRemove.reverse()) {
+      if (feesToRemove.length === 0) {
+        return 0;
+      }
+
+      // Count how many fees are BEFORE the product line (needed for index adjustment)
+      const feesBeforeProduct = feesToRemove.filter(({ lineIndex }) => lineIndex < productLineIndex).length;
+      console.log(`🔢 [FeeSync] ${feesBeforeProduct} fee(s) are before product at line ${productLineIndex}`);
+
+      // Remove each linked fee (process in reverse to avoid index shifting during removal)
+      for (const { lineIndex } of feesToRemove.slice().reverse()) {
         console.log(`🗑️ [FeeSync] Removing fee at line ${lineIndex}`);
         await fetch('/cart/change.js', {
           method: 'POST',
@@ -431,11 +450,11 @@ class CartItems extends HTMLElement {
         });
       }
 
-      if (feesToRemove.length > 0) {
-        console.log(`✅ [FeeSync] Auto-removed ${feesToRemove.length} linked pet fee(s)`);
-      }
+      console.log(`✅ [FeeSync] Auto-removed ${feesToRemove.length} linked pet fee(s)`);
+      return feesBeforeProduct;
     } catch (err) {
       console.error('❌ [FeeSync] Failed to auto-remove linked fees:', err);
+      return 0;
     }
   }
 }

@@ -15,6 +15,21 @@
   .drawer {
     visibility: hidden;
   }
+  /* Pet fee cart ordering: display fees after their linked products */
+  cart-drawer-items table tbody {
+    display: flex;
+    flex-direction: column;
+  }
+  cart-drawer-items table tbody tr.cart-item {
+    display: table;
+    width: 100%;
+    table-layout: fixed;
+  }
+  cart-drawer-items table tbody tr.cart-item--fee {
+    order: 1; /* Push fee items after regular items (default order: 0) */
+    background: #f9fafb;
+    font-size: 0.95em;
+  }
 </style>
 
 {% comment %}
@@ -162,7 +177,7 @@
 
                     <tbody role="rowgroup">
                       {%- for item in cart.items -%}
-                        <tr id="CartDrawer-Item-{{ item.index | plus: 1 }}" class="cart-item" role="row">
+                        <tr id="CartDrawer-Item-{{ item.index | plus: 1 }}" class="cart-item{% if item.properties._fee_type == 'additional_pets' %} cart-item--fee{% endif %}" role="row">
                           <td class="cart-item__media" role="cell" headers="CartDrawer-ColumnProductImage">
                             {% if item.image %}
                               {% comment %} Pet thumbnail container with mobile-first design {% endcomment %}
