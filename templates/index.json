@@ -66,7 +66,7 @@
           "type": "step",
           "settings": {
             "icon_svg": "",
-            "icon_image": "shopify://shop_images/approved_artwork_icon_4e473b24-d724-4bf0-a980-6ee0398a12d5.jpg",
+            "icon_image": "shopify://shop_images/iphone_icon_5c34cf25-e680-4f67-8440-8e80882c1822.png",
             "title": "1. Upload Your Photo",
             "desc": "Choose a well-lit, high-resolution photo of your pet (JPG/PNG, max 10MB)"
           }
@@ -75,7 +75,7 @@
           "type": "step",
           "settings": {
             "icon_svg": "",
-            "icon_image": "shopify://shop_images/style_icon_fb2c3def-ff7e-47ee-8b9d-8cd063b992a1.png",
+            "icon_image": "shopify://shop_images/effect_icon_8e3a06d7-b521-479b-ae07-94e9859b8dc4.jpg",
             "title": "2. Select Your Style",
             "desc": "Choose between 4 beautiful effects: Black & White, Color, Ink Wash and Marker"
           }
@@ -84,7 +84,7 @@
           "type": "step",
           "settings": {
             "icon_svg": "",
-            "icon_image": "shopify://shop_images/product_icon_1_2f19c39e-a8e5-4111-ad50-01750e19273b.png",
+            "icon_image": "shopify://shop_images/tee_icon_d9e83313-6d5c-4ccf-aa5f-1bb0f4fea650.png",
             "title": "3. Choose A Product",
             "desc": "Pick a product to showcase your artwork, add to cart and checkout"
           }
@@ -93,7 +93,7 @@
           "type": "step",
           "settings": {
             "icon_svg": "",
-            "icon_image": "shopify://shop_images/approve_artwork_icon_7dd7846f-4ba0-4c22-b426-82ce2a67cd59.png",
+            "icon_image": "shopify://shop_images/approved_artwork_icon_4e473b24-d724-4bf0-a980-6ee0398a12d5.jpg",
             "title": "4. Approve Your Artwork",
             "desc": "Approve the digital artwork before printing. Unlimited edits included with your purchase."
           }
@@ -102,7 +102,7 @@
           "type": "step",
           "settings": {
             "icon_svg": "",
-            "icon_image": "shopify://shop_images/shipping_icon_faa8c3a2-450c-48bd-bafc-07e72ea3ed27.png",
+            "icon_image": "shopify://shop_images/shipping_icon_d0053bc7-a315-459c-b764-5c7b9154bc9b.jpg",
             "title": "5. We Create & Ship",
             "desc": "Your custom art is created and shipped directly to you."
           }
