@@ -400,10 +400,10 @@
       },
       "scheme-745b4d7d-e620-4384-97e7-bfb8ecf6d6cc": {
         "settings": {
-          "background": "#fae9d3",
+          "background": "#b38970",
           "background_gradient": "",
           "text": "#ffffff",
-          "button": "#ffa4aa",
+          "button": "#ff5964",
           "button_label": "#ffffff",
           "secondary_button_label": "#121212",
           "shadow": "#121212"
