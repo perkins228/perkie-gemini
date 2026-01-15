@@ -240,7 +240,7 @@
         "header_btn_style": "button--primary",
         "slider_speed": 1000,
         "slider_spacing": true,
-        "slider_autoplay": 3,
+        "slider_autoplay": 10,
         "pt": 12,
         "pb": 12
       }
