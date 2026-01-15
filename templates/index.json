@@ -59,6 +59,69 @@
         "show_text_below": true
       }
     },
+    "how_it_works_fz8MHb": {
+      "type": "how-it-works",
+      "blocks": {
+        "step_yKpHU6": {
+          "type": "step",
+          "settings": {
+            "icon_svg": "",
+            "icon_image": "shopify://shop_images/phone_icon_50006d9e-515f-4af3-a207-288c9dd6e685.png",
+            "title": "1. Upload Your Photo",
+            "desc": "Choose a well-lit, high-resolution photo of your pet (JPG/PNG, max 10MB)"
+          }
+        },
+        "step_98QJKX": {
+          "type": "step",
+          "settings": {
+            "icon_svg": "",
+            "icon_image": "shopify://shop_images/style_icon_fb2c3def-ff7e-47ee-8b9d-8cd063b992a1.png",
+            "title": "2. Select Your Style",
+            "desc": "Choose between 4 beautiful effects: Black & White, Color, Ink Wash and Marker"
+          }
+        },
+        "step_bUiRHX": {
+          "type": "step",
+          "settings": {
+            "icon_svg": "",
+            "icon_image": "shopify://shop_images/product_icon_1_2f19c39e-a8e5-4111-ad50-01750e19273b.png",
+            "title": "3. Choose A Product",
+            "desc": "Pick a product to showcase your artwork, add to cart and checkout"
+          }
+        },
+        "step_XjgHrE": {
+          "type": "step",
+          "settings": {
+            "icon_svg": "<svg viewbox=\"0 0 48 48\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\"><circle cx=\"24\" cy=\"24\" r=\"22\" fill=\"#E6E6E6\"></circle><path d=\"M16 24l6 6 10-10\" stroke=\"#A3D9A5\" stroke-width=\"3\" stroke-linecap=\"round\" stroke-linejoin=\"round\"></path></svg>",
+            "title": "Approve Your Artwork",
+            "desc": "Review and approve the digital artwork before printing."
+          }
+        },
+        "step_YzCMrW": {
+          "type": "step",
+          "settings": {
+            "icon_svg": "<svg viewbox=\"0 0 48 48\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\"><rect x=\"6\" y=\"28\" width=\"28\" height=\"10\" rx=\"2\" fill=\"#F7C873\"></rect><rect x=\"34\" y=\"32\" width=\"8\" height=\"6\" rx=\"2\" fill=\"#A3D9A5\"></rect><circle cx=\"14\" cy=\"40\" r=\"3\" fill=\"#A3D9A5\"></circle><circle cx=\"38\" cy=\"40\" r=\"3\" fill=\"#A3D9A5\"></circle></svg>",
+            "title": "We Create & Ship",
+            "desc": "Your custom art is created and shipped directly to you."
+          }
+        }
+      },
+      "block_order": [
+        "step_yKpHU6",
+        "step_98QJKX",
+        "step_bUiRHX",
+        "step_XjgHrE",
+        "step_YzCMrW"
+      ],
+      "name": "How It Works",
+      "settings": {
+        "heading": "",
+        "subheading": "",
+        "color_scheme": "scheme-f318d737-2be2-4346-8605-b2fbd6208608",
+        "padding_top": 8,
+        "padding_bottom": 8
+      }
+    },
     "ks_simple_collections_GrfLhc": {
       "type": "ks-simple-collections",
       "blocks": {
@@ -438,6 +501,7 @@
   },
   "order": [
     "image_banner_qWieVe",
+    "how_it_works_fz8MHb",
     "ks_simple_collections_GrfLhc",
     "ks_image_compare_FEc4MF",
     "collapsible_content_mUfHFe",
