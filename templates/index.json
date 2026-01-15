@@ -127,21 +127,10 @@
     "ks_instagram_gallery_KbxtFY": {
       "type": "ks-instagram-gallery",
       "blocks": {
-        "slide_Yk3AXK": {
+        "slide_aViCQd": {
           "type": "slide",
           "settings": {
-            "img": "shopify://shop_images/White_Frame_Dog_IG_UGC__holidayhomebody_2_retouched.jpg",
-            "product": "",
-            "product_bg_color": "#ffffff",
-            "product_text_color": "#121212",
-            "custom_badge": "",
-            "custom_badge_bg_color": "#334FB4"
-          }
-        },
-        "slide_HEm4qw": {
-          "type": "slide",
-          "settings": {
-            "img": "shopify://shop_images/RCeramicMug_Dog_IG_UGC__loki.wolfpupcopy.webp",
+            "img": "shopify://shop_images/Tote_Cat_IG_UGC__ibtoma.png",
             "product": "",
             "product_bg_color": "#ffffff",
             "product_text_color": "#121212",
@@ -171,6 +160,61 @@
             "custom_badge_bg_color": "#334FB4"
           }
         },
+        "slide_hT9VaP": {
+          "type": "slide",
+          "settings": {
+            "img": "shopify://shop_images/Kids_Tee_Cat_Boy_smiling_with_mom_and_dog_Lifestyle_copy.jpg",
+            "product": "",
+            "product_bg_color": "#ffffff",
+            "product_text_color": "#121212",
+            "custom_badge": "",
+            "custom_badge_bg_color": "#334fb4"
+          }
+        },
+        "slide_HEm4qw": {
+          "type": "slide",
+          "settings": {
+            "img": "shopify://shop_images/RCeramicMug_Dog_IG_UGC__loki.wolfpupcopy.webp",
+            "product": "",
+            "product_bg_color": "#ffffff",
+            "product_text_color": "#121212",
+            "custom_badge": "",
+            "custom_badge_bg_color": "#334FB4"
+          }
+        },
+        "slide_cj4dmJ": {
+          "type": "slide",
+          "settings": {
+            "img": "shopify://shop_images/Natural_Frames_Dog_sitting_in_front_of_frames_3_Lifestyle.jpg",
+            "product": "",
+            "product_bg_color": "#ffffff",
+            "product_text_color": "#121212",
+            "custom_badge": "NEW",
+            "custom_badge_bg_color": "#334fb4"
+          }
+        },
+        "slide_GPTL6d": {
+          "type": "slide",
+          "settings": {
+            "img": "shopify://shop_images/WhiteFrame_Cat_IG_UGC__meow_gypsy_and_bowie.png",
+            "product": "",
+            "product_bg_color": "#ffffff",
+            "product_text_color": "#121212",
+            "custom_badge": "",
+            "custom_badge_bg_color": "#334FB4"
+          }
+        },
+        "slide_YH8U7d": {
+          "type": "slide",
+          "settings": {
+            "img": "shopify://shop_images/HoodedSweatshirt_Dog_Photoshoot_Lifestyle_PetPose_Doodle_Detail_a582c379-039a-489a-8a2e-c02997939d56.jpg",
+            "product": "",
+            "product_bg_color": "#ffffff",
+            "product_text_color": "#121212",
+            "custom_badge": "",
+            "custom_badge_bg_color": "#334fb4"
+          }
+        },
         "slide_jBEzR9": {
           "type": "slide",
           "settings": {
@@ -178,8 +222,19 @@
             "product": "",
             "product_bg_color": "#ffffff",
             "product_text_color": "#121212",
-            "custom_badge": "NEW",
+            "custom_badge": "",
             "custom_badge_bg_color": "#334FB4"
+          }
+        },
+        "slide_mgUAdb": {
+          "type": "slide",
+          "settings": {
+            "img": "shopify://shop_images/Cropped_Pocket_Cat.webp",
+            "product": "",
+            "product_bg_color": "#ffffff",
+            "product_text_color": "#121212",
+            "custom_badge": "",
+            "custom_badge_bg_color": "#334fb4"
           }
         },
         "slide_WmJzGw": {
@@ -193,6 +248,17 @@
             "custom_badge_bg_color": "#334FB4"
           }
         },
+        "slide_EKNMfn": {
+          "type": "slide",
+          "settings": {
+            "img": "shopify://shop_images/CroppedPocketTee_Dog_FemaleModel_Sheispettingdogwithsmile_Lifestyle.webp",
+            "product": "",
+            "product_bg_color": "#ffffff",
+            "product_text_color": "#121212",
+            "custom_badge": "NEW",
+            "custom_badge_bg_color": "#334fb4"
+          }
+        },
         "slide_qjLic8": {
           "type": "slide",
           "settings": {
@@ -204,10 +270,10 @@
             "custom_badge_bg_color": "#334FB4"
           }
         },
-        "slide_aViCQd": {
+        "slide_Yk3AXK": {
           "type": "slide",
           "settings": {
-            "img": "shopify://shop_images/Tote_Cat_IG_UGC__ibtoma.png",
+            "img": "shopify://shop_images/White_Frame_Dog_IG_UGC__holidayhomebody_2_retouched.jpg",
             "product": "",
             "product_bg_color": "#ffffff",
             "product_text_color": "#121212",
@@ -215,28 +281,34 @@
             "custom_badge_bg_color": "#334FB4"
           }
         },
-        "slide_GPTL6d": {
+        "slide_VXH4KK": {
           "type": "slide",
           "settings": {
-            "img": "shopify://shop_images/WhiteFrame_Cat_IG_UGC__meow_gypsy_and_bowie.png",
+            "img": "shopify://shop_images/Pillow_Dog_dogonbedwithpillow_Lifestyle_unbleached.jpg",
             "product": "",
             "product_bg_color": "#ffffff",
             "product_text_color": "#121212",
             "custom_badge": "",
-            "custom_badge_bg_color": "#334FB4"
+            "custom_badge_bg_color": "#334fb4"
           }
         }
       },
       "block_order": [
-        "slide_Yk3AXK",
-        "slide_HEm4qw",
+        "slide_aViCQd",
         "slide_YYAHt7",
         "slide_xpdBYy",
+        "slide_hT9VaP",
+        "slide_HEm4qw",
+        "slide_cj4dmJ",
+        "slide_GPTL6d",
+        "slide_YH8U7d",
         "slide_jBEzR9",
+        "slide_mgUAdb",
         "slide_WmJzGw",
+        "slide_EKNMfn",
         "slide_qjLic8",
-        "slide_aViCQd",
-        "slide_GPTL6d"
+        "slide_Yk3AXK",
+        "slide_VXH4KK"
       ],
       "name": "KS - Instagram gallery",
       "settings": {
@@ -247,9 +319,9 @@
         "header_btn_text": "",
         "header_btn_url": "",
         "header_btn_style": "button--primary",
-        "slider_speed": 1000,
+        "slider_speed": 500,
         "slider_spacing": true,
-        "slider_autoplay": 10,
+        "slider_autoplay": 5,
         "pt": 12,
         "pb": 12
       }
