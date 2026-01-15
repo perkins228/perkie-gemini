@@ -124,6 +124,127 @@
         "padding_bottom": 8
       }
     },
+    "ks_instagram_gallery_KbxtFY": {
+      "type": "ks-instagram-gallery",
+      "blocks": {
+        "slide_Yk3AXK": {
+          "type": "slide",
+          "settings": {
+            "product": "",
+            "product_bg_color": "#ffffff",
+            "product_text_color": "#121212",
+            "custom_badge": "NEW",
+            "custom_badge_bg_color": "#334FB4"
+          }
+        },
+        "slide_HEm4qw": {
+          "type": "slide",
+          "settings": {
+            "product": "",
+            "product_bg_color": "#ffffff",
+            "product_text_color": "#121212",
+            "custom_badge": "NEW",
+            "custom_badge_bg_color": "#334FB4"
+          }
+        },
+        "slide_YYAHt7": {
+          "type": "slide",
+          "settings": {
+            "product": "",
+            "product_bg_color": "#ffffff",
+            "product_text_color": "#121212",
+            "custom_badge": "NEW",
+            "custom_badge_bg_color": "#334FB4"
+          }
+        },
+        "slide_xpdBYy": {
+          "type": "slide",
+          "settings": {
+            "product": "",
+            "product_bg_color": "#ffffff",
+            "product_text_color": "#121212",
+            "custom_badge": "NEW",
+            "custom_badge_bg_color": "#334FB4"
+          }
+        },
+        "slide_jBEzR9": {
+          "type": "slide",
+          "settings": {
+            "product": "",
+            "product_bg_color": "#ffffff",
+            "product_text_color": "#121212",
+            "custom_badge": "NEW",
+            "custom_badge_bg_color": "#334FB4"
+          }
+        },
+        "slide_WmJzGw": {
+          "type": "slide",
+          "settings": {
+            "product": "",
+            "product_bg_color": "#ffffff",
+            "product_text_color": "#121212",
+            "custom_badge": "NEW",
+            "custom_badge_bg_color": "#334FB4"
+          }
+        },
+        "slide_qjLic8": {
+          "type": "slide",
+          "settings": {
+            "product": "",
+            "product_bg_color": "#ffffff",
+            "product_text_color": "#121212",
+            "custom_badge": "NEW",
+            "custom_badge_bg_color": "#334FB4"
+          }
+        },
+        "slide_aViCQd": {
+          "type": "slide",
+          "settings": {
+            "product": "",
+            "product_bg_color": "#ffffff",
+            "product_text_color": "#121212",
+            "custom_badge": "NEW",
+            "custom_badge_bg_color": "#334FB4"
+          }
+        },
+        "slide_GPTL6d": {
+          "type": "slide",
+          "settings": {
+            "product": "",
+            "product_bg_color": "#ffffff",
+            "product_text_color": "#121212",
+            "custom_badge": "NEW",
+            "custom_badge_bg_color": "#334FB4"
+          }
+        }
+      },
+      "block_order": [
+        "slide_Yk3AXK",
+        "slide_HEm4qw",
+        "slide_YYAHt7",
+        "slide_xpdBYy",
+        "slide_jBEzR9",
+        "slide_WmJzGw",
+        "slide_qjLic8",
+        "slide_aViCQd",
+        "slide_GPTL6d"
+      ],
+      "name": "KS - Instagram gallery",
+      "settings": {
+        "color_scheme": "scheme-f318d737-2be2-4346-8605-b2fbd6208608",
+        "title": "",
+        "header_title_instagram": true,
+        "heading_size": "h1",
+        "header_btn_text": "",
+        "header_btn_url": "",
+        "header_btn_style": "button--primary",
+        "slider_speed": 1000,
+        "slider_spacing": true,
+        "slider_autoplay": 3,
+        "pt": 12,
+        "pb": 12
+      }
+    },
     "ks_simple_collections_GrfLhc": {
       "type": "ks-simple-collections",
       "blocks": {
@@ -504,6 +625,7 @@
   "order": [
     "image_banner_qWieVe",
     "how_it_works_fz8MHb",
+    "ks_instagram_gallery_KbxtFY",
     "ks_simple_collections_GrfLhc",
     "ks_image_compare_FEc4MF",
     "collapsible_content_mUfHFe",
