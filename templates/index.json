@@ -19,6 +19,13 @@
             "heading_size": "h1"
           }
         },
+        "text_rFjAk7": {
+          "type": "text",
+          "settings": {
+            "text": "Gallery-quality portraits from everyday photos. Instant free previews.",
+            "text_style": "body"
+          }
+        },
         "buttons_cp4CKC": {
           "type": "buttons",
           "settings": {
@@ -33,6 +40,7 @@
       },
       "block_order": [
         "heading_diBRCf",
+        "text_rFjAk7",
         "buttons_cp4CKC"
       ],
       "name": "t:sections.image-banner.presets.name",
@@ -42,7 +50,7 @@
         "image_overlay_opacity": 10,
         "image_height": "medium",
         "image_behavior": "none",
-        "desktop_content_position": "middle-center",
+        "desktop_content_position": "bottom-center",
         "desktop_content_alignment": "center",
         "show_text_box": false,
         "color_scheme": "scheme-745b4d7d-e620-4384-97e7-bfb8ecf6d6cc",
