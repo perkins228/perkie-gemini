@@ -188,7 +188,7 @@
           "type": "step",
           "settings": {
             "icon_svg": "",
-            "icon_image": "shopify://shop_images/phone_icon_50006d9e-515f-4af3-a207-288c9dd6e685.png",
+            "icon_image": "shopify://shop_images/iphone_icon_5c34cf25-e680-4f67-8440-8e80882c1822.png",
             "title": "1. Upload Your Photo",
             "desc": "Choose a well-lit, high-resolution photo of your pet (JPG/PNG, max 10MB)"
           }
@@ -197,7 +197,7 @@
           "type": "step",
           "settings": {
             "icon_svg": "",
-            "icon_image": "shopify://shop_images/style_icon_fb2c3def-ff7e-47ee-8b9d-8cd063b992a1.png",
+            "icon_image": "shopify://shop_images/effect_icon_8e3a06d7-b521-479b-ae07-94e9859b8dc4.jpg",
             "title": "2. Select Your Style",
             "desc": "Choose between 4 beautiful effects: Black & White, Color, Ink Wash and Marker"
           }
@@ -206,7 +206,7 @@
           "type": "step",
           "settings": {
             "icon_svg": "",
-            "icon_image": "shopify://shop_images/product_icon_1_2f19c39e-a8e5-4111-ad50-01750e19273b.png",
+            "icon_image": "shopify://shop_images/tee_icon_d9e83313-6d5c-4ccf-aa5f-1bb0f4fea650.png",
             "title": "3. Choose A Product",
             "desc": "Pick a product to showcase your artwork"
           }
@@ -215,7 +215,7 @@
           "type": "step",
           "settings": {
             "icon_svg": "",
-            "icon_image": "shopify://shop_images/cart_icon_bd420dc8-2bdd-41e2-a4e5-7a7adb4d81d9.png",
+            "icon_image": "shopify://shop_images/cart_icon_f3ba49a1-542d-40b3-a958-e007897e9486.png",
             "title": "4. Add to Cart & Order",
             "desc": "Choose your product and our artists will create your custom print"
           }
