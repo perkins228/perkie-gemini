@@ -130,46 +130,51 @@
         "slide_Yk3AXK": {
           "type": "slide",
           "settings": {
+            "img": "shopify://shop_images/White_Frame_Dog_IG_UGC__holidayhomebody_2_retouched.jpg",
             "product": "",
             "product_bg_color": "#ffffff",
             "product_text_color": "#121212",
-            "custom_badge": "NEW",
+            "custom_badge": "",
             "custom_badge_bg_color": "#334FB4"
           }
         },
         "slide_HEm4qw": {
           "type": "slide",
           "settings": {
+            "img": "shopify://shop_images/RCeramicMug_Dog_IG_UGC__loki.wolfpupcopy.webp",
             "product": "",
             "product_bg_color": "#ffffff",
             "product_text_color": "#121212",
-            "custom_badge": "NEW",
+            "custom_badge": "",
             "custom_badge_bg_color": "#334FB4"
           }
         },
         "slide_YYAHt7": {
           "type": "slide",
           "settings": {
+            "img": "shopify://shop_images/White_Frames_Dogs_Dogs_with_frames_UGC.jpg",
             "product": "",
             "product_bg_color": "#ffffff",
             "product_text_color": "#121212",
-            "custom_badge": "NEW",
+            "custom_badge": "",
             "custom_badge_bg_color": "#334FB4"
           }
         },
         "slide_xpdBYy": {
           "type": "slide",
           "settings": {
+            "img": "shopify://shop_images/ZipTote_Dog_Dogwithtote_IG_UGC.webp",
             "product": "",
             "product_bg_color": "#ffffff",
             "product_text_color": "#121212",
-            "custom_badge": "NEW",
+            "custom_badge": "",
             "custom_badge_bg_color": "#334FB4"
           }
         },
         "slide_jBEzR9": {
           "type": "slide",
           "settings": {
+            "img": "shopify://shop_images/Black_Frame_Dog_dog_smiling_at_camera_with_frame_in_background_UGC__bubbatheaussiepup.webp",
             "product": "",
             "product_bg_color": "#ffffff",
             "product_text_color": "#121212",
@@ -180,40 +185,44 @@
         "slide_WmJzGw": {
           "type": "slide",
           "settings": {
+            "img": "shopify://shop_images/Classic_Pocket_Tee_Dogs_IG_UGC__holidayhomebody_4_retouched.webp",
             "product": "",
             "product_bg_color": "#ffffff",
             "product_text_color": "#121212",
-            "custom_badge": "NEW",
+            "custom_badge": "",
             "custom_badge_bg_color": "#334FB4"
           }
         },
         "slide_qjLic8": {
           "type": "slide",
           "settings": {
+            "img": "shopify://shop_images/BlackFrame_Dog_Review_UGC_HeatherA.august21_8768c633-94f7-49e1-b0c8-9dff8ef33129.png",
             "product": "",
             "product_bg_color": "#ffffff",
             "product_text_color": "#121212",
-            "custom_badge": "NEW",
+            "custom_badge": "",
             "custom_badge_bg_color": "#334FB4"
           }
         },
         "slide_aViCQd": {
           "type": "slide",
           "settings": {
+            "img": "shopify://shop_images/Tote_Cat_IG_UGC__ibtoma.png",
             "product": "",
             "product_bg_color": "#ffffff",
             "product_text_color": "#121212",
-            "custom_badge": "NEW",
+            "custom_badge": "",
             "custom_badge_bg_color": "#334FB4"
           }
         },
         "slide_GPTL6d": {
           "type": "slide",
           "settings": {
+            "img": "shopify://shop_images/WhiteFrame_Cat_IG_UGC__meow_gypsy_and_bowie.png",
             "product": "",
             "product_bg_color": "#ffffff",
             "product_text_color": "#121212",
-            "custom_badge": "NEW",
+            "custom_badge": "",
             "custom_badge_bg_color": "#334FB4"
           }
         }
