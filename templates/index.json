@@ -92,16 +92,18 @@
         "step_XjgHrE": {
           "type": "step",
           "settings": {
-            "icon_svg": "<svg viewbox=\"0 0 48 48\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\"><circle cx=\"24\" cy=\"24\" r=\"22\" fill=\"#E6E6E6\"></circle><path d=\"M16 24l6 6 10-10\" stroke=\"#A3D9A5\" stroke-width=\"3\" stroke-linecap=\"round\" stroke-linejoin=\"round\"></path></svg>",
-            "title": "Approve Your Artwork",
-            "desc": "Review and approve the digital artwork before printing."
+            "icon_svg": "",
+            "icon_image": "shopify://shop_images/approve_artwork_icon_7dd7846f-4ba0-4c22-b426-82ce2a67cd59.png",
+            "title": "4. Approve Your Artwork",
+            "desc": "Approve the digital artwork before printing. Unlimited edits included with your purchase."
           }
         },
         "step_YzCMrW": {
           "type": "step",
           "settings": {
-            "icon_svg": "<svg viewbox=\"0 0 48 48\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\"><rect x=\"6\" y=\"28\" width=\"28\" height=\"10\" rx=\"2\" fill=\"#F7C873\"></rect><rect x=\"34\" y=\"32\" width=\"8\" height=\"6\" rx=\"2\" fill=\"#A3D9A5\"></rect><circle cx=\"14\" cy=\"40\" r=\"3\" fill=\"#A3D9A5\"></circle><circle cx=\"38\" cy=\"40\" r=\"3\" fill=\"#A3D9A5\"></circle></svg>",
-            "title": "We Create & Ship",
+            "icon_svg": "",
+            "icon_image": "shopify://shop_images/shipping_icon_80107e94-383d-4360-8503-b12740d337c3.png",
+            "title": "5. We Create & Ship",
             "desc": "Your custom art is created and shipped directly to you."
           }
         }
