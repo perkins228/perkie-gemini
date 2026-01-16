@@ -399,7 +399,7 @@
         "item_title_font_size": "fs-sm",
         "item_title_truncate": true,
         "item_show_product_count": false,
-        "pt": 12,
+        "pt": 20,
         "pb": 12
       }
     },
