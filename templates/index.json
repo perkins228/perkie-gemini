@@ -481,47 +481,6 @@
         "padding_bottom": 12
       }
     },
-    "collection_list_x8MBaf": {
-      "type": "collection-list",
-      "blocks": {
-        "featured_collection_XYXLAj": {
-          "type": "featured_collection",
-          "settings": {
-            "collection": "bestsellers"
-          }
-        },
-        "featured_collection_UzJHxx": {
-          "type": "featured_collection",
-          "settings": {
-            "collection": ""
-          }
-        },
-        "featured_collection_p3GqT8": {
-          "type": "featured_collection",
-          "settings": {
-            "collection": ""
-          }
-        }
-      },
-      "block_order": [
-        "featured_collection_XYXLAj",
-        "featured_collection_UzJHxx",
-        "featured_collection_p3GqT8"
-      ],
-      "name": "t:sections.collection-list.presets.name",
-      "settings": {
-        "title": "Collections",
-        "heading_size": "h2",
-        "image_ratio": "square",
-        "columns_desktop": 5,
-        "color_scheme": "scheme-f318d737-2be2-4346-8605-b2fbd6208608",
-        "show_view_all": false,
-        "columns_mobile": "2",
-        "swipe_on_mobile": true,
-        "padding_top": 36,
-        "padding_bottom": 36
-      }
-    },
     "ks_parallax_media_VzVbNE": {
       "type": "ks-parallax-media",
       "name": "KS - Parallax media",
@@ -691,7 +650,6 @@
     "ks_image_compare_FEc4MF",
     "ks_separator_wjFBYC",
     "featured_collection_Jxhrxe",
-    "collection_list_x8MBaf",
     "ks_parallax_media_VzVbNE",
     "ks_testimonials_XBY9Fx",
     "ks_parallax_media_NmcciF"
