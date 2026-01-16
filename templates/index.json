@@ -328,6 +328,7 @@
     },
     "ks_separator_zzMH4V": {
       "type": "ks-separator",
+      "disabled": true,
       "name": "KS - Separator",
       "settings": {
         "container": "",
@@ -415,6 +416,7 @@
     },
     "ks_separator_78LqBG": {
       "type": "ks-separator",
+      "disabled": true,
       "name": "KS - Separator",
       "settings": {
         "container": "",
