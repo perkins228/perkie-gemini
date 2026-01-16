@@ -567,22 +567,22 @@
             "product": ""
           }
         },
-        "slide_WjhPrf": {
-          "type": "slide",
-          "settings": {
-            "title": "Makes shopping easy!",
-            "description": "<p>\"I gave a Perkie Print for Christmas!! It was such a huge hit!! Thank you for helping me with my Christmas shopping!! A beautiful Perkie Print is the BEST gift idea for all occasions!\"</p>",
-            "author": "Victoria S",
-            "author_subtitle": "Verified Customer",
-            "product": ""
-          }
-        },
         "slide_h4F9Mk": {
           "type": "slide",
           "settings": {
             "title": "Every dog mom needs one...",
             "description": "<p>\"This is my second pillow<br/>The first was for my dog who passed away and then I just got a another dog so I have one of each on my couch and they look amazing\"</p>",
             "author": "Janai B",
+            "author_subtitle": "Verified Customer",
+            "product": ""
+          }
+        },
+        "slide_WjhPrf": {
+          "type": "slide",
+          "settings": {
+            "title": "Makes shopping easy!",
+            "description": "<p>\"I gave a Perkie Print for Christmas!! It was such a huge hit!! Thank you for helping me with my Christmas shopping!! A beautiful Perkie Print is the BEST gift idea for all occasions!\"</p>",
+            "author": "Victoria S",
             "author_subtitle": "Verified Customer",
             "product": ""
           }
@@ -593,8 +593,8 @@
         "slide_xkn8X9",
         "slide_JWnLin",
         "slide_XtVxbp",
-        "slide_WjhPrf",
-        "slide_h4F9Mk"
+        "slide_h4F9Mk",
+        "slide_WjhPrf"
       ],
       "custom_css": [
         "{text-align: center;}"
