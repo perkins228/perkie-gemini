@@ -513,9 +513,7 @@
       "block_order": [
         "slide_rknEY3"
       ],
-      "custom_css": [
-        "/* Hide all slider navigation controls */.slider-buttons,.slider-counter,.slider-counter--current,.slider-counter--total,.slider-counter__link,.slideshow__controls,.slideshow__controls--border-radius {display: none !important;}"
-      ],
+      "custom_css": [],
       "name": "KS - Media Slider",
       "settings": {
         "color_scheme": "scheme-872ca72f-3acf-40b0-9717-028f5840921f",
