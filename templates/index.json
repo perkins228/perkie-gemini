@@ -455,10 +455,13 @@
     },
     "featured_collection_Jxhrxe": {
       "type": "featured-collection",
+      "custom_css": [
+        "{text-align: center;}"
+      ],
       "settings": {
         "collection": "bestsellers",
         "products_to_show": 10,
-        "title": "Browse our Best Sellers",
+        "title": "Loved by Pet Parents",
         "heading_size": "h2",
         "description": "",
         "show_description": false,
