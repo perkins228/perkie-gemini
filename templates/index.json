@@ -388,7 +388,7 @@
       ],
       "name": "KS - Simple collections",
       "settings": {
-        "color_scheme": "scheme-f318d737-2be2-4346-8605-b2fbd6208608",
+        "color_scheme": "scheme-872ca72f-3acf-40b0-9717-028f5840921f",
         "title": "",
         "heading_size": "h2",
         "description": "",
@@ -439,18 +439,8 @@
         "btn_secondary_text": "",
         "btn_secondary_style": "button--secondary",
         "btn_secondary_url": "",
-        "pt": 0,
-        "pb": 0
-      }
-    },
-    "ks_separator_wjFBYC": {
-      "type": "ks-separator",
-      "name": "KS - Separator",
-      "settings": {
-        "container": "page-width",
-        "opacity": 25,
-        "pt": 4,
-        "pb": 4
+        "pt": 12,
+        "pb": 12
       }
     },
     "featured_collection_Jxhrxe": {
@@ -482,6 +472,53 @@
         "swipe_on_mobile": true,
         "padding_top": 12,
         "padding_bottom": 12
+      }
+    },
+    "image_with_text_PcFNUE": {
+      "type": "image-with-text",
+      "blocks": {
+        "heading_n4wDih": {
+          "type": "heading",
+          "settings": {
+            "heading": "Image with text",
+            "heading_size": "h1"
+          }
+        },
+        "text_wEFJfg": {
+          "type": "text",
+          "settings": {
+            "text": "<p>Pair text with an image to focus on your chosen product, collection, or blog post. Add details on availability, style, or even provide a review.</p>",
+            "text_style": "body"
+          }
+        },
+        "button_TqTL7Y": {
+          "type": "button",
+          "settings": {
+            "button_label": "Button label",
+            "button_link": "",
+            "button_style_secondary": false
+          }
+        }
+      },
+      "block_order": [
+        "heading_n4wDih",
+        "text_wEFJfg",
+        "button_TqTL7Y"
+      ],
+      "name": "t:sections.image-with-text.presets.name",
+      "settings": {
+        "height": "adapt",
+        "desktop_image_width": "medium",
+        "layout": "image_first",
+        "image_behavior": "none",
+        "content_layout": "no-overlap",
+        "desktop_content_position": "top",
+        "desktop_content_alignment": "left",
+        "mobile_content_alignment": "left",
+        "section_color_scheme": "",
+        "color_scheme": "",
+        "padding_top": 36,
+        "padding_bottom": 36
       }
     },
     "ks_testimonials_XBY9Fx": {
@@ -587,8 +624,8 @@
     "ks_instagram_gallery_KbxtFY",
     "ks_simple_collections_GrfLhc",
     "ks_image_compare_FEc4MF",
-    "ks_separator_wjFBYC",
     "featured_collection_Jxhrxe",
+    "image_with_text_PcFNUE",
     "ks_testimonials_XBY9Fx"
   ]
 }
