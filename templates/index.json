@@ -334,7 +334,7 @@
       "name": "KS - Separator",
       "settings": {
         "container": "",
-        "opacity": 25,
+        "opacity": 20,
         "pt": 4,
         "pb": 0
       }
@@ -421,7 +421,7 @@
       "name": "KS - Separator",
       "settings": {
         "container": "",
-        "opacity": 30,
+        "opacity": 20,
         "pt": 0,
         "pb": 4
       }
