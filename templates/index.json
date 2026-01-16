@@ -31,10 +31,10 @@
           "settings": {
             "button_label_1": "Start My Free Preview",
             "button_link_1": "shopify://pages/custom-image-processing",
-            "button_style_secondary_1": true,
+            "button_style_secondary_1": false,
             "button_label_2": "Browse Products",
             "button_link_2": "shopify://collections/personalized-pet-products-gifts",
-            "button_style_secondary_2": true
+            "button_style_secondary_2": false
           }
         }
       },
