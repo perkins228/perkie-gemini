@@ -458,16 +458,16 @@
       "settings": {
         "collection": "bestsellers",
         "products_to_show": 10,
-        "title": "Must Haves",
+        "title": "Browse our Best Sellers",
         "heading_size": "h2",
         "description": "",
         "show_description": false,
         "description_style": "body",
-        "columns_desktop": 4,
+        "columns_desktop": 6,
         "enable_desktop_slider": true,
         "full_width": true,
-        "show_view_all": true,
-        "view_all_style": "link",
+        "show_view_all": false,
+        "view_all_style": "outline",
         "color_scheme": "scheme-f318d737-2be2-4346-8605-b2fbd6208608",
         "image_ratio": "square",
         "image_shape": "default",
@@ -479,39 +479,6 @@
         "swipe_on_mobile": true,
         "padding_top": 12,
         "padding_bottom": 12
-      }
-    },
-    "ks_parallax_media_VzVbNE": {
-      "type": "ks-parallax-media",
-      "name": "KS - Parallax media",
-      "settings": {
-        "video_mobile": "shopify://files/videos/Brand Video_7e001be6-09d2-421d-8ca6-c5788c7fc467.mp4",
-        "video_desktop": "shopify://files/videos/Brand Video_7e001be6-09d2-421d-8ca6-c5788c7fc467.mp4",
-        "media_mobile_height": 400,
-        "media_desktop_height": 650,
-        "media_adapt": true,
-        "overlay_color": "#000000",
-        "overlay_opacity": 0,
-        "overlay_blur": 0,
-        "overlay_top_bottom_border": false,
-        "parallax_orientation": "down",
-        "parallax_scale": 1,
-        "color_scheme": "scheme-f318d737-2be2-4346-8605-b2fbd6208608",
-        "caption_max_width": "900",
-        "subtitle": "",
-        "subtitle_font_size": "fs-sm",
-        "title": "",
-        "title_font_size": "h1",
-        "description": "",
-        "description_font_size": "fs-lg",
-        "btn_primary_text": "",
-        "btn_primary_style": "button--primary",
-        "btn_primary_url": "",
-        "btn_secondary_text": "",
-        "btn_secondary_style": "button--secondary",
-        "btn_secondary_url": "",
-        "pt": 0,
-        "pb": 0
       }
     },
     "ks_testimonials_XBY9Fx": {
@@ -589,13 +556,13 @@
       "name": "KS - Testimonials",
       "settings": {
         "color_scheme": "scheme-f318d737-2be2-4346-8605-b2fbd6208608",
-        "title": "",
+        "title": "From Our Customers",
         "heading_size": "h2",
         "testimonial_show_stars": true,
         "stars_color_scheme": "#121212",
         "testimonial_title_font_size": "fs-lg",
-        "testimonial_description_font_size": "fs-md",
-        "testimonial_product_show_price": true,
+        "testimonial_description_font_size": "fs-sm",
+        "testimonial_product_show_price": false,
         "testimonial_product_img_size": 60,
         "card_color_scheme": "scheme-0d2d3905-9794-42ac-a4c7-5701425dd018",
         "card_text_alignment": "left",
@@ -605,40 +572,6 @@
         "columns_desktop": 4,
         "pt": 8,
         "pb": 0
-      }
-    },
-    "ks_parallax_media_NmcciF": {
-      "type": "ks-parallax-media",
-      "disabled": true,
-      "name": "KS - Parallax media",
-      "settings": {
-        "img_mobile": "shopify://shop_images/Digital_Download_Holiday_Queue_Email_Deliveryv5.jpg",
-        "img_desktop": "shopify://shop_images/Digital_Download_Holiday_Queue_Email_Deliveryv5-min.jpg",
-        "media_mobile_height": 400,
-        "media_desktop_height": 700,
-        "media_adapt": false,
-        "overlay_color": "#121212",
-        "overlay_opacity": 30,
-        "overlay_blur": 0,
-        "overlay_top_bottom_border": true,
-        "parallax_orientation": "left",
-        "parallax_scale": 1.1,
-        "color_scheme": "",
-        "caption_max_width": "900",
-        "subtitle": "Optional Subtitle",
-        "subtitle_font_size": "fs-sm",
-        "title": "Parallax Media",
-        "title_font_size": "h1",
-        "description": "<p>An optional description for this slide</p>",
-        "description_font_size": "fs-lg",
-        "btn_primary_text": "Primary button",
-        "btn_primary_style": "button--primary",
-        "btn_primary_url": "",
-        "btn_secondary_text": "Secondary button",
-        "btn_secondary_style": "button--secondary",
-        "btn_secondary_url": "",
-        "pt": 36,
-        "pb": 36
       }
     }
   },
@@ -650,8 +583,6 @@
     "ks_image_compare_FEc4MF",
     "ks_separator_wjFBYC",
     "featured_collection_Jxhrxe",
-    "ks_parallax_media_VzVbNE",
-    "ks_testimonials_XBY9Fx",
-    "ks_parallax_media_NmcciF"
+    "ks_testimonials_XBY9Fx"
   ]
 }
