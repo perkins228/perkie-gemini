@@ -420,7 +420,7 @@
       "type": "ks-separator",
       "name": "KS - Separator",
       "settings": {
-        "container": "page-width",
+        "container": "",
         "opacity": 45,
         "pt": 0,
         "pb": 4
