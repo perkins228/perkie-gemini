@@ -44,7 +44,7 @@
         "buttons_cp4CKC"
       ],
       "custom_css": [
-        "/* Target Desktop Only (Screens wider than 750px) */@media screen and (max-width: 750px) {/* Target general body text and headings */ body, p, .rte, .text-body {color: #ffffff !important; /* Replace with your color */ } /* OPTIONAL: Target headings specifically if needed */ h1, h2, h3, h4, h5, h6 {color: #ffffff !important; /* Replace with your color */ }}"
+        "/* Change text color only on screens larger than 750px */@media screen and (min-width: 750px) {body, h1, h2, h3, h4, h5, h6, p, li, a {color: #ffffff !important; /* Replace #000000 with your desired desktop hex code */ }}"
       ],
       "name": "t:sections.image-banner.presets.name",
       "settings": {
