@@ -615,7 +615,7 @@
         "card_border_thickness": 0,
         "card_border_opacity": 0,
         "card_corner_radius": 8,
-        "columns_desktop": 5,
+        "columns_desktop": 4,
         "pt": 8,
         "pb": 0
       }
