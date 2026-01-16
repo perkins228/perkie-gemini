@@ -454,7 +454,7 @@
       "settings": {
         "collection": "bestsellers",
         "products_to_show": 10,
-        "title": "Loved by Pet Parents",
+        "title": "Loved by Pet Parents:",
         "heading_size": "h2",
         "description": "",
         "show_description": false,
@@ -602,7 +602,7 @@
       "name": "KS - Testimonials",
       "settings": {
         "color_scheme": "scheme-f318d737-2be2-4346-8605-b2fbd6208608",
-        "title": "From Our Customers",
+        "title": "From Our Customers:",
         "heading_size": "h2",
         "testimonial_show_stars": true,
         "stars_color_scheme": "#121212",
