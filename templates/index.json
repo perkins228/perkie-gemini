@@ -44,7 +44,7 @@
         "buttons_cp4CKC"
       ],
       "custom_css": [
-        "@media screen and (min-width: 750px) {body, .gradient {/* Updates the variable used by most text to Pure White (RGB: 255, 255, 255) */ --color-foreground: 255, 255, 255 !important; --color-base-text: 255, 255, 255 !important; /* Fallback for elements not using variables */ color: #FFFFFF !important; } /* Force headers and links specifically */ h1, h2, h3, h4, h5, h6, a, .header__menu-item {color: #FFFFFF !important; }}"
+        "@media screen and (min-width: 750px) {body, .gradient {/* Updates the variable used by most text to Pure White (RGB: 255, 255, 255) */ --color-foreground: 255, 255, 255 !important; --color-base-text: 255, 255, 255 !important; /* Fallback for elements not using variables */ color: #ffffff !important; } /* Force headers and links specifically */ h1, h2, h3, h4, h5, h6, a, .header__menu-item {color: #ffffff !important; }}"
       ],
       "name": "t:sections.image-banner.presets.name",
       "settings": {
@@ -336,7 +336,7 @@
           "type": "collection",
           "settings": {
             "collection": "personalized-pet-portraits",
-            "img": "shopify://shop_images/natural_frameratio_939c3670-cc59-4472-9f7a-8a945087c4ed.webp",
+            "img": "shopify://shop_images/Frames_button.png",
             "title": "Portraits"
           }
         },
