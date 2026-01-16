@@ -336,7 +336,7 @@
           "type": "collection",
           "settings": {
             "collection": "personalized-pet-portraits",
-            "img": "shopify://shop_images/Frames_button.png",
+            "img": "shopify://shop_images/Frames_button_270e4594-71bd-4ad6-93ab-aab244dad7b2.png",
             "title": "Portraits"
           }
         },
