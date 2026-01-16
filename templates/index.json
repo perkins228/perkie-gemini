@@ -44,7 +44,7 @@
         "buttons_cp4CKC"
       ],
       "custom_css": [
-        "/* Change text color only on screens larger than 750px */@media screen and (min-width: 750px) {body, h1, h2, h3, h4, h5, h6, p, li, a {color: #ffffff !important; /* Replace #000000 with your desired desktop hex code */ }}"
+        "/* Make text WHITE on Desktop screens only */@media screen and (min-width: 750px) {body, h1, h2, h3, h4, h5, h6, p, li, a {color: #FFFFFF !important; }}"
       ],
       "name": "t:sections.image-banner.presets.name",
       "settings": {
