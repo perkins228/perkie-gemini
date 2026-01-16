@@ -44,7 +44,7 @@
         "buttons_cp4CKC"
       ],
       "custom_css": [
-        "/* Target Desktop Only (Screens wider than 750px) */@media screen and (min-width: 750px) {/* Target general body text and headings */ body, p, .rte, .text-body {color: #2e2e2e !important; /* Replace with your color */ } /* OPTIONAL: Target headings specifically if needed */ h1, h2, h3, h4, h5, h6 {color: #000000 !important; /* Replace with your color */ }}"
+        "/* Target Desktop Only (Screens wider than 750px) */@media screen and (min-width: 750px) {/* Target general body text and headings */ body, p, .rte, .text-body {color: #FFFFFF !important; /* Replace with your color */ } /* OPTIONAL: Target headings specifically if needed */ h1, h2, h3, h4, h5, h6 {color: #FFFFFF !important; /* Replace with your color */ }}"
       ],
       "name": "t:sections.image-banner.presets.name",
       "settings": {
