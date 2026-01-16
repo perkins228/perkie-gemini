@@ -569,10 +569,10 @@
         "testimonial_product_img_size": 60,
         "card_color_scheme": "scheme-9f6d3ba1-939b-4af9-b284-239ad849b276",
         "card_text_alignment": "left",
-        "card_border_thickness": 0,
+        "card_border_thickness": 1,
         "card_border_opacity": 0,
         "card_corner_radius": 0,
-        "columns_desktop": 4,
+        "columns_desktop": 5,
         "pt": 8,
         "pb": 0
       }
