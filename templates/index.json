@@ -416,6 +416,16 @@
         "pb": 12
       }
     },
+    "ks_separator_TmVBzQ": {
+      "type": "ks-separator",
+      "name": "KS - Separator",
+      "settings": {
+        "container": "page-width",
+        "opacity": 45,
+        "pt": 0,
+        "pb": 4
+      }
+    },
     "ks_image_compare_FEc4MF": {
       "type": "ks-image-compare",
       "settings": {
@@ -637,6 +647,7 @@
     "ks_instagram_gallery_KbxtFY",
     "ks_separator_taB9mE",
     "ks_simple_collections_GrfLhc",
+    "ks_separator_TmVBzQ",
     "ks_image_compare_FEc4MF",
     "featured_collection_Jxhrxe",
     "ks_media_slider_hDqb4F",
