@@ -439,8 +439,8 @@
         "btn_secondary_text": "",
         "btn_secondary_style": "button--secondary",
         "btn_secondary_url": "",
-        "pt": 12,
-        "pb": 12
+        "pt": 0,
+        "pb": 0
       }
     },
     "ks_separator_wjFBYC": {
