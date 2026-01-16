@@ -336,7 +336,7 @@
           "type": "collection",
           "settings": {
             "collection": "personalized-pet-portraits",
-            "img": "shopify://shop_images/frame_icon_9e72f12f-1a6c-4f02-afe5-475374b59528.png",
+            "img": "shopify://shop_images/frame_button.png",
             "title": "Portraits"
           }
         },
@@ -344,7 +344,7 @@
           "type": "collection",
           "settings": {
             "collection": "personalized-pet-apparel-accessories",
-            "img": "shopify://shop_images/homepage-banner-pocketteenew.png",
+            "img": "shopify://shop_images/apparel_button.png",
             "title": "Apparel & Accessories"
           }
         },
@@ -352,7 +352,7 @@
           "type": "collection",
           "settings": {
             "collection": "personalized-home-decor",
-            "img": "shopify://shop_images/coffee_mug-removebg-preview_1.png",
+            "img": "shopify://shop_images/mug_icon_bb3bfdd8-f05b-41d6-875f-251b942ab876.png",
             "title": "Home"
           }
         },
@@ -360,7 +360,7 @@
           "type": "collection",
           "settings": {
             "collection": "personalized-kids-baby",
-            "img": "shopify://shop_images/Onesie_b8ff476f-8874-47aa-92e7-6535b1269938.png",
+            "img": "shopify://shop_images/kids_icon_db5b7588-1c66-486d-b469-5c6dc8f91686.png",
             "title": "Kids"
           }
         },
