@@ -514,6 +514,16 @@
             "product": ""
           }
         },
+        "slide_XtVxbp": {
+          "type": "slide",
+          "settings": {
+            "title": "Highly recommend",
+            "description": "<p></p><p>\"Loved the mug I ordered for our sick pup. The quality was amazing and will be such a nicer reminder of our sweet boy.\"</p><p></p>",
+            "author": "Alexa P",
+            "author_subtitle": "Verified Customer",
+            "product": ""
+          }
+        },
         "slide_h4F9Mk": {
           "type": "slide",
           "settings": {
@@ -533,25 +543,15 @@
             "author_subtitle": "Verified Customer",
             "product": ""
           }
-        },
-        "slide_XtVxbp": {
-          "type": "slide",
-          "settings": {
-            "title": "Highly recommend",
-            "description": "<p></p><p>\"Loved the mug I ordered for our sick pup. The quality was amazing and will be such a nicer reminder of our sweet boy.\"</p><p></p>",
-            "author": "Alexa P",
-            "author_subtitle": "Verified Customer",
-            "product": ""
-          }
         }
       },
       "block_order": [
         "slide_ANbW8t",
         "slide_xkn8X9",
         "slide_JWnLin",
+        "slide_XtVxbp",
         "slide_h4F9Mk",
-        "slide_WjhPrf",
-        "slide_XtVxbp"
+        "slide_WjhPrf"
       ],
       "custom_css": [
         "{text-align: center;}"
