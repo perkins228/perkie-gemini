@@ -553,6 +553,9 @@
         "slide_JWnLin",
         "slide_XtVxbp"
       ],
+      "custom_css": [
+        "{text-align: center;}"
+      ],
       "name": "KS - Testimonials",
       "settings": {
         "color_scheme": "scheme-f318d737-2be2-4346-8605-b2fbd6208608",
