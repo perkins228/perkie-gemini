@@ -124,83 +124,6 @@
         "padding_bottom": 8
       }
     },
-    "ks_simple_collections_GrfLhc": {
-      "type": "ks-simple-collections",
-      "blocks": {
-        "collection_bAgHcW": {
-          "type": "collection",
-          "settings": {
-            "collection": "personalized-pet-portraits",
-            "img": "shopify://shop_images/natural_frameratio_939c3670-cc59-4472-9f7a-8a945087c4ed.webp",
-            "title": "Portraits"
-          }
-        },
-        "collection_ybQGrr": {
-          "type": "collection",
-          "settings": {
-            "collection": "personalized-pet-apparel-accessories",
-            "img": "shopify://shop_images/homepage-banner-pocketteenew.png",
-            "title": "Apparel & Accessories"
-          }
-        },
-        "collection_kFBiHa": {
-          "type": "collection",
-          "settings": {
-            "collection": "personalized-home-decor",
-            "img": "shopify://shop_images/coffee_mug-removebg-preview_1.png",
-            "title": "Home"
-          }
-        },
-        "collection_hbRgpp": {
-          "type": "collection",
-          "settings": {
-            "collection": "personalized-kids-baby",
-            "img": "shopify://shop_images/Onesie_b8ff476f-8874-47aa-92e7-6535b1269938.png",
-            "title": "Kids"
-          }
-        },
-        "collection_MDq7kD": {
-          "type": "collection",
-          "disabled": true,
-          "settings": {
-            "collection": "happy-holidays",
-            "title": ""
-          }
-        },
-        "collection_zgAPDe": {
-          "type": "collection",
-          "settings": {
-            "collection": "perkie-originals",
-            "img": "shopify://shop_images/readymade-removebg-preview_2.webp",
-            "title": "Perkie Originals"
-          }
-        }
-      },
-      "block_order": [
-        "collection_bAgHcW",
-        "collection_ybQGrr",
-        "collection_kFBiHa",
-        "collection_hbRgpp",
-        "collection_MDq7kD",
-        "collection_zgAPDe"
-      ],
-      "name": "KS - Simple collections",
-      "settings": {
-        "color_scheme": "scheme-f318d737-2be2-4346-8605-b2fbd6208608",
-        "title": "",
-        "heading_size": "h2",
-        "description": "",
-        "description_size": "fs-md",
-        "label": "Featured collections",
-        "item_img_size": 150,
-        "item_show_title": true,
-        "item_title_font_size": "fs-sm",
-        "item_title_truncate": true,
-        "item_show_product_count": false,
-        "pt": 20,
-        "pb": 20
-      }
-    },
     "ks_instagram_gallery_KbxtFY": {
       "type": "ks-instagram-gallery",
       "blocks": {
@@ -403,6 +326,83 @@
         "pb": 12
       }
     },
+    "ks_simple_collections_GrfLhc": {
+      "type": "ks-simple-collections",
+      "blocks": {
+        "collection_bAgHcW": {
+          "type": "collection",
+          "settings": {
+            "collection": "personalized-pet-portraits",
+            "img": "shopify://shop_images/natural_frameratio_939c3670-cc59-4472-9f7a-8a945087c4ed.webp",
+            "title": "Portraits"
+          }
+        },
+        "collection_ybQGrr": {
+          "type": "collection",
+          "settings": {
+            "collection": "personalized-pet-apparel-accessories",
+            "img": "shopify://shop_images/homepage-banner-pocketteenew.png",
+            "title": "Apparel & Accessories"
+          }
+        },
+        "collection_kFBiHa": {
+          "type": "collection",
+          "settings": {
+            "collection": "personalized-home-decor",
+            "img": "shopify://shop_images/coffee_mug-removebg-preview_1.png",
+            "title": "Home"
+          }
+        },
+        "collection_hbRgpp": {
+          "type": "collection",
+          "settings": {
+            "collection": "personalized-kids-baby",
+            "img": "shopify://shop_images/Onesie_b8ff476f-8874-47aa-92e7-6535b1269938.png",
+            "title": "Kids"
+          }
+        },
+        "collection_MDq7kD": {
+          "type": "collection",
+          "disabled": true,
+          "settings": {
+            "collection": "happy-holidays",
+            "title": ""
+          }
+        },
+        "collection_zgAPDe": {
+          "type": "collection",
+          "settings": {
+            "collection": "perkie-originals",
+            "img": "shopify://shop_images/readymade-removebg-preview_2.webp",
+            "title": "Perkie Originals"
+          }
+        }
+      },
+      "block_order": [
+        "collection_bAgHcW",
+        "collection_ybQGrr",
+        "collection_kFBiHa",
+        "collection_hbRgpp",
+        "collection_MDq7kD",
+        "collection_zgAPDe"
+      ],
+      "name": "KS - Simple collections",
+      "settings": {
+        "color_scheme": "scheme-f318d737-2be2-4346-8605-b2fbd6208608",
+        "title": "",
+        "heading_size": "h2",
+        "description": "",
+        "description_size": "fs-md",
+        "label": "Featured collections",
+        "item_img_size": 200,
+        "item_show_title": true,
+        "item_title_font_size": "fs-sm",
+        "item_title_truncate": true,
+        "item_show_product_count": false,
+        "pt": 20,
+        "pb": 20
+      }
+    },
     "ks_image_compare_FEc4MF": {
       "type": "ks-image-compare",
       "settings": {
@@ -410,10 +410,10 @@
         "page_width": "",
         "show_only_img": false,
         "img_alignment": "right",
-        "mobile_before_img": "shopify://shop_images/anna_before_desktop.webp",
-        "mobile_after_img": "shopify://shop_images/anna_after_desktop.webp",
-        "desktop_before_img": "shopify://shop_images/anna_before_desktop.webp",
-        "desktop_after_img": "shopify://shop_images/anna_after_desktop.webp",
+        "mobile_before_img": "shopify://shop_images/ufocolor.png",
+        "mobile_after_img": "shopify://shop_images/Ufobw.png",
+        "desktop_before_img": "shopify://shop_images/ufocolor.png",
+        "desktop_after_img": "shopify://shop_images/Ufobw_c8712a60-c3c3-41a5-baad-9a2db9da0e9c.png",
         "icv_controls_color": "#ffffff",
         "icv_controls_circle": false,
         "icv_smoothing": true,
@@ -458,14 +458,14 @@
       "settings": {
         "collection": "bestsellers",
         "products_to_show": 10,
-        "title": "",
-        "heading_size": "h1",
+        "title": "Must Haves",
+        "heading_size": "h2",
         "description": "",
         "show_description": false,
         "description_style": "body",
         "columns_desktop": 4,
         "enable_desktop_slider": true,
-        "full_width": false,
+        "full_width": true,
         "show_view_all": true,
         "view_all_style": "link",
         "color_scheme": "scheme-f318d737-2be2-4346-8605-b2fbd6208608",
@@ -477,8 +477,49 @@
         "quick_add": "none",
         "columns_mobile": "2",
         "swipe_on_mobile": true,
-        "padding_top": 20,
-        "padding_bottom": 20
+        "padding_top": 12,
+        "padding_bottom": 12
+      }
+    },
+    "collection_list_x8MBaf": {
+      "type": "collection-list",
+      "blocks": {
+        "featured_collection_XYXLAj": {
+          "type": "featured_collection",
+          "settings": {
+            "collection": "bestsellers"
+          }
+        },
+        "featured_collection_UzJHxx": {
+          "type": "featured_collection",
+          "settings": {
+            "collection": ""
+          }
+        },
+        "featured_collection_p3GqT8": {
+          "type": "featured_collection",
+          "settings": {
+            "collection": ""
+          }
+        }
+      },
+      "block_order": [
+        "featured_collection_XYXLAj",
+        "featured_collection_UzJHxx",
+        "featured_collection_p3GqT8"
+      ],
+      "name": "t:sections.collection-list.presets.name",
+      "settings": {
+        "title": "Collections",
+        "heading_size": "h2",
+        "image_ratio": "square",
+        "columns_desktop": 5,
+        "color_scheme": "scheme-f318d737-2be2-4346-8605-b2fbd6208608",
+        "show_view_all": false,
+        "columns_mobile": "2",
+        "swipe_on_mobile": true,
+        "padding_top": 36,
+        "padding_bottom": 36
       }
     },
     "ks_parallax_media_VzVbNE": {
@@ -645,11 +686,12 @@
   "order": [
     "image_banner_qWieVe",
     "how_it_works_fz8MHb",
-    "ks_simple_collections_GrfLhc",
     "ks_instagram_gallery_KbxtFY",
+    "ks_simple_collections_GrfLhc",
     "ks_image_compare_FEc4MF",
     "ks_separator_wjFBYC",
     "featured_collection_Jxhrxe",
+    "collection_list_x8MBaf",
     "ks_parallax_media_VzVbNE",
     "ks_testimonials_XBY9Fx",
     "ks_parallax_media_NmcciF"
