@@ -400,13 +400,13 @@
       },
       "scheme-745b4d7d-e620-4384-97e7-bfb8ecf6d6cc": {
         "settings": {
-          "background": "#b38970",
+          "background": "#ede1d9",
           "background_gradient": "",
           "text": "#ffffff",
-          "button": "#ff5964",
+          "button": "#ffa4aa",
           "button_label": "#ffffff",
           "secondary_button_label": "#121212",
-          "shadow": "#121212"
+          "shadow": "#000000"
         }
       }
     }
