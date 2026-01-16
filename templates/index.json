@@ -517,7 +517,7 @@
             "title": "Perkie's Purpose",
             "title_font_size": "h1",
             "description": "<p>At Perkie Prints, we believe that every animal deserves to be safe, happy, and loved. That’s why we will always donate a portion of every purchase to animal charities! Perkie Prints is proud to partner with Wags & Walk in support of their mission to break the stigma around rescue dogs and decrease the number of dogs euthanized in local shelters by proving that you can rescue wonderful dogs of all breeds, sizes, and temperaments.</p>",
-            "description_font_size": "fs-sm",
+            "description_font_size": "fs-md",
             "btn_primary_text": "Learn More",
             "btn_primary_style": "button--primary",
             "btn_primary_url": "shopify://pages/our-purpose",
