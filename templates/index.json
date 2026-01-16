@@ -511,7 +511,7 @@
             "video_controls": false,
             "external_video": "",
             "text_align_mobile": "text-center",
-            "text_align_desktop": "text-tablet-start",
+            "text_align_desktop": "text-tablet-center",
             "subtitle": "GIVING BACK WITH EVERY PURCHASE",
             "subtitle_font_size": "fs-xs",
             "title": "Perkie's Purpose",
