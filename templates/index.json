@@ -43,6 +43,9 @@
         "text_rFjAk7",
         "buttons_cp4CKC"
       ],
+      "custom_css": [
+        "/* Desktop-only text color override */@media screen and (min-width: 750px) {h1, h2, h3, .rte, .rich-text__text {color: #ffffff; }}"
+      ],
       "name": "t:sections.image-banner.presets.name",
       "settings": {
         "image": "shopify://shop_images/ufo_phone.png",
