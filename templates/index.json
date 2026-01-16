@@ -346,7 +346,7 @@
           "type": "collection",
           "settings": {
             "collection": "personalized-pet-portraits",
-            "img": "shopify://shop_images/Perkie_Prints-19_copy2.jpg",
+            "img": "shopify://shop_images/frame_button.png",
             "title": "Portraits"
           }
         },
@@ -354,7 +354,7 @@
           "type": "collection",
           "settings": {
             "collection": "personalized-pet-apparel-accessories",
-            "img": "shopify://shop_images/Cropped_Pocket_Tee_Jonni.webp",
+            "img": "shopify://shop_images/apparel_button.png",
             "title": "Apparel & Accessories"
           }
         },
@@ -362,7 +362,7 @@
           "type": "collection",
           "settings": {
             "collection": "personalized-home-decor",
-            "img": "shopify://shop_images/Pillow_Dog_dogonbedwithpillow_Lifestyle_unbleached.jpg",
+            "img": "shopify://shop_images/mug_icon_bb3bfdd8-f05b-41d6-875f-251b942ab876.png",
             "title": "Home"
           }
         },
@@ -370,6 +370,7 @@
           "type": "collection",
           "settings": {
             "collection": "personalized-kids-baby",
+            "img": "shopify://shop_images/kids_icon_4bba0068-9739-4cec-aa88-1fe014c514f9.png",
             "title": "Kids"
           }
         },
@@ -385,7 +386,7 @@
           "type": "collection",
           "settings": {
             "collection": "perkie-originals",
-            "img": "shopify://shop_images/AntiSocialClub_CatDad_Crew_Back_Lifestyle.jpg",
+            "img": "shopify://shop_images/perkie_originals_icon_0dc48871-6bb4-488d-83a2-eda62ae0c478.png",
             "title": "Perkie Originals"
           }
         }
