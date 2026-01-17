@@ -166,46 +166,60 @@
               {{ card_product.title | escape }}
             </a>
           </h3>
-          {%- comment -%} Color Swatches Display - Perkie Prints {%- endcomment -%}
-          {%- if show_color_swatches != false and card_product.options contains 'Color' and card_product.variants.size > 1 -%}
-            {%- assign color_option_index = -1 -%}
+          {%- comment -%} Unified Color/Material Swatches Display - Perkie Prints {%- endcomment -%}
+          {%- if show_color_swatches != false and card_product.variants.size > 1 -%}
+            {%- assign swatch_option_index = -1 -%}
+            {%- assign swatch_type = nil -%}
             {%- for option in card_product.options -%}
               {%- assign option_downcase = option | downcase -%}
               {%- if option_downcase == 'color' or option_downcase == 'colour' -%}
-                {%- assign color_option_index = forloop.index0 -%}
+                {%- assign swatch_option_index = forloop.index0 -%}
+                {%- assign swatch_type = 'color' -%}
+                {%- break -%}
+              {%- elsif option_downcase == 'material' or option_downcase == 'type' -%}
+                {%- assign swatch_option_index = forloop.index0 -%}
+                {%- assign swatch_type = 'material' -%}
                 {%- break -%}
               {%- endif -%}
             {%- endfor -%}
-            {%- if color_option_index != -1 -%}
-              <div class="card__color-swatches" aria-label="Available in multiple color options">
-                <span class="visually-hidden">Available colors:</span>
-                {%- assign shown_colors = '' -%}
-                {%- assign color_count = 0 -%}
+            {%- if swatch_option_index != -1 -%}
+              <div class="card__color-swatches" aria-label="Available in multiple {{ swatch_type }} options">
+                <span class="visually-hidden">Available {{ swatch_type }}s:</span>
+                {%- assign shown_values = '' -%}
+                {%- assign swatch_count = 0 -%}
                 {%- for variant in card_product.variants -%}
-                  {%- if variant.options[color_option_index] -%}
-                    {%- assign color_value = variant.options[color_option_index] -%}
-                    {%- unless shown_colors contains color_value -%}
-                      {%- assign shown_colors = shown_colors | append: color_value | append: ',' -%}
-                      {%- assign color_count = color_count | plus: 1 -%}
-                      {%- if color_count <= 4 -%}
-                        {%- assign color_handle = color_value | handle -%}
-                        <span class="grid-swatch"
-                              title="{{ color_value | escape }}"
-                              data-color="{{ color_handle }}"
-                              style="--swatch-color: var(--color-{{ color_handle }}, #cccccc)">
-                          <span class="visually-hidden">{{ color_value | escape }}</span>
+                  {%- if variant.options[swatch_option_index] -%}
+                    {%- assign swatch_value = variant.options[swatch_option_index] -%}
+                    {%- unless shown_values contains swatch_value -%}
+                      {%- assign shown_values = shown_values | append: swatch_value | append: ',' -%}
+                      {%- assign swatch_count = swatch_count | plus: 1 -%}
+                      {%- comment -%} Check if ANY variant with this value is available {%- endcomment -%}
+                      {%- assign value_available = false -%}
+                      {%- for v in card_product.variants -%}
+                        {%- if v.options[swatch_option_index] == swatch_value and v.available -%}
+                          {%- assign value_available = true -%}
+                          {%- break -%}
+                        {%- endif -%}
+                      {%- endfor -%}
+                      {%- if swatch_count <= 4 -%}
+                        {%- assign swatch_handle = swatch_value | handle -%}
+                        <span class="grid-swatch{% if swatch_type == 'material' %} grid-swatch--material{% endif %}{% unless value_available %} grid-swatch--sold-out{% endunless %}"
+                              title="{{ swatch_value | escape }}"
+                              data-{{ swatch_type }}="{{ swatch_handle }}"
+                              style="--swatch-color: var(--{{ swatch_type }}-{{ swatch_handle }}, #cccccc)">
+                          <span class="visually-hidden">{{ swatch_value | escape }}{% unless value_available %} (sold out){% endunless %}</span>
                         </span>
                       {%- endif -%}
                     {%- endunless -%}
                   {%- endif -%}
                 {%- endfor -%}
-                {%- if color_count > 4 -%}
-                  <span class="grid-swatch-more" aria-label="{{ color_count | minus: 4 }} more colors available">+{{ color_count | minus: 4 }}</span>
+                {%- if swatch_count > 4 -%}
+                  <span class="grid-swatch-more" aria-label="{{ swatch_count | minus: 4 }} more {{ swatch_type }}s available">+{{ swatch_count | minus: 4 }}</span>
                 {%- endif -%}
               </div>
             {%- endif -%}
           {%- endif -%}
-          {%- comment -%} End Color Swatches Display {%- endcomment -%}
+          {%- comment -%} End Unified Swatches Display {%- endcomment -%}
           <div class="card-information">
             {%- if show_vendor -%}
               <span class="visually-hidden">{{ 'accessibility.vendor' | t }}</span>

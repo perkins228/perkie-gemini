@@ -524,6 +524,28 @@
   flex-shrink: 0;
   transition: opacity 0.2s ease;
   border: 1px solid rgba(0, 0, 0, 0.1); /* Added for better visibility per audit */
+  position: relative;
+}
+
+/* Material swatches - square shape for visual distinction */
+.grid-swatch--material {
+  border-radius: 2px;
+}
+
+/* Sold-out swatch indication */
+.grid-swatch--sold-out {
+  opacity: 0.3;
+}
+
+.grid-swatch--sold-out::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: -1px;
+  width: calc(100% + 2px);
+  height: 1px;
+  background: rgba(0, 0, 0, 0.6);
+  transform: rotate(-45deg);
 }
 
 .grid-swatch-more {
@@ -537,6 +559,11 @@
 @media (hover: hover) and (min-width: 750px) {
   .card-wrapper:hover .grid-swatch {
     opacity: 1;
+  }
+
+  /* Sold-out swatches get slight opacity bump on hover but stay distinguishable */
+  .card-wrapper:hover .grid-swatch--sold-out {
+    opacity: 0.5;
   }
 
   .grid-swatch {
@@ -593,6 +620,19 @@
   --color-stone-blue: #6b8cae;
   --color-purple-mist: #b19cd9;
   --color-bright-pink: #ff007f;
+
+  /* Material variant colors */
+  --material-canvas: #f5f5dc;
+  --material-paper: #ffffff;
+  --material-cotton: #faf0e6;
+  --material-polyester: #e8e8e8;
+  --material-ceramic: #f0f0f0;
+  --material-stainless: #c0c0c0;
+  --material-wood: #8b4513;
+  --material-metal: #71797e;
+  --material-glass: #e8f4f8;
+  --material-matte: #d3d3d3;
+  --material-glossy: #f5f5f5;
 }
 
 /* Card Shapes */
