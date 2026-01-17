@@ -176,7 +176,7 @@
           "settings": {
             "icon_svg": "",
             "icon_image": "shopify://shop_images/Artboard_1.png",
-            "title": "Select Number Of Pets",
+            "title": "Select Number of Pets",
             "desc": "Most items allow up to 2–3 pets (varies by product). Add a second pet for +$10, 3 pets for +$15."
           }
         },
@@ -192,17 +192,19 @@
         "step_gK8KNw": {
           "type": "step",
           "settings": {
-            "icon_svg": "<text x=\"24\" y=\"36\" font-size=\"48\" text-anchor=\"middle\">✅</text>",
-            "title": "Approve Your Artwork",
-            "desc": "Review and approve the digital artwork before printing."
+            "icon_svg": "",
+            "icon_image": "shopify://shop_images/effect_icon_8e3a06d7-b521-479b-ae07-94e9859b8dc4.jpg",
+            "title": "Select Your Style & Font",
+            "desc": "Choose an art style and (if available) the font for any text on your product"
           }
         },
         "step_tn6MUQ": {
           "type": "step",
           "settings": {
-            "icon_svg": "<text x=\"24\" y=\"36\" font-size=\"48\" text-anchor=\"middle\">📦</text>",
-            "title": "We Create & Ship",
-            "desc": "Your custom art is created and shipped directly to you."
+            "icon_svg": "",
+            "icon_image": "shopify://shop_images/cart_icon_f3ba49a1-542d-40b3-a958-e007897e9486.png",
+            "title": "Add to Cart",
+            "desc": "Add to cart, continue shopping, or checkout. You will receive a proof for approval before production and shipping."
           }
         }
       },
