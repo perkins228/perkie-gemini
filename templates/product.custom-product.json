@@ -158,14 +158,14 @@
         "media_size": "medium",
         "constrain_to_viewport": true,
         "media_fit": "contain",
-        "gallery_layout": "thumbnail_slider",
+        "gallery_layout": "thumbnail",
         "mobile_thumbnails": "show",
         "media_position": "left",
         "image_zoom": "lightbox",
         "hide_variants": false,
         "enable_video_looping": true,
-        "padding_top": 12,
-        "padding_bottom": 12
+        "padding_top": 8,
+        "padding_bottom": 8
       }
     },
     "how_it_works_NJLdLF": {
@@ -272,8 +272,8 @@
         "color_scheme": "scheme-f318d737-2be2-4346-8605-b2fbd6208608",
         "columns_mobile": "1",
         "swipe_on_mobile": false,
-        "padding_top": 4,
-        "padding_bottom": 20
+        "padding_top": 12,
+        "padding_bottom": 12
       }
     },
     "related-products": {
