@@ -1338,6 +1338,16 @@
         // Close modal
         this.closeModal();
 
+        // Dispatch event for product page style card thumbnails
+        document.dispatchEvent(new CustomEvent('inlinePreviewClosed', {
+          bubbles: true,
+          detail: {
+            petNumber: this.petNumber,
+            sessionKey: sessionKey,
+            effects: effects
+          }
+        }));
+
         // Phase 3: Auto-select style button (only for single-pet orders)
         const petCount = this.getSelectedPetCount();
 

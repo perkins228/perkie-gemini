@@ -243,11 +243,15 @@
             {% if block.settings.style_preview_bw != blank %}
               <img src="{{ block.settings.style_preview_bw | image_url: width: 320 }}"
                    alt="Black & White style preview"
-                   class="style-card__image">
+                   class="style-card__image"
+                   data-style-preview="bw"
+                   data-static-src="{{ block.settings.style_preview_bw | image_url: width: 320 }}">
             {% else %}
               <img src="{{ 'pet-bw-preview.jpg' | asset_url }}"
                    alt="Black & White style preview"
-                   class="style-card__image">
+                   class="style-card__image"
+                   data-style-preview="bw"
+                   data-static-src="{{ 'pet-bw-preview.jpg' | asset_url }}">
             {% endif %}
           </div>
           <p class="style-card__label">Black & White</p>
@@ -266,11 +270,15 @@
             {% if block.settings.style_preview_color != blank %}
               <img src="{{ block.settings.style_preview_color | image_url: width: 320 }}"
                    alt="Color style preview"
-                   class="style-card__image">
+                   class="style-card__image"
+                   data-style-preview="color"
+                   data-static-src="{{ block.settings.style_preview_color | image_url: width: 320 }}">
             {% else %}
               <img src="{{ 'pet-color-preview.jpg' | asset_url }}"
                    alt="Color style preview"
-                   class="style-card__image">
+                   class="style-card__image"
+                   data-style-preview="color"
+                   data-static-src="{{ 'pet-color-preview.jpg' | asset_url }}">
             {% endif %}
           </div>
           <p class="style-card__label">Color</p>
@@ -289,11 +297,15 @@
             {% if block.settings.style_preview_stencil != blank %}
               <img src="{{ block.settings.style_preview_stencil | image_url: width: 320 }}"
                    alt="Ink Wash style preview"
-                   class="style-card__image">
+                   class="style-card__image"
+                   data-style-preview="ink_wash"
+                   data-static-src="{{ block.settings.style_preview_stencil | image_url: width: 320 }}">
             {% else %}
               <img src="{{ 'pet-stencil-preview.jpg' | asset_url }}"
                    alt="Ink Wash style preview"
-                   class="style-card__image">
+                   class="style-card__image"
+                   data-style-preview="ink_wash"
+                   data-static-src="{{ 'pet-stencil-preview.jpg' | asset_url }}">
             {% endif %}
           </div>
           <p class="style-card__label">Ink Wash</p>
@@ -312,11 +324,15 @@
             {% if block.settings.style_preview_sketch != blank %}
               <img src="{{ block.settings.style_preview_sketch | image_url: width: 320 }}"
                    alt="Marker style preview"
-                   class="style-card__image">
+                   class="style-card__image"
+                   data-style-preview="sketch"
+                   data-static-src="{{ block.settings.style_preview_sketch | image_url: width: 320 }}">
             {% else %}
               <img src="{{ 'pet-sketch-preview.jpg' | asset_url }}"
                    alt="Marker style preview"
-                   class="style-card__image">
+                   class="style-card__image"
+                   data-style-preview="sketch"
+                   data-static-src="{{ 'pet-sketch-preview.jpg' | asset_url }}">
             {% endif %}
           </div>
           <p class="style-card__label">Marker</p>
@@ -1749,6 +1765,155 @@
   }
 
   const directUploadHandler = new DirectUploadHandler();
+
+  // ======================================================================
+  // DYNAMIC PET THUMBNAILS FOR STYLE CARDS
+  // Updates style selector images with customer's actual pet (V5 pattern)
+  // ======================================================================
+
+  /**
+   * Update style selection card images with actual processed pet images
+   * Follows the proven V5 pattern from pet-processor.js
+   * @param {Object} petData - Pet data object containing effects
+   */
+  function updateProductStyleCardPreviews(petData) {
+    if (!petData || !petData.effects) {
+      console.warn('[ProductStyleCards] No pet data or effects provided');
+      return;
+    }
+
+    try {
+      // Map effect keys to data-style-preview attribute values
+      // Matches V5 pattern exactly
+      const styleMap = {
+        'enhancedblackwhite': 'bw',
+        'color': 'color',
+        'ink_wash': 'ink_wash',
+        'sketch': 'sketch'
+      };
+
+      // Update each style card with the actual processed image
+      Object.entries(styleMap).forEach(function([effectKey, previewAttr]) {
+        const effectData = petData.effects[effectKey];
+        const imgElement = container.querySelector('[data-style-preview="' + previewAttr + '"]');
+
+        if (imgElement && effectData) {
+          // For Gemini effects (ink_wash, sketch): prefer dataUrl (transparent version)
+          // For BiRefNet effects (color, enhancedblackwhite): prefer gcsUrl (already transparent)
+          // Fallback chain: dataUrl -> gcsUrl
+          const imageUrl = effectData.dataUrl || effectData.gcsUrl;
+
+          if (imageUrl) {
+            imgElement.src = imageUrl;
+            imgElement.classList.add('style-card__image--dynamic');
+            console.log('[ProductStyleCards] Updated ' + previewAttr + ' with pet image');
+          }
+        }
+      });
+
+      console.log('[ProductStyleCards] Style card previews updated with pet images');
+    } catch (error) {
+      console.error('[ProductStyleCards] Error updating style card previews:', error);
+    }
+  }
+
+  /**
+   * Reset style cards to static placeholder images
+   * Called when pet selection is cleared or page loads without pet data
+   */
+  function resetStyleCardPreviews() {
+    try {
+      const styleImages = container.querySelectorAll('[data-style-preview]');
+      styleImages.forEach(function(img) {
+        const staticSrc = img.dataset.staticSrc;
+        if (staticSrc) {
+          img.src = staticSrc;
+          img.classList.remove('style-card__image--dynamic');
+        }
+      });
+      console.log('[ProductStyleCards] Style cards reset to static images');
+    } catch (error) {
+      console.error('[ProductStyleCards] Error resetting style cards:', error);
+    }
+  }
+
+  /**
+   * Initialize style cards on page load
+   * Check if there's existing pet data (session restoration)
+   */
+  function initializeStyleCardThumbnails() {
+    // Check sessionStorage for gallery-selected pet first
+    for (var i = 1; i <= 3; i++) {
+      var sessionData = sessionStorage.getItem('session_gallery_pet_' + i);
+      if (sessionData) {
+        try {
+          var petData = JSON.parse(sessionData);
+          if (petData && petData.effects) {
+            console.log('[ProductStyleCards] Restoring thumbnails from session gallery selection');
+            updateProductStyleCardPreviews(petData);
+            return; // Use first found pet
+          }
+        } catch (e) {
+          console.warn('[ProductStyleCards] Failed to parse session pet data:', e);
+        }
+      }
+    }
+
+    // Fallback: Check PetStorage for recent pets
+    if (window.PetStorage && typeof window.PetStorage.getRecentPets === 'function') {
+      var recentPets = window.PetStorage.getRecentPets(1);
+      if (recentPets && recentPets.length > 0) {
+        // Only update if pet was processed recently (within last hour)
+        var latestPet = recentPets[0];
+        var oneHourAgo = Date.now() - (60 * 60 * 1000);
+        if (latestPet.timestamp && latestPet.timestamp > oneHourAgo) {
+          console.log('[ProductStyleCards] Initializing thumbnails from recent pet');
+          updateProductStyleCardPreviews(latestPet);
+        }
+      }
+    }
+  }
+
+  // Listen for session gallery pet selection
+  document.addEventListener('sessionPetSelected', function(e) {
+    var petData = e.detail && e.detail.petData;
+    if (petData && petData.effects) {
+      console.log('[ProductStyleCards] Pet selected from session gallery, updating thumbnails');
+      updateProductStyleCardPreviews(petData);
+    }
+  });
+
+  // Listen for inline preview completion
+  document.addEventListener('inlinePreviewClosed', function(e) {
+    // After modal closes, check if we have updated pet data
+    setTimeout(function() {
+      if (window.PetStorage && typeof window.PetStorage.getRecentPets === 'function') {
+        var recentPets = window.PetStorage.getRecentPets(1);
+        if (recentPets && recentPets.length > 0) {
+          var latestPet = recentPets[0];
+          console.log('[ProductStyleCards] Inline preview completed, updating thumbnails');
+          updateProductStyleCardPreviews(latestPet);
+        }
+      }
+    }, 100); // Small delay to ensure PetStorage is updated
+  });
+
+  // Listen for selection cleared
+  document.addEventListener('sessionPetCleared', function(e) {
+    resetStyleCardPreviews();
+  });
+
+  // Initialize on DOMContentLoaded (if not already loaded)
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initializeStyleCardThumbnails);
+  } else {
+    // DOM already loaded, initialize after a short delay for PetStorage
+    setTimeout(initializeStyleCardThumbnails, 200);
+  }
+
+  // ======================================================================
+  // END DYNAMIC PET THUMBNAILS
+  // ======================================================================
 
   const maxPets = parseInt(container.dataset.maxPets) || 1;
   const petDetailsContainer = container.querySelector('[data-pet-details-container]');
