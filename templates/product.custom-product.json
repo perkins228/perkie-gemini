@@ -174,17 +174,19 @@
         "step_VYHrbm": {
           "type": "step",
           "settings": {
-            "icon_svg": "<text x=\"24\" y=\"36\" font-size=\"48\" text-anchor=\"middle\">🖼️</text>",
-            "title": "Select Your Product",
-            "desc": "Choose from a variety of print styles and sizes."
+            "icon_svg": "",
+            "icon_image": "shopify://shop_images/dial_icon_17f5dfe3-b705-4b4b-b388-0c4127db9e0f.png",
+            "title": "Select Number Of Pets",
+            "desc": "Most items allow up to 2–3 pets (varies by product). Add a second pet for +$10, 3 pets for +$15."
           }
         },
         "step_ceFTwC": {
           "type": "step",
           "settings": {
-            "icon_svg": "<text x=\"24\" y=\"36\" font-size=\"48\" text-anchor=\"middle\">📤</text>",
-            "title": "Upload Your Image",
-            "desc": "Upload your favorite photo to be transformed."
+            "icon_svg": "",
+            "icon_image": "shopify://shop_images/iphone_icon_5c34cf25-e680-4f67-8440-8e80882c1822.png",
+            "title": "2. Enter Name & Select Image",
+            "desc": "Tell us each pet’s name and choose a photo. Upload an image or select a saved pet from your library."
           }
         },
         "step_gK8KNw": {
