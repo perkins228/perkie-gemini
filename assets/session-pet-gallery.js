@@ -116,12 +116,6 @@
         'onerror="this.parentElement.style.backgroundColor=\'#e5e7eb\'; this.style.display=\'none\';">' +
     '</div>';
 
-    if (pet.ageText) {
-      html += '<div class="session-pet-card__meta">' +
-        '<span class="session-pet-card__age">' + escapeHtml(pet.ageText) + '</span>' +
-      '</div>';
-    }
-
     card.innerHTML = html;
 
     // Add delete button handler (must stop propagation to prevent card click)
