@@ -1946,14 +1946,9 @@
       petDetailsSection.hidden = (count === 0);
     }
 
-    // Show Font section when pet count is selected (progressive disclosure)
-    const fontSection = container.querySelector('[data-font-section]');
-    if (fontSection) {
-      fontSection.hidden = (count === 0);
-    }
-
     updateFontPreviews();
     toggleStyleSection(); // Update style section visibility when pet count changes
+    toggleFontSection();  // Update font section visibility (requires pet name)
   }
 
   // Update font previews with ampersand formatting (matches old font-selector)
@@ -2011,6 +2006,37 @@
     } else {
       styleSection.hidden = true;
       console.log('🎨 Style section hidden (no pet names)');
+    }
+  }
+
+  // Toggle font section visibility based on whether any pet has a name
+  // (Only shows after customer enters pet name - progressive disclosure)
+  function toggleFontSection() {
+    const fontSection = container.querySelector('[data-font-section]');
+    if (!fontSection) return;
+
+    // Check if any visible pet has a name entered
+    const visiblePets = [...petDetailsContainer.querySelectorAll('.pet-detail')]
+      .filter(detail => detail.style.display !== 'none');
+
+    // If no pets are visible (count = 0), keep font section hidden
+    if (visiblePets.length === 0) {
+      fontSection.hidden = true;
+      return;
+    }
+
+    const hasAnyName = visiblePets.some(detail => {
+      const input = detail.querySelector('[data-pet-name-input]');
+      return input && input.value.trim().length > 0;
+    });
+
+    // Show/hide font section based on whether any pet has a name
+    if (hasAnyName) {
+      fontSection.hidden = false;
+      console.log('🔤 Font section shown (pet name entered)');
+    } else {
+      fontSection.hidden = true;
+      console.log('🔤 Font section hidden (no pet names)');
     }
   }
 
@@ -2137,6 +2163,7 @@
     input.addEventListener('input', () => {
       updateFontPreviews();
       toggleStyleSection(); // Show/hide style section based on pet names
+      toggleFontSection();  // Show/hide font section based on pet names
       savePetSelectorState(); // Save with debounce on typing
     });
   });
@@ -3097,8 +3124,10 @@
         }
       }
 
-      // 5. Update font previews
+      // 5. Update font previews and visibility
       updateFontPreviews();
+      toggleStyleSection(); // Ensure style section visibility is correct after name restoration
+      toggleFontSection();  // Ensure font section visibility is correct after name restoration
 
       // 6. Check if user returned from processor
       const returnUrl = sessionStorage.getItem('pet_selector_return_url');
