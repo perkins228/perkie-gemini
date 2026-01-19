@@ -355,7 +355,15 @@
           "settings": {
             "collection": "personalized-pet-apparel",
             "img": "shopify://shop_images/apparel_icon_ff8976b0-df51-48ac-9962-f22e2c4f677f.png",
-            "title": "Apparel & Accessories"
+            "title": "Apparel"
+          }
+        },
+        "collection_8Fmmc3": {
+          "type": "collection",
+          "settings": {
+            "collection": "accessories",
+            "img": "shopify://shop_images/accessorie_button.png",
+            "title": "Accessories"
           }
         },
         "collection_kFBiHa": {
@@ -387,13 +395,14 @@
           "settings": {
             "collection": "ready-to-ship",
             "img": "shopify://shop_images/perkie_originals_icon_0dc48871-6bb4-488d-83a2-eda62ae0c478.png",
-            "title": "Perkie Originals"
+            "title": "Ready-to-Ship"
           }
         }
       },
       "block_order": [
         "collection_bAgHcW",
         "collection_ybQGrr",
+        "collection_8Fmmc3",
         "collection_kFBiHa",
         "collection_hbRgpp",
         "collection_MDq7kD",
