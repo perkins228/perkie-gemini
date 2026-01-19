@@ -452,7 +452,7 @@
           "type": "collection",
           "disabled": true,
           "settings": {
-            "collection": "perkie-originals",
+            "collection": "ready-to-ship",
             "img": "shopify://shop_images/readymade-removebg-preview_2.webp",
             "title": "Perkie Originals"
           }
