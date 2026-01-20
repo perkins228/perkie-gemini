@@ -159,11 +159,26 @@ class CartItems extends HTMLElement {
           const targetElement = document.querySelector(selector);
           const sourceElement = html.querySelector(selector);
           console.log(`🛒 [CartDebug] Selector "${selector}": target=${!!targetElement}, source=${!!sourceElement}`);
+          if (sourceElement) {
+            console.log(`🛒 [CartDebug] Source ${selector} innerHTML length:`, sourceElement.innerHTML.length);
+            console.log(`🛒 [CartDebug] Source ${selector} has .cart-item:`, sourceElement.querySelectorAll('.cart-item').length);
+            console.log(`🛒 [CartDebug] Source ${selector} innerHTML preview:`, sourceElement.innerHTML.substring(0, 300));
+          }
           if (targetElement && sourceElement) {
             console.log(`🛒 [CartDebug] Replacing ${selector}`);
             targetElement.replaceWith(sourceElement);
           }
         }
+        // DEBUG: Check final DOM state after replacement
+        setTimeout(() => {
+          const finalItems = document.querySelector('cart-drawer-items');
+          console.log('🛒 [CartDebug] AFTER replacement - cart-drawer-items exists:', !!finalItems);
+          if (finalItems) {
+            console.log('🛒 [CartDebug] AFTER replacement - innerHTML length:', finalItems.innerHTML.length);
+            console.log('🛒 [CartDebug] AFTER replacement - .cart-item count:', finalItems.querySelectorAll('.cart-item').length);
+            console.log('🛒 [CartDebug] AFTER replacement - classes:', finalItems.className);
+          }
+        }, 100);
         return Promise.resolve();
       }
 
