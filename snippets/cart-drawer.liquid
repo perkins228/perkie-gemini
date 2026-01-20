@@ -26,19 +26,28 @@
     font-size: 0.95em;
     order: 1; /* Push fees after all products */
   }
-  /* DEBUG: Force cart items to be visible */
+  /* DEBUG: Force cart items to be visible with bright background */
   .cart-drawer .cart-item {
     visibility: visible !important;
     opacity: 1 !important;
     display: grid !important;
     min-height: 100px !important;
+    background: #ff0000 !important; /* BRIGHT RED - very obvious if it exists */
   }
   .cart-drawer table.cart-items {
     visibility: visible !important;
     display: block !important;
+    background: #00ff00 !important; /* BRIGHT GREEN for table */
   }
   .cart-drawer tbody {
     visibility: visible !important;
+    background: #0000ff !important; /* BRIGHT BLUE for tbody */
+    display: block !important;
+  }
+  .cart-drawer .drawer__cart-items-wrapper {
+    visibility: visible !important;
+    background: #ffff00 !important; /* BRIGHT YELLOW for wrapper */
+    min-height: 200px !important;
   }
 </style>
 
