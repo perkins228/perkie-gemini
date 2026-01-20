@@ -69,7 +69,7 @@
         "slide_rtwWeN": {
           "type": "slide",
           "settings": {
-            "img_desktop": "shopify://shop_images/desktop_hp_2.jpg",
+            "img_desktop": "shopify://shop_images/desktop_hp_1.jpg",
             "overlay_color": "#121212",
             "overlay_opacity": 0,
             "overlay_blur": 0,
