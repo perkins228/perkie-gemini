@@ -63,6 +63,61 @@
         "show_text_below": true
       }
     },
+    "slideshow_yyQatH": {
+      "type": "slideshow",
+      "blocks": {
+        "slide_7cK4qJ": {
+          "type": "slide",
+          "settings": {
+            "image": "shopify://shop_images/desktop_hp_1.jpg",
+            "image_overlay_opacity": 0,
+            "heading": "Image slide",
+            "heading_size": "h1",
+            "subheading": "Tell your brand's story through images",
+            "button_label": "Button label",
+            "link": "",
+            "button_style_secondary": false,
+            "show_text_box": true,
+            "box_align": "middle-center",
+            "text_alignment": "center",
+            "text_alignment_mobile": "center",
+            "color_scheme": "scheme-f318d737-2be2-4346-8605-b2fbd6208608"
+          }
+        },
+        "slide_Cjr8W7": {
+          "type": "slide",
+          "settings": {
+            "image_overlay_opacity": 0,
+            "heading": "Image slide",
+            "heading_size": "h1",
+            "subheading": "Tell your brand's story through images",
+            "button_label": "Button label",
+            "link": "",
+            "button_style_secondary": false,
+            "show_text_box": true,
+            "box_align": "middle-center",
+            "text_alignment": "center",
+            "text_alignment_mobile": "center",
+            "color_scheme": ""
+          }
+        }
+      },
+      "block_order": [
+        "slide_7cK4qJ",
+        "slide_Cjr8W7"
+      ],
+      "name": "t:sections.slideshow.presets.name",
+      "settings": {
+        "layout": "full_bleed",
+        "slide_height": "medium",
+        "slider_visual": "counter",
+        "auto_rotate": false,
+        "change_slides_speed": 5,
+        "image_behavior": "none",
+        "show_text_below": true,
+        "accessibility_info": "Slideshow about our brand"
+      }
+    },
     "ks_fancy_slideshow_qt7Jhf": {
       "type": "ks-fancy-slideshow",
       "blocks": {
@@ -124,6 +179,7 @@
         "slide_rtwWeN",
         "slide_Ye3UNg"
       ],
+      "disabled": true,
       "name": "KS - Fancy slideshow",
       "settings": {
         "color_scheme": "scheme-f318d737-2be2-4346-8605-b2fbd6208608",
@@ -731,6 +787,7 @@
   },
   "order": [
     "image_banner_qWieVe",
+    "slideshow_yyQatH",
     "ks_fancy_slideshow_qt7Jhf",
     "how_it_works_fz8MHb",
     "ks_instagram_gallery_KbxtFY",
