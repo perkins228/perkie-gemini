@@ -26,6 +26,20 @@
     font-size: 0.95em;
     order: 1; /* Push fees after all products */
   }
+  /* DEBUG: Force cart items to be visible */
+  .cart-drawer .cart-item {
+    visibility: visible !important;
+    opacity: 1 !important;
+    display: grid !important;
+    min-height: 100px !important;
+  }
+  .cart-drawer table.cart-items {
+    visibility: visible !important;
+    display: block !important;
+  }
+  .cart-drawer tbody {
+    visibility: visible !important;
+  }
 </style>
 
 {% comment %}
