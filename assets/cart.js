@@ -177,6 +177,24 @@ class CartItems extends HTMLElement {
             console.log('🛒 [CartDebug] AFTER replacement - innerHTML length:', finalItems.innerHTML.length);
             console.log('🛒 [CartDebug] AFTER replacement - .cart-item count:', finalItems.querySelectorAll('.cart-item').length);
             console.log('🛒 [CartDebug] AFTER replacement - classes:', finalItems.className);
+
+            // Check computed styles on cart-drawer-items and first cart-item
+            const computedStyle = window.getComputedStyle(finalItems);
+            console.log('🛒 [CartDebug] cart-drawer-items computed: display=' + computedStyle.display + ', visibility=' + computedStyle.visibility + ', height=' + computedStyle.height + ', overflow=' + computedStyle.overflow);
+
+            const firstItem = finalItems.querySelector('.cart-item');
+            if (firstItem) {
+              const itemStyle = window.getComputedStyle(firstItem);
+              console.log('🛒 [CartDebug] .cart-item computed: display=' + itemStyle.display + ', visibility=' + itemStyle.visibility + ', height=' + itemStyle.height + ', opacity=' + itemStyle.opacity);
+              console.log('🛒 [CartDebug] .cart-item getBoundingClientRect:', JSON.stringify(firstItem.getBoundingClientRect()));
+            }
+
+            // Check drawer__cart-items-wrapper
+            const wrapper = finalItems.querySelector('.drawer__cart-items-wrapper');
+            if (wrapper) {
+              const wrapperStyle = window.getComputedStyle(wrapper);
+              console.log('🛒 [CartDebug] .drawer__cart-items-wrapper computed: display=' + wrapperStyle.display + ', height=' + wrapperStyle.height);
+            }
           }
         }, 100);
         return Promise.resolve();
