@@ -16,11 +16,12 @@
     visibility: hidden;
   }
   /* Pet fee styling - FIFO order with CSS positioning */
-  cart-drawer-items table tbody {
-    display: flex;
+  /* Using !important to override .cart-drawer tbody { display: block } from component-cart-drawer.css */
+  .cart-drawer cart-drawer-items table tbody {
+    display: flex !important;
     flex-direction: column;
   }
-  cart-drawer-items table tbody tr.cart-item--fee {
+  .cart-drawer cart-drawer-items table tbody tr.cart-item--fee {
     background: #f9fafb;
     font-size: 0.95em;
     order: 1; /* Push fees after all products */

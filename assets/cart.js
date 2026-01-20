@@ -130,73 +130,19 @@ class CartItems extends HTMLElement {
 
   onCartUpdate(event) {
     if (this.tagName === "CART-DRAWER-ITEMS") {
-      // FIX: Use pre-fetched cart data from event if available (prevents stale data race)
-      // The /cart/add.js response includes fresh section HTML - use it directly
+      // Use pre-fetched cart data from event if available (prevents stale data race)
       const prefetchedHtml = event?.cartData?.sections?.['cart-drawer'];
 
-      // DEBUG: Log what we received
-      console.log('🛒 [CartDebug] onCartUpdate called');
-      console.log('🛒 [CartDebug] event:', event);
-      console.log('🛒 [CartDebug] event?.cartData:', event?.cartData);
-      console.log('🛒 [CartDebug] event?.cartData?.sections:', event?.cartData?.sections);
-      console.log('🛒 [CartDebug] prefetchedHtml exists:', !!prefetchedHtml);
       if (prefetchedHtml) {
-        console.log('🛒 [CartDebug] prefetchedHtml length:', prefetchedHtml.length);
-        console.log('🛒 [CartDebug] prefetchedHtml preview:', prefetchedHtml.substring(0, 500));
-      }
-
-      if (prefetchedHtml) {
-        // Use fresh data from the cart add response - no additional fetch needed
         const html = new DOMParser().parseFromString(prefetchedHtml, "text/html");
-
-        // DEBUG: Check what elements exist in parsed HTML
-        console.log('🛒 [CartDebug] Parsed HTML document:', html);
-        console.log('🛒 [CartDebug] Found cart-drawer-items in response:', !!html.querySelector('cart-drawer-items'));
-        console.log('🛒 [CartDebug] Found .cart-drawer__footer in response:', !!html.querySelector('.cart-drawer__footer'));
-
         const selectors = ["cart-drawer-items", ".cart-drawer__footer"];
         for (const selector of selectors) {
           const targetElement = document.querySelector(selector);
           const sourceElement = html.querySelector(selector);
-          console.log(`🛒 [CartDebug] Selector "${selector}": target=${!!targetElement}, source=${!!sourceElement}`);
-          if (sourceElement) {
-            console.log(`🛒 [CartDebug] Source ${selector} innerHTML length:`, sourceElement.innerHTML.length);
-            console.log(`🛒 [CartDebug] Source ${selector} has .cart-item:`, sourceElement.querySelectorAll('.cart-item').length);
-            console.log(`🛒 [CartDebug] Source ${selector} innerHTML preview:`, sourceElement.innerHTML.substring(0, 300));
-          }
           if (targetElement && sourceElement) {
-            console.log(`🛒 [CartDebug] Replacing ${selector}`);
             targetElement.replaceWith(sourceElement);
           }
         }
-        // DEBUG: Check final DOM state after replacement
-        setTimeout(() => {
-          const finalItems = document.querySelector('cart-drawer-items');
-          console.log('🛒 [CartDebug] AFTER replacement - cart-drawer-items exists:', !!finalItems);
-          if (finalItems) {
-            console.log('🛒 [CartDebug] AFTER replacement - innerHTML length:', finalItems.innerHTML.length);
-            console.log('🛒 [CartDebug] AFTER replacement - .cart-item count:', finalItems.querySelectorAll('.cart-item').length);
-            console.log('🛒 [CartDebug] AFTER replacement - classes:', finalItems.className);
-
-            // Check computed styles on cart-drawer-items and first cart-item
-            const computedStyle = window.getComputedStyle(finalItems);
-            console.log('🛒 [CartDebug] cart-drawer-items computed: display=' + computedStyle.display + ', visibility=' + computedStyle.visibility + ', height=' + computedStyle.height + ', overflow=' + computedStyle.overflow);
-
-            const firstItem = finalItems.querySelector('.cart-item');
-            if (firstItem) {
-              const itemStyle = window.getComputedStyle(firstItem);
-              console.log('🛒 [CartDebug] .cart-item computed: display=' + itemStyle.display + ', visibility=' + itemStyle.visibility + ', height=' + itemStyle.height + ', opacity=' + itemStyle.opacity);
-              console.log('🛒 [CartDebug] .cart-item getBoundingClientRect:', JSON.stringify(firstItem.getBoundingClientRect()));
-            }
-
-            // Check drawer__cart-items-wrapper
-            const wrapper = finalItems.querySelector('.drawer__cart-items-wrapper');
-            if (wrapper) {
-              const wrapperStyle = window.getComputedStyle(wrapper);
-              console.log('🛒 [CartDebug] .drawer__cart-items-wrapper computed: display=' + wrapperStyle.display + ', height=' + wrapperStyle.height);
-            }
-          }
-        }, 100);
         return Promise.resolve();
       }
 

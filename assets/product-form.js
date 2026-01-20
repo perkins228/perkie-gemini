@@ -137,14 +137,6 @@ if (!customElements.get('product-form')) {
               return response.json();
             })
             .then((response) => {
-              // DEBUG: Log the full response to understand what sections are returned
-              console.log('🛒 [CartDebug] /cart/add.js response:', response);
-              console.log('🛒 [CartDebug] response.sections:', response.sections);
-              console.log('🛒 [CartDebug] response.sections keys:', response.sections ? Object.keys(response.sections) : 'N/A');
-              if (response.sections && response.sections['cart-drawer']) {
-                console.log('🛒 [CartDebug] cart-drawer section length:', response.sections['cart-drawer'].length);
-                console.log('🛒 [CartDebug] cart-drawer section preview:', response.sections['cart-drawer'].substring(0, 300));
-              }
               if (response.status) {
                 // Enhanced error logging for debugging
                 console.error('💰 [PetFee] Cart error response:', JSON.stringify(response, null, 2));
