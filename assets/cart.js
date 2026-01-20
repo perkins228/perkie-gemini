@@ -58,7 +58,8 @@ class CartItems extends HTMLElement {
         if (event.source === "cart-items") {
           return;
         }
-        return this.onCartUpdate();
+        // Pass event to onCartUpdate so it can use pre-fetched cart data if available
+        return this.onCartUpdate(event);
       }
     );
   }
@@ -127,8 +128,27 @@ class CartItems extends HTMLElement {
     this.validateQuantity(event);
   }
 
-  onCartUpdate() {
+  onCartUpdate(event) {
     if (this.tagName === "CART-DRAWER-ITEMS") {
+      // FIX: Use pre-fetched cart data from event if available (prevents stale data race)
+      // The /cart/add.js response includes fresh section HTML - use it directly
+      const prefetchedHtml = event?.cartData?.sections?.['cart-drawer'];
+
+      if (prefetchedHtml) {
+        // Use fresh data from the cart add response - no additional fetch needed
+        const html = new DOMParser().parseFromString(prefetchedHtml, "text/html");
+        const selectors = ["cart-drawer-items", ".cart-drawer__footer"];
+        for (const selector of selectors) {
+          const targetElement = document.querySelector(selector);
+          const sourceElement = html.querySelector(selector);
+          if (targetElement && sourceElement) {
+            targetElement.replaceWith(sourceElement);
+          }
+        }
+        return Promise.resolve();
+      }
+
+      // Fallback: fetch fresh data if no prefetched data available
       return fetch(`${routes.cart_url}?section_id=cart-drawer`)
         .then((response) => response.text())
         .then((responseText) => {
@@ -149,6 +169,19 @@ class CartItems extends HTMLElement {
           console.error(e);
         });
     } else {
+      // Main cart page - use prefetched data if available
+      const prefetchedHtml = event?.cartData?.sections?.['main-cart-items'];
+
+      if (prefetchedHtml) {
+        const html = new DOMParser().parseFromString(prefetchedHtml, "text/html");
+        const sourceQty = html.querySelector("cart-items");
+        if (sourceQty) {
+          this.innerHTML = sourceQty.innerHTML;
+        }
+        return Promise.resolve();
+      }
+
+      // Fallback: fetch fresh data
       return fetch(`${routes.cart_url}?section_id=main-cart-items`)
         .then((response) => response.text())
         .then((responseText) => {
