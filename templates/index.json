@@ -225,6 +225,57 @@
         "padding_bottom": 8
       }
     },
+    "ks_fancy_slideshow_P99t9J": {
+      "type": "ks-fancy-slideshow",
+      "blocks": {
+        "slide_tceyNm": {
+          "type": "slide",
+          "settings": {
+            "img_mobile": "shopify://shop_images/Valentines_25_Banner_square_copy2.jpg",
+            "img_desktop": "shopify://shop_images/Valentines_25_Banner_wide.jpg",
+            "overlay_color": "#121212",
+            "overlay_opacity": 0,
+            "overlay_blur": 0,
+            "caption_position_mobile": "bottom",
+            "caption_text_align_mobile": "text-center",
+            "caption_position_desktop": "bottom",
+            "caption_text_align_desktop": "text-desktop-center",
+            "caption_max_width": "900",
+            "subtitle": "",
+            "subtitle_font_size": "fs-sm",
+            "title": "",
+            "title_font_size": "h1",
+            "description": "",
+            "description_font_size": "fs-lg",
+            "btn_primary_text": "Add Mug to Cart",
+            "btn_primary_style": "button--primary",
+            "btn_primary_url": "",
+            "btn_secondary_text": "",
+            "btn_secondary_style": "button--secondary",
+            "btn_secondary_url": ""
+          }
+        }
+      },
+      "block_order": [
+        "slide_tceyNm"
+      ],
+      "name": "Valentine Banner",
+      "settings": {
+        "color_scheme": "",
+        "slider_navigation": false,
+        "slider_pagination": "bullets",
+        "slider_effect": "slide",
+        "slider_speed": 700,
+        "slider_autoplay": 5,
+        "slider_partial": false,
+        "slider_spacing": false,
+        "media_mobile_height": 400,
+        "media_desktop_height": 700,
+        "media_adapt": false,
+        "pt": 36,
+        "pb": 36
+      }
+    },
     "image_with_text_ht9TLA": {
       "type": "image-with-text",
       "blocks": {
@@ -798,6 +849,7 @@
     "image_banner_gLx4T3",
     "ks_fancy_slideshow_CjgK6D",
     "image_with_text_9bWqwm",
+    "ks_fancy_slideshow_P99t9J",
     "image_with_text_ht9TLA",
     "ks_fancy_slideshow_FaQtVG",
     "ks_separator_hw3jyN",
