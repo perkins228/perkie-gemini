@@ -133,31 +133,19 @@ class CartItems extends HTMLElement {
       // Use pre-fetched cart data from event if available (prevents stale data race)
       const prefetchedHtml = event?.cartData?.sections?.['cart-drawer'];
 
-      console.log('🛒 [CartDrawer] onCartUpdate called, prefetchedHtml exists:', !!prefetchedHtml);
-      if (prefetchedHtml) {
-        console.log('🛒 [CartDrawer] HTML length:', prefetchedHtml.length);
-        console.log('🛒 [CartDrawer] HTML preview (first 500 chars):', prefetchedHtml.substring(0, 500));
-      }
-
       if (prefetchedHtml) {
         const html = new DOMParser().parseFromString(prefetchedHtml, "text/html");
-        const selectors = ["cart-drawer-items", ".cart-drawer__footer"];
-        for (const selector of selectors) {
-          const targetElement = document.querySelector(selector);
-          const sourceElement = html.querySelector(selector);
-          console.log(`🛒 [CartDrawer] Selector "${selector}": target=${!!targetElement}, source=${!!sourceElement}`);
-          if (sourceElement) {
-            console.log(`🛒 [CartDrawer] Source innerHTML length for "${selector}":`, sourceElement.innerHTML.length);
-            // Check for cart items specifically
-            if (selector === "cart-drawer-items") {
-              const cartItems = sourceElement.querySelectorAll('.cart-item');
-              console.log(`🛒 [CartDrawer] Found ${cartItems.length} cart-item elements in source`);
-            }
-          }
-          if (targetElement && sourceElement) {
-            targetElement.replaceWith(sourceElement);
-            console.log(`🛒 [CartDrawer] Replaced "${selector}"`);
-          }
+        // FIX: cart-drawer-items is a custom element - use innerHTML instead of replaceWith
+        // to preserve the already-upgraded custom element instance in the DOM.
+        // DOMParser creates elements in an inert document without Custom Elements registry,
+        // so replaceWith() would insert a non-upgraded element causing CSS issues.
+        const targetElement = document.querySelector("cart-drawer-items");
+        const sourceElement = html.querySelector("cart-drawer-items");
+        if (targetElement && sourceElement) {
+          // Copy class attribute (e.g., is-empty state)
+          targetElement.className = sourceElement.className;
+          // Use innerHTML to preserve the custom element
+          targetElement.innerHTML = sourceElement.innerHTML;
         }
         return Promise.resolve();
       }
@@ -170,13 +158,12 @@ class CartItems extends HTMLElement {
             responseText,
             "text/html"
           );
-          const selectors = ["cart-drawer-items", ".cart-drawer__footer"];
-          for (const selector of selectors) {
-            const targetElement = document.querySelector(selector);
-            const sourceElement = html.querySelector(selector);
-            if (targetElement && sourceElement) {
-              targetElement.replaceWith(sourceElement);
-            }
+          // FIX: Use innerHTML for custom element cart-drawer-items
+          const targetElement = document.querySelector("cart-drawer-items");
+          const sourceElement = html.querySelector("cart-drawer-items");
+          if (targetElement && sourceElement) {
+            targetElement.className = sourceElement.className;
+            targetElement.innerHTML = sourceElement.innerHTML;
           }
         })
         .catch((e) => {
