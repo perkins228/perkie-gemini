@@ -182,11 +182,14 @@ class CartItems extends HTMLElement {
           console.log('🛒 [CartDrawer] footer innerHTML updated successfully');
         }
 
-        // Also update cart-drawer is-empty class for empty/non-empty state
+        // FIX: Only toggle is-empty class, NOT replace entire className
+        // CRITICAL: cart-drawer has 'active' and 'animate' classes that control visibility
+        // Replacing className removes these, causing drawer to become invisible (visibility: hidden)
         const cartDrawer = document.querySelector('cart-drawer');
         const cartDrawerSource = html.querySelector('cart-drawer');
         if (cartDrawer && cartDrawerSource) {
-          cartDrawer.className = cartDrawerSource.className;
+          const sourceIsEmpty = cartDrawerSource.classList.contains('is-empty');
+          cartDrawer.classList.toggle('is-empty', sourceIsEmpty);
         }
 
         return Promise.resolve();
@@ -217,11 +220,12 @@ class CartItems extends HTMLElement {
             footerTarget.innerHTML = footerSource.innerHTML;
           }
 
-          // Update cart-drawer is-empty class
+          // FIX: Only toggle is-empty class (same fix as prefetched path)
           const cartDrawer = document.querySelector('cart-drawer');
           const cartDrawerSource = html.querySelector('cart-drawer');
           if (cartDrawer && cartDrawerSource) {
-            cartDrawer.className = cartDrawerSource.className;
+            const sourceIsEmpty = cartDrawerSource.classList.contains('is-empty');
+            cartDrawer.classList.toggle('is-empty', sourceIsEmpty);
           }
         })
         .catch((e) => {
