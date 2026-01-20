@@ -69,7 +69,7 @@
         "slide_rtwWeN": {
           "type": "slide",
           "settings": {
-            "img_desktop": "shopify://shop_images/desktop_hp.jpg",
+            "img_desktop": "shopify://shop_images/desktop_hp_f305a039-b61c-410a-95c5-134b33f56715.jpg",
             "overlay_color": "#121212",
             "overlay_opacity": 10,
             "overlay_blur": 0,
@@ -136,7 +136,7 @@
         "slider_partial": false,
         "slider_spacing": false,
         "media_mobile_height": 400,
-        "media_desktop_height": 770,
+        "media_desktop_height": 700,
         "media_adapt": false,
         "pt": 0,
         "pb": 4
