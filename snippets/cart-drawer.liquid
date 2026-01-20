@@ -172,7 +172,7 @@
 
                     <tbody role="rowgroup">
                       {%- comment -%}FIFO order: oldest items first. Fees pushed to bottom via CSS order.{%- endcomment -%}
-                      {%- for item in cart.items | reverse -%}
+                      {%- for item in cart.items reversed -%}
                         <tr id="CartDrawer-Item-{{ item.index | plus: 1 }}"
                             class="cart-item{% if item.properties._fee_type == 'additional_pets' %} cart-item--fee{% endif %}"
                             role="row">
