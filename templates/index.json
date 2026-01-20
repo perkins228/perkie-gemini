@@ -136,7 +136,7 @@
         "slider_spacing": false,
         "media_mobile_height": 400,
         "media_desktop_height": 640,
-        "media_adapt": false,
+        "media_adapt": true,
         "pt": 0,
         "pb": 4
       }
