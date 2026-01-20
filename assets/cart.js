@@ -133,6 +133,18 @@ class CartItems extends HTMLElement {
       // Use pre-fetched cart data from event if available (prevents stale data race)
       const prefetchedHtml = event?.cartData?.sections?.['cart-drawer'];
 
+      console.log('🛒 [CartDrawer] onCartUpdate called');
+      console.log('🛒 [CartDrawer] event exists:', !!event);
+      console.log('🛒 [CartDrawer] cartData exists:', !!event?.cartData);
+      console.log('🛒 [CartDrawer] sections exists:', !!event?.cartData?.sections);
+      console.log('🛒 [CartDrawer] prefetchedHtml exists:', !!prefetchedHtml);
+      if (prefetchedHtml) {
+        console.log('🛒 [CartDrawer] prefetchedHtml length:', prefetchedHtml.length);
+        // Check for $0.00 in the HTML
+        const hasZeroPrice = prefetchedHtml.includes('$0.00');
+        console.log('🛒 [CartDrawer] Contains $0.00:', hasZeroPrice);
+      }
+
       if (prefetchedHtml) {
         const html = new DOMParser().parseFromString(prefetchedHtml, "text/html");
         // FIX: cart-drawer-items is a custom element - use innerHTML instead of replaceWith
@@ -141,13 +153,23 @@ class CartItems extends HTMLElement {
         // so replaceWith() would insert a non-upgraded element causing CSS issues.
         const targetElement = document.querySelector("cart-drawer-items");
         const sourceElement = html.querySelector("cart-drawer-items");
+        console.log('🛒 [CartDrawer] targetElement exists:', !!targetElement);
+        console.log('🛒 [CartDrawer] sourceElement exists:', !!sourceElement);
+        if (sourceElement) {
+          console.log('🛒 [CartDrawer] sourceElement innerHTML length:', sourceElement.innerHTML.length);
+          const cartItems = sourceElement.querySelectorAll('.cart-item');
+          console.log('🛒 [CartDrawer] cart-item count in source:', cartItems.length);
+        }
         if (targetElement && sourceElement) {
           // Copy class attribute (e.g., is-empty state)
           targetElement.className = sourceElement.className;
           // Use innerHTML to preserve the custom element
           targetElement.innerHTML = sourceElement.innerHTML;
+          console.log('🛒 [CartDrawer] innerHTML updated successfully');
         }
         return Promise.resolve();
+      } else {
+        console.log('🛒 [CartDrawer] No prefetched HTML, falling back to fetch');
       }
 
       // Fallback: fetch fresh data if no prefetched data available
