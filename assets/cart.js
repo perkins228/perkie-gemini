@@ -129,11 +129,14 @@ class CartItems extends HTMLElement {
   }
 
   onCartUpdate(event) {
+    // Debug: Log at very start to verify onCartUpdate is being called
+    console.log('🛒 [CartUpdate] onCartUpdate called, tagName:', this.tagName, 'source:', event?.source);
+
     if (this.tagName === "CART-DRAWER-ITEMS") {
       // Use pre-fetched cart data from event if available (prevents stale data race)
       const prefetchedHtml = event?.cartData?.sections?.['cart-drawer'];
 
-      console.log('🛒 [CartDrawer] onCartUpdate called');
+      console.log('🛒 [CartDrawer] Processing cart-drawer-items update');
       console.log('🛒 [CartDrawer] event exists:', !!event);
       console.log('🛒 [CartDrawer] cartData exists:', !!event?.cartData);
       console.log('🛒 [CartDrawer] sections exists:', !!event?.cartData?.sections);
@@ -165,8 +168,27 @@ class CartItems extends HTMLElement {
           targetElement.className = sourceElement.className;
           // Use innerHTML to preserve the custom element
           targetElement.innerHTML = sourceElement.innerHTML;
-          console.log('🛒 [CartDrawer] innerHTML updated successfully');
+          console.log('🛒 [CartDrawer] cart-drawer-items innerHTML updated successfully');
         }
+
+        // FIX: Also update the footer (contains total price, discounts, checkout button)
+        // The footer is OUTSIDE cart-drawer-items, so we need to update it separately
+        const footerTarget = document.querySelector('.cart-drawer__footer');
+        const footerSource = html.querySelector('.cart-drawer__footer');
+        console.log('🛒 [CartDrawer] footerTarget exists:', !!footerTarget);
+        console.log('🛒 [CartDrawer] footerSource exists:', !!footerSource);
+        if (footerTarget && footerSource) {
+          footerTarget.innerHTML = footerSource.innerHTML;
+          console.log('🛒 [CartDrawer] footer innerHTML updated successfully');
+        }
+
+        // Also update cart-drawer is-empty class for empty/non-empty state
+        const cartDrawer = document.querySelector('cart-drawer');
+        const cartDrawerSource = html.querySelector('cart-drawer');
+        if (cartDrawer && cartDrawerSource) {
+          cartDrawer.className = cartDrawerSource.className;
+        }
+
         return Promise.resolve();
       } else {
         console.log('🛒 [CartDrawer] No prefetched HTML, falling back to fetch');
@@ -186,6 +208,20 @@ class CartItems extends HTMLElement {
           if (targetElement && sourceElement) {
             targetElement.className = sourceElement.className;
             targetElement.innerHTML = sourceElement.innerHTML;
+          }
+
+          // FIX: Also update footer in fallback path
+          const footerTarget = document.querySelector('.cart-drawer__footer');
+          const footerSource = html.querySelector('.cart-drawer__footer');
+          if (footerTarget && footerSource) {
+            footerTarget.innerHTML = footerSource.innerHTML;
+          }
+
+          // Update cart-drawer is-empty class
+          const cartDrawer = document.querySelector('cart-drawer');
+          const cartDrawerSource = html.querySelector('cart-drawer');
+          if (cartDrawer && cartDrawerSource) {
+            cartDrawer.className = cartDrawerSource.className;
           }
         })
         .catch((e) => {
