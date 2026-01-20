@@ -43,6 +43,7 @@
         "text_rFjAk7",
         "buttons_cp4CKC"
       ],
+      "disabled": true,
       "custom_css": [
         "@media screen and (min-width: 750px) {body, .gradient {/* Updates the variable used by most text to Pure White (RGB: 255, 255, 255) */ --color-foreground: 255, 255, 255 !important; --color-base-text: 255, 255, 255 !important; /* Fallback for elements not using variables */ color: #ffffff !important; } /* Force headers and links specifically */ h1, h2, h3, h4, h5, h6, a, .header__menu-item {color: #ffffff !important; }}"
       ],
@@ -68,23 +69,7 @@
         "slide_PbGdx6": {
           "type": "slide",
           "settings": {
-            "image_overlay_opacity": 0,
-            "heading": "Image slide",
-            "heading_size": "h1",
-            "subheading": "Tell your brand's story through images",
-            "button_label": "Button label",
-            "link": "",
-            "button_style_secondary": false,
-            "show_text_box": true,
-            "box_align": "middle-center",
-            "text_alignment": "center",
-            "text_alignment_mobile": "center",
-            "color_scheme": ""
-          }
-        },
-        "slide_NBgzzt": {
-          "type": "slide",
-          "settings": {
+            "image": "shopify://shop_images/homepage_3x2_a472ec29-05b7-4755-bf6b-472781f6e7a4.png",
             "image_overlay_opacity": 0,
             "heading": "Image slide",
             "heading_size": "h1",
@@ -101,14 +86,12 @@
         }
       },
       "block_order": [
-        "slide_PbGdx6",
-        "slide_NBgzzt"
+        "slide_PbGdx6"
       ],
-      "disabled": true,
       "name": "t:sections.slideshow.presets.name",
       "settings": {
         "layout": "full_bleed",
-        "slide_height": "large",
+        "slide_height": "medium",
         "slider_visual": "counter",
         "auto_rotate": false,
         "change_slides_speed": 5,
