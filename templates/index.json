@@ -32,9 +32,9 @@
             "button_label_1": "Start My Free Preview",
             "button_link_1": "shopify://pages/custom-image-processing",
             "button_style_secondary_1": false,
-            "button_label_2": "",
-            "button_link_2": "",
-            "button_style_secondary_2": false
+            "button_label_2": "Shop Now",
+            "button_link_2": "shopify://collections/personalized-pet-products-gifts",
+            "button_style_secondary_2": true
           }
         }
       },
@@ -68,7 +68,6 @@
         "slide_PbGdx6": {
           "type": "slide",
           "settings": {
-            "image": "shopify://shop_images/homepage_16X9_711cb373-1843-4b18-921b-77b7ffd04018.png",
             "image_overlay_opacity": 0,
             "heading": "Image slide",
             "heading_size": "h1",
