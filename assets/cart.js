@@ -134,14 +134,33 @@ class CartItems extends HTMLElement {
       // The /cart/add.js response includes fresh section HTML - use it directly
       const prefetchedHtml = event?.cartData?.sections?.['cart-drawer'];
 
+      // DEBUG: Log what we received
+      console.log('🛒 [CartDebug] onCartUpdate called');
+      console.log('🛒 [CartDebug] event:', event);
+      console.log('🛒 [CartDebug] event?.cartData:', event?.cartData);
+      console.log('🛒 [CartDebug] event?.cartData?.sections:', event?.cartData?.sections);
+      console.log('🛒 [CartDebug] prefetchedHtml exists:', !!prefetchedHtml);
+      if (prefetchedHtml) {
+        console.log('🛒 [CartDebug] prefetchedHtml length:', prefetchedHtml.length);
+        console.log('🛒 [CartDebug] prefetchedHtml preview:', prefetchedHtml.substring(0, 500));
+      }
+
       if (prefetchedHtml) {
         // Use fresh data from the cart add response - no additional fetch needed
         const html = new DOMParser().parseFromString(prefetchedHtml, "text/html");
+
+        // DEBUG: Check what elements exist in parsed HTML
+        console.log('🛒 [CartDebug] Parsed HTML document:', html);
+        console.log('🛒 [CartDebug] Found cart-drawer-items in response:', !!html.querySelector('cart-drawer-items'));
+        console.log('🛒 [CartDebug] Found .cart-drawer__footer in response:', !!html.querySelector('.cart-drawer__footer'));
+
         const selectors = ["cart-drawer-items", ".cart-drawer__footer"];
         for (const selector of selectors) {
           const targetElement = document.querySelector(selector);
           const sourceElement = html.querySelector(selector);
+          console.log(`🛒 [CartDebug] Selector "${selector}": target=${!!targetElement}, source=${!!sourceElement}`);
           if (targetElement && sourceElement) {
+            console.log(`🛒 [CartDebug] Replacing ${selector}`);
             targetElement.replaceWith(sourceElement);
           }
         }
