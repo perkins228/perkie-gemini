@@ -133,14 +133,30 @@ class CartItems extends HTMLElement {
       // Use pre-fetched cart data from event if available (prevents stale data race)
       const prefetchedHtml = event?.cartData?.sections?.['cart-drawer'];
 
+      console.log('🛒 [CartDrawer] onCartUpdate called, prefetchedHtml exists:', !!prefetchedHtml);
+      if (prefetchedHtml) {
+        console.log('🛒 [CartDrawer] HTML length:', prefetchedHtml.length);
+        console.log('🛒 [CartDrawer] HTML preview (first 500 chars):', prefetchedHtml.substring(0, 500));
+      }
+
       if (prefetchedHtml) {
         const html = new DOMParser().parseFromString(prefetchedHtml, "text/html");
         const selectors = ["cart-drawer-items", ".cart-drawer__footer"];
         for (const selector of selectors) {
           const targetElement = document.querySelector(selector);
           const sourceElement = html.querySelector(selector);
+          console.log(`🛒 [CartDrawer] Selector "${selector}": target=${!!targetElement}, source=${!!sourceElement}`);
+          if (sourceElement) {
+            console.log(`🛒 [CartDrawer] Source innerHTML length for "${selector}":`, sourceElement.innerHTML.length);
+            // Check for cart items specifically
+            if (selector === "cart-drawer-items") {
+              const cartItems = sourceElement.querySelectorAll('.cart-item');
+              console.log(`🛒 [CartDrawer] Found ${cartItems.length} cart-item elements in source`);
+            }
+          }
           if (targetElement && sourceElement) {
             targetElement.replaceWith(sourceElement);
+            console.log(`🛒 [CartDrawer] Replaced "${selector}"`);
           }
         }
         return Promise.resolve();
