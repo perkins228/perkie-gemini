@@ -423,8 +423,8 @@ class ProductMockupRenderer {
     this.section.offsetHeight;
     this.section.classList.add('visible');
 
-    // Scroll section into view
-    this.scrollIntoView();
+    // NOTE: Auto-scroll removed to avoid jarring UX on mobile.
+    // Users are notified via scroll hint in pet processor section instead.
   }
 
   /**

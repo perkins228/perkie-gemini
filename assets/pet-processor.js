@@ -1575,6 +1575,12 @@ class PetProcessor {
     this.container.querySelector('.try-again-btn')?.addEventListener('click', () => this.reset());
     this.container.querySelector('.try-another-btn')?.addEventListener('click', async () => await this.processAnother());
 
+    // Scroll hint - tap to scroll to product mockup grid
+    const scrollHint = this.container.querySelector('[data-scroll-hint]');
+    if (scrollHint) {
+      scrollHint.addEventListener('click', () => this.scrollToMockupGrid());
+    }
+
     // Listen for "Try Another Pet" event from mockup grid
     document.addEventListener('tryAnotherPet', async () => await this.processAnother());
   }
@@ -1594,6 +1600,17 @@ class PetProcessor {
     event.currentTarget.classList.remove('drag-over');
     const file = event.dataTransfer.files?.[0];
     if (file) this.processFile(file);
+  }
+
+  /**
+   * Scroll to the product mockup grid section
+   * Called when user taps the scroll hint
+   */
+  scrollToMockupGrid() {
+    const mockupGrid = document.querySelector('.ks-product-mockup-grid');
+    if (mockupGrid) {
+      mockupGrid.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
   }
 
   /**

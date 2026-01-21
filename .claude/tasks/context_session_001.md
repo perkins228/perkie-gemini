@@ -617,6 +617,286 @@ When updating DOM from server-rendered HTML, NEVER blindly replace `className`. 
 
 ---
 
+---
+
+### 2026-01-20 - Cart Drawer Blank Items Fix (Operation Order Issue)
+
+**Problem**:
+Cart drawer showed BLANK items area (white space) even though:
+- Console logs confirmed DOM content exists (2 items, 10993 chars of innerHTML)
+- Footer showed correct price ($64.00)
+- `is-empty` class was correctly removed from `cart-drawer`
+
+**Root Cause Analysis**:
+
+The issue was the ORDER of operations in `onCartUpdate()`:
+
+**BEFORE (broken order)**:
+1. Update `cart-drawer-items.innerHTML` (items inserted into HIDDEN container)
+2. Update footer innerHTML
+3. Toggle `is-empty` on `cart-drawer` (wrapper becomes visible, but content already inserted)
+
+**Why this was a problem**:
+- KS CSS rule: `.is-empty .ks-cart-drawer-wrapper { display: none; }`
+- When cart is empty, `cart-drawer` has `is-empty` class
+- `.ks-cart-drawer-wrapper` (which contains `cart-drawer-items`) is `display: none`
+- We were inserting content INTO this hidden wrapper
+- Even though we toggled `is-empty` AFTER, the content was already there but CSS didn't recalculate
+
+**AFTER (fixed order)**:
+1. Toggle `is-empty` on `cart-drawer` FIRST (wrapper becomes visible)
+2. Update `cart-drawer-items.innerHTML` (items inserted into VISIBLE container)
+3. Update footer innerHTML
+
+**Fix Applied**:
+- Moved `is-empty` toggle to BEFORE innerHTML updates (both prefetched and fallback paths)
+- Added diagnostic logging for `.ks-cart-drawer-wrapper` display after toggle
+- Added `.ks-cart-drawer-wrapper` to CSS computed styles debug check
+
+**Files Modified**:
+- [cart.js:154-175](assets/cart.js#L154-L175) - Reordered is-empty toggle (prefetched path)
+- [cart.js:297-306](assets/cart.js#L297-L306) - Reordered is-empty toggle (fallback path)
+
+**Commit**: `488a878` - fix(cart): Toggle is-empty before innerHTML to fix blank cart items
+
+**Status**: This fix alone was insufficient - see below for the REAL root cause.
+
+---
+
+### 2026-01-20 - Cart Drawer ACTUAL Root Cause Found (CSS display:inline Bug)
+
+**Problem Continued**:
+After reordering the is-empty toggle, cart drawer STILL showed blank items.
+
+**Console Log Evidence** (critical finding):
+```
+🔍 [CSS] .ks-cart-drawer-wrapper: display=block, visibility=visible, opacity=1, height=0px, overflow=auto
+🔍 [CSS] cart-drawer-items: display=inline, visibility=visible, opacity=1, height=auto, overflow=auto
+🔍 [CSS] form.cart-drawer__form: display=flex, visibility=visible, opacity=1, height=414.55px, overflow=visible
+```
+
+**THE SMOKING GUN**:
+- `.ks-cart-drawer-wrapper` has **height=0px**
+- `cart-drawer-items` has **display=inline** (WRONG!)
+- But children inside have **height=414.55px** (items ARE there!)
+
+**ACTUAL Root Cause**:
+
+Custom Web Components like `<cart-drawer-items>` **default to `display: inline`** when no CSS display property is set.
+
+With `display: inline`:
+1. `flex: 1` doesn't work (inline elements can't be flex items)
+2. Parent wrapper collapses to height: 0px
+3. Cart items exist in DOM but are invisible (clipped by 0-height parent)
+
+**CSS Chain Analysis**:
+```
+.drawer__inner { display: flex; flex-direction: column; height: 100%; }
+  ↓
+.ks-cart-drawer-wrapper { flex: 1; overflow: auto; }  ← height=0px (COLLAPSED!)
+  ↓
+cart-drawer-items { overflow: auto; flex: 1; }  ← display=inline (BROKEN!)
+  ↓
+form.cart-drawer__form { display: flex; }  ← height=414.55px (ITEMS ARE HERE!)
+```
+
+**Why It Worked on Page Refresh**:
+On initial server-side render, the browser may apply different layout calculations. After dynamic innerHTML update, the inline default takes over and breaks flex.
+
+**Fix Applied**:
+
+1. **Added `display: block` to `cart-drawer-items`** in component-cart-drawer.css:
+```css
+cart-drawer-items {
+  display: block;  /* CRITICAL: Custom elements default to inline! */
+  overflow: auto;
+  flex: 1;
+}
+```
+
+2. **Added `min-height: 0` to `.ks-cart-drawer-wrapper`** in ks-cart.css:
+```css
+.ks-cart-drawer-wrapper {
+  flex: 1;
+  overflow: auto;
+  margin-bottom: -1px;
+  min-height: 0;  /* Prevent flex collapse */
+}
+```
+
+**Files Modified**:
+- [component-cart-drawer.css:187-191](assets/component-cart-drawer.css#L187-L191) - Added display: block
+- [ks-cart.css:9-14](assets/ks-cart.css#L9-L14) - Added min-height: 0
+
+**Commit**: `ee7d1fc` - fix(cart): Add display:block to cart-drawer-items to fix height collapse
+
+**Key Learning**:
+Custom Web Components (`<my-element>`) have NO default CSS styling from browsers. They default to `display: inline`, which breaks flex/grid layouts. ALWAYS explicitly set `display: block` (or flex/grid) on custom elements.
+
+**Status**: Deployed to staging, awaiting user verification
+
+---
+
+### 2026-01-21 - Cart Price Swap Fix (Session Continuation)
+
+**Problem**:
+Cart drawer displayed prices in the TOTAL column incorrectly:
+- Coffee Mug showed $10.00 (should be $35.00)
+- Additional Pet Fee showed $35.00 (should be $10.00)
+- Total was correct, but individual line item prices were swapped
+
+**Root Cause Analysis**:
+
+The issue was a mismatch between Liquid iteration order and CSS visual order:
+
+1. **Liquid Template**: Used `{%- for item in cart.items reversed -%}` (iterates newest first)
+2. **CSS**: Uses `order: 1` on fee items to visually push them to bottom
+3. **Result**: When iterating reversed:
+   - Item 1 (newest = product) gets assigned to position 0
+   - Item 2 (older = fee) gets assigned to position 1
+   - But CSS `order` swaps their visual positions
+   - Price data stays with original iteration order → MISMATCH
+
+**Example Flow (BROKEN)**:
+```
+Cart data: [Fee $10, Product $35] (FIFO order)
+Reversed iteration: Product $35 first, Fee $10 second
+CSS renders: Fee at bottom (order:1), Product at top (order:0)
+Visual result: Product row shows $10, Fee row shows $35 ❌
+```
+
+**Fix Applied**:
+Removed the `reversed` filter from the loop:
+
+```liquid
+{%- comment -%}FIFO order: oldest items first. Fees pushed to bottom via CSS order.
+    NOTE: Do NOT use 'reversed' filter here - it causes price mismatch with CSS flex ordering.{%- endcomment -%}
+{%- for item in cart.items -%}
+```
+
+**Example Flow (FIXED)**:
+```
+Cart data: [Fee $10, Product $35] (FIFO order)
+Normal iteration: Fee $10 first, Product $35 second
+CSS renders: Fee at bottom (order:1), Product at top (order:0)
+Visual result: Product row shows $35, Fee row shows $10 ✓
+```
+
+**Files Modified**:
+- [cart-drawer.liquid:172-176](snippets/cart-drawer.liquid#L172-L176) - Removed `reversed` filter
+
+**Commit**: `dfa96bc` - fix(cart): Remove reversed filter to fix price display mismatch
+
+**Status**: Deployed to staging
+
+---
+
+### 2026-01-21 - Remove "AI" from Customer-Facing Messages
+
+**Request**: Remove all "AI" terminology from processing messages displayed to customers.
+
+**Files Searched**:
+- `assets/inline-preview-mvp.js` (inline processor)
+- `assets/pet-processor.js` (V5 processor)
+- `assets/gemini-effects-ui.js` (Gemini UI)
+
+**Changes Made**:
+
+| File | Original | Replacement |
+|------|----------|-------------|
+| inline-preview-mvp.js:1111 | `'AI Limit'` | `'Limit Reached'` |
+| inline-preview-mvp.js:1167 | `'💡 AI limit reached! Ink Wash and Marker reset at midnight UTC...'` | `'💡 Ink Wash & Marker limit reached! Resets at midnight...'` |
+| pet-processor.js:2429 | `'Upload a photo to enable AI effects'` | `'Upload a photo to unlock all effects'` |
+| pet-processor.js:2469 | `'AI effects not available'` | `'Ink Wash & Marker unavailable'` |
+| pet-processor.js:2482 | `'Daily AI limit reached (resets at midnight)'` | `'Daily limit reached (resets at midnight)'` |
+| gemini-effects-ui.js:340 | `'Daily AI limit reached. Try B&W or Color (unlimited)'` | `'Daily limit reached. Try B&W or Color (unlimited)'` |
+| gemini-effects-ui.js:347 | `'💡 Out of AI generations today!...'` | `'💡 Out of Ink Wash & Marker for today...'` |
+
+**Rationale** (per UX consultation):
+- Customers care about results, not implementation details
+- Effect names (Ink Wash, Marker) are more descriptive than abstract "AI"
+- Removes technical jargon and potential AI stigma
+- Shorter messages better for 70% mobile traffic
+
+**Commit**: `c32a193` - refactor(ux): Remove "AI" terminology from customer-facing messages
+
+**Additional Changes** (commit `af8369c`):
+
+Found more AI references in progress/status messages:
+
+| File | Original | Replacement |
+|------|----------|-------------|
+| gemini-effects-ui.js:107 | `X AI generations left today` | `X Ink Wash/Marker generations left today` |
+| gemini-effects-ui.js:116 | `X AI generations remaining` | `X Ink Wash/Marker generations remaining` |
+| gemini-effects-ui.js:125 | `10 AI masterpieces today` | `10 masterpieces today` |
+| gemini-effects-ui.js:215 | `Daily AI Limit Reached` | `Daily Limit Reached` |
+| gemini-effects-ui.js:216 | `10 amazing AI portraits` | `10 amazing portraits` |
+| gemini-effects-ui.js:224 | `X AI generations left` | `X Ink Wash/Marker generations left` |
+| gemini-effects-ui.js:400 | `Your daily AI quota has reset` | `Daily limit reset` |
+| inline-preview-mvp.js:919 | `Generating AI styles...` | `Generating artistic styles...` |
+| inline-preview-mvp.js:1018-19 | `'AI Limit'` | `'Limit Reached'` |
+| inline-preview-mvp.js:1030-31 | `'AI Unavailable'` | `'Unavailable'` |
+| pet-processor.js:1853 | `loading specialized pet AI` | `loading pet processing engine` |
+| pet-processor.js:1854 | `Warming up AI model` | `Warming up` |
+| pet-processor.js:1995 | `Generating AI artistic styles` | `Generating artistic styles` |
+| pet-processor.js:2777 | `Loading AI models into memory` | `Loading processing engine` |
+
+**Status**: Deployed to staging
+
+---
+
+### 2026-01-21 - Auto-Scroll UX Fix: Scroll Hint Enhancement
+
+**Problem**:
+After image processing completes, the page auto-scrolled to the product mockup grid, creating a jarring experience on mobile. Users reported confusion when the page "jumped" down.
+
+**Root Cause**:
+`product-mockup-renderer.js:427` called `this.scrollIntoView()` in the `show()` method, forcing users to the mockup grid without their consent.
+
+**Solution Approach** (per UX analysis):
+- Remove forced auto-scroll
+- Enhance existing scroll hint to be more prominent and tappable
+- Let users choose when to scroll down to see products
+
+**Changes Made**:
+
+1. **Removed auto-scroll** in `product-mockup-renderer.js`:
+   - Commented out `this.scrollIntoView()` in `show()` method (line 427)
+   - Kept the scroll method for user-initiated actions (collapse toggle)
+
+2. **Enhanced scroll hint CSS** in `pet-processor-v5.css`:
+   - Added subtle gradient background
+   - Increased touch target to 48px min-height
+   - Made it clickable with cursor: pointer
+   - Added active state feedback (scale + background change)
+   - Changed from `display: block` to `display: flex` when visible
+   - Added `subtlePulse` animation (runs twice then stops)
+   - Increased text prominence: larger font (1rem), bolder (600), higher contrast (0.85)
+   - Larger arrow (28px vs 24px) on mobile
+   - Desktop hover states for mouse users
+
+3. **Added tap-to-scroll functionality** in `pet-processor.js`:
+   - Added click event listener for `[data-scroll-hint]` (line 1578-1582)
+   - Added `scrollToMockupGrid()` method (lines 1605-1613)
+   - Smooth scrolls to `.ks-product-mockup-grid` on tap
+
+**Files Modified**:
+- [product-mockup-renderer.js:426-427](assets/product-mockup-renderer.js#L426-L427) - Removed auto-scroll
+- [pet-processor-v5.css:1164-1269](assets/pet-processor-v5.css#L1164-L1269) - Enhanced scroll hint styling
+- [pet-processor.js:1578-1582](assets/pet-processor.js#L1578-L1582) - Added click listener
+- [pet-processor.js:1605-1613](assets/pet-processor.js#L1605-L1613) - Added scrollToMockupGrid method
+
+**UX Improvements**:
+- No more jarring page jumps on mobile
+- Users can continue selecting styles, cropping, or trying another pet
+- Scroll hint is more noticeable with pulse animation and gradient background
+- Touch-friendly: 48px tap target, active state feedback
+- Users control their journey: tap to see products when ready
+
+**Status**: Ready for commit
+
+---
+
 ## Notes
 - Always append new work with timestamp
 - Archive when file > 400KB or task complete
