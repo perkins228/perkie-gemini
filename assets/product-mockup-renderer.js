@@ -348,6 +348,12 @@ class ProductMockupRenderer {
 
     // Save to PetStorage v3 immediately
     // This ensures data persists in localStorage for product page bridge consumption
+    console.log('🔍 [ProductMockupRenderer] Checking PetStorage availability:', {
+      PetStorageExists: typeof window.PetStorage !== 'undefined',
+      savePetExists: typeof window.PetStorage !== 'undefined' && typeof window.PetStorage.savePet === 'function',
+      currentPetDataExists: !!this.currentPetData,
+      currentPetData: this.currentPetData
+    });
     if (typeof window.PetStorage !== 'undefined' && window.PetStorage.savePet && this.currentPetData) {
       // Extract pet number from session key
       let petNumber = 1;
@@ -366,6 +372,8 @@ class ProductMockupRenderer {
         processedAt: Date.now()
       });
       console.log('[ProductMockupRenderer] Pet saved to PetStorage v3, petNumber:', petNumber);
+    } else {
+      console.warn('⚠️ [ProductMockupRenderer] PetStorage save SKIPPED - check conditions above');
     }
 
     // Track analytics
@@ -536,6 +544,11 @@ class ProductMockupRenderer {
    */
   prepareBridgeData() {
     console.log('[ProductMockupRenderer] prepareBridgeData called');
+    console.log('🔍 [ProductMockupRenderer] Bridge creation check:', {
+      PetStorageExists: typeof window.PetStorage !== 'undefined',
+      createBridgeExists: typeof window.PetStorage !== 'undefined' && typeof window.PetStorage.createBridge === 'function',
+      currentPetData: this.currentPetData
+    });
 
     // Extract pet number from session key or use default
     let petNumber = 1;
