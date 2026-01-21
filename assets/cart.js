@@ -187,9 +187,36 @@ class CartItems extends HTMLElement {
         // Replacing className removes these, causing drawer to become invisible (visibility: hidden)
         const cartDrawer = document.querySelector('cart-drawer');
         const cartDrawerSource = html.querySelector('cart-drawer');
+        console.log('🛒 [CartDrawer] cartDrawer exists:', !!cartDrawer);
+        console.log('🛒 [CartDrawer] cartDrawer.classList BEFORE:', cartDrawer ? Array.from(cartDrawer.classList) : 'N/A');
+        console.log('🛒 [CartDrawer] cartDrawerSource exists:', !!cartDrawerSource);
+        console.log('🛒 [CartDrawer] cartDrawerSource.classList:', cartDrawerSource ? Array.from(cartDrawerSource.classList) : 'N/A');
         if (cartDrawer && cartDrawerSource) {
           const sourceIsEmpty = cartDrawerSource.classList.contains('is-empty');
+          console.log('🛒 [CartDrawer] sourceIsEmpty:', sourceIsEmpty);
           cartDrawer.classList.toggle('is-empty', sourceIsEmpty);
+          console.log('🛒 [CartDrawer] cartDrawer.classList AFTER:', Array.from(cartDrawer.classList));
+        }
+
+        // DEBUG: Check drawer__inner transform state
+        const drawerInner = document.querySelector('.drawer__inner');
+        if (drawerInner) {
+          const computedStyle = window.getComputedStyle(drawerInner);
+          console.log('🛒 [CartDrawer] drawer__inner transform:', computedStyle.transform);
+          console.log('🛒 [CartDrawer] drawer__inner visibility:', computedStyle.visibility);
+          console.log('🛒 [CartDrawer] drawer__inner display:', computedStyle.display);
+        }
+
+        // DEBUG: Check cart-drawer-items content
+        const updatedItems = document.querySelector('cart-drawer-items');
+        if (updatedItems) {
+          console.log('🛒 [CartDrawer] cart-drawer-items innerHTML length AFTER update:', updatedItems.innerHTML.length);
+          const tableBody = updatedItems.querySelector('tbody');
+          console.log('🛒 [CartDrawer] tbody exists in updated element:', !!tableBody);
+          if (tableBody) {
+            console.log('🛒 [CartDrawer] tbody.innerHTML length:', tableBody.innerHTML.length);
+            console.log('🛒 [CartDrawer] cart-item rows in tbody:', tableBody.querySelectorAll('.cart-item').length);
+          }
         }
 
         return Promise.resolve();
