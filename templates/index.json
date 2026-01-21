@@ -249,7 +249,7 @@
             "description_font_size": "fs-lg",
             "btn_primary_text": "Add Mug to Cart",
             "btn_primary_style": "button--primary",
-            "btn_primary_url": "",
+            "btn_primary_url": "shopify://products/limited-addition-valentines-coffee-mug",
             "btn_secondary_text": "",
             "btn_secondary_style": "button--secondary",
             "btn_secondary_url": ""
