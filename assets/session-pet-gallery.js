@@ -538,6 +538,15 @@
     setTimeout(initSessionPetGalleries, 100);
   });
 
+  // Reinitialize when inline processor saves a pet (real-time update without page refresh)
+  document.addEventListener('inlinePreviewClosed', function(event) {
+    if (event.detail && event.detail.sessionKey) {
+      console.log('[SessionPetGallery] Inline processor saved pet, refreshing galleries');
+      // Small delay to ensure localStorage is updated
+      setTimeout(initSessionPetGalleries, 150);
+    }
+  });
+
   // Expose API for external use
   window.SessionPetGallery = {
     init: initSessionPetGalleries,
