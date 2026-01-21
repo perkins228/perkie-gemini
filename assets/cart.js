@@ -219,6 +219,43 @@ class CartItems extends HTMLElement {
           }
         }
 
+        // DEBUG: Delayed check to see if content persists
+        setTimeout(() => {
+          console.log('🛒 [CartDrawer] === 500ms DELAYED CHECK ===');
+          const drawerEl = document.querySelector('cart-drawer');
+          const itemsEl = document.querySelector('cart-drawer-items');
+          const footerEl = document.querySelector('.cart-drawer__footer');
+
+          if (drawerEl) {
+            console.log('🛒 [CartDrawer] cart-drawer classes:', Array.from(drawerEl.classList));
+          }
+          if (itemsEl) {
+            console.log('🛒 [CartDrawer] cart-drawer-items innerHTML length:', itemsEl.innerHTML.length);
+            console.log('🛒 [CartDrawer] cart-drawer-items classes:', Array.from(itemsEl.classList));
+            const tbody = itemsEl.querySelector('tbody');
+            console.log('🛒 [CartDrawer] tbody exists:', !!tbody);
+            if (tbody) {
+              console.log('🛒 [CartDrawer] cart-item count:', tbody.querySelectorAll('.cart-item').length);
+              // Show first 200 chars of tbody HTML
+              console.log('🛒 [CartDrawer] tbody HTML preview:', tbody.innerHTML.substring(0, 200));
+            }
+          }
+          if (footerEl) {
+            console.log('🛒 [CartDrawer] footer innerHTML length:', footerEl.innerHTML.length);
+            // Check for price value
+            const totalsEl = footerEl.querySelector('.totals__total-value');
+            console.log('🛒 [CartDrawer] total price text:', totalsEl ? totalsEl.textContent.trim() : 'N/A');
+          }
+
+          // Check drawer__inner computed styles
+          const innerEl = document.querySelector('.drawer__inner');
+          if (innerEl) {
+            const cs = window.getComputedStyle(innerEl);
+            console.log('🛒 [CartDrawer] drawer__inner computed: transform=%s, visibility=%s, display=%s, opacity=%s',
+              cs.transform, cs.visibility, cs.display, cs.opacity);
+          }
+        }, 500);
+
         return Promise.resolve();
       } else {
         console.log('🛒 [CartDrawer] No prefetched HTML, falling back to fetch');
