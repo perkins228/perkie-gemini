@@ -150,6 +150,29 @@ class CartItems extends HTMLElement {
 
       if (prefetchedHtml) {
         const html = new DOMParser().parseFromString(prefetchedHtml, "text/html");
+
+        // CRITICAL FIX: Toggle is-empty FIRST before updating content
+        // KS CSS rule: .is-empty .ks-cart-drawer-wrapper { display: none; }
+        // We must remove is-empty from cart-drawer BEFORE updating innerHTML,
+        // otherwise the wrapper remains hidden during content update.
+        const cartDrawer = document.querySelector('cart-drawer');
+        const cartDrawerSource = html.querySelector('cart-drawer');
+        console.log('🛒 [CartDrawer] cartDrawer exists:', !!cartDrawer);
+        console.log('🛒 [CartDrawer] cartDrawer.classList BEFORE:', cartDrawer ? Array.from(cartDrawer.classList) : 'N/A');
+        if (cartDrawer && cartDrawerSource) {
+          const sourceIsEmpty = cartDrawerSource.classList.contains('is-empty');
+          console.log('🛒 [CartDrawer] sourceIsEmpty:', sourceIsEmpty);
+          cartDrawer.classList.toggle('is-empty', sourceIsEmpty);
+          console.log('🛒 [CartDrawer] cartDrawer.classList AFTER toggle:', Array.from(cartDrawer.classList));
+
+          // DEBUG: Check if KS wrapper becomes visible after is-empty toggle
+          const ksWrapper = document.querySelector('.ks-cart-drawer-wrapper');
+          if (ksWrapper) {
+            const cs = window.getComputedStyle(ksWrapper);
+            console.log('🔍 [KS-FIX] .ks-cart-drawer-wrapper display AFTER is-empty toggle:', cs.display);
+          }
+        }
+
         // FIX: cart-drawer-items is a custom element - use innerHTML instead of replaceWith
         // to preserve the already-upgraded custom element instance in the DOM.
         // DOMParser creates elements in an inert document without Custom Elements registry,
@@ -182,22 +205,6 @@ class CartItems extends HTMLElement {
           console.log('🛒 [CartDrawer] footer innerHTML updated successfully');
         }
 
-        // FIX: Only toggle is-empty class, NOT replace entire className
-        // CRITICAL: cart-drawer has 'active' and 'animate' classes that control visibility
-        // Replacing className removes these, causing drawer to become invisible (visibility: hidden)
-        const cartDrawer = document.querySelector('cart-drawer');
-        const cartDrawerSource = html.querySelector('cart-drawer');
-        console.log('🛒 [CartDrawer] cartDrawer exists:', !!cartDrawer);
-        console.log('🛒 [CartDrawer] cartDrawer.classList BEFORE:', cartDrawer ? Array.from(cartDrawer.classList) : 'N/A');
-        console.log('🛒 [CartDrawer] cartDrawerSource exists:', !!cartDrawerSource);
-        console.log('🛒 [CartDrawer] cartDrawerSource.classList:', cartDrawerSource ? Array.from(cartDrawerSource.classList) : 'N/A');
-        if (cartDrawer && cartDrawerSource) {
-          const sourceIsEmpty = cartDrawerSource.classList.contains('is-empty');
-          console.log('🛒 [CartDrawer] sourceIsEmpty:', sourceIsEmpty);
-          cartDrawer.classList.toggle('is-empty', sourceIsEmpty);
-          console.log('🛒 [CartDrawer] cartDrawer.classList AFTER:', Array.from(cartDrawer.classList));
-        }
-
         // DEBUG: Check drawer__inner transform state
         const drawerInner = document.querySelector('.drawer__inner');
         if (drawerInner) {
@@ -228,6 +235,7 @@ class CartItems extends HTMLElement {
 
           // DEBUG: Check computed styles of ALL elements in the cart item chain
           const elementsToCheck = [
+            { name: '.ks-cart-drawer-wrapper', el: document.querySelector('.ks-cart-drawer-wrapper') },
             { name: 'cart-drawer-items', el: document.querySelector('cart-drawer-items') },
             { name: 'form.cart-drawer__form', el: document.querySelector('.cart-drawer__form') },
             { name: '#CartDrawer-CartItems', el: document.querySelector('#CartDrawer-CartItems') },
@@ -289,6 +297,16 @@ class CartItems extends HTMLElement {
             responseText,
             "text/html"
           );
+
+          // CRITICAL FIX: Toggle is-empty FIRST before updating content
+          // KS CSS rule: .is-empty .ks-cart-drawer-wrapper { display: none; }
+          const cartDrawer = document.querySelector('cart-drawer');
+          const cartDrawerSource = html.querySelector('cart-drawer');
+          if (cartDrawer && cartDrawerSource) {
+            const sourceIsEmpty = cartDrawerSource.classList.contains('is-empty');
+            cartDrawer.classList.toggle('is-empty', sourceIsEmpty);
+          }
+
           // FIX: Use innerHTML for custom element cart-drawer-items
           const targetElement = document.querySelector("cart-drawer-items");
           const sourceElement = html.querySelector("cart-drawer-items");
@@ -302,14 +320,6 @@ class CartItems extends HTMLElement {
           const footerSource = html.querySelector('.cart-drawer__footer');
           if (footerTarget && footerSource) {
             footerTarget.innerHTML = footerSource.innerHTML;
-          }
-
-          // FIX: Only toggle is-empty class (same fix as prefetched path)
-          const cartDrawer = document.querySelector('cart-drawer');
-          const cartDrawerSource = html.querySelector('cart-drawer');
-          if (cartDrawer && cartDrawerSource) {
-            const sourceIsEmpty = cartDrawerSource.classList.contains('is-empty');
-            cartDrawer.classList.toggle('is-empty', sourceIsEmpty);
           }
         })
         .catch((e) => {
