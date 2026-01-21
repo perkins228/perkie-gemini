@@ -476,7 +476,9 @@ var PetStorage = (function() {
   }
 
   /**
-   * Sanitize effects object - only keep GCS URLs
+   * Sanitize effects object - prefer GCS URLs, fall back to data URLs
+   * This allows immediate display with data URLs while GCS uploads complete in background.
+   * When GCS URLs become available (via re-save), they replace data URLs.
    */
   function sanitizeEffects(effects) {
     var sanitized = {};
@@ -484,20 +486,38 @@ var PetStorage = (function() {
 
     validEffects.forEach(function(effectName) {
       if (effects[effectName]) {
-        var url = null;
+        var gcsUrl = null;
+        var dataUrl = null;
 
         // Handle various formats
         if (typeof effects[effectName] === 'string') {
-          url = effects[effectName];
-        } else if (effects[effectName].gcsUrl) {
-          url = effects[effectName].gcsUrl;
-        } else if (effects[effectName].url) {
-          url = effects[effectName].url;
+          // Direct string - check type
+          if (effects[effectName].startsWith('https://')) {
+            gcsUrl = effects[effectName];
+          } else if (effects[effectName].startsWith('data:')) {
+            dataUrl = effects[effectName];
+          }
+        } else {
+          // Object format - extract both URLs
+          if (effects[effectName].gcsUrl && effects[effectName].gcsUrl.startsWith('https://')) {
+            gcsUrl = effects[effectName].gcsUrl;
+          }
+          if (effects[effectName].dataUrl && effects[effectName].dataUrl.startsWith('data:')) {
+            dataUrl = effects[effectName].dataUrl;
+          }
+          // Also check 'url' property (legacy format)
+          if (!gcsUrl && effects[effectName].url && effects[effectName].url.startsWith('https://')) {
+            gcsUrl = effects[effectName].url;
+          }
         }
 
-        // Only keep GCS URLs (not data URLs)
-        if (url && url.startsWith('https://')) {
-          sanitized[effectName] = url;
+        // PREFER GCS URL (permanent storage), fall back to data URL (temporary display)
+        // Data URLs will be replaced when background GCS uploads complete
+        if (gcsUrl) {
+          sanitized[effectName] = gcsUrl;
+        } else if (dataUrl) {
+          sanitized[effectName] = dataUrl;
+          console.log('[PetStorage] Using temporary data URL for', effectName, '(GCS upload pending)');
         }
       }
     });

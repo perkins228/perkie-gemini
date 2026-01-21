@@ -1989,6 +1989,25 @@ class PetProcessor {
     this.pendingGcsUploads = Promise.all(allUploadPromises).then(results => {
       timing.gcsUpload.end = Date.now();
       console.log(`⏱️ Background GCS uploads completed: ${timing.gcsUpload.end - timing.gcsUpload.start}ms`);
+
+      // RE-SAVE to PetStorage now that GCS URLs are available
+      // This fixes the issue where initial save had empty gcsUrl values
+      if (this.currentPet && typeof window.PetStorage !== 'undefined' && window.PetStorage.savePet) {
+        const petNumber = 1;  // Default to slot 1 for single-pet flow
+        console.log('🔄 Re-saving to PetStorage with GCS URLs:', {
+          effectsWithGcs: Object.entries(this.currentPet.effects || {})
+            .filter(([k, v]) => v && v.gcsUrl)
+            .map(([k]) => k)
+        });
+        window.PetStorage.savePet(petNumber, {
+          sessionKey: this.currentPet.id,
+          effects: this.currentPet.effects,
+          selectedEffect: this.selectedEffect || 'enhancedblackwhite',
+          originalGcsUrl: this.currentPet.effects?._originalUrl || '',
+          processedAt: Date.now()
+        });
+      }
+
       this.pendingGcsUploads = null;  // Clear once complete
       return results;
     });
@@ -2908,18 +2927,23 @@ class PetProcessor {
       }
     }
 
-    // Save only effects GCS URLs
-    // Customer provides name, selects effect, and uploads image on product page
-    // Artist notes are now captured in the inline preview modal
+    // Get original GCS URL from effects (uploaded in background)
+    const originalUrl = this.currentPet.effects._originalUrl || '';
+
+    // Save effects and original URL for fulfillment
+    // Uses PetStorage v3 unified storage system
     const petData = {
       effects: this.currentPet.effects, // ALL generated effects with GCS URLs
+      selectedEffect: selectedEffect,
+      originalUrl: originalUrl,         // GCS URL for original image (for fulfillment)
       timestamp: Date.now()             // For cleanup/sorting
     };
 
     // Save with GCS URLs to localStorage
     try {
       await PetStorage.save(this.currentPet.id, petData);
-      const totalPets = Object.keys(PetStorage.getAll()).length;
+      const allPets = PetStorage.getAll();
+      const totalPets = Object.keys(allPets).length;
       console.log(`✅ Pet saved: ${this.currentPet.id} (Total pets: ${totalPets})`);
     } catch (error) {
       console.error('❌ Failed to save pet:', error);
@@ -2930,12 +2954,13 @@ class PetProcessor {
     }
 
     // Dispatch event for Shopify integration
-    // Only include sessionKey and artistNote (customer provides name/effect on product page)
     document.dispatchEvent(new CustomEvent('petProcessorComplete', {
       detail: {
         sessionKey: this.currentPet.id,
         artistNote: artistNote,
-        effects: this.currentPet.effects  // All effect GCS URLs
+        effects: this.currentPet.effects,  // All effect GCS URLs
+        originalUrl: originalUrl,          // GCS URL for original image
+        selectedEffect: selectedEffect
       }
     }));
 

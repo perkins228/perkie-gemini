@@ -962,7 +962,345 @@ Form submits to cart with all properties
 Order created with full pet data for fulfillment ✅
 ```
 
-**Status**: Ready for commit and testing
+**Commit**: `5adf91b` - fix(checkout): Restore missing pet properties in order line items
+
+**Status**: Deployed to staging - needs testing
+
+---
+
+### 2026-01-21 - Pet Storage System v3 Implementation
+
+**Problem**:
+The pet data storage system had evolved organically with significant complexity:
+- 7-9 different storage key prefixes in active use
+- 4+ data format versions coexisting
+- 5 independent cleanup mechanisms running on different schedules
+- No single source of truth - same data stored in 3-4 places simultaneously
+
+**Solution - Unified Single-Key Architecture (v3)**:
+
+| Metric | Current | Proposed | Reduction |
+|--------|---------|----------|-----------|
+| Storage keys | 9+ patterns | **2 keys** | 78% |
+| Data formats | 4+ versions | **1 schema (v3)** | 75% |
+| Cleanup mechanisms | 5 functions | **1 function** | 80% |
+| Data copies | 3-4 places | **1 source of truth** | 75% |
+
+**New Storage Schema**:
+```javascript
+// localStorage['perkie_pets_v3']
+{
+  version: 3,
+  timestamp: number,
+  pets: {
+    1: {
+      sessionKey, name, artistNote, originalGcsUrl,
+      effects: { enhancedblackwhite: gcsUrl, color: gcsUrl, ... },
+      selectedEffect, processedAt, previousOrderNumber
+    }
+  }
+}
+
+// sessionStorage['perkie_bridge'] - pointer only
+{ petNumber: 1, selectedEffect: "enhancedblackwhite", timestamp }
+```
+
+**Key Design Decisions**:
+- Index by pet NUMBER (1, 2, 3) not random session keys
+- Store ONLY GCS URLs (never data URLs) - prevents quota issues
+- Bridge is just a pointer - product page reads full data from `perkie_pets_v3`
+- Single TTL-based cleanup on page load
+- `savePet()` MERGES with existing data to preserve fields
+
+**Fulfillment Properties**:
+| Property | Purpose |
+|----------|---------|
+| `_pet_1_original_gcs_url` | Original uploaded image (download link) |
+| `_pet_1_processed_image_url` | Customer-approved processed image |
+| `_pet_1_selected_effect` | B&W, Color, Ink Wash, or Marker |
+| `_pet_1_artist_notes` | Customer instructions for artist |
+| `_pet_1_session_key` | Unique processing session ID |
+| `_pet_1_previous_order_number` | Source order for reorders (empty = new upload) |
+| `Pet 1 Name` | Customer reference |
+
+**Files Modified**:
+1. [pet-storage.js](assets/pet-storage.js) - Complete rewrite with v3 schema, legacy compatibility layer
+2. [product-mockup-renderer.js](assets/product-mockup-renderer.js) - Use `PetStorage.createBridge()`, `savePet()`
+3. [main-product.liquid](sections/main-product.liquid) - Use `consumeBridge()`, `getPet()`, dispatch `petBridgeApplied` event
+4. [ks-product-pet-selector-stitch.liquid](snippets/ks-product-pet-selector-stitch.liquid) - Listen for `petBridgeApplied`, updated `restoreProductScopedCustomization()`
+5. [pet-processor.js](assets/pet-processor.js) - Include `originalUrl` and `selectedEffect` in save data
+
+**Data Flow (v3)**:
+```
+UPLOAD (Processor Page)
+    │
+    ▼
+PetStorage.savePet(1, data) → localStorage['perkie_pets_v3']
+    │
+    ▼
+NAVIGATE TO PRODUCT → PetStorage.createBridge(1, effect)
+    │                    sessionStorage['perkie_bridge'] = { petNumber, selectedEffect }
+    ▼
+PRODUCT PAGE LOAD
+    │
+    ▼
+bridge = PetStorage.consumeBridge()
+pet = PetStorage.getPet(bridge.petNumber)
+    │
+    ▼
+window.dispatchEvent('petBridgeApplied', { pet data })
+    │
+    ▼
+ks-product-pet-selector-stitch.liquid populates form fields
+    │
+    ▼
+Form submits → Order with all pet properties ✅
+```
+
+**Migration**: Clean slate - no backward compatibility required (testing environment).
+Legacy keys are ignored. Users may need to re-upload if mid-session during deploy.
+
+**Commit**: Pending
+
+**Status**: Implementation complete - ready for testing
+
+---
+
+## 2026-01-21: Console Logging for Cart Data Verification
+
+### Purpose
+Added comprehensive console logging throughout the pet data flow to verify data is being captured correctly in the cart.
+
+### Logging Added
+
+| Location | Log Prefix | What It Shows |
+|----------|------------|---------------|
+| `pet-storage.js:133` | `💾 PetStorage.savePet()` | Input data, existing data to merge, final merged data |
+| `pet-storage.js:112` | `📖 PetStorage.getPet()` | Retrieved pet data details |
+| `pet-storage.js:248` | `🌉 PetStorage.createBridge()` | Bridge creation with petNumber, effect |
+| `pet-storage.js:274` | `🌉 PetStorage.consumeBridge()` | Bridge consumption, age validation |
+| `main-product.liquid:156` | `🐾 BRIDGE: APPLYING PET` | Full pet data being applied to page |
+| `ks-product-pet-selector-stitch.liquid:3760` | `🌉 BRIDGE V3 - PET DATA RECEIVED` | Event data received, fields populated |
+| `ks-product-pet-selector-stitch.liquid:3181` | `🔄 RESTORE: Checking for pet data` | V3 storage check, age validation |
+| `ks-product-pet-selector-stitch.liquid:3286` | `📝 POPULATING FORM` | Form field population with table output |
+| `ks-product-pet-selector-stitch.liquid:3693` | `🛒 CART SUBMISSION` | All pet properties being submitted, critical field check |
+
+### Expected Console Flow
+
+1. **Processor saves pet** → `💾 PetStorage.savePet() called`
+2. **Navigation creates bridge** → `🌉 PetStorage.createBridge()`
+3. **Product page loads** → `🌉 PetStorage.consumeBridge()`
+4. **Pet data loaded** → `📖 PetStorage.getPet()`
+5. **Applied to page** → `🐾 BRIDGE: APPLYING PET TO PAGE`
+6. **Page reloads** → `🔄 RESTORE: Checking for pet data`
+7. **Form populated** → `📝 POPULATING FORM FROM V3 PET DATA`
+8. **Add to cart** → `🛒 CART SUBMISSION - PET DATA VERIFICATION`
+
+### Critical Fields Verification
+
+The cart submission logging will flag missing fields:
+- `_pet_1_session_key`
+- `Pet 1 Name`
+- `_pet_1_selected_effect`
+- `_pet_1_processed_image_url`
+- `_pet_1_original_gcs_url`
+- `_pet_1_artist_notes`
+- `_pet_1_previous_order_number`
+
+### Files Modified
+
+- `assets/pet-storage.js` - savePet, getPet, createBridge, consumeBridge logging
+- `sections/main-product.liquid` - applyPetToPage detailed logging
+- `snippets/ks-product-pet-selector-stitch.liquid` - Bridge event, restoration, form population, cart submit logging
+
+**Commit**: `88ea2cc` - feat(storage): Implement PetStorage v3 unified architecture with cart logging
+**Status**: Deployed to staging - ready for testing
+
+---
+
+### 2026-01-21 - Session Pet Gallery Not Showing Debug
+
+**Problem Reported**:
+User processed an image via the v5 pet processor on the custom-image-processing page and navigated to product via the mockup gallery. Upon choosing "2 pets" from the pet selector, no session library displayed.
+
+**Console Logs from Product Page**:
+```
+🌉 No bridge found in sessionStorage
+[SessionPetGallery] No recent pets found, galleries will remain hidden
+```
+
+**Root Cause Analysis (In Progress)**:
+
+The issue is that pet data is NOT being saved to localStorage (`perkie_pets_v3`) on the processor page when processing completes. This causes:
+1. `SessionPetGallery.getRecentPets()` returns empty on product page
+2. Bridge is never created because pet data doesn't exist
+
+**Data Flow Trace**:
+```
+pet-processor.js dispatches `petProcessingComplete` event (line 620)
+    ↓
+ProductMockupRenderer.handleProcessingComplete() receives event (line 150)
+    ↓
+handleProcessingComplete() sets this.currentPetData (line 323-329)
+    ↓
+handleProcessingComplete() should call PetStorage.savePet() (line 361-367)
+    ↓  ← SUSPECTED FAILURE POINT
+On card click, prepareBridgeData() calls PetStorage.createBridge()
+    ↓
+Product page: consumeBridge() reads perkie_bridge
+    ↓
+Product page: SessionPetGallery calls getRecentPets()
+```
+
+**Diagnostic Logging Added**:
+
+1. **Before PetStorage.savePet() conditional** (line 351-356):
+```javascript
+console.log('🔍 [ProductMockupRenderer] Checking PetStorage availability:', {
+  PetStorageExists: typeof window.PetStorage !== 'undefined',
+  savePetExists: typeof window.PetStorage !== 'undefined' && typeof window.PetStorage.savePet === 'function',
+  currentPetDataExists: !!this.currentPetData,
+  currentPetData: this.currentPetData
+});
+```
+
+2. **When save is skipped** (line 375-376):
+```javascript
+console.warn('⚠️ [ProductMockupRenderer] PetStorage save SKIPPED - check conditions above');
+```
+
+3. **In prepareBridgeData()** (line 547-551):
+```javascript
+console.log('🔍 [ProductMockupRenderer] Bridge creation check:', {
+  PetStorageExists: typeof window.PetStorage !== 'undefined',
+  createBridgeExists: typeof window.PetStorage !== 'undefined' && typeof window.PetStorage.createBridge === 'function',
+  currentPetData: this.currentPetData
+});
+```
+
+**Files Modified**:
+- [product-mockup-renderer.js:351-376](assets/product-mockup-renderer.js#L351-L376) - Added diagnostic logging
+
+**Commit**: `d7e61b0` - debug: Add diagnostic logging to trace PetStorage save on processor page
+**Status**: Resolved - see fix below
+
+---
+
+### 2026-01-21 - Session Pet Gallery Fix: UUID Session Key Pet Number Extraction
+
+**Root Cause Identified**:
+
+From user's console logs:
+```
+[PetStorage] Invalid pet number: 960031
+```
+
+The session key format is UUID-style: `pet_960031dd-efa5-45d4-9f04-cf233593d842`
+
+The regex `/pet_(\d+)/` extracted `960031` as the pet number, but PetStorage v3 only accepts pet numbers 1-3 (slot-based indexing).
+
+**Why This Happened**:
+- `pet-processor.js` generates UUID-style session keys like `pet_{uuid}`
+- v3 storage expects slot-based keys like `pet_1_timestamp` or `pet_2_abc`
+- The old regex wasn't designed for UUID-style IDs
+
+**Fix Applied**:
+
+Changed regex from `/pet_(\d+)/` (matches any digits) to `/^pet_(\d)_/` (matches single digit followed by underscore):
+
+| Location | Before | After |
+|----------|--------|-------|
+| `product-mockup-renderer.js:364` | `/pet_(\d+)/` | `/^pet_(\d)_/` |
+| `product-mockup-renderer.js:565` | `/pet_(\d+)/` | `/^pet_(\d)_/` |
+| `pet-storage.js:627 (legacySave)` | `/pet_(\d+)/` | `/^pet_(\d)_/` |
+| `pet-storage.js:655 (legacyGet)` | `/pet_(\d+)/` | `/^pet_(\d)_/` |
+| `pet-storage.js:783 (delete)` | `/pet_(\d+)/` | `/^pet_(\d)_/` |
+
+**Additional Fix**: `legacySave` now returns `Promise.resolve(result)` for backward compatibility with old async code that calls `.then()`.
+
+**Behavior After Fix**:
+- Slot-based keys (`pet_1_timestamp`) → extracts pet number 1, 2, or 3
+- UUID-style keys (`pet_960031dd-...`) → defaults to pet number 1 (single-pet flow)
+
+**Files Modified**:
+- [product-mockup-renderer.js:358-370](assets/product-mockup-renderer.js#L358-L370) - savePet extraction
+- [product-mockup-renderer.js:563-569](assets/product-mockup-renderer.js#L563-L569) - bridge extraction
+- [pet-storage.js:622-645](assets/pet-storage.js#L622-L645) - legacySave fix + Promise return
+- [pet-storage.js:651-658](assets/pet-storage.js#L651-L658) - legacyGet fix
+- [pet-storage.js:780-787](assets/pet-storage.js#L780-L787) - delete fix
+
+**Commit**: `981728a` - fix(storage): Handle UUID-style session keys in v3 pet number extraction
+**Status**: Deployed - ready for testing
+
+---
+
+### 2026-01-21 - Style Card Thumbnails Not Showing (BiRefNet Effects Missing)
+
+**Problem Reported**:
+Session library now shows pets correctly (UUID fix worked), but style card thumbnails in "Choose Style" section show only 2 effects (`ink_wash`, `sketch`) instead of all 4. BiRefNet effects (`enhancedblackwhite`, `color`) are missing.
+
+**Root Cause Analysis**:
+
+Traced data flow:
+1. `pet-processor.js` line 1932-1937: BiRefNet effects created with `gcsUrl: ''` (empty) and `dataUrl: 'data:...'`
+2. GCS uploads start in BACKGROUND (non-blocking, ~14 seconds)
+3. `showResult()` called IMMEDIATELY → `dispatchProcessingComplete()` fires
+4. `product-mockup-renderer.js` calls `PetStorage.savePet()` with effects that have `gcsUrl: ''`
+5. `sanitizeEffects()` at line 492 checks `effects[effectName].gcsUrl` - empty string is FALSY
+6. BiRefNet effects filtered out, only Gemini effects (with GCS URLs from server) are saved
+
+**The Issue**:
+- `sanitizeEffects()` only kept URLs starting with `https://`
+- BiRefNet effects had empty `gcsUrl` at save time (upload in progress)
+- Gemini effects have GCS URLs immediately (returned from server)
+
+**Fix Applied (Two Parts)**:
+
+**Part 1: Re-save after GCS uploads complete** (`pet-processor.js` lines 1989-2010)
+```javascript
+this.pendingGcsUploads = Promise.all(allUploadPromises).then(results => {
+  // ...
+  // RE-SAVE to PetStorage now that GCS URLs are available
+  if (this.currentPet && typeof window.PetStorage !== 'undefined') {
+    window.PetStorage.savePet(petNumber, {
+      sessionKey: this.currentPet.id,
+      effects: this.currentPet.effects,
+      selectedEffect: this.selectedEffect || 'enhancedblackwhite',
+      originalGcsUrl: this.currentPet.effects?._originalUrl || '',
+      processedAt: Date.now()
+    });
+  }
+  // ...
+});
+```
+
+**Part 2: Accept data URLs as fallback** (`pet-storage.js` `sanitizeEffects()` function)
+- Modified to prefer GCS URLs but accept data URLs as temporary fallback
+- Allows immediate display while GCS uploads complete in background
+- When re-save happens with GCS URLs, they replace data URLs
+
+**Files Modified**:
+- [pet-processor.js:1989-2010](assets/pet-processor.js#L1989-L2010) - Added re-save after GCS uploads
+- [pet-storage.js:481-524](assets/pet-storage.js#L481-L524) - Modified sanitizeEffects to accept data URLs
+
+**Data Flow After Fix**:
+```
+BiRefNet returns → effects = { gcsUrl: '', dataUrl: 'data:...' }
+    ↓
+dispatchProcessingComplete() → PetStorage.savePet()
+    ↓
+sanitizeEffects() → keeps data URL (fallback)
+    ↓ (parallel)
+GCS uploads complete (~14s) → effects.gcsUrl populated
+    ↓
+RE-SAVE to PetStorage → sanitizeEffects() → keeps GCS URL (preferred)
+    ↓
+Product page reads → effects have GCS URLs ✅
+```
+
+**Commit**: Pending
+
+**Status**: Fix implemented, ready for testing
 
 ---
 
