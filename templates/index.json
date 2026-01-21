@@ -468,17 +468,17 @@
       "name": "KS - Simple collections",
       "settings": {
         "color_scheme": "scheme-872ca72f-3acf-40b0-9717-028f5840921f",
-        "title": "Collections",
+        "title": "",
         "heading_size": "h2",
         "description": "",
         "description_size": "fs-md",
         "label": "Featured collections",
-        "item_img_size": 200,
+        "item_img_size": 175,
         "item_show_title": true,
         "item_title_font_size": "fs-sm",
         "item_title_truncate": true,
         "item_show_product_count": false,
-        "pt": 20,
+        "pt": 12,
         "pb": 12
       }
     },
