@@ -1342,6 +1342,59 @@ if (typeof effectData === 'string') {
 
 ---
 
+### 2026-01-21 - Cart Submission Empty Properties Fix
+
+**Problem**:
+Cart submission sent `properties: {}` (empty) even though hidden form fields were populated with pet data. All 7 critical fulfillment fields were missing from cart payload.
+
+**Root Cause**:
+
+The hidden pet property inputs are defined OUTSIDE the `<form>` element in `ks-product-pet-selector-stitch.liquid` (lines 181-221), but are associated with the form via the `form="{{ product_form_id }}"` attribute.
+
+In `product-form.js`, the property collection code (line 76) used:
+```javascript
+self.form.querySelectorAll('[name^="properties["]').forEach(input => {
+```
+
+This only finds inputs **inside** the form element. It does NOT find inputs that have `form="formId"` attribute but are located outside the form.
+
+**Fix Applied**:
+
+Modified `product-form.js` to collect properties from BOTH:
+1. Inputs inside the form (`self.form.querySelectorAll()`)
+2. Inputs outside the form with `form="formId"` attribute
+
+```javascript
+// Get inputs INSIDE the form
+const insideForm = Array.from(self.form.querySelectorAll('[name^="properties["]'));
+
+// Get inputs OUTSIDE the form but with form="formId" attribute
+const outsideForm = formId
+  ? Array.from(document.querySelectorAll('[form="' + formId + '"][name^="properties["]'))
+  : [];
+
+// Combine and dedupe
+const allPropertyInputs = [...new Set([...insideForm, ...outsideForm])];
+```
+
+**Why This Wasn't Caught Earlier**:
+- The FormData constructor (`new FormData(self.form)`) DOES include inputs with `form` attribute
+- This bug only affects the multi-item submission path (when `feeVariantId` exists)
+- Single-item submissions use FormData and would work correctly
+
+**Files Modified**:
+- [product-form.js:74-93](assets/product-form.js#L74-L93) - Fixed property collection to include form-attributed inputs
+
+**Console Logging Added**:
+- `📝 [PetFee] Collecting properties:` - Shows form ID and input counts
+- `📝 [PetFee] Collected properties:` - Shows final properties object
+
+**Commit**: Pending
+
+**Status**: Fixed, ready for testing
+
+---
+
 ## Notes
 - Always append new work with timestamp
 - Archive when file > 400KB or task complete

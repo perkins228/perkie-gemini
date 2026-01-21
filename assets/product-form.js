@@ -71,9 +71,29 @@ if (!customElements.get('product-form')) {
             // Multi-item submission: main product + pet fee product
             const mainVariantId = self.form.querySelector('[name="id"]').value;
 
-            // Collect properties from form
+            // Collect properties from form (including inputs outside form with form="formId" attribute)
             const properties = {};
-            self.form.querySelectorAll('[name^="properties["]').forEach(input => {
+            const formId = self.form.id;
+
+            // Get inputs INSIDE the form
+            const insideForm = Array.from(self.form.querySelectorAll('[name^="properties["]'));
+
+            // Get inputs OUTSIDE the form but with form="formId" attribute
+            const outsideForm = formId
+              ? Array.from(document.querySelectorAll('[form="' + formId + '"][name^="properties["]'))
+              : [];
+
+            // Combine and dedupe (in case any input matches both)
+            const allPropertyInputs = [...new Set([...insideForm, ...outsideForm])];
+
+            console.log('📝 [PetFee] Collecting properties:', {
+              formId: formId,
+              insideFormCount: insideForm.length,
+              outsideFormCount: outsideForm.length,
+              totalInputs: allPropertyInputs.length
+            });
+
+            allPropertyInputs.forEach(input => {
               if (input.value) {
                 const match = input.name.match(/properties\[([^\]]+)\]/);
                 if (match) {
@@ -81,6 +101,8 @@ if (!customElements.get('product-form')) {
                 }
               }
             });
+
+            console.log('📝 [PetFee] Collected properties:', properties);
 
             const petCount = petSelector.getAttribute('data-selected-pet-count') || '1';
             // IMPORTANT: Target h1 directly - .product__title div contains both h1 AND hidden a>h2
