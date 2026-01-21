@@ -1,387 +1,515 @@
 /**
- * Simple Pet Storage System
- * Simplified for GCS URL-only storage (no thumbnails, no originals)
+ * Pet Storage System v3 - Unified Single-Key Architecture
+ *
+ * Single source of truth for all pet data.
+ * Replaces: pet-storage.js (v1), pet-state-manager.js (v2)
+ *
+ * Storage Keys:
+ * - perkie_pets_v3 (localStorage): All persistent pet data
+ * - perkie_bridge (sessionStorage): Lightweight processor → product handoff
+ *
+ * Schema:
+ * {
+ *   version: 3,
+ *   timestamp: number,
+ *   pets: {
+ *     1: { sessionKey, name, artistNote, originalGcsUrl, effects, selectedEffect, processedAt, previousOrderNumber },
+ *     2: { ... },
+ *     3: { ... }
+ *   }
+ * }
  */
-class PetStorage {
-  static storagePrefix = 'perkie_pet_';
+
+var PetStorage = (function() {
+  'use strict';
+
+  // Configuration
+  var STORAGE_KEY = 'perkie_pets_v3';
+  var BRIDGE_KEY = 'perkie_bridge';
+  var VERSION = 3;
+  var TTL_DAYS = 7; // Pet data expires after 7 days
+  var MAX_PETS = 3; // Maximum pets per session
+
+  // ====================
+  // Core Storage Methods
+  // ====================
 
   /**
-   * Save pet data to localStorage (GCS URLs only, no compression)
-   * NEW: Simplified structure for test site - no thumbnails, no original uploads
+   * Load all pet data from storage
+   * @returns {Object} Pet data structure with version, timestamp, and pets object
    */
-  static async save(petId, data) {
-    // ✅ FIX: Declare at function scope so it's accessible in catch block
-    // Simplified storage: Artist notes, effect GCS URLs, and original image URL
-    // Customer provides pet name, selects effect, and uploads image on product page
-    const storageData = {
-      petId,
-      artistNote: data.artistNote || '',   // User-provided artist notes
-      effects: data.effects || {},         // { style: { gcsUrl } } structure
-      originalUrl: data.originalUrl || '', // GCS URL for original image (for fulfillment)
-      timestamp: Date.now()                // For cleanup/sorting
-    };
-
+  function load() {
     try {
-      // Check storage quota before saving
-      const usage = this.getStorageUsage();
-      if (usage.percentage > 80) {
-        console.warn(`⚠️ Storage at ${usage.percentage}% capacity, running cleanup`);
-        this.emergencyCleanup();
+      var stored = localStorage.getItem(STORAGE_KEY);
+      if (!stored) {
+        return createEmptyState();
       }
 
-      localStorage.setItem(this.storagePrefix + petId, JSON.stringify(storageData));
-      this.updateGlobalPets(); // Keep window.perkiePets in sync for Shopify
-      return true;
-      
-    } catch (error) {
-      if (error.name === 'QuotaExceededError') {
-        console.error('🚨 Storage quota exceeded, triggering emergency cleanup');
-        this.emergencyCleanup();
-        // Retry once after cleanup
-        try {
-          localStorage.setItem(this.storagePrefix + petId, JSON.stringify(storageData));
-          this.updateGlobalPets();
-              return true;
-        } catch (retryError) {
-          console.error('❌ Storage still full after cleanup:', retryError);
-          throw retryError;
-        }
+      var data = JSON.parse(stored);
+
+      // Validate structure
+      if (!data.version || data.version !== VERSION || !data.pets) {
+        console.log('[PetStorage] Invalid or outdated data, creating fresh state');
+        return createEmptyState();
       }
-      throw error;
+
+      return data;
+    } catch (e) {
+      console.error('[PetStorage] Error loading:', e);
+      return createEmptyState();
     }
   }
-  
+
   /**
-   * Get single pet data
+   * Save all pet data to storage
+   * @param {Object} data - Complete pet data structure
+   * @returns {boolean} Success status
    */
-  static get(petId) {
-    const data = localStorage.getItem(this.storagePrefix + petId);
-    return data ? JSON.parse(data) : null;
+  function save(data) {
+    try {
+      data.timestamp = Date.now();
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+      updateGlobalPets(data);
+      return true;
+    } catch (e) {
+      if (e.name === 'QuotaExceededError') {
+        console.warn('[PetStorage] Quota exceeded, running cleanup');
+        emergencyCleanup();
+        // Retry once
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+          updateGlobalPets(data);
+          return true;
+        } catch (retryError) {
+          console.error('[PetStorage] Still full after cleanup:', retryError);
+        }
+      }
+      console.error('[PetStorage] Save error:', e);
+      return false;
+    }
   }
-  
+
+  /**
+   * Create empty state structure
+   */
+  function createEmptyState() {
+    return {
+      version: VERSION,
+      timestamp: Date.now(),
+      pets: {}
+    };
+  }
+
+  // ====================
+  // Pet CRUD Operations
+  // ====================
+
+  /**
+   * Get a single pet by number (1, 2, or 3)
+   * @param {number} petNumber - Pet index (1-3)
+   * @returns {Object|null} Pet data or null if not found
+   */
+  function getPet(petNumber) {
+    var data = load();
+    var pet = data.pets[petNumber] || null;
+    if (pet) {
+      console.log('📖 PetStorage.getPet(' + petNumber + '):', {
+        sessionKey: pet.sessionKey,
+        name: pet.name || '(no name)',
+        originalGcsUrl: pet.originalGcsUrl ? '✅ present' : '❌ missing',
+        selectedEffect: pet.selectedEffect,
+        effectsAvailable: pet.effects ? Object.keys(pet.effects).join(', ') : 'none'
+      });
+    } else {
+      console.log('📖 PetStorage.getPet(' + petNumber + '): not found');
+    }
+    return pet;
+  }
+
   /**
    * Get all pets
-   * NOTE: Excludes pet selector state keys (perkie_pet_selector_*) which have different structure
+   * @returns {Object} Pets object keyed by pet number
    */
-  static getAll() {
-    const pets = {};
-    for (const key in localStorage) {
-      if (key.startsWith(this.storagePrefix)) {
-        const petId = key.replace(this.storagePrefix, '');
-        // Skip pet selector state entries (they have different structure)
-        // Pet selector uses: perkie_pet_selector_${productId} with { petCount, pets, style, font }
-        // PetStorage uses: perkie_pet_${petId} with { effects, timestamp }
-        if (petId.startsWith('selector_')) {
-          continue;
-        }
-        pets[petId] = JSON.parse(localStorage.getItem(key));
-      }
-    }
-    return pets;
+  function getAllPets() {
+    var data = load();
+    return data.pets;
   }
-  
+
   /**
-   * Delete single pet
+   * Save or update a single pet
+   * MERGES with existing data to preserve fields not in petData
+   * @param {number} petNumber - Pet index (1-3)
+   * @param {Object} petData - Pet data object
+   * @returns {boolean} Success status
    */
-  static delete(petId) {
-    localStorage.removeItem(this.storagePrefix + petId);
-    this.updateGlobalPets();
+  function savePet(petNumber, petData) {
+    console.log('💾 === PetStorage.savePet() called ===');
+    console.log('📥 Input:', {
+      petNumber: petNumber,
+      sessionKey: petData.sessionKey,
+      name: petData.name,
+      originalGcsUrl: petData.originalGcsUrl || petData.originalUrl ? '✅ present' : '❌ missing',
+      selectedEffect: petData.selectedEffect,
+      effectsProvided: petData.effects ? Object.keys(petData.effects).join(', ') : 'none'
+    });
+
+    if (petNumber < 1 || petNumber > MAX_PETS) {
+      console.error('[PetStorage] Invalid pet number:', petNumber);
+      return false;
+    }
+
+    var data = load();
+    var existing = data.pets[petNumber] || {};
+
+    if (Object.keys(existing).length > 0) {
+      console.log('📦 Existing pet data found, will merge:', {
+        sessionKey: existing.sessionKey,
+        originalGcsUrl: existing.originalGcsUrl ? '✅ present' : '❌ missing',
+        effectsExisting: existing.effects ? Object.keys(existing.effects).join(', ') : 'none'
+      });
+    }
+
+    // Merge effects from existing data with new effects
+    var mergedEffects = {};
+    if (existing.effects) {
+      Object.keys(existing.effects).forEach(function(key) {
+        mergedEffects[key] = existing.effects[key];
+      });
+    }
+    var newEffects = sanitizeEffects(petData.effects || {});
+    Object.keys(newEffects).forEach(function(key) {
+      mergedEffects[key] = newEffects[key];
+    });
+
+    // Build pet object, merging with existing data
+    // New values take precedence, but existing values are preserved if not provided
+    var pet = {
+      sessionKey: petData.sessionKey || existing.sessionKey || generateSessionKey(petNumber),
+      name: sanitizeName(petData.name || existing.name || ''),
+      artistNote: petData.artistNote || existing.artistNote || '',
+      originalGcsUrl: petData.originalGcsUrl || petData.originalUrl || existing.originalGcsUrl || '',
+      effects: mergedEffects,
+      selectedEffect: petData.selectedEffect || existing.selectedEffect || 'enhancedblackwhite',
+      processedAt: petData.processedAt || existing.processedAt || Date.now(),
+      previousOrderNumber: petData.previousOrderNumber || existing.previousOrderNumber || null
+    };
+
+    console.log('💾 Saving merged pet data:', {
+      sessionKey: pet.sessionKey,
+      name: pet.name || '(no name)',
+      originalGcsUrl: pet.originalGcsUrl ? '✅ ' + pet.originalGcsUrl.substring(0, 60) + '...' : '❌ missing',
+      selectedEffect: pet.selectedEffect,
+      effectsMerged: Object.keys(pet.effects).join(', ') || 'none',
+      previousOrderNumber: pet.previousOrderNumber || '(none)'
+    });
+
+    data.pets[petNumber] = pet;
+    var result = save(data);
+    console.log('💾 === PetStorage.savePet() ' + (result ? 'SUCCESS' : 'FAILED') + ' ===');
+    return result;
+  }
+
+  /**
+   * Delete a single pet
+   * @param {number} petNumber - Pet index (1-3)
+   * @returns {boolean} Success status
+   */
+  function deletePet(petNumber) {
+    var data = load();
+    if (data.pets[petNumber]) {
+      delete data.pets[petNumber];
+      return save(data);
+    }
     return true;
   }
-  
+
   /**
    * Clear all pets
+   * @returns {boolean} Success status
    */
-  static clear() {
-    const keys = Object.keys(localStorage).filter(k => k.startsWith(this.storagePrefix));
-    keys.forEach(key => localStorage.removeItem(key));
-    this.updateGlobalPets();
-  }
-  
-  /**
-   * Get storage usage statistics
-   */
-  static getStorageUsage() {
-    let totalSize = 0;
-    for (const key in localStorage) {
-      if (key.startsWith(this.storagePrefix)) {
-        totalSize += localStorage.getItem(key).length;
-      }
-    }
-    return {
-      used: totalSize,
-      usedKB: (totalSize / 1024).toFixed(1),
-      percentage: ((totalSize / (5 * 1024 * 1024)) * 100).toFixed(1) // Assume 5MB quota
-    };
-  }
-  
-  /**
-   * Emergency cleanup - removes oldest pets to free space
-   */
-  static emergencyCleanup() {
-    console.log('🧹 Starting emergency storage cleanup');
-    const usage = this.getStorageUsage();
-    console.log(`📊 Before cleanup: ${usage.usedKB}KB (${usage.percentage}%)`);
-    
-    // Get all pets sorted by timestamp (oldest first)
-    const allPets = this.getAll();
-    const sortedPets = Object.entries(allPets).sort((a, b) => a[1].timestamp - b[1].timestamp);
-    
-    // Remove oldest pets until under 50% quota usage
-    let removed = 0;
-    while (this.getStorageUsage().percentage > 50 && sortedPets.length > removed) {
-      const [petId] = sortedPets[removed];
-      this.delete(petId);
-      removed++;
-      console.log(`🗑️ Removed old pet: ${petId}`);
-    }
-    
-    const finalUsage = this.getStorageUsage();
-    console.log(`✅ Cleanup complete: ${finalUsage.usedKB}KB (${finalUsage.percentage}%) - Removed ${removed} pets`);
+  function clearAll() {
+    var data = createEmptyState();
+    localStorage.removeItem(STORAGE_KEY);
+    updateGlobalPets(data);
+    return true;
   }
 
-  /**
-   * Sanitize pet name to prevent XSS
-   */
-  static sanitizeName(name) {
-    if (!name) return 'Pet';
-    return name.replace(/[<>"'&]/g, '').substring(0, 50);
-  }
+  // ====================
+  // Session Bridge
+  // ====================
 
   /**
-   * Update global window.perkiePets for Shopify cart integration
-   * CRITICAL: This is what Shopify reads when adding to cart
-   * SIMPLIFIED: Only artistNote and effects (customer provides name/selection on product page)
+   * Create session bridge for processor → product page handoff
+   * Stores only pointer data, not full pet copy
+   * @param {number} petNumber - Which pet to load on product page
+   * @param {string} selectedEffect - Which effect was selected
+   * @param {string} productHandle - Target product handle (optional)
    */
-  static updateGlobalPets() {
-    const allPets = this.getAll();
-    window.perkiePets = {
-      pets: Object.values(allPets).map(pet => ({
-        sessionKey: pet.petId,
-        artistNote: pet.artistNote || '',
-        effects: pet.effects || {},
-        originalUrl: pet.originalUrl || '',  // GCS URL for original image
-        timestamp: pet.timestamp || Date.now()
-      }))
-    };
-  }
-
-  /**
-   * NEW: Map-compatible iteration for pet selector
-   * Replaces window.perkieEffects.forEach()
-   * UPDATED: GCS URLs only (no thumbnails)
-   */
-  static forEachEffect(callback) {
-    const pets = this.getAll();
-    Object.entries(pets).forEach(function(entry) {
-      const petId = entry[0];
-      const pet = entry[1];
-
-      // Generate Map-compatible key format
-      const effect = pet.selectedEffect || pet.effect || 'enhancedblackwhite';
-      const key = petId + '_' + effect;
-      const imageUrl = pet.gcsUrl;
-
-      if (imageUrl) {
-        callback(imageUrl, key);
-      }
-
-      // Also provide metadata key
-      const metadataKey = petId + '_metadata';
-      const metadata = {
-        sessionKey: petId,
-        name: pet.name || pet.petName,
-        effect: effect,
-        artistNote: pet.artistNote || '',
-        filename: pet.filename || 'pet.jpg',
-        timestamp: pet.timestamp || Date.now()
+  function createBridge(petNumber, selectedEffect, productHandle) {
+    console.log('🌉 === PetStorage.createBridge() ===');
+    try {
+      var bridge = {
+        petNumber: petNumber,
+        selectedEffect: selectedEffect || 'enhancedblackwhite',
+        productHandle: productHandle || null,
+        timestamp: Date.now()
       };
-      callback(metadata, metadataKey);
-    });
-  }
-
-  /**
-   * NEW: Get specific effect URL (Map-compatible)
-   * UPDATED: GCS URLs only (no thumbnails)
-   */
-  static getEffectUrl(sessionKey, effect) {
-    const pet = this.get(sessionKey);
-    if (!pet) return null;
-
-    // Check if we have the specific effect
-    if (pet.effects && pet.effects[effect] && pet.effects[effect].gcsUrl) {
-      return pet.effects[effect].gcsUrl;
+      sessionStorage.setItem(BRIDGE_KEY, JSON.stringify(bridge));
+      console.log('🌉 Bridge CREATED:', {
+        petNumber: bridge.petNumber,
+        selectedEffect: bridge.selectedEffect,
+        productHandle: bridge.productHandle || '(none)'
+      });
+      return true;
+    } catch (e) {
+      console.error('[PetStorage] Bridge create error:', e);
+      return false;
     }
-
-    // Fallback to main gcsUrl
-    return pet.gcsUrl || null;
   }
 
   /**
-   * NEW: Get metadata for a pet (Map-compatible)
-   * SIMPLIFIED: Only artistNote and effects (customer provides name/selection on product page)
+   * Read and consume session bridge (one-time use)
+   * @returns {Object|null} Bridge data or null
    */
-  static getMetadata(sessionKey) {
-    const pet = this.get(sessionKey);
-    if (!pet) return null;
-
-    return {
-      sessionKey: sessionKey,
-      artistNote: pet.artistNote || '',
-      effects: pet.effects || {},
-      originalUrl: pet.originalUrl || '',  // GCS URL for original image
-      timestamp: pet.timestamp || Date.now()
-    };
-  }
-
-  /**
-   * NEW: Get all pets formatted for product page pet selector
-   * Returns array of pet objects with only artistNote and effects
-   * SIMPLIFIED: Customer provides name/selection on product page
-   */
-  static getAllForDisplay() {
-    const pets = this.getAll();
-    const displayPets = [];
-
-    Object.entries(pets).forEach(function(entry) {
-      const sessionKey = entry[0];
-      const pet = entry[1];
-
-      // Create effects Map for compatibility
-      const effectsMap = new Map();
-      if (pet.effects) {
-        Object.entries(pet.effects).forEach(function(effectEntry) {
-          const effectName = effectEntry[0];
-          const effectData = effectEntry[1];
-          // Support both old format (string URL) and new format ({gcsUrl})
-          const url = (typeof effectData === 'string') ? effectData : effectData.gcsUrl;
-          effectsMap.set(effectName, url);
-        });
+  function consumeBridge() {
+    console.log('🌉 === PetStorage.consumeBridge() ===');
+    try {
+      var stored = sessionStorage.getItem(BRIDGE_KEY);
+      if (!stored) {
+        console.log('🌉 No bridge found in sessionStorage');
+        return null;
       }
 
-      displayPets.push({
-        sessionKey: sessionKey,
-        effects: effectsMap,
-        artistNote: pet.artistNote || '',
-        originalUrl: pet.originalUrl || '',  // GCS URL for original image
-        timestamp: pet.timestamp || Date.now()
+      var bridge = JSON.parse(stored);
+
+      // Clear bridge after reading (one-time use)
+      sessionStorage.removeItem(BRIDGE_KEY);
+
+      // Validate age (max 30 minutes)
+      var age = Date.now() - bridge.timestamp;
+      var ageMinutes = Math.round(age / 60000);
+      if (age > 30 * 60 * 1000) {
+        console.log('🌉 Bridge EXPIRED (age:', ageMinutes, 'min)');
+        return null;
+      }
+
+      console.log('🌉 Bridge CONSUMED:', {
+        petNumber: bridge.petNumber,
+        selectedEffect: bridge.selectedEffect,
+        ageMinutes: ageMinutes
+      });
+      return bridge;
+    } catch (e) {
+      console.error('[PetStorage] Bridge consume error:', e);
+      return null;
+    }
+  }
+
+  /**
+   * Peek at bridge without consuming it
+   * @returns {Object|null} Bridge data or null
+   */
+  function peekBridge() {
+    try {
+      var stored = sessionStorage.getItem(BRIDGE_KEY);
+      if (!stored) return null;
+      return JSON.parse(stored);
+    } catch (e) {
+      return null;
+    }
+  }
+
+  /**
+   * Clear session bridge
+   */
+  function clearBridge() {
+    sessionStorage.removeItem(BRIDGE_KEY);
+  }
+
+  // ====================
+  // Cleanup & Maintenance
+  // ====================
+
+  /**
+   * Run cleanup - removes expired pets
+   * Called automatically on init
+   */
+  function cleanup() {
+    var data = load();
+    var maxAge = TTL_DAYS * 24 * 60 * 60 * 1000;
+    var now = Date.now();
+    var removed = 0;
+
+    Object.keys(data.pets).forEach(function(petNum) {
+      var pet = data.pets[petNum];
+      if (pet.processedAt && (now - pet.processedAt > maxAge)) {
+        delete data.pets[petNum];
+        removed++;
+      }
+    });
+
+    if (removed > 0) {
+      save(data);
+      console.log('[PetStorage] Cleanup removed', removed, 'expired pets');
+    }
+  }
+
+  /**
+   * Emergency cleanup when storage quota exceeded
+   * Removes oldest pets until under 50% capacity
+   */
+  function emergencyCleanup() {
+    console.log('[PetStorage] Emergency cleanup starting');
+    var data = load();
+
+    // Sort pets by processedAt (oldest first)
+    var sortedPets = Object.entries(data.pets).sort(function(a, b) {
+      return (a[1].processedAt || 0) - (b[1].processedAt || 0);
+    });
+
+    // Remove oldest pets until we have at most 1 pet
+    while (sortedPets.length > 1) {
+      var oldest = sortedPets.shift();
+      delete data.pets[oldest[0]];
+      console.log('[PetStorage] Removed pet:', oldest[0]);
+    }
+
+    // Clear any stale legacy keys
+    clearLegacyKeys();
+
+    save(data);
+    console.log('[PetStorage] Emergency cleanup complete');
+  }
+
+  /**
+   * Clear legacy storage keys from old systems
+   */
+  function clearLegacyKeys() {
+    var legacyPrefixes = [
+      'perkie_pet_',           // Old v1 format
+      'perkie_pet_selector_',  // Old selector state
+      'perkie_pet_data_v2',    // Old v2 format
+      'petCustomization_',     // Old form bridge
+      'processor_to_product_bridge', // Old bridge
+      'processor_mockup_state' // Old mockup state
+    ];
+
+    Object.keys(localStorage).forEach(function(key) {
+      legacyPrefixes.forEach(function(prefix) {
+        if (key.startsWith(prefix) && key !== STORAGE_KEY) {
+          localStorage.removeItem(key);
+          console.log('[PetStorage] Removed legacy key:', key);
+        }
       });
     });
 
-    return displayPets;
+    // Clear session storage legacy
+    ['processor_to_product_bridge', 'processor_mockup_state', 'session_gallery_pet_'].forEach(function(prefix) {
+      Object.keys(sessionStorage).forEach(function(key) {
+        if (key.startsWith(prefix)) {
+          sessionStorage.removeItem(key);
+        }
+      });
+    });
   }
 
   /**
-   * NEW: Check if Map key exists (compatibility)
+   * Get storage usage statistics
    */
-  static has(key) {
-    // Support both pet ID and Map-style keys
-    if (key.includes('_')) {
-      const parts = key.split('_');
-      const petId = parts[0];
-      return this.get(petId) !== null;
-    }
-    return this.get(key) !== null;
+  function getStorageUsage() {
+    var stored = localStorage.getItem(STORAGE_KEY);
+    var size = stored ? stored.length : 0;
+    return {
+      usedBytes: size,
+      usedKB: (size / 1024).toFixed(1),
+      percentage: ((size / (5 * 1024 * 1024)) * 100).toFixed(1)
+    };
+  }
+
+  // ====================
+  // Global Sync
+  // ====================
+
+  /**
+   * Update window.perkiePets for Shopify cart integration
+   */
+  function updateGlobalPets(data) {
+    if (!data) data = load();
+
+    window.perkiePets = {
+      pets: Object.entries(data.pets).map(function(entry) {
+        var petNum = entry[0];
+        var pet = entry[1];
+        return {
+          petNumber: parseInt(petNum),
+          sessionKey: pet.sessionKey,
+          name: pet.name,
+          artistNote: pet.artistNote,
+          originalGcsUrl: pet.originalGcsUrl,
+          effects: pet.effects,
+          selectedEffect: pet.selectedEffect,
+          previousOrderNumber: pet.previousOrderNumber
+        };
+      })
+    };
+  }
+
+  // ====================
+  // Utility Functions
+  // ====================
+
+  /**
+   * Generate unique session key
+   */
+  function generateSessionKey(petNumber) {
+    var timestamp = Date.now();
+    var random = Math.random().toString(36).substring(2, 8);
+    return 'pet_' + petNumber + '_' + timestamp + '_' + random;
   }
 
   /**
-   * NEW: Get value by Map-style key
+   * Sanitize pet name (XSS prevention)
    */
-  static getByMapKey(key) {
-    if (key.includes('_metadata')) {
-      const petId = key.replace('_metadata', '');
-      return this.getMetadata(petId);
-    }
-
-    if (key.includes('_')) {
-      const parts = key.split('_');
-      const petId = parts[0];
-      const effect = parts[1];
-      return this.getEffectUrl(petId, effect);
-    }
-
-    return null;
+  function sanitizeName(name) {
+    if (!name) return '';
+    return String(name).replace(/[<>"'&]/g, '').substring(0, 50);
   }
 
   /**
-   * Get recent pets for Session Pet Gallery display
-   * Returns pets sorted by timestamp (newest first), limited to specified count
-   * Used by product page pet selector to show "Use Previous Pet" options
-   *
-   * @param {number} limit - Maximum number of pets to return (default: 5)
-   * @returns {Array} Array of pet objects with thumbnailUrl, name, effects, sessionKey
+   * Sanitize effects object - only keep GCS URLs
    */
-  static getRecentPets(limit) {
-    if (limit === undefined) limit = 5;
+  function sanitizeEffects(effects) {
+    var sanitized = {};
+    var validEffects = ['enhancedblackwhite', 'color', 'ink_wash', 'sketch'];
 
-    const allPets = this.getAll();
-    const petArray = [];
+    validEffects.forEach(function(effectName) {
+      if (effects[effectName]) {
+        var url = null;
 
-    // Convert to array and add computed properties
-    Object.entries(allPets).forEach(function(entry) {
-      var sessionKey = entry[0];
-      var pet = entry[1];
-
-      // Get the best thumbnail URL (prefer B&W or first available effect)
-      var thumbnailUrl = null;
-      var selectedEffect = pet.selectedEffect || 'enhancedblackwhite';
-
-      if (pet.effects) {
-        // Try selected effect first - check both gcsUrl and dataUrl formats
-        if (pet.effects[selectedEffect]) {
-          var effectData = pet.effects[selectedEffect];
-          if (effectData.gcsUrl || effectData.dataUrl) {
-            thumbnailUrl = effectData.gcsUrl || effectData.dataUrl;
-          }
+        // Handle various formats
+        if (typeof effects[effectName] === 'string') {
+          url = effects[effectName];
+        } else if (effects[effectName].gcsUrl) {
+          url = effects[effectName].gcsUrl;
+        } else if (effects[effectName].url) {
+          url = effects[effectName].url;
         }
 
-        // Fall back to first available effect if selected effect has no URL
-        if (!thumbnailUrl) {
-          var effectKeys = Object.keys(pet.effects);
-          for (var i = 0; i < effectKeys.length; i++) {
-            var effectData = pet.effects[effectKeys[i]];
-            if (effectData && (effectData.gcsUrl || effectData.dataUrl)) {
-              thumbnailUrl = effectData.gcsUrl || effectData.dataUrl;
-              selectedEffect = effectKeys[i];
-              break;
-            }
-          }
+        // Only keep GCS URLs (not data URLs)
+        if (url && url.startsWith('https://')) {
+          sanitized[effectName] = url;
         }
-      }
-
-      // Only include pets that have at least one valid effect URL
-      if (thumbnailUrl) {
-        petArray.push({
-          sessionKey: sessionKey,
-          thumbnailUrl: thumbnailUrl,
-          selectedEffect: selectedEffect,
-          effects: pet.effects || {},
-          artistNote: pet.artistNote || '',
-          originalUrl: pet.originalUrl || '',  // GCS URL for original image
-          timestamp: pet.timestamp || 0,
-          // Calculate age for display (e.g., "2 days ago")
-          ageText: PetStorage.getAgeText(pet.timestamp)
-        });
       }
     });
 
-    // Sort by timestamp (newest first)
-    petArray.sort(function(a, b) {
-      return b.timestamp - a.timestamp;
-    });
-
-    // Return limited results
-    return petArray.slice(0, limit);
+    return sanitized;
   }
 
   /**
-   * Get human-readable age text from timestamp
-   * @param {number} timestamp - Unix timestamp in milliseconds
-   * @returns {string} Age text like "Just now", "2 hours ago", "3 days ago"
+   * Get human-readable age text
    */
-  static getAgeText(timestamp) {
+  function getAgeText(timestamp) {
     if (!timestamp) return '';
-
     var now = Date.now();
     var diffMs = now - timestamp;
     var diffMins = Math.floor(diffMs / 60000);
@@ -396,19 +524,9 @@ class PetStorage {
   }
 
   /**
-   * Check if there are any recent pets available for the gallery
-   * @returns {boolean} True if at least one pet with valid effects exists
-   */
-  static hasRecentPets() {
-    return this.getRecentPets(1).length > 0;
-  }
-
-  /**
    * Get effect display name for UI
-   * @param {string} effectKey - Internal effect key like 'enhancedblackwhite'
-   * @returns {string} Human-readable name like 'B&W'
    */
-  static getEffectDisplayName(effectKey) {
+  function getEffectDisplayName(effectKey) {
     var names = {
       'enhancedblackwhite': 'B&W',
       'color': 'Color',
@@ -417,10 +535,246 @@ class PetStorage {
     };
     return names[effectKey] || effectKey;
   }
+
+  // ====================
+  // Display Helpers
+  // ====================
+
+  /**
+   * Get recent pets for gallery display
+   * @param {number} limit - Max pets to return
+   * @returns {Array} Pets sorted by processedAt (newest first)
+   */
+  function getRecentPets(limit) {
+    if (limit === undefined) limit = 5;
+    var data = load();
+    var pets = [];
+
+    Object.entries(data.pets).forEach(function(entry) {
+      var petNum = entry[0];
+      var pet = entry[1];
+
+      // Get thumbnail URL (prefer selected effect, fall back to first available)
+      var thumbnailUrl = null;
+      var selectedEffect = pet.selectedEffect || 'enhancedblackwhite';
+
+      if (pet.effects[selectedEffect]) {
+        thumbnailUrl = pet.effects[selectedEffect];
+      } else {
+        // Fall back to first available
+        var effectKeys = Object.keys(pet.effects);
+        if (effectKeys.length > 0) {
+          thumbnailUrl = pet.effects[effectKeys[0]];
+          selectedEffect = effectKeys[0];
+        }
+      }
+
+      if (thumbnailUrl) {
+        pets.push({
+          petNumber: parseInt(petNum),
+          sessionKey: pet.sessionKey,
+          name: pet.name,
+          thumbnailUrl: thumbnailUrl,
+          selectedEffect: selectedEffect,
+          effects: pet.effects,
+          artistNote: pet.artistNote,
+          originalGcsUrl: pet.originalGcsUrl,
+          processedAt: pet.processedAt,
+          previousOrderNumber: pet.previousOrderNumber,
+          ageText: getAgeText(pet.processedAt)
+        });
+      }
+    });
+
+    // Sort by processedAt (newest first)
+    pets.sort(function(a, b) {
+      return (b.processedAt || 0) - (a.processedAt || 0);
+    });
+
+    return pets.slice(0, limit);
+  }
+
+  /**
+   * Check if any recent pets are available
+   */
+  function hasRecentPets() {
+    return getRecentPets(1).length > 0;
+  }
+
+  /**
+   * Get specific effect URL for a pet
+   */
+  function getEffectUrl(petNumber, effectName) {
+    var pet = getPet(petNumber);
+    if (!pet || !pet.effects) return null;
+    return pet.effects[effectName] || null;
+  }
+
+  // ====================
+  // Backward Compatibility
+  // ====================
+
+  /**
+   * Legacy save method for old code
+   * Maps old sessionKey-based calls to new petNumber-based system
+   */
+  function legacySave(sessionKey, petData) {
+    // Extract pet number from session key (pet_1_timestamp_random → 1)
+    var match = sessionKey.match(/pet_(\d+)/);
+    var petNumber = match ? parseInt(match[1]) : 1;
+
+    return savePet(petNumber, {
+      sessionKey: sessionKey,
+      name: petData.name || petData.petName || '',
+      artistNote: petData.artistNote || '',
+      originalGcsUrl: petData.originalUrl || petData.originalGcsUrl || '',
+      effects: petData.effects || {},
+      selectedEffect: petData.selectedEffect || petData.effect || 'enhancedblackwhite',
+      processedAt: petData.timestamp || Date.now(),
+      previousOrderNumber: petData.previousOrderNumber || null
+    });
+  }
+
+  /**
+   * Legacy get method for old code
+   */
+  function legacyGet(sessionKey) {
+    var match = sessionKey.match(/pet_(\d+)/);
+    var petNumber = match ? parseInt(match[1]) : 1;
+    var pet = getPet(petNumber);
+
+    if (!pet) return null;
+
+    // Return in old format for compatibility
+    return {
+      petId: sessionKey,
+      name: pet.name,
+      artistNote: pet.artistNote,
+      effects: pet.effects,
+      originalUrl: pet.originalGcsUrl,
+      selectedEffect: pet.selectedEffect,
+      timestamp: pet.processedAt
+    };
+  }
+
+  /**
+   * Legacy getAll for old code
+   */
+  function legacyGetAll() {
+    var data = load();
+    var result = {};
+
+    Object.entries(data.pets).forEach(function(entry) {
+      var petNum = entry[0];
+      var pet = entry[1];
+      var key = pet.sessionKey || ('pet_' + petNum);
+      result[key] = {
+        petId: key,
+        name: pet.name,
+        artistNote: pet.artistNote,
+        effects: pet.effects,
+        originalUrl: pet.originalGcsUrl,
+        selectedEffect: pet.selectedEffect,
+        timestamp: pet.processedAt
+      };
+    });
+
+    return result;
+  }
+
+  // ====================
+  // Debug
+  // ====================
+
+  function debugState() {
+    var data = load();
+    var usage = getStorageUsage();
+    console.log('=== PetStorage v3 Debug ===');
+    console.log('Version:', data.version);
+    console.log('Timestamp:', new Date(data.timestamp).toLocaleString());
+    console.log('Pets:', Object.keys(data.pets).length);
+    console.log('Storage:', usage.usedKB + 'KB (' + usage.percentage + '%)');
+    console.log('Pet Data:', data.pets);
+    console.log('Bridge:', peekBridge());
+    console.log('===========================');
+    return data;
+  }
+
+  // ====================
+  // Initialize
+  // ====================
+
+  function init() {
+    // Run cleanup on init
+    cleanup();
+
+    // Update global pets
+    updateGlobalPets();
+
+    console.log('[PetStorage] v3 initialized');
+  }
+
+  // Auto-init when script loads
+  if (typeof window !== 'undefined') {
+    init();
+  }
+
+  // ====================
+  // Public API
+  // ====================
+
+  return {
+    // Version
+    VERSION: VERSION,
+
+    // Core CRUD
+    getPet: getPet,
+    getAllPets: getAllPets,
+    savePet: savePet,
+    deletePet: deletePet,
+    clearAll: clearAll,
+    load: load,
+
+    // Session Bridge
+    createBridge: createBridge,
+    consumeBridge: consumeBridge,
+    peekBridge: peekBridge,
+    clearBridge: clearBridge,
+
+    // Maintenance
+    cleanup: cleanup,
+    emergencyCleanup: emergencyCleanup,
+    clearLegacyKeys: clearLegacyKeys,
+    getStorageUsage: getStorageUsage,
+
+    // Display Helpers
+    getRecentPets: getRecentPets,
+    hasRecentPets: hasRecentPets,
+    getEffectUrl: getEffectUrl,
+    getAgeText: getAgeText,
+    getEffectDisplayName: getEffectDisplayName,
+
+    // Utilities
+    sanitizeName: sanitizeName,
+    updateGlobalPets: updateGlobalPets,
+
+    // Legacy Compatibility (for old code)
+    save: legacySave,
+    get: legacyGet,
+    getAll: legacyGetAll,
+    delete: function(sessionKey) {
+      var match = sessionKey.match(/pet_(\d+)/);
+      var petNumber = match ? parseInt(match[1]) : 1;
+      return deletePet(petNumber);
+    },
+    clear: clearAll,
+
+    // Debug
+    debugState: debugState
+  };
+})();
+
+// Export to window
+if (typeof window !== 'undefined') {
+  window.PetStorage = PetStorage;
 }
-
-// Initialize global pets object on load
-PetStorage.updateGlobalPets();
-
-// Export for use
-window.PetStorage = PetStorage;

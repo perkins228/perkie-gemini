@@ -3175,114 +3175,174 @@
   /**
    * PHASE 2: Restore product-scoped customization
    * Allows customers to return to same product and see their work
-   * Prevents carryover to different products
+   * Now uses PetStorage v3 as primary source
    */
   function restoreProductScopedCustomization() {
-    if (!window.PetPropertyUtils) {
-      console.log('ℹ️ [PetProps] PetPropertyUtils not loaded, skipping restoration');
-      return;
-    }
-
+    console.log('🔄 === RESTORE: Checking for pet data to restore ===');
     try {
-      // Get current product ID
-      var productId = window.productId || null;
-      if (!productId) {
-        console.log('ℹ️ [PetProps] No product ID, skipping restoration');
+      var form = document.querySelector('[data-product-form] form');
+      if (!form) {
+        console.log('[PetRestore] No form found, skipping');
         return;
       }
 
-      // Load saved customization for THIS product
+      // PRIMARY: Try PetStorage v3 (check for recent pet data)
+      if (typeof PetStorage !== 'undefined' && PetStorage.getRecentPets) {
+        console.log('[PetRestore] Checking PetStorage v3...');
+        var recentPets = PetStorage.getRecentPets(1);
+
+        if (recentPets && recentPets.length > 0) {
+          var pet = recentPets[0];
+
+          // Check if pet was processed in last 30 minutes
+          var age = Date.now() - (pet.processedAt || 0);
+          var ageMinutes = Math.round(age / 60000);
+          console.log('[PetRestore] Found pet in v3, age:', ageMinutes, 'minutes');
+
+          if (age < 30 * 60 * 1000) {
+            console.log('✅ [PetRestore] Using recent pet from v3 storage:', {
+              sessionKey: pet.sessionKey,
+              name: pet.name,
+              selectedEffect: pet.selectedEffect,
+              originalGcsUrl: pet.originalGcsUrl ? '✅ present' : '❌ missing',
+              effectsAvailable: pet.effects ? Object.keys(pet.effects).join(', ') : 'none'
+            });
+            populateFormFromPet(form, pet);
+            return;
+          } else {
+            console.log('⚠️ [PetRestore] Pet too old (', ageMinutes, 'min), skipping v3');
+          }
+        } else {
+          console.log('[PetRestore] No pets found in v3 storage');
+        }
+      } else {
+        console.log('[PetRestore] PetStorage v3 not available');
+      }
+
+      // FALLBACK: Legacy petCustomization_product_ format
+      var productId = window.productId || null;
+      if (!productId) {
+        console.log('[PetRestore] No product ID, skipping');
+        return;
+      }
+
       var storageKey = 'petCustomization_product_' + productId;
       var savedData = localStorage.getItem(storageKey);
 
       if (!savedData) {
-        console.log('ℹ️ [PetProps] No saved customization for product', productId);
+        console.log('[PetRestore] No saved customization for product', productId);
         return;
       }
 
       var customization = JSON.parse(savedData);
 
-      // Validate customization (security check)
-      if (!window.PetPropertyUtils.isValidCustomization(customization)) {
-        console.warn('⚠️ [PetProps] Invalid customization data, removing');
-        localStorage.removeItem(storageKey);
-        return;
-      }
-
-      // Check timeout (10 minutes)
+      // Check timeout (10 minutes for legacy)
       var now = Date.now();
-      var RESTORE_TIMEOUT = window.PetPropertyUtils.RESTORE_TIMEOUT || (10 * 60 * 1000);
-
-      if (now - customization.timestamp > RESTORE_TIMEOUT) {
-        console.log('ℹ️ [PetProps] Customization expired, removing');
+      if (now - customization.timestamp > 10 * 60 * 1000) {
+        console.log('[PetRestore] Legacy customization expired, removing');
         localStorage.removeItem(storageKey);
         return;
       }
 
-      // Check product ID matches
-      if (customization.productId !== productId) {
-        console.warn('⚠️ [PetProps] Product ID mismatch, skipping restoration');
-        return;
-      }
+      console.log('[PetRestore] Restoring from legacy customization:', customization);
 
-      // Load pet data from processor storage (preserves bridge!)
-      var sessionKey = customization.sessionKey;
-      var petData = PetStorage.get(sessionKey);
+      // Session key
+      var sessionKeyInput = form.querySelector('[name="properties[_pet_1_session_key]"]');
+      if (sessionKeyInput) sessionKeyInput.value = customization.sessionKey || '';
 
-      if (!petData || !petData.effects) {
-        console.warn('⚠️ [PetProps] Pet data not found for session key:', sessionKey);
-        localStorage.removeItem(storageKey);
-        return;
-      }
+      // Pet name
+      var petNameInput = form.querySelector('[name="properties[Pet 1 Name]"]');
+      if (petNameInput) petNameInput.value = customization.petName || '';
 
-      console.log('✅ [PetProps] Restoring customization for product', productId, customization);
+      // Artist notes
+      var notesInput = form.querySelector('[name="properties[_pet_1_artist_notes]"]');
+      if (notesInput) notesInput.value = customization.artistNotes || '';
 
-      // Restore to form fields
-      var form = document.querySelector('[data-product-form] form');
-      if (form) {
-        // Session key
-        var sessionKeyInput = form.querySelector('[name="properties[_pet_1_session_key]"]');
-        if (sessionKeyInput) sessionKeyInput.value = customization.sessionKey;
+      // Selected effect
+      var effectInput = form.querySelector('[name="properties[_pet_1_selected_effect]"]');
+      if (effectInput) effectInput.value = customization.selectedEffect || '';
 
-        // Artist notes (sanitized by validation)
-        var notesInput = form.querySelector('[name="properties[_pet_1_artist_notes]"]');
-        if (notesInput) notesInput.value = customization.artistNotes || '';
+      // Processed image URL
+      var urlInput = form.querySelector('[name="properties[_pet_1_processed_image_url]"]');
+      if (urlInput) urlInput.value = customization.processedImageUrl || '';
 
-        // Selected effect
-        var effectInput = form.querySelector('[name="properties[_pet_1_selected_effect]"]');
-        if (effectInput) effectInput.value = customization.selectedEffect || '';
+      // Original GCS URL
+      var originalGcsInput = form.querySelector('[name="properties[_pet_1_original_gcs_url]"]');
+      if (originalGcsInput) originalGcsInput.value = customization.originalGcsUrl || '';
 
-        // Processed image URL
-        var urlInput = form.querySelector('[name="properties[_pet_1_processed_image_url]"]');
-        if (urlInput) urlInput.value = customization.processedImageUrl || '';
-
-        // Filename (from customization or pet data)
-        var filenameInput = form.querySelector('[name="properties[_pet_1_filename]"]');
-        if (filenameInput) {
-          filenameInput.value = customization.filename || petData.filename || '';
-        }
-
-        // Original GCS URL - CRITICAL for fulfillment
-        var originalGcsInput = form.querySelector('[name="properties[_pet_1_original_gcs_url]"]');
-        if (originalGcsInput) {
-          originalGcsInput.value = customization.originalGcsUrl || petData.originalUrl || '';
-        }
-
-        // Pet Name - for customer reference on orders
-        var petNameInput = form.querySelector('[name="properties[Pet 1 Name]"]');
-        if (petNameInput) {
-          petNameInput.value = customization.petName || petData.name || '';
-        }
-
-        console.log('✅ [PetProps] Form fields restored from saved customization');
-      }
-
-      // Trigger UI update to show restored pet
-      // The existing restorePetSelectorState() will handle UI rendering
+      console.log('[PetRestore] Form fields restored from legacy customization');
 
     } catch (error) {
-      console.error('❌ [PetProps] Error restoring customization:', error);
+      console.error('[PetRestore] Error restoring customization:', error);
     }
+  }
+
+  /**
+   * Populate form fields from PetStorage v3 pet data
+   */
+  function populateFormFromPet(form, pet) {
+    if (!form || !pet) return;
+
+    console.log('📝 === POPULATING FORM FROM V3 PET DATA ===');
+
+    // Get processed image URL for selected effect
+    var selectedEffect = pet.selectedEffect || 'enhancedblackwhite';
+    var processedImageUrl = pet.effects ? (pet.effects[selectedEffect] || pet.thumbnailUrl) : '';
+
+    var fieldsPopulated = {};
+
+    // Session key
+    var sessionKeyInput = form.querySelector('[name="properties[_pet_1_session_key]"]');
+    if (sessionKeyInput) {
+      sessionKeyInput.value = pet.sessionKey || '';
+      fieldsPopulated['_pet_1_session_key'] = pet.sessionKey || '(empty)';
+    }
+
+    // Pet name
+    var petNameInput = form.querySelector('[name="properties[Pet 1 Name]"]');
+    if (petNameInput) {
+      petNameInput.value = pet.name || '';
+      fieldsPopulated['Pet 1 Name'] = pet.name || '(empty)';
+    }
+
+    // Artist notes
+    var notesInput = form.querySelector('[name="properties[_pet_1_artist_notes]"]');
+    if (notesInput) {
+      notesInput.value = pet.artistNote || '';
+      fieldsPopulated['_pet_1_artist_notes'] = pet.artistNote ? pet.artistNote.substring(0, 50) + '...' : '(empty)';
+    }
+
+    // Selected effect
+    var effectInput = form.querySelector('[name="properties[_pet_1_selected_effect]"]');
+    if (effectInput) {
+      effectInput.value = selectedEffect;
+      fieldsPopulated['_pet_1_selected_effect'] = selectedEffect;
+    }
+
+    // Processed image URL
+    var urlInput = form.querySelector('[name="properties[_pet_1_processed_image_url]"]');
+    if (urlInput) {
+      urlInput.value = processedImageUrl;
+      fieldsPopulated['_pet_1_processed_image_url'] = processedImageUrl ? '✅ ' + processedImageUrl.substring(0, 60) + '...' : '❌ missing';
+    }
+
+    // Original GCS URL
+    var originalGcsInput = form.querySelector('[name="properties[_pet_1_original_gcs_url]"]');
+    if (originalGcsInput) {
+      originalGcsInput.value = pet.originalGcsUrl || '';
+      fieldsPopulated['_pet_1_original_gcs_url'] = pet.originalGcsUrl ? '✅ ' + pet.originalGcsUrl.substring(0, 60) + '...' : '❌ missing';
+    }
+
+    // Previous order number (for reorders)
+    var previousOrderInput = form.querySelector('[name="properties[_pet_1_previous_order_number]"]');
+    if (previousOrderInput) {
+      previousOrderInput.value = pet.previousOrderNumber || '';
+      fieldsPopulated['_pet_1_previous_order_number'] = pet.previousOrderNumber || '(none - new upload)';
+    }
+
+    console.log('📋 Form Fields Populated:');
+    console.table(fieldsPopulated);
+    console.log('📝 === END FORM POPULATION ===');
   }
 
   // === END STATE PERSISTENCE MODULE ===
@@ -3673,6 +3733,52 @@
 
       // Note: File inputs and all other inputs are now associated with form via
       // HTML5 form attribute - no need to move them manually!
+
+      // === CART DATA VERIFICATION LOGGING ===
+      console.log('🛒 === CART SUBMISSION - PET DATA VERIFICATION ===');
+
+      // Collect all pet properties being submitted
+      var petProperties = {};
+      var allInputs = form.querySelectorAll('input[name^="properties["]');
+      allInputs.forEach(function(input) {
+        var name = input.name;
+        var value = input.value;
+        // Only log pet-related properties
+        if (name.indexOf('pet') !== -1 || name.indexOf('Pet') !== -1 ||
+            name.indexOf('artist') !== -1 || name.indexOf('Style') !== -1) {
+          petProperties[name] = value ? (value.length > 100 ? value.substring(0, 100) + '...' : value) : '(empty)';
+        }
+      });
+
+      console.log('📋 Pet Properties Being Submitted:');
+      console.table(petProperties);
+
+      // Summary check for critical fields
+      var criticalFields = [
+        'properties[_pet_1_session_key]',
+        'properties[Pet 1 Name]',
+        'properties[_pet_1_selected_effect]',
+        'properties[_pet_1_processed_image_url]',
+        'properties[_pet_1_original_gcs_url]',
+        'properties[_pet_1_artist_notes]',
+        'properties[_pet_1_previous_order_number]'
+      ];
+
+      var missingFields = [];
+      criticalFields.forEach(function(fieldName) {
+        var input = form.querySelector('[name="' + fieldName + '"]');
+        if (!input || !input.value) {
+          missingFields.push(fieldName);
+        }
+      });
+
+      if (missingFields.length > 0) {
+        console.warn('⚠️ Missing/Empty Critical Fields:', missingFields);
+      } else {
+        console.log('✅ All critical pet fields populated');
+      }
+
+      console.log('🛒 === END CART SUBMISSION VERIFICATION ===');
     });
 
     return true;
@@ -3688,6 +3794,86 @@
       setTimeout(setupFormSubmitHandler, 100);
     }
   }
+
+  // === BRIDGE V3 EVENT LISTENER ===
+  // Listen for petBridgeApplied event from main-product.liquid bridge
+  window.addEventListener('petBridgeApplied', function(event) {
+    var detail = event.detail;
+    if (!detail) return;
+
+    console.log('🌉 === BRIDGE V3 - PET DATA RECEIVED ===');
+    console.log('📦 Bridge Data:', {
+      petNumber: detail.petNumber,
+      sessionKey: detail.sessionKey,
+      name: detail.name,
+      artistNote: detail.artistNote ? detail.artistNote.substring(0, 50) + '...' : '(none)',
+      selectedEffect: detail.selectedEffect,
+      processedImageUrl: detail.processedImageUrl ? '✅ ' + detail.processedImageUrl.substring(0, 60) + '...' : '❌ missing',
+      originalGcsUrl: detail.originalGcsUrl ? '✅ ' + detail.originalGcsUrl.substring(0, 60) + '...' : '❌ missing',
+      previousOrderNumber: detail.previousOrderNumber || '(none - new upload)'
+    });
+
+    var form = document.querySelector('[data-product-form] form');
+    if (!form) {
+      console.warn('[PetSelector] No product form found');
+      return;
+    }
+
+    // Populate form fields directly from v3 pet data
+    var fieldsPopulated = [];
+
+    // Session key
+    var sessionKeyInput = form.querySelector('[name="properties[_pet_1_session_key]"]');
+    if (sessionKeyInput) {
+      sessionKeyInput.value = detail.sessionKey || '';
+      fieldsPopulated.push('_pet_1_session_key');
+    }
+
+    // Pet name (visible to customer)
+    var petNameInput = form.querySelector('[name="properties[Pet 1 Name]"]');
+    if (petNameInput) {
+      petNameInput.value = detail.name || '';
+      fieldsPopulated.push('Pet 1 Name');
+    }
+
+    // Artist notes
+    var notesInput = form.querySelector('[name="properties[_pet_1_artist_notes]"]');
+    if (notesInput) {
+      notesInput.value = detail.artistNote || '';
+      fieldsPopulated.push('_pet_1_artist_notes');
+    }
+
+    // Selected effect
+    var effectInput = form.querySelector('[name="properties[_pet_1_selected_effect]"]');
+    if (effectInput) {
+      effectInput.value = detail.selectedEffect || 'enhancedblackwhite';
+      fieldsPopulated.push('_pet_1_selected_effect');
+    }
+
+    // Processed image URL
+    var urlInput = form.querySelector('[name="properties[_pet_1_processed_image_url]"]');
+    if (urlInput) {
+      urlInput.value = detail.processedImageUrl || '';
+      fieldsPopulated.push('_pet_1_processed_image_url');
+    }
+
+    // Original GCS URL (for fulfillment)
+    var originalGcsInput = form.querySelector('[name="properties[_pet_1_original_gcs_url]"]');
+    if (originalGcsInput) {
+      originalGcsInput.value = detail.originalGcsUrl || '';
+      fieldsPopulated.push('_pet_1_original_gcs_url');
+    }
+
+    // Previous order number (for reorders)
+    var previousOrderInput = form.querySelector('[name="properties[_pet_1_previous_order_number]"]');
+    if (previousOrderInput) {
+      previousOrderInput.value = detail.previousOrderNumber || '';
+      fieldsPopulated.push('_pet_1_previous_order_number');
+    }
+
+    console.log('✅ Form Fields Populated:', fieldsPopulated.join(', '));
+    console.log('🌉 === END BRIDGE V3 ===');
+  });
 
   // === RESTORE STATE ON PAGE LOAD ===
   // Wait for DOM to be fully ready

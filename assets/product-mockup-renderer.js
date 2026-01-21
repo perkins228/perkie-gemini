@@ -346,22 +346,26 @@ class ProductMockupRenderer {
 
     this.isInitialized = true;
 
-    // Save to PetStorage immediately for Session Pet Gallery
-    // This ensures data persists in localStorage even if instance is recreated
-    if (typeof window.PetStorage !== 'undefined' && window.PetStorage.save && this.currentPetData) {
-      const petStorageData = {
+    // Save to PetStorage v3 immediately
+    // This ensures data persists in localStorage for product page bridge consumption
+    if (typeof window.PetStorage !== 'undefined' && window.PetStorage.savePet && this.currentPetData) {
+      // Extract pet number from session key
+      let petNumber = 1;
+      if (this.currentPetData.sessionKey) {
+        const match = this.currentPetData.sessionKey.match(/pet_(\d+)/);
+        if (match) {
+          petNumber = parseInt(match[1], 10);
+        }
+      }
+
+      window.PetStorage.savePet(petNumber, {
+        sessionKey: this.currentPetData.sessionKey,
         effects: this.currentPetData.effects,
         selectedEffect: this.currentPetData.selectedEffect,
-        originalUrl: this.currentPetData.originalUrl || '',  // GCS URL for original image
-        timestamp: Date.now()
-      };
-      window.PetStorage.save(this.currentPetData.sessionKey, petStorageData)
-        .then(function() {
-          console.log('[ProductMockupRenderer] Pet saved to PetStorage for Session Pet Gallery');
-        })
-        .catch(function(err) {
-          console.warn('[ProductMockupRenderer] Failed to save to PetStorage:', err);
-        });
+        originalGcsUrl: this.currentPetData.originalUrl || '',
+        processedAt: Date.now()
+      });
+      console.log('[ProductMockupRenderer] Pet saved to PetStorage v3, petNumber:', petNumber);
     }
 
     // Track analytics
@@ -527,101 +531,48 @@ class ProductMockupRenderer {
   }
 
   /**
-   * Prepare bridge data in sessionStorage for product page
+   * Prepare bridge data for product page navigation
+   * Uses PetStorage v3 unified bridge (pointer only, not full data copy)
    */
   prepareBridgeData() {
-    console.log('[ProductMockupRenderer] prepareBridgeData called, sectionId:', this.sectionId, 'currentPetData:', this.currentPetData, 'currentEffectUrl:', this.currentEffectUrl);
+    console.log('[ProductMockupRenderer] prepareBridgeData called');
 
-    // If currentPetData is null but we have an effect URL, try to reconstruct data
-    if (!this.currentPetData && this.currentEffectUrl) {
-      console.log('[ProductMockupRenderer] Attempting to reconstruct pet data from available info');
+    // Extract pet number from session key or use default
+    let petNumber = 1;
+    let selectedEffect = this.currentPetData?.selectedEffect || 'enhancedblackwhite';
 
-      // Try to get the most recent pet from PetStorage
-      if (typeof window.PetStorage !== 'undefined' && window.PetStorage.getRecentPets) {
-        const recentPets = window.PetStorage.getRecentPets(1);
-        if (recentPets && recentPets.length > 0) {
-          const recentPet = recentPets[0];
-          this.currentPetData = {
-            sessionKey: recentPet.sessionKey,
-            selectedEffect: recentPet.selectedEffect || 'enhancedblackwhite',
-            effects: recentPet.effects || { enhancedblackwhite: { gcsUrl: this.currentEffectUrl } },
-            timestamp: Date.now()
-          };
-          console.log('[ProductMockupRenderer] Reconstructed pet data from PetStorage:', this.currentPetData);
-        }
+    if (this.currentPetData?.sessionKey) {
+      const match = this.currentPetData.sessionKey.match(/pet_(\d+)/);
+      if (match) {
+        petNumber = parseInt(match[1], 10);
       }
-
-      // Last resort: Create minimal pet data with just the effect URL
-      if (!this.currentPetData) {
-        const sessionKey = 'pet_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
-        this.currentPetData = {
-          sessionKey: sessionKey,
-          selectedEffect: 'enhancedblackwhite',
-          effects: { enhancedblackwhite: { gcsUrl: this.currentEffectUrl } },
-          timestamp: Date.now()
-        };
-        console.log('[ProductMockupRenderer] Created minimal pet data from effectUrl:', this.currentPetData);
+    } else if (typeof window.PetStorage !== 'undefined' && window.PetStorage.getRecentPets) {
+      // Fallback: get most recent pet from storage
+      const recentPets = window.PetStorage.getRecentPets(1);
+      if (recentPets && recentPets.length > 0) {
+        petNumber = recentPets[0].petNumber || 1;
+        selectedEffect = recentPets[0].selectedEffect || 'enhancedblackwhite';
+        console.log('[ProductMockupRenderer] Using recent pet from storage:', petNumber);
       }
     }
 
-    if (!this.currentPetData) {
-      console.warn('[ProductMockupRenderer] No pet data available for bridge');
-      return;
+    // Create lightweight bridge using PetStorage v3
+    // Bridge is just a pointer - product page reads full data from perkie_pets_v3
+    if (typeof window.PetStorage !== 'undefined' && window.PetStorage.createBridge) {
+      window.PetStorage.createBridge(petNumber, selectedEffect);
+      console.log('[ProductMockupRenderer] Bridge created (v3):', { petNumber, selectedEffect });
+    } else {
+      // Fallback for legacy compatibility
+      console.warn('[ProductMockupRenderer] PetStorage.createBridge not available, using legacy bridge');
+      sessionStorage.setItem('perkie_bridge', JSON.stringify({
+        petNumber: petNumber,
+        selectedEffect: selectedEffect,
+        timestamp: Date.now()
+      }));
     }
 
-    try {
-      // Start with current effects
-      let effectsToUse = this.currentPetData.effects;
-      let originalUrl = this.currentPetData.originalUrl || '';  // GCS URL for original image
-
-      // Read fresh effects from PetStorage (may have Gemini effects added after BiRefNet)
-      // pet-processor.js saves complete data including ink_wash/sketch after Gemini completes
-      if (typeof window.PetStorage !== 'undefined' && window.PetStorage.get) {
-        const storedPet = window.PetStorage.get(this.currentPetData.sessionKey);
-        if (storedPet) {
-          // Always use originalUrl from storage if available (background upload may have completed)
-          if (storedPet.originalUrl) {
-            originalUrl = storedPet.originalUrl;
-          }
-
-          if (storedPet.effects) {
-            const storedEffectCount = Object.keys(storedPet.effects).length;
-            const currentEffectCount = Object.keys(this.currentPetData.effects || {}).length;
-
-            if (storedEffectCount > currentEffectCount) {
-              console.log('[ProductMockupRenderer] Using fresh effects from PetStorage (has Gemini effects):', {
-                stored: Object.keys(storedPet.effects),
-                current: Object.keys(this.currentPetData.effects || {})
-              });
-              effectsToUse = storedPet.effects;
-            }
-          }
-        }
-      }
-
-      const bridgeData = {
-        sessionKey: this.currentPetData.sessionKey,
-        artistNote: '',
-        effects: effectsToUse,
-        originalUrl: originalUrl,  // GCS URL for original image (for fulfillment)
-        selectedEffect: this.currentPetData.selectedEffect,
-        timestamp: Date.now(),
-        source: 'product_mockup_grid'
-      };
-
-      // Use sessionStorage for one-time bridge (clears after navigation)
-      sessionStorage.setItem('processor_to_product_bridge', JSON.stringify(bridgeData));
-
-      // Also set backup in localStorage
-      localStorage.setItem('processor_to_product_bridge_backup', JSON.stringify(bridgeData));
-
-      // Save processor state for return navigation
-      this.saveProcessorState();
-
-      console.log('[ProductMockupRenderer] Bridge data prepared', bridgeData);
-    } catch (error) {
-      console.error('[ProductMockupRenderer] Failed to prepare bridge data:', error);
-    }
+    // Save processor state for return navigation
+    this.saveProcessorState();
   }
 
   /**

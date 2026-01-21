@@ -62,180 +62,185 @@
   {% endcomment %}
   <script src="{{ 'pet-storage.js' | asset_url }}"></script>
 
-  {% comment %} Pet Processor → Product Page Bridge {% endcomment %}
+  {% comment %} Pet Processor → Product Page Bridge (v3) {% endcomment %}
   <script>
-    // Bridge: Transform processor data to product selector format
-    function processBridgeData(bridgeData) {
-      const { sessionKey, artistNote, effects } = bridgeData;
+    /**
+     * Process pet data from v3 bridge
+     * Bridge contains only { petNumber, selectedEffect } - full data from PetStorage.getPet()
+     */
+    function processPetBridge() {
+      // Check for v3 bridge first
+      if (typeof PetStorage !== 'undefined' && PetStorage.consumeBridge) {
+        const bridge = PetStorage.consumeBridge();
 
-      if (!sessionKey || !effects) {
-        console.warn('⚠️ Bridge: Invalid bridge data - missing sessionKey or effects');
-        return false;
-      }
+        if (bridge) {
+          console.log('[Bridge v3] Found bridge:', bridge);
+          const pet = PetStorage.getPet(bridge.petNumber);
 
-      // Load pet data from processor storage (for additional validation)
-      const processorPetData = PetStorage.get(sessionKey);
-
-      if (!processorPetData) {
-        console.warn('⚠️ Bridge: No processor pet data found for sessionKey:', sessionKey);
-        return false;
-      }
-
-      console.log('✅ Bridge: Loaded processor pet data:', processorPetData);
-
-      // Transform into pet selector format
-      const productId = {{ product.id }};
-      const selectorKey = `perkie_pet_selector_${productId}`;
-
-      // Get the original image URL from processor data
-      const originalImageUrl = processorPetData.originalUrl || processorPetData.gcsUrl;
-      const effectUrls = processorPetData.effects || effects;
-
-      // Get a display URL (prefer enhancedblackwhite for visual preview)
-      let displayUrl = originalImageUrl;
-      if (effectUrls) {
-        if (effectUrls.enhancedblackwhite?.gcsUrl) {
-          displayUrl = effectUrls.enhancedblackwhite.gcsUrl;
-        } else if (effectUrls.color?.gcsUrl) {
-          displayUrl = effectUrls.color.gcsUrl;
-        }
-      }
-
-      // Create pet selector state with all effects
-      const selectorState = {
-        petCount: 1, // Start with 1 pet
-        pets: {
-          1: {
-            id: sessionKey,
-            name: processorPetData.name || '', // Use pet name from processor if available
-            artistNote: artistNote || processorPetData.artistNote || '',
-            effects: effectUrls, // All effect URLs
-            fileCount: 1, // Indicate that image exists
-            timestamp: processorPetData.timestamp || Date.now()
+          if (pet) {
+            console.log('[Bridge v3] Loaded pet data:', pet);
+            return applyPetToPage(pet, bridge.selectedEffect, bridge.petNumber);
+          } else {
+            console.warn('[Bridge v3] No pet found for petNumber:', bridge.petNumber);
           }
-        },
-        timestamp: Date.now()
-      };
-
-      // Save to pet selector storage
-      try {
-        localStorage.setItem(selectorKey, JSON.stringify(selectorState));
-        console.log('✅ Bridge: Saved to pet selector storage:', selectorKey);
-
-        // Also set the upload zone keys so image displays in pet selector
-        if (displayUrl) {
-          localStorage.setItem('pet_1_image_url', displayUrl);
-          console.log('✅ Bridge: Set pet_1_image_url:', displayUrl);
-
-          // Set file metadata for UI display
-          const fileMetadata = [{
-            name: processorPetData.filename || 'Processed Pet Photo',
-            size: 0, // Unknown from GCS
-            type: 'image/png'
-          }];
-          localStorage.setItem('pet_1_file_metadata', JSON.stringify(fileMetadata));
-          console.log('✅ Bridge: Set pet_1_file_metadata');
         }
-
-        // CRITICAL: Also save to petCustomization_product_{productId} format
-        // This is what restoreProductScopedCustomization() reads to populate form fields
-        const selectedEffect = bridgeData.selectedEffect || 'enhancedblackwhite';
-        const effectData = effectUrls[selectedEffect] || effectUrls.enhancedblackwhite || effectUrls.color;
-        const processedImageUrl = effectData?.gcsUrl || effectData?.dataUrl || displayUrl;
-
-        const customizationData = {
-          sessionKey: sessionKey,
-          artistNotes: artistNote || processorPetData.artistNote || '',
-          selectedEffect: selectedEffect,
-          processedImageUrl: processedImageUrl,
-          originalGcsUrl: bridgeData.originalUrl || processorPetData.originalUrl || '',
-          filename: processorPetData.filename || '',
-          petName: processorPetData.name || '',
-          timestamp: Date.now(),
-          productId: productId
-        };
-
-        const customizationKey = `petCustomization_product_${productId}`;
-        localStorage.setItem(customizationKey, JSON.stringify(customizationData));
-        console.log('✅ Bridge: Saved to petCustomization storage:', customizationKey, customizationData);
-
-        return true;
-      } catch (error) {
-        console.error('❌ Bridge: Failed to save pet selector state:', error);
-        return false;
       }
-    }
 
-    // Check for pending bridge data from processor page (sessionStorage)
-    console.log('🔍 Product page: Checking sessionStorage for bridge data...');
-    console.log('📦 All sessionStorage keys:', Object.keys(sessionStorage));
-
-    const pendingBridge = sessionStorage.getItem('processor_to_product_bridge');
-    if (pendingBridge) {
-      console.log('🌉 Bridge: Found pending redirect data from processor page');
-
-      try {
-        const bridgeData = JSON.parse(pendingBridge);
-        console.log('🌉 Bridge: Parsed bridge data:', bridgeData);
-
-        // Process the bridge data
-        if (processBridgeData(bridgeData)) {
-          // Clear the bridge data (one-time use)
+      // Fallback: check for legacy bridge format
+      const legacyBridge = sessionStorage.getItem('processor_to_product_bridge');
+      if (legacyBridge) {
+        try {
+          const bridgeData = JSON.parse(legacyBridge);
+          console.log('[Bridge] Found legacy bridge:', bridgeData);
           sessionStorage.removeItem('processor_to_product_bridge');
           localStorage.removeItem('processor_to_product_bridge_backup');
-          console.log('✅ Bridge: Cleared sessionStorage bridge data');
 
-          // Reload page to apply pet data
-          console.log('🔄 Bridge: Reloading page to apply pet data...');
-          window.location.reload();
-        }
-      } catch (error) {
-        console.error('❌ Bridge: Failed to parse bridge data:', error);
-        sessionStorage.removeItem('processor_to_product_bridge');
-      }
-    } else {
-      // Fallback to localStorage if sessionStorage is empty
-      console.log('🌉 Bridge: No sessionStorage found, checking localStorage backup...');
-      const backupBridge = localStorage.getItem('processor_to_product_bridge_backup');
-
-      if (backupBridge) {
-        try {
-          const backupData = JSON.parse(backupBridge);
-
-          // Check expiry
-          if (backupData.expiresAt && Date.now() < backupData.expiresAt) {
-            console.log('💾 Bridge: Found valid localStorage backup (within 5 min)');
-
-            // Remove expiry field and process as normal bridge data
-            delete backupData.expiresAt;
-
-            if (processBridgeData(backupData)) {
-              // Clear both storages
-              sessionStorage.removeItem('processor_to_product_bridge');
-              localStorage.removeItem('processor_to_product_bridge_backup');
-              console.log('✅ Bridge: Processed backup data, cleared storages');
-
-              // Reload page to apply pet data
-              console.log('🔄 Bridge: Reloading page to apply pet data...');
-              window.location.reload();
-            }
-          } else {
-            console.log('⏰ Bridge: localStorage backup expired (>5 min old)');
-            localStorage.removeItem('processor_to_product_bridge_backup');
+          // Extract pet number from sessionKey
+          let petNumber = 1;
+          if (bridgeData.sessionKey) {
+            const match = bridgeData.sessionKey.match(/pet_(\d+)/);
+            if (match) petNumber = parseInt(match[1], 10);
           }
-        } catch (e) {
-          console.error('❌ Bridge: Failed to parse localStorage backup:', e);
-          localStorage.removeItem('processor_to_product_bridge_backup');
+
+          // Try to get from v3 storage first
+          if (typeof PetStorage !== 'undefined' && PetStorage.getPet) {
+            const pet = PetStorage.getPet(petNumber);
+            if (pet) {
+              return applyPetToPage(pet, bridgeData.selectedEffect || 'enhancedblackwhite', petNumber);
+            }
+          }
+
+          // Fallback: use legacy bridge data directly
+          return applyPetToPage({
+            sessionKey: bridgeData.sessionKey,
+            name: '',
+            artistNote: bridgeData.artistNote || '',
+            originalGcsUrl: bridgeData.originalUrl || '',
+            effects: bridgeData.effects || {},
+            selectedEffect: bridgeData.selectedEffect || 'enhancedblackwhite'
+          }, bridgeData.selectedEffect || 'enhancedblackwhite', petNumber);
+        } catch (error) {
+          console.error('[Bridge] Failed to parse legacy bridge:', error);
+          sessionStorage.removeItem('processor_to_product_bridge');
         }
-      } else {
-        console.log('🌉 Bridge: No pending redirect data found (normal product page load)');
+      }
+
+      console.log('[Bridge] No pending bridge data (normal product page load)');
+      return false;
+    }
+
+    /**
+     * Apply pet data to product page
+     * Directly populates form fields for checkout - no intermediate storage needed
+     */
+    function applyPetToPage(pet, selectedEffect, petNumber) {
+      if (!pet) return false;
+
+      const productId = {{ product.id }};
+      selectedEffect = selectedEffect || pet.selectedEffect || 'enhancedblackwhite';
+
+      // Get processed image URL for the selected effect
+      let processedImageUrl = null;
+      if (pet.effects) {
+        // v3 format: effects is { effectName: gcsUrl }
+        processedImageUrl = pet.effects[selectedEffect] || pet.effects.enhancedblackwhite || pet.effects.color;
+        // Handle nested format: { effectName: { gcsUrl: url } }
+        if (typeof processedImageUrl === 'object' && processedImageUrl.gcsUrl) {
+          processedImageUrl = processedImageUrl.gcsUrl;
+        }
+      }
+
+      // Get display URL for UI
+      let displayUrl = processedImageUrl || pet.originalGcsUrl;
+
+      console.log('🐾 === BRIDGE: APPLYING PET TO PAGE ===');
+      console.log('📦 Pet Data:', {
+        petNumber: petNumber,
+        sessionKey: pet.sessionKey,
+        name: pet.name || '(no name)',
+        artistNote: pet.artistNote ? pet.artistNote.substring(0, 50) + '...' : '(none)',
+        selectedEffect: selectedEffect,
+        processedImageUrl: processedImageUrl ? '✅ ' + processedImageUrl.substring(0, 60) + '...' : '❌ missing',
+        originalGcsUrl: pet.originalGcsUrl ? '✅ ' + pet.originalGcsUrl.substring(0, 60) + '...' : '❌ missing',
+        previousOrderNumber: pet.previousOrderNumber || '(none - new upload)',
+        effectsAvailable: pet.effects ? Object.keys(pet.effects).join(', ') : 'none'
+      });
+
+      try {
+        // Set display image for pet selector UI
+        if (displayUrl) {
+          localStorage.setItem('pet_1_image_url', displayUrl);
+          localStorage.setItem('pet_1_file_metadata', JSON.stringify([{
+            name: 'Processed Pet Photo',
+            size: 0,
+            type: 'image/png'
+          }]));
+        }
+
+        // Create pet selector state for UI compatibility
+        const selectorState = {
+          petCount: 1,
+          pets: {
+            1: {
+              id: pet.sessionKey,
+              name: pet.name || '',
+              artistNote: pet.artistNote || '',
+              effects: pet.effects || {},
+              fileCount: 1,
+              timestamp: pet.processedAt || Date.now()
+            }
+          },
+          timestamp: Date.now()
+        };
+        localStorage.setItem(`perkie_pet_selector_${productId}`, JSON.stringify(selectorState));
+        console.log('💾 Saved pet selector state to localStorage for product:', productId);
+
+        // CRITICAL: Dispatch event for form field population
+        // NOTE: Page reloads after this, so primary restoration happens via restoreProductScopedCustomization()
+        // The event is useful for same-page updates without reload
+        console.log('📤 Dispatching petBridgeApplied event...');
+        window.dispatchEvent(new CustomEvent('petBridgeApplied', {
+          detail: {
+            petNumber: petNumber,
+            sessionKey: pet.sessionKey,
+            name: pet.name || '',
+            artistNote: pet.artistNote || '',
+            selectedEffect: selectedEffect,
+            processedImageUrl: processedImageUrl,
+            originalGcsUrl: pet.originalGcsUrl || '',
+            effects: pet.effects || {},
+            previousOrderNumber: pet.previousOrderNumber || null
+          }
+        }));
+
+        console.log('[Bridge] Pet applied successfully, reloading page...');
+        window.location.reload();
+        return true;
+      } catch (error) {
+        console.error('[Bridge] Failed to apply pet data:', error);
+        return false;
       }
     }
 
-    // Fallback: Listen for petProcessorComplete event (same-page scenario)
+    // Process bridge on page load
+    processPetBridge();
+
+    // Listen for same-page pet processor events
     document.addEventListener('petProcessorComplete', function(event) {
-      console.log('🌉 Bridge: Received petProcessorComplete event', event.detail);
-      processBridgeData(event.detail);
+      console.log('[Bridge] Received petProcessorComplete event', event.detail);
+      if (event.detail) {
+        let petNumber = 1;
+        if (event.detail.sessionKey) {
+          const match = event.detail.sessionKey.match(/pet_(\d+)/);
+          if (match) petNumber = parseInt(match[1], 10);
+        }
+        applyPetToPage({
+          sessionKey: event.detail.sessionKey,
+          effects: event.detail.effects,
+          originalGcsUrl: event.detail.originalUrl,
+          artistNote: event.detail.artistNote || ''
+        }, event.detail.selectedEffect, petNumber);
+      }
     });
   </script>
 
