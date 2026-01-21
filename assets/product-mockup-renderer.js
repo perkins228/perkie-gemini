@@ -356,13 +356,18 @@ class ProductMockupRenderer {
     });
     if (typeof window.PetStorage !== 'undefined' && window.PetStorage.savePet && this.currentPetData) {
       // Extract pet number from session key
+      // V3 uses slot numbers 1-3, not UUID-style IDs
+      // Session key formats: "pet_1_timestamp" (slot) or "pet_960031dd-..." (UUID)
       let petNumber = 1;
       if (this.currentPetData.sessionKey) {
-        const match = this.currentPetData.sessionKey.match(/pet_(\d+)/);
-        if (match) {
-          petNumber = parseInt(match[1], 10);
+        // Try to extract slot number from formats like "pet_1_timestamp" or "pet_2_abc"
+        const slotMatch = this.currentPetData.sessionKey.match(/^pet_(\d)_/);
+        if (slotMatch) {
+          petNumber = parseInt(slotMatch[1], 10);
         }
+        // If no slot pattern found, default to 1 (single-pet processing)
       }
+      console.log('[ProductMockupRenderer] Extracted petNumber:', petNumber, 'from sessionKey:', this.currentPetData.sessionKey);
 
       window.PetStorage.savePet(petNumber, {
         sessionKey: this.currentPetData.sessionKey,
@@ -551,14 +556,17 @@ class ProductMockupRenderer {
     });
 
     // Extract pet number from session key or use default
+    // V3 uses slot numbers 1-3, not UUID-style IDs
     let petNumber = 1;
     let selectedEffect = this.currentPetData?.selectedEffect || 'enhancedblackwhite';
 
     if (this.currentPetData?.sessionKey) {
-      const match = this.currentPetData.sessionKey.match(/pet_(\d+)/);
-      if (match) {
-        petNumber = parseInt(match[1], 10);
+      // Try to extract slot number from formats like "pet_1_timestamp" or "pet_2_abc"
+      const slotMatch = this.currentPetData.sessionKey.match(/^pet_(\d)_/);
+      if (slotMatch) {
+        petNumber = parseInt(slotMatch[1], 10);
       }
+      // If no slot pattern found, default to 1 (single-pet processing)
     } else if (typeof window.PetStorage !== 'undefined' && window.PetStorage.getRecentPets) {
       // Fallback: get most recent pet from storage
       const recentPets = window.PetStorage.getRecentPets(1);

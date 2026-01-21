@@ -617,13 +617,20 @@ var PetStorage = (function() {
   /**
    * Legacy save method for old code
    * Maps old sessionKey-based calls to new petNumber-based system
+   * Returns a Promise for backward compatibility with old async code
    */
   function legacySave(sessionKey, petData) {
-    // Extract pet number from session key (pet_1_timestamp_random → 1)
-    var match = sessionKey.match(/pet_(\d+)/);
-    var petNumber = match ? parseInt(match[1]) : 1;
+    // Extract pet number from session key
+    // V3 uses slot numbers 1-3, not UUID-style IDs
+    // Session key formats: "pet_1_timestamp" (slot) or "pet_960031dd-..." (UUID)
+    var petNumber = 1;
+    var slotMatch = sessionKey.match(/^pet_(\d)_/);
+    if (slotMatch) {
+      petNumber = parseInt(slotMatch[1], 10);
+    }
+    // If no slot pattern found, default to 1 (single-pet processing)
 
-    return savePet(petNumber, {
+    var result = savePet(petNumber, {
       sessionKey: sessionKey,
       name: petData.name || petData.petName || '',
       artistNote: petData.artistNote || '',
@@ -633,14 +640,22 @@ var PetStorage = (function() {
       processedAt: petData.timestamp || Date.now(),
       previousOrderNumber: petData.previousOrderNumber || null
     });
+
+    // Return Promise for backward compatibility (old code uses .then())
+    return Promise.resolve(result);
   }
 
   /**
    * Legacy get method for old code
    */
   function legacyGet(sessionKey) {
-    var match = sessionKey.match(/pet_(\d+)/);
-    var petNumber = match ? parseInt(match[1]) : 1;
+    // Extract pet number from session key
+    // V3 uses slot numbers 1-3, not UUID-style IDs
+    var petNumber = 1;
+    var slotMatch = sessionKey.match(/^pet_(\d)_/);
+    if (slotMatch) {
+      petNumber = parseInt(slotMatch[1], 10);
+    }
     var pet = getPet(petNumber);
 
     if (!pet) return null;
@@ -763,8 +778,12 @@ var PetStorage = (function() {
     get: legacyGet,
     getAll: legacyGetAll,
     delete: function(sessionKey) {
-      var match = sessionKey.match(/pet_(\d+)/);
-      var petNumber = match ? parseInt(match[1]) : 1;
+      // V3 uses slot numbers 1-3, not UUID-style IDs
+      var petNumber = 1;
+      var slotMatch = sessionKey.match(/^pet_(\d)_/);
+      if (slotMatch) {
+        petNumber = parseInt(slotMatch[1], 10);
+      }
       return deletePet(petNumber);
     },
     clear: clearAll,
