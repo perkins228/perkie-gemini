@@ -1105,10 +1105,10 @@
      * Render locked thumbnail when Gemini is unavailable
      * Replaces broken image with professional lock icon + helpful messaging
      * @param {string} effectName - 'ink_wash' or 'sketch'
-     * @param {string} primaryText - Main message (default: 'AI Limit')
+     * @param {string} primaryText - Main message (default: 'Limit Reached')
      * @param {string} secondaryText - Subtext (default: 'Try B&W/Color')
      */
-    renderLockedThumbnail(effectName, primaryText = 'AI Limit', secondaryText = 'Try B&W/Color') {
+    renderLockedThumbnail(effectName, primaryText = 'Limit Reached', secondaryText = 'Try B&W/Color') {
       const btn = this.modal.querySelector(`[data-effect="${effectName}"]`);
       if (!btn) {
         console.warn(`🔒 Button not found for ${effectName}`);
@@ -1164,7 +1164,7 @@
      * Uses toast notification or alert fallback
      */
     showQuotaExhaustedMessage() {
-      const message = '💡 AI limit reached! Ink Wash and Marker reset at midnight UTC. Try B&W or Color now (unlimited)';
+      const message = '💡 Ink Wash & Marker limit reached! Resets at midnight. Try B&W or Color (unlimited)';
 
       // Use Gemini UI toast if available
       if (this.geminiUI && typeof this.geminiUI.showToast === 'function') {

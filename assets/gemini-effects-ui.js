@@ -337,14 +337,14 @@ class GeminiEffectsUI {
         btn.disabled = true;
         btn.style.opacity = '0.5';
         btn.style.cursor = 'not-allowed';
-        btn.title = 'Daily AI limit reached. Try B&W or Color (unlimited)';
+        btn.title = 'Daily limit reached. Try B&W or Color (unlimited)';
 
         // Add click handler to show helpful message
         btn.addEventListener('click', (e) => {
           e.preventDefault();
           e.stopPropagation();
           this.showToast(
-            '💡 Out of AI generations today! Try B&W or Color (unlimited)',
+            '💡 Out of Ink Wash & Marker for today. Try B&W or Color (unlimited)',
             'exhausted',
             5000
           );

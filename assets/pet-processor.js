@@ -2426,7 +2426,7 @@ class PetProcessor {
           btn.disabled = true;
           btn.classList.add('effect-btn--disabled');
           btn.classList.remove('effect-btn--loading', 'effect-btn--ready');
-          btn.title = 'Upload a photo to enable AI effects';
+          btn.title = 'Upload a photo to unlock all effects';
         }
       });
       return;
@@ -2466,7 +2466,7 @@ class PetProcessor {
           btn.disabled = true;
           btn.classList.add('effect-btn--disabled');
           btn.classList.remove('effect-btn--loading', 'effect-btn--ready');
-          btn.title = 'AI effects not available';
+          btn.title = 'Ink Wash & Marker unavailable';
           return;
         }
 
@@ -2479,7 +2479,7 @@ class PetProcessor {
             btn.disabled = true;
             btn.classList.add('effect-btn--disabled');
             btn.classList.remove('effect-btn--loading', 'effect-btn--ready');
-            btn.title = 'Daily AI limit reached (resets at midnight)';
+            btn.title = 'Daily limit reached (resets at midnight)';
             return;
           }
         }
