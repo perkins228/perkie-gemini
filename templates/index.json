@@ -43,6 +43,7 @@
         "text_rFjAk7",
         "buttons_cp4CKC"
       ],
+      "disabled": true,
       "custom_css": [
         "@media screen and (min-width: 750px) {body, .gradient {/* Updates the variable used by most text to Pure White (RGB: 255, 255, 255) */ --color-foreground: 255, 255, 255 !important; --color-base-text: 255, 255, 255 !important; /* Fallback for elements not using variables */ color: #ffffff !important; } /* Force headers and links specifically */ h1, h2, h3, h4, h5, h6, a, .header__menu-item {color: #ffffff !important; }}"
       ],
@@ -68,7 +69,7 @@
         "slide_PbGdx6": {
           "type": "slide",
           "settings": {
-            "image": "shopify://shop_images/homepage_banner_1500x560_4d8a277f-eecb-40ff-9efe-02212b5f0c7d.png",
+            "image": "shopify://shop_images/homepage_banner_1500x750_7b2ffb73-39fe-4e16-9534-578d64c8f738.png",
             "image_overlay_opacity": 0,
             "heading": "Image slide",
             "heading_size": "h1",
