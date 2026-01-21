@@ -42,6 +42,7 @@
       "block_order": [
         "slide_AKMdEn"
       ],
+      "disabled": true,
       "name": "KS - Fancy slideshow",
       "settings": {
         "color_scheme": "scheme-f318d737-2be2-4346-8605-b2fbd6208608",
@@ -119,6 +120,7 @@
         "slide_PbGdx6": {
           "type": "slide",
           "settings": {
+            "image": "shopify://shop_images/homepage_banner.png",
             "image_overlay_opacity": 0,
             "heading": "From Phone to Frame.",
             "heading_size": "h1",
@@ -137,7 +139,6 @@
       "block_order": [
         "slide_PbGdx6"
       ],
-      "disabled": true,
       "name": "t:sections.slideshow.presets.name",
       "settings": {
         "layout": "full_bleed",
