@@ -15,7 +15,6 @@
         "slide_AKMdEn": {
           "type": "slide",
           "settings": {
-            "img_desktop": "shopify://shop_images/homepage_banner.png",
             "overlay_color": "#121212",
             "overlay_opacity": 0,
             "overlay_blur": 0,
