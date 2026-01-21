@@ -3256,9 +3256,23 @@
         var urlInput = form.querySelector('[name="properties[_pet_1_processed_image_url]"]');
         if (urlInput) urlInput.value = customization.processedImageUrl || '';
 
-        // Filename (from pet data)
+        // Filename (from customization or pet data)
         var filenameInput = form.querySelector('[name="properties[_pet_1_filename]"]');
-        if (filenameInput && petData.filename) filenameInput.value = petData.filename;
+        if (filenameInput) {
+          filenameInput.value = customization.filename || petData.filename || '';
+        }
+
+        // Original GCS URL - CRITICAL for fulfillment
+        var originalGcsInput = form.querySelector('[name="properties[_pet_1_original_gcs_url]"]');
+        if (originalGcsInput) {
+          originalGcsInput.value = customization.originalGcsUrl || petData.originalUrl || '';
+        }
+
+        // Pet Name - for customer reference on orders
+        var petNameInput = form.querySelector('[name="properties[Pet 1 Name]"]');
+        if (petNameInput) {
+          petNameInput.value = customization.petName || petData.name || '';
+        }
 
         console.log('✅ [PetProps] Form fields restored from saved customization');
       }

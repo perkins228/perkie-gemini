@@ -137,6 +137,28 @@
           console.log('✅ Bridge: Set pet_1_file_metadata');
         }
 
+        // CRITICAL: Also save to petCustomization_product_{productId} format
+        // This is what restoreProductScopedCustomization() reads to populate form fields
+        const selectedEffect = bridgeData.selectedEffect || 'enhancedblackwhite';
+        const effectData = effectUrls[selectedEffect] || effectUrls.enhancedblackwhite || effectUrls.color;
+        const processedImageUrl = effectData?.gcsUrl || effectData?.dataUrl || displayUrl;
+
+        const customizationData = {
+          sessionKey: sessionKey,
+          artistNotes: artistNote || processorPetData.artistNote || '',
+          selectedEffect: selectedEffect,
+          processedImageUrl: processedImageUrl,
+          originalGcsUrl: bridgeData.originalUrl || processorPetData.originalUrl || '',
+          filename: processorPetData.filename || '',
+          petName: processorPetData.name || '',
+          timestamp: Date.now(),
+          productId: productId
+        };
+
+        const customizationKey = `petCustomization_product_${productId}`;
+        localStorage.setItem(customizationKey, JSON.stringify(customizationData));
+        console.log('✅ Bridge: Saved to petCustomization storage:', customizationKey, customizationData);
+
         return true;
       } catch (error) {
         console.error('❌ Bridge: Failed to save pet selector state:', error);

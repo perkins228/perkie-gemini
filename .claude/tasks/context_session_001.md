@@ -893,7 +893,76 @@ After image processing completes, the page auto-scrolled to the product mockup g
 - Touch-friendly: 48px tap target, active state feedback
 - Users control their journey: tap to see products when ready
 
-**Status**: Ready for commit
+**Commit**: `5daec87` - fix(ux): Replace auto-scroll with enhanced tap-to-scroll hint
+
+**Status**: Deployed to staging
+
+---
+
+### 2026-01-21 - Missing Pet Properties in Order Line Items Fix
+
+**Problem**:
+Customer orders were missing pet properties (Pet Name, Original URL, Processed URL, Effect Style, etc.) in Shopify order line items, preventing fulfillment team from accessing customer pet data.
+
+**Root Cause Analysis**:
+
+The data flow had a critical disconnect:
+
+1. `product-mockup-renderer.js` creates bridge data and stores in `sessionStorage['processor_to_product_bridge']` ✅
+2. `main-product.liquid::processBridgeData()` reads bridge and stores to `localStorage['perkie_pet_selector_{productId}']` ✅
+3. `ks-product-pet-selector-stitch.liquid::restoreProductScopedCustomization()` reads from `localStorage['petCustomization_product_{productId}']` ❌
+
+**The Mismatch**: Bridge saved to key A (`perkie_pet_selector_*`), but restoration read from key B (`petCustomization_product_*`). Form fields were never populated.
+
+**Fix Applied**:
+
+1. **main-product.liquid** - Added code to ALSO save to `petCustomization_product_{productId}` format:
+   ```javascript
+   const customizationData = {
+     sessionKey, artistNotes, selectedEffect, processedImageUrl,
+     originalGcsUrl, filename, petName, timestamp, productId
+   };
+   localStorage.setItem(`petCustomization_product_${productId}`, JSON.stringify(customizationData));
+   ```
+
+2. **ks-product-pet-selector-stitch.liquid** - Enhanced `restoreProductScopedCustomization()` to populate ALL fulfillment fields:
+   - `_pet_1_original_gcs_url` - CRITICAL: Original image URL for fulfillment
+   - `Pet 1 Name` - Customer reference on orders
+   - `_pet_1_filename` - Now reads from customization OR petData
+
+**Files Modified**:
+- [main-product.liquid:140-160](sections/main-product.liquid#L140-L160) - Added petCustomization storage
+- [ks-product-pet-selector-stitch.liquid:3259-3277](snippets/ks-product-pet-selector-stitch.liquid#L3259-L3277) - Added missing form field population
+
+**Data Flow After Fix**:
+```
+Processor → Bridge (sessionStorage)
+    ↓
+Product page loads → processBridgeData()
+    ↓
+Saves to BOTH:
+  - perkie_pet_selector_{productId} (for UI)
+  - petCustomization_product_{productId} (for form fields)
+    ↓
+Page reloads → restoreProductScopedCustomization()
+    ↓
+Reads petCustomization_product_{productId}
+    ↓
+Populates ALL hidden form fields:
+  - _pet_1_session_key
+  - _pet_1_artist_notes
+  - _pet_1_selected_effect
+  - _pet_1_processed_image_url
+  - _pet_1_filename
+  - _pet_1_original_gcs_url ← NEW
+  - Pet 1 Name ← NEW
+    ↓
+Form submits to cart with all properties
+    ↓
+Order created with full pet data for fulfillment ✅
+```
+
+**Status**: Ready for commit and testing
 
 ---
 
