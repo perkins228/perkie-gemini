@@ -382,7 +382,7 @@
         "slider_speed": 500,
         "slider_spacing": true,
         "slider_autoplay": 5,
-        "pt": 12,
+        "pt": 16,
         "pb": 4
       }
     },
