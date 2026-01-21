@@ -226,6 +226,26 @@ class CartItems extends HTMLElement {
           const itemsEl = document.querySelector('cart-drawer-items');
           const footerEl = document.querySelector('.cart-drawer__footer');
 
+          // DEBUG: Check computed styles of ALL elements in the cart item chain
+          const elementsToCheck = [
+            { name: 'cart-drawer-items', el: document.querySelector('cart-drawer-items') },
+            { name: 'form.cart-drawer__form', el: document.querySelector('.cart-drawer__form') },
+            { name: '#CartDrawer-CartItems', el: document.querySelector('#CartDrawer-CartItems') },
+            { name: '.drawer__cart-items-wrapper', el: document.querySelector('.drawer__cart-items-wrapper') },
+            { name: 'table.cart-items', el: document.querySelector('table.cart-items') },
+            { name: 'tbody', el: document.querySelector('cart-drawer-items tbody') },
+            { name: 'first .cart-item', el: document.querySelector('.cart-item') }
+          ];
+
+          elementsToCheck.forEach(({ name, el }) => {
+            if (el) {
+              const cs = window.getComputedStyle(el);
+              console.log(`🔍 [CSS] ${name}: display=${cs.display}, visibility=${cs.visibility}, opacity=${cs.opacity}, height=${cs.height}, overflow=${cs.overflow}`);
+            } else {
+              console.log(`🔍 [CSS] ${name}: NOT FOUND IN DOM`);
+            }
+          });
+
           if (drawerEl) {
             console.log('🛒 [CartDrawer] cart-drawer classes:', Array.from(drawerEl.classList));
           }
