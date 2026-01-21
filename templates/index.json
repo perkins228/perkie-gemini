@@ -53,10 +53,10 @@
         "slider_partial": false,
         "slider_spacing": false,
         "media_mobile_height": 400,
-        "media_desktop_height": 700,
+        "media_desktop_height": 750,
         "media_adapt": false,
-        "pt": 36,
-        "pb": 36
+        "pt": 0,
+        "pb": 0
       }
     },
     "image_banner_qWieVe": {
