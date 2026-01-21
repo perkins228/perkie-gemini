@@ -1850,8 +1850,8 @@ class PetProcessor {
       // Cold API or first-time user: 55-65 seconds (50s actual + 10s buffer)
       estimatedTime = 60000;
       initialMessage = isFirstTime ?
-        '🤖 First-time setup - loading specialized pet AI...' :
-        '🧠 Warming up AI model for premium quality...';
+        '🤖 First-time setup - loading pet processing engine...' :
+        '🧠 Warming up for premium quality...';
       timeRemaining = '60 seconds remaining';
     } else {
       // Unknown state: Conservative estimate (35s actual + 5s buffer)
@@ -1991,8 +1991,8 @@ class PetProcessor {
         this.geminiGenerating = true;
         this.isProcessing = false;  // Main processing complete, allow UI interactions
 
-        // Update progress for AI generation
-        this.updateProgressWithTimer(85, '✨ Generating AI artistic styles...', null);
+        // Update progress for artistic style generation
+        this.updateProgressWithTimer(85, '✨ Generating artistic styles...', null);
         timing.gemini.start = Date.now();
 
         // Convert to data URL if needed
@@ -2774,7 +2774,7 @@ class PetProcessor {
       // Cold start processing (55-65s)
       setTimeout(() => {
         if (!this.processingComplete) {
-          this.updateProgressWithTimer(15, '📦 Loading AI models into memory...', null);
+          this.updateProgressWithTimer(15, '📦 Loading processing engine...', null);
         }
       }, 8000);
 

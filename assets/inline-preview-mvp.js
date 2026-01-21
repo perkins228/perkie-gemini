@@ -916,7 +916,7 @@
         this.geminiGenerating = true;
 
         // Update progress UI
-        this.updateProgress('Generating AI styles...', '⏱️ ~10 seconds for both styles...');
+        this.updateProgress('Generating artistic styles...', '⏱️ ~10 seconds for both styles...');
         console.log('🎨 Starting Gemini batch generation for Modern + Sketch styles');
 
         // Ensure processedUrl is a data URL (Gemini API requires base64 data URLs)
@@ -1015,8 +1015,8 @@
           console.warn('⚠️ Gemini quota exhausted - only B&W and Color available today');
 
           // Render locked thumbnails for Ink Wash and Marker (prevents broken images)
-          this.renderLockedThumbnail('ink_wash', 'AI Limit', 'Try B&W/Color');
-          this.renderLockedThumbnail('sketch', 'AI Limit', 'Try B&W/Color');
+          this.renderLockedThumbnail('ink_wash', 'Limit Reached', 'Try B&W/Color');
+          this.renderLockedThumbnail('sketch', 'Limit Reached', 'Try B&W/Color');
 
           // Update UI to show quota exhausted state (buttons disabled, badges, etc.)
           if (this.geminiUI && typeof this.geminiUI.updateUI === 'function') {
@@ -1024,11 +1024,11 @@
           }
         } else {
           // Handle all other errors (network, API, etc.)
-          console.warn('⚠️ Gemini AI unavailable - showing fallback thumbnails');
+          console.warn('⚠️ Gemini unavailable - showing fallback thumbnails');
 
-          // Render locked thumbnails with "AI Unavailable" message
-          this.renderLockedThumbnail('ink_wash', 'AI Unavailable', 'Try again later');
-          this.renderLockedThumbnail('sketch', 'AI Unavailable', 'Try again later');
+          // Render locked thumbnails with "Unavailable" message
+          this.renderLockedThumbnail('ink_wash', 'Unavailable', 'Try again later');
+          this.renderLockedThumbnail('sketch', 'Unavailable', 'Try again later');
         }
       }
     }
