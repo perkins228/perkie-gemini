@@ -1798,15 +1798,22 @@
         const imgElement = container.querySelector('[data-style-preview="' + previewAttr + '"]');
 
         if (imgElement && effectData) {
-          // For Gemini effects (ink_wash, sketch): prefer dataUrl (transparent version)
-          // For BiRefNet effects (color, enhancedblackwhite): prefer gcsUrl (already transparent)
-          // Fallback chain: dataUrl -> gcsUrl
-          const imageUrl = effectData.dataUrl || effectData.gcsUrl;
+          // Handle both string URLs (v3 format) and object format (legacy)
+          let imageUrl;
+          if (typeof effectData === 'string') {
+            // V3 format: effect is stored as direct URL string
+            imageUrl = effectData;
+          } else {
+            // Legacy format: effect is object with dataUrl/gcsUrl properties
+            // For Gemini effects (ink_wash, sketch): prefer dataUrl (transparent version)
+            // For BiRefNet effects (color, enhancedblackwhite): prefer gcsUrl (already transparent)
+            imageUrl = effectData.dataUrl || effectData.gcsUrl;
+          }
 
           if (imageUrl) {
             imgElement.src = imageUrl;
             imgElement.classList.add('style-card__image--dynamic');
-            console.log('[ProductStyleCards] Updated ' + previewAttr + ' with pet image');
+            console.log('[ProductStyleCards] Updated ' + previewAttr + ' with pet image (' + (typeof effectData === 'string' ? 'v3' : 'legacy') + ')');
           }
         }
       });
