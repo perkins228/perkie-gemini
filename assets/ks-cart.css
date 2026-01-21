@@ -10,6 +10,9 @@
   flex: 1;
   overflow: auto;
   margin-bottom: -1px;
+  /* CRITICAL: Prevent flex item from collapsing when children have layout issues.
+     min-height: auto (default) causes wrapper to collapse to 0 if child has display: inline */
+  min-height: 0;
 }
 
 .ks-cart-drawer-wrapper::-webkit-scrollbar {
