@@ -174,25 +174,27 @@ if (!customElements.get('product-form')) {
                   // NOTE: Pets are NOT cleared from Session Pet Gallery - they persist for multi-product purchases
                   self.savePetCustomization();  // Phase 2: Save for restoration
                   self.clearPetPropertyFields(); // Phase 1: Clear form fields (NOT pet library)
-
-                  // FIX: Open cart drawer AFTER pub-sub updates complete (prevents race condition)
-                  // The pub-sub event triggers CartDrawerItems.onCartUpdate() which handles content update
-                  // We only need to open the drawer here - no duplicate renderContents() call needed
-                  self.error = false;
-                  const quickAddModal = self.closest('quick-add-modal');
-                  if (quickAddModal) {
-                    document.body.addEventListener(
-                      'modalClosed',
-                      () => {
-                        if (self.cart && self.cart.open) self.cart.open();
-                      },
-                      { once: true }
-                    );
-                    quickAddModal.hide(true);
-                  } else {
-                    if (self.cart && self.cart.open) self.cart.open();
-                  }
                 });
+              self.error = false;
+              const quickAddModal = self.closest('quick-add-modal');
+              if (quickAddModal) {
+                document.body.addEventListener(
+                  'modalClosed',
+                  () => {
+                    setTimeout(() => {
+                      CartPerformance.measure("add:paint-updated-sections", () => {
+                        self.cart.renderContents(response);
+                      });
+                    });
+                  },
+                  { once: true }
+                );
+                quickAddModal.hide(true);
+              } else {
+                CartPerformance.measure("add:paint-updated-sections", () => {
+                  self.cart.renderContents(response);
+                });
+              }
             })
             .catch((e) => {
               console.error(e);

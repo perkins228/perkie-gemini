@@ -7,14 +7,9 @@
   General cart drawer styles
 */
 .ks-cart-drawer-wrapper {
-  /* Make this a flex container so children can use flex properties */
-  display: flex;
-  flex-direction: column;
   flex: 1;
   overflow: auto;
   margin-bottom: -1px;
-  /* CRITICAL: Allow flex item to shrink below content size */
-  min-height: 0;
 }
 
 .ks-cart-drawer-wrapper::-webkit-scrollbar {

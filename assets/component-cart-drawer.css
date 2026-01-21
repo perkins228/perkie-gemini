@@ -185,9 +185,6 @@ cart-drawer {
 }
 
 cart-drawer-items {
-  /* CRITICAL: Custom elements default to display: inline, which breaks flex layout.
-     Without display: block, flex: 1 doesn't work and parent collapses to height: 0 */
-  display: block;
   overflow: auto;
   flex: 1;
 }

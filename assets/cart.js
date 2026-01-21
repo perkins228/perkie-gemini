@@ -58,8 +58,7 @@ class CartItems extends HTMLElement {
         if (event.source === "cart-items") {
           return;
         }
-        // Pass event to onCartUpdate so it can use pre-fetched cart data if available
-        return this.onCartUpdate(event);
+        return this.onCartUpdate();
       }
     );
   }
@@ -128,168 +127,8 @@ class CartItems extends HTMLElement {
     this.validateQuantity(event);
   }
 
-  onCartUpdate(event) {
-    // Debug: Log at very start to verify onCartUpdate is being called
-    console.log('🛒 [CartUpdate] onCartUpdate called, tagName:', this.tagName, 'source:', event?.source);
-
+  onCartUpdate() {
     if (this.tagName === "CART-DRAWER-ITEMS") {
-      // Use pre-fetched cart data from event if available (prevents stale data race)
-      const prefetchedHtml = event?.cartData?.sections?.['cart-drawer'];
-
-      console.log('🛒 [CartDrawer] Processing cart-drawer-items update');
-      console.log('🛒 [CartDrawer] event exists:', !!event);
-      console.log('🛒 [CartDrawer] cartData exists:', !!event?.cartData);
-      console.log('🛒 [CartDrawer] sections exists:', !!event?.cartData?.sections);
-      console.log('🛒 [CartDrawer] prefetchedHtml exists:', !!prefetchedHtml);
-      if (prefetchedHtml) {
-        console.log('🛒 [CartDrawer] prefetchedHtml length:', prefetchedHtml.length);
-        // Check for $0.00 in the HTML
-        const hasZeroPrice = prefetchedHtml.includes('$0.00');
-        console.log('🛒 [CartDrawer] Contains $0.00:', hasZeroPrice);
-      }
-
-      if (prefetchedHtml) {
-        const html = new DOMParser().parseFromString(prefetchedHtml, "text/html");
-
-        // CRITICAL FIX: Toggle is-empty FIRST before updating content
-        // KS CSS rule: .is-empty .ks-cart-drawer-wrapper { display: none; }
-        // We must remove is-empty from cart-drawer BEFORE updating innerHTML,
-        // otherwise the wrapper remains hidden during content update.
-        const cartDrawer = document.querySelector('cart-drawer');
-        const cartDrawerSource = html.querySelector('cart-drawer');
-        console.log('🛒 [CartDrawer] cartDrawer exists:', !!cartDrawer);
-        console.log('🛒 [CartDrawer] cartDrawer.classList BEFORE:', cartDrawer ? Array.from(cartDrawer.classList) : 'N/A');
-        if (cartDrawer && cartDrawerSource) {
-          const sourceIsEmpty = cartDrawerSource.classList.contains('is-empty');
-          console.log('🛒 [CartDrawer] sourceIsEmpty:', sourceIsEmpty);
-          cartDrawer.classList.toggle('is-empty', sourceIsEmpty);
-          console.log('🛒 [CartDrawer] cartDrawer.classList AFTER toggle:', Array.from(cartDrawer.classList));
-
-          // DEBUG: Check if KS wrapper becomes visible after is-empty toggle
-          const ksWrapper = document.querySelector('.ks-cart-drawer-wrapper');
-          if (ksWrapper) {
-            const cs = window.getComputedStyle(ksWrapper);
-            console.log('🔍 [KS-FIX] .ks-cart-drawer-wrapper display AFTER is-empty toggle:', cs.display);
-          }
-        }
-
-        // FIX: cart-drawer-items is a custom element - use innerHTML instead of replaceWith
-        // to preserve the already-upgraded custom element instance in the DOM.
-        // DOMParser creates elements in an inert document without Custom Elements registry,
-        // so replaceWith() would insert a non-upgraded element causing CSS issues.
-        const targetElement = document.querySelector("cart-drawer-items");
-        const sourceElement = html.querySelector("cart-drawer-items");
-        console.log('🛒 [CartDrawer] targetElement exists:', !!targetElement);
-        console.log('🛒 [CartDrawer] sourceElement exists:', !!sourceElement);
-        if (sourceElement) {
-          console.log('🛒 [CartDrawer] sourceElement innerHTML length:', sourceElement.innerHTML.length);
-          const cartItems = sourceElement.querySelectorAll('.cart-item');
-          console.log('🛒 [CartDrawer] cart-item count in source:', cartItems.length);
-        }
-        if (targetElement && sourceElement) {
-          // Copy class attribute (e.g., is-empty state)
-          targetElement.className = sourceElement.className;
-          // Use innerHTML to preserve the custom element
-          targetElement.innerHTML = sourceElement.innerHTML;
-          console.log('🛒 [CartDrawer] cart-drawer-items innerHTML updated successfully');
-        }
-
-        // FIX: Also update the footer (contains total price, discounts, checkout button)
-        // The footer is OUTSIDE cart-drawer-items, so we need to update it separately
-        const footerTarget = document.querySelector('.cart-drawer__footer');
-        const footerSource = html.querySelector('.cart-drawer__footer');
-        console.log('🛒 [CartDrawer] footerTarget exists:', !!footerTarget);
-        console.log('🛒 [CartDrawer] footerSource exists:', !!footerSource);
-        if (footerTarget && footerSource) {
-          footerTarget.innerHTML = footerSource.innerHTML;
-          console.log('🛒 [CartDrawer] footer innerHTML updated successfully');
-        }
-
-        // DEBUG: Check drawer__inner transform state
-        const drawerInner = document.querySelector('.drawer__inner');
-        if (drawerInner) {
-          const computedStyle = window.getComputedStyle(drawerInner);
-          console.log('🛒 [CartDrawer] drawer__inner transform:', computedStyle.transform);
-          console.log('🛒 [CartDrawer] drawer__inner visibility:', computedStyle.visibility);
-          console.log('🛒 [CartDrawer] drawer__inner display:', computedStyle.display);
-        }
-
-        // DEBUG: Check cart-drawer-items content
-        const updatedItems = document.querySelector('cart-drawer-items');
-        if (updatedItems) {
-          console.log('🛒 [CartDrawer] cart-drawer-items innerHTML length AFTER update:', updatedItems.innerHTML.length);
-          const tableBody = updatedItems.querySelector('tbody');
-          console.log('🛒 [CartDrawer] tbody exists in updated element:', !!tableBody);
-          if (tableBody) {
-            console.log('🛒 [CartDrawer] tbody.innerHTML length:', tableBody.innerHTML.length);
-            console.log('🛒 [CartDrawer] cart-item rows in tbody:', tableBody.querySelectorAll('.cart-item').length);
-          }
-        }
-
-        // DEBUG: Delayed check to see if content persists
-        setTimeout(() => {
-          console.log('🛒 [CartDrawer] === 500ms DELAYED CHECK ===');
-          const drawerEl = document.querySelector('cart-drawer');
-          const itemsEl = document.querySelector('cart-drawer-items');
-          const footerEl = document.querySelector('.cart-drawer__footer');
-
-          // DEBUG: Check computed styles of ALL elements in the cart item chain
-          const elementsToCheck = [
-            { name: '.ks-cart-drawer-wrapper', el: document.querySelector('.ks-cart-drawer-wrapper') },
-            { name: 'cart-drawer-items', el: document.querySelector('cart-drawer-items') },
-            { name: 'form.cart-drawer__form', el: document.querySelector('.cart-drawer__form') },
-            { name: '#CartDrawer-CartItems', el: document.querySelector('#CartDrawer-CartItems') },
-            { name: '.drawer__cart-items-wrapper', el: document.querySelector('.drawer__cart-items-wrapper') },
-            { name: 'table.cart-items', el: document.querySelector('table.cart-items') },
-            { name: 'tbody', el: document.querySelector('cart-drawer-items tbody') },
-            { name: 'first .cart-item', el: document.querySelector('.cart-item') }
-          ];
-
-          elementsToCheck.forEach(({ name, el }) => {
-            if (el) {
-              const cs = window.getComputedStyle(el);
-              console.log(`🔍 [CSS] ${name}: display=${cs.display}, visibility=${cs.visibility}, opacity=${cs.opacity}, height=${cs.height}, overflow=${cs.overflow}`);
-            } else {
-              console.log(`🔍 [CSS] ${name}: NOT FOUND IN DOM`);
-            }
-          });
-
-          if (drawerEl) {
-            console.log('🛒 [CartDrawer] cart-drawer classes:', Array.from(drawerEl.classList));
-          }
-          if (itemsEl) {
-            console.log('🛒 [CartDrawer] cart-drawer-items innerHTML length:', itemsEl.innerHTML.length);
-            console.log('🛒 [CartDrawer] cart-drawer-items classes:', Array.from(itemsEl.classList));
-            const tbody = itemsEl.querySelector('tbody');
-            console.log('🛒 [CartDrawer] tbody exists:', !!tbody);
-            if (tbody) {
-              console.log('🛒 [CartDrawer] cart-item count:', tbody.querySelectorAll('.cart-item').length);
-              // Show first 200 chars of tbody HTML
-              console.log('🛒 [CartDrawer] tbody HTML preview:', tbody.innerHTML.substring(0, 200));
-            }
-          }
-          if (footerEl) {
-            console.log('🛒 [CartDrawer] footer innerHTML length:', footerEl.innerHTML.length);
-            // Check for price value
-            const totalsEl = footerEl.querySelector('.totals__total-value');
-            console.log('🛒 [CartDrawer] total price text:', totalsEl ? totalsEl.textContent.trim() : 'N/A');
-          }
-
-          // Check drawer__inner computed styles
-          const innerEl = document.querySelector('.drawer__inner');
-          if (innerEl) {
-            const cs = window.getComputedStyle(innerEl);
-            console.log('🛒 [CartDrawer] drawer__inner computed: transform=%s, visibility=%s, display=%s, opacity=%s',
-              cs.transform, cs.visibility, cs.display, cs.opacity);
-          }
-        }, 500);
-
-        return Promise.resolve();
-      } else {
-        console.log('🛒 [CartDrawer] No prefetched HTML, falling back to fetch');
-      }
-
-      // Fallback: fetch fresh data if no prefetched data available
       return fetch(`${routes.cart_url}?section_id=cart-drawer`)
         .then((response) => response.text())
         .then((responseText) => {
@@ -297,48 +136,19 @@ class CartItems extends HTMLElement {
             responseText,
             "text/html"
           );
-
-          // CRITICAL FIX: Toggle is-empty FIRST before updating content
-          // KS CSS rule: .is-empty .ks-cart-drawer-wrapper { display: none; }
-          const cartDrawer = document.querySelector('cart-drawer');
-          const cartDrawerSource = html.querySelector('cart-drawer');
-          if (cartDrawer && cartDrawerSource) {
-            const sourceIsEmpty = cartDrawerSource.classList.contains('is-empty');
-            cartDrawer.classList.toggle('is-empty', sourceIsEmpty);
-          }
-
-          // FIX: Use innerHTML for custom element cart-drawer-items
-          const targetElement = document.querySelector("cart-drawer-items");
-          const sourceElement = html.querySelector("cart-drawer-items");
-          if (targetElement && sourceElement) {
-            targetElement.className = sourceElement.className;
-            targetElement.innerHTML = sourceElement.innerHTML;
-          }
-
-          // FIX: Also update footer in fallback path
-          const footerTarget = document.querySelector('.cart-drawer__footer');
-          const footerSource = html.querySelector('.cart-drawer__footer');
-          if (footerTarget && footerSource) {
-            footerTarget.innerHTML = footerSource.innerHTML;
+          const selectors = ["cart-drawer-items", ".cart-drawer__footer"];
+          for (const selector of selectors) {
+            const targetElement = document.querySelector(selector);
+            const sourceElement = html.querySelector(selector);
+            if (targetElement && sourceElement) {
+              targetElement.replaceWith(sourceElement);
+            }
           }
         })
         .catch((e) => {
           console.error(e);
         });
     } else {
-      // Main cart page - use prefetched data if available
-      const prefetchedHtml = event?.cartData?.sections?.['main-cart-items'];
-
-      if (prefetchedHtml) {
-        const html = new DOMParser().parseFromString(prefetchedHtml, "text/html");
-        const sourceQty = html.querySelector("cart-items");
-        if (sourceQty) {
-          this.innerHTML = sourceQty.innerHTML;
-        }
-        return Promise.resolve();
-      }
-
-      // Fallback: fetch fresh data
       return fetch(`${routes.cart_url}?section_id=main-cart-items`)
         .then((response) => response.text())
         .then((responseText) => {
