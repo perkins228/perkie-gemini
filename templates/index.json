@@ -9,39 +9,6 @@
  */
 {
   "sections": {
-    "ks_marquee_cj3Aej": {
-      "type": "ks-marquee",
-      "blocks": {
-        "text_iVijTY": {
-          "type": "text",
-          "settings": {
-            "text": "Free Valentine's Mug With Purchase of $75+*",
-            "url": "shopify://products/limited-addition-valentines-coffee-mug"
-          }
-        }
-      },
-      "block_order": [
-        "text_iVijTY"
-      ],
-      "name": "KS - Marquee",
-      "settings": {
-        "color_scheme": "scheme-5bf212b3-c060-4789-9330-10bdcca4e3d7",
-        "font_size": "fs-sm",
-        "font_size_desktop": "fs-desktop-md",
-        "text_transform": "",
-        "letter_spacing": 1,
-        "img_opacity": 1,
-        "list_label": "Promotional list",
-        "marquee_duration": 60,
-        "marquee_direction": "right",
-        "separator_icon": "heart",
-        "separator_icon_size": 14,
-        "separator_icon_stroke_width": 3,
-        "gap": 16,
-        "pt": 0,
-        "pb": 0
-      }
-    },
     "image_banner_qWieVe": {
       "type": "image-banner",
       "blocks": {
@@ -163,37 +130,46 @@
     "image_with_text_WeJGQG": {
       "type": "image-with-text",
       "blocks": {
+        "caption_RkE3CT": {
+          "type": "caption",
+          "settings": {
+            "caption": "Valentine's Day Sale",
+            "text_style": "caption-with-letter-spacing",
+            "text_size": "medium"
+          }
+        },
         "heading_NyQ7xN": {
           "type": "heading",
           "settings": {
-            "heading": "Image with text",
+            "heading": "Free Mug With $75+ Purchase",
             "heading_size": "h1"
           }
         },
         "text_XVLpMR": {
           "type": "text",
           "settings": {
-            "text": "<p>Pair text with an image to focus on your chosen product, collection, or blog post. Add details on availability, style, or even provide a review.</p>",
+            "text": "<p>Choose from two limited edition Valentine's Day designs. </p><p>Just add to cart and discount will auto apply. </p>",
             "text_style": "body"
           }
         },
         "button_ngx6H3": {
           "type": "button",
           "settings": {
-            "button_label": "Button label",
-            "button_link": "",
+            "button_label": "Customize Now",
+            "button_link": "shopify://products/limited-addition-valentines-coffee-mug",
             "button_style_secondary": false
           }
         }
       },
       "block_order": [
+        "caption_RkE3CT",
         "heading_NyQ7xN",
         "text_XVLpMR",
         "button_ngx6H3"
       ],
       "name": "t:sections.image-with-text.presets.name",
       "settings": {
-        "image": "shopify://shop_images/Valentines_25_Banner_square_copy2.png",
+        "image": "shopify://shop_images/Valentines_25_Banner_square_copy.jpg",
         "height": "adapt",
         "desktop_image_width": "small",
         "layout": "image_first",
@@ -202,8 +178,8 @@
         "desktop_content_position": "middle",
         "desktop_content_alignment": "center",
         "mobile_content_alignment": "center",
-        "section_color_scheme": "",
-        "color_scheme": "",
+        "section_color_scheme": "scheme-4",
+        "color_scheme": "scheme-0d2d3905-9794-42ac-a4c7-5701425dd018",
         "padding_top": 36,
         "padding_bottom": 36
       }
@@ -732,7 +708,6 @@
     }
   },
   "order": [
-    "ks_marquee_cj3Aej",
     "image_banner_qWieVe",
     "how_it_works_fz8MHb",
     "image_with_text_WeJGQG",
