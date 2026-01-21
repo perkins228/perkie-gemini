@@ -251,7 +251,7 @@
   }
 }
 
-/* Expandable cards (products 6-10) hidden by default on mobile */
+/* Expandable cards (products 10+) hidden by default on mobile */
 .mockup-card--expandable {
   display: none;
 }
