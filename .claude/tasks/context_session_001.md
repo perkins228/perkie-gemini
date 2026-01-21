@@ -1298,9 +1298,47 @@ RE-SAVE to PetStorage → sanitizeEffects() → keeps GCS URL (preferred)
 Product page reads → effects have GCS URLs ✅
 ```
 
-**Commit**: Pending
+**Commit**: `581a40c` - fix(storage): Save BiRefNet effects with data URL fallback, re-save after GCS upload
 
-**Status**: Fix implemented, ready for testing
+**Status**: Deployed, but revealed secondary issue (see below)
+
+---
+
+### 2026-01-21 - Style Card Thumbnails Still Missing (Format Mismatch)
+
+**Problem**:
+After deploying the storage fix, style card thumbnails still weren't updating. Console showed 4 effects but only `ink_wash` and `sketch` were updating.
+
+**Root Cause**:
+The `sanitizeEffects()` fix stores effects as **direct URL strings**:
+```javascript
+sanitized[effectName] = gcsUrl;  // STRING
+```
+
+But `updateProductStyleCardPreviews()` expected **objects** with properties:
+```javascript
+const imageUrl = effectData.dataUrl || effectData.gcsUrl;  // FAILS when effectData is string
+```
+
+When `effectData` is a string, `effectData.dataUrl` returns `undefined`.
+
+**Fix Applied**:
+Modified `updateProductStyleCardPreviews()` in `ks-product-pet-selector-stitch.liquid` to handle both formats:
+
+```javascript
+if (typeof effectData === 'string') {
+  imageUrl = effectData;  // V3 format: direct URL string
+} else {
+  imageUrl = effectData.dataUrl || effectData.gcsUrl;  // Legacy object format
+}
+```
+
+**Files Modified**:
+- [ks-product-pet-selector-stitch.liquid:1800-1818](snippets/ks-product-pet-selector-stitch.liquid#L1800-L1818) - Handle both v3 string and legacy object formats
+
+**Commit**: `d8d1f23` - fix(styles): Handle v3 string effect URLs in style card preview updates
+
+**Status**: Deployed - ready for testing
 
 ---
 
