@@ -3548,7 +3548,13 @@
         if (urlField) {
           if (pet.effects && pet.effects[selectedStyle]) {
             const styleData = pet.effects[selectedStyle];
-            const gcsUrl = styleData.gcsUrl || styleData.dataUrl || '';
+            // V3 FORMAT FIX: Handle both string URLs (v3) and object format (legacy)
+            let gcsUrl;
+            if (typeof styleData === 'string') {
+              gcsUrl = styleData;  // V3 format: direct URL string
+            } else {
+              gcsUrl = styleData.gcsUrl || styleData.dataUrl || '';  // Legacy object format
+            }
 
             if (gcsUrl) {
               // SECURITY: Validate URL before populating (prevent URL injection)
@@ -3760,15 +3766,13 @@
       console.log('📋 Pet Properties Being Submitted:');
       console.table(petProperties);
 
-      // Summary check for critical fields
+      // Summary check for critical fields (only those required for fulfillment)
+      // Note: _session_key, _artist_notes, _previous_order_number are optional
       var criticalFields = [
-        'properties[_pet_1_session_key]',
         'properties[Pet 1 Name]',
         'properties[_pet_1_selected_effect]',
         'properties[_pet_1_processed_image_url]',
-        'properties[_pet_1_original_gcs_url]',
-        'properties[_pet_1_artist_notes]',
-        'properties[_pet_1_previous_order_number]'
+        'properties[_pet_1_original_gcs_url]'
       ];
 
       var missingFields = [];

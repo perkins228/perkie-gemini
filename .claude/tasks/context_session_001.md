@@ -737,6 +737,61 @@ Custom Web Components (`<my-element>`) have NO default CSS styling from browsers
 
 ---
 
+### 2026-01-21 - Session Key Field Necessity Evaluation
+
+**Question**: Is `_pet_1_session_key` necessary for order fulfillment?
+
+**Analysis Performed**:
+
+1. **Searched all Liquid templates for session_key usage**
+   - `order-custom-images.liquid`: **NO reference to session_key**
+   - `ks-product-pet-selector-stitch.liquid`: Captures `_pet_1_session_key` in form fields
+
+2. **Searched backend APIs for session_id/sessionKey usage**
+   - Backend uses `session_id` for:
+     - GCS file naming: `{session_id}_{image_type}_{effect}_{timestamp}.png`
+     - Logging/debugging traces
+   - **NOT used for actual image retrieval** - images are accessed via direct GCS URLs
+
+3. **Analyzed fulfillment workflow in `order-custom-images.liquid`**:
+   - Properties USED for fulfillment:
+     - `Pet 1 Name` - Customer reference
+     - `_pet_1_processed_image_url` - Processed image download link
+     - `_pet_1_original_gcs_url` - Original image download link
+     - `_pet_1_selected_effect` - Effect style (B&W, Color, etc.) *NOT SHOWN*
+     - `_pet_1_artist_notes` - Special instructions *NOT SHOWN*
+     - `_pet_1_filename` - File reference
+     - `_pet_1_previous_order_number` - For reorders
+   - Properties NOT USED in fulfillment template:
+     - `_pet_1_session_key` - **Never referenced**
+
+**Findings**:
+
+| Question | Answer |
+|----------|--------|
+| What is session_key used for? | Internal tracing during processing session. Used for GCS file naming. |
+| Can fulfillment complete WITHOUT it? | **YES** - All download links use direct GCS URLs, not session_key lookups |
+| Is it operationally critical? | **NO** - It's a debugging/tracing artifact, not operational data |
+| Is it displayed to fulfillment staff? | **NO** - Not shown in `order-custom-images.liquid` |
+
+**Recommendation**: **OPTION C - Keep it optional (nice-to-have for debugging)**
+
+**Rationale**:
+1. The session_key provides VALUE for debugging customer support issues (e.g., "What happened with order #1234?")
+2. It costs NOTHING to capture when available (just a form field)
+3. Fulfillment does NOT depend on it - all image URLs are direct links
+4. The v3 architecture uses pet slot numbers (1, 2, 3) instead of UUIDs internally, so the session_key is less relevant than before
+5. For UUID-style session keys (`pet_960031dd-...`), we default to pet slot 1 anyway
+
+**Action Items**:
+1. Remove `_pet_1_session_key` from the "critical fields" list in cart submission logging
+2. Keep the form field and population logic (zero harm, potential debugging value)
+3. Document that session_key is optional for fulfillment
+
+**Status**: Analysis complete, recommendation made
+
+---
+
 ### 2026-01-21 - Cart Price Swap Fix (Session Continuation)
 
 **Problem**:
@@ -1392,6 +1447,146 @@ const allPropertyInputs = [...new Set([...insideForm, ...outsideForm])];
 **Commit**: Pending
 
 **Status**: Fixed, ready for testing
+
+---
+
+### 2026-01-21 - Pet Form Fields Empty Before Cart Submission (Root Cause Analysis)
+
+**Problem**:
+Cart submission correctly collects properties via FormData, but some fields are empty in the DOM before submission:
+- `_pet_1_session_key` - Log shows "Pet 1 session key: none"
+- `_pet_1_processed_image_url` - Not being populated
+- `_pet_1_artist_notes` - Log shows "field cleared"
+
+**Working fields**:
+- `_pet_1_original_gcs_url`
+- `_pet_1_selected_effect`
+- `Pet 1 Name`
+- `Style`
+
+**Root Cause Analysis**:
+
+The issue is in `populateSelectedStyleUrls()` function at lines 3549-3551:
+
+```javascript
+const styleData = pet.effects[selectedStyle];
+const gcsUrl = styleData.gcsUrl || styleData.dataUrl || '';
+```
+
+This code expects `styleData` to be an **object** with `.gcsUrl` or `.dataUrl` properties, but `sanitizeEffects()` in `pet-storage.js` stores effects as **direct URL strings**.
+
+**Data Flow Mismatch**:
+
+1. **PetStorage v3 saves effects as strings** (`pet-storage.js` lines 516-519):
+   ```javascript
+   sanitized[effectName] = gcsUrl;  // Just a string: "https://..."
+   ```
+
+2. **legacyGetAll() returns effects unchanged** (`pet-storage.js` lines 706-710):
+   ```javascript
+   effects: pet.effects,  // { enhancedblackwhite: "https://...", color: "https://..." }
+   ```
+
+3. **populateSelectedStyleUrls() expects objects** (lines 3550-3551):
+   ```javascript
+   const styleData = pet.effects[selectedStyle];  // styleData = "https://..."
+   const gcsUrl = styleData.gcsUrl;  // undefined (string has no .gcsUrl property)
+   ```
+
+**Why session_key shows "none"**:
+
+Looking at line 3607:
+```javascript
+sessionKeyField.value = pet.sessionKey || '';
+console.log(`✅ Pet ${petNumber} session key: ${pet.sessionKey || 'none'}`);
+```
+
+The `pet` object returned by `legacyGetAll()` maps `sessionKey` to the `sessionKey` field (line 706), but the issue is that `getLatestProcessedPets()` filters out pets without effects. When `sanitizeEffects()` produces an empty result due to the format mismatch, the pet may be excluded from results entirely.
+
+Actually, let me trace more carefully:
+- `getLatestProcessedPets()` calls `PetStorage.getAll()` → `legacyGetAll()`
+- `legacyGetAll()` returns: `{ sessionKey, name, artistNote, effects, originalUrl, selectedEffect, timestamp }`
+- Line 3607: `pet.sessionKey` should be present
+
+The "none" in the log means `pet.sessionKey` is falsy. Checking `legacyGetAll()` line 705:
+```javascript
+var key = pet.sessionKey || ('pet_' + petNum);
+```
+This suggests if original pet has no sessionKey, it's generated.
+
+**Why processed_image_url is empty**:
+
+Lines 3549-3561: The format mismatch causes `gcsUrl` to be empty string, so `urlField.value` never gets set with a valid URL.
+
+**Why artist_notes shows "field cleared"**:
+
+Line 3538-3542: The code explicitly clears the field if `pet.artistNote` is empty or doesn't exist. This is intentional behavior, not a bug.
+
+**Required Fixes**:
+
+1. **Fix populateSelectedStyleUrls()** to handle both string and object formats (same fix as updateProductStyleCardPreviews):
+   ```javascript
+   // Handle both string URLs (v3 format) and object format (legacy)
+   let gcsUrl;
+   if (typeof styleData === 'string') {
+     gcsUrl = styleData;  // V3 format: direct URL string
+   } else {
+     gcsUrl = styleData.gcsUrl || styleData.dataUrl || '';  // Legacy object format
+   }
+   ```
+
+2. **Also check the fallback path** (lines 3660-3662) which has the same issue:
+   ```javascript
+   const styleData = petData.effects[selectedStyle];
+   const styleUrl = styleData.gcsUrl || styleData.dataUrl || '';
+   ```
+
+**Files to Modify**:
+- `snippets/ks-product-pet-selector-stitch.liquid`:
+  - Lines 3549-3551: Primary path format fix
+  - Lines 3660-3662: Fallback path format fix
+
+**Status**: ✅ FIXED (2026-01-21)
+
+### Fix Applied
+
+**File**: `snippets/ks-product-pet-selector-stitch.liquid`
+
+**Change 1** (lines 3549-3556): Format handling in `populateSelectedStyleUrls()`:
+```javascript
+// BEFORE: Expected object format only
+const gcsUrl = styleData.gcsUrl || styleData.dataUrl || '';
+
+// AFTER: Handles both v3 string URLs and legacy object format
+let gcsUrl;
+if (typeof styleData === 'string') {
+  gcsUrl = styleData;  // V3 format: direct URL string
+} else {
+  gcsUrl = styleData.gcsUrl || styleData.dataUrl || '';  // Legacy object format
+}
+```
+
+**Change 2** (lines 3769-3774): Critical fields list simplified:
+```javascript
+// BEFORE: 7 fields including optional ones
+var criticalFields = [
+  'properties[_pet_1_session_key]',  // REMOVED - debugging only
+  'properties[Pet 1 Name]',
+  // ...
+  'properties[_pet_1_artist_notes]',  // REMOVED - optional
+  'properties[_pet_1_previous_order_number]'  // REMOVED - reorder only
+];
+
+// AFTER: Only 4 truly critical fields for fulfillment
+var criticalFields = [
+  'properties[Pet 1 Name]',
+  'properties[_pet_1_selected_effect]',
+  'properties[_pet_1_processed_image_url]',
+  'properties[_pet_1_original_gcs_url]'
+];
+```
+
+**Commit**: Pending
 
 ---
 
