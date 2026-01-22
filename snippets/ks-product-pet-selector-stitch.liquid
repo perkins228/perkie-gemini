@@ -3514,7 +3514,10 @@
       // Populate each available processed pet
       for (let i = 0; i < latestPets.length; i++) {
         const pet = latestPets[i];
-        const petNumber = i + 1;
+        // Use actual pet slot number from storage, NOT array index
+        // This ensures Pet 2's data goes to _pet_2_* fields even if sorted by timestamp
+        const petNumber = pet.petNumber || (i + 1);
+        console.log(`🎯 Processing pet "${pet.name || 'unnamed'}" → slot ${petNumber} (array index ${i})`);
 
         // CRITICAL FIX: Only populate artist notes if they exist for THIS SPECIFIC PET
         // Do NOT carry over notes from other pets in PetStorage

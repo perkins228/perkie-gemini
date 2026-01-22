@@ -705,6 +705,7 @@ var PetStorage = (function() {
       var key = pet.sessionKey || ('pet_' + petNum);
       result[key] = {
         petId: key,
+        petNumber: parseInt(petNum, 10),  // Include slot number for correct assignment
         name: pet.name,
         artistNote: pet.artistNote,
         effects: pet.effects,
