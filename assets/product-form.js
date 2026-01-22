@@ -71,34 +71,14 @@ if (!customElements.get('product-form')) {
             // Multi-item submission: main product + pet fee product
             const mainVariantId = self.form.querySelector('[name="id"]').value;
 
-            // Collect properties from form (including inputs outside form with form="formId" attribute)
+            // Collect properties using FormData (natively handles form="" attribute)
             const properties = {};
-            const formId = self.form.id;
+            const tempFormData = new FormData(self.form);
 
-            // Get inputs INSIDE the form
-            const insideForm = Array.from(self.form.querySelectorAll('[name^="properties["]'));
-
-            // Get inputs OUTSIDE the form but with form="formId" attribute
-            const outsideForm = formId
-              ? Array.from(document.querySelectorAll('[form="' + formId + '"][name^="properties["]'))
-              : [];
-
-            // Combine and dedupe (in case any input matches both)
-            const allPropertyInputs = [...new Set([...insideForm, ...outsideForm])];
-
-            console.log('📝 [PetFee] Collecting properties:', {
-              formId: formId,
-              insideFormCount: insideForm.length,
-              outsideFormCount: outsideForm.length,
-              totalInputs: allPropertyInputs.length
-            });
-
-            allPropertyInputs.forEach(input => {
-              if (input.value) {
-                const match = input.name.match(/properties\[([^\]]+)\]/);
-                if (match) {
-                  properties[match[1]] = input.value;
-                }
+            tempFormData.forEach((value, key) => {
+              const match = key.match(/properties\[([^\]]+)\]/);
+              if (match && value) {
+                properties[match[1]] = value;
               }
             });
 
