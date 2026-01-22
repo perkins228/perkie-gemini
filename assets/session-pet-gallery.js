@@ -245,11 +245,16 @@
     }
 
     // Store selected pet data for use by inline preview or product form
+    // CRITICAL: petNumber must be the TARGET slot (petIndex), not the original slot
+    // This ensures artist notes and other data go to the correct form fields
     var petData = {
       sessionKey: pet.sessionKey,
+      petNumber: parseInt(petIndex, 10),  // TARGET slot for correct form field assignment
+      name: pet.name || '',
       selectedEffect: pet.selectedEffect,
       effects: pet.effects,
       artistNote: pet.artistNote || '',
+      originalUrl: pet.originalUrl || pet.originalGcsUrl || '',  // For fulfillment
       thumbnailUrl: pet.thumbnailUrl,
       fromSessionGallery: true
     };
