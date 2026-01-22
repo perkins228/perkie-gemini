@@ -3505,8 +3505,51 @@
     const petCount = parseInt(selectedCountRadio.value);
     console.log(`✅ Active pets: ${petCount}`);
 
-    // NEW: Try latest processed pets FIRST (processor → product page)
-    const latestPets = getLatestProcessedPets(petCount);
+    // PRIORITY 1: Check Session Gallery data FIRST (pets selected from library)
+    // Session Gallery stores pets with originalUrl that may be older than the 10-min TTL
+    const sessionGalleryPets = [];
+    for (let i = 1; i <= petCount; i++) {
+      const sessionData = sessionStorage.getItem(`session_gallery_pet_${i}`);
+      if (sessionData) {
+        try {
+          const petData = JSON.parse(sessionData);
+          if (petData && petData.effects && Object.keys(petData.effects).length > 0) {
+            sessionGalleryPets.push({
+              ...petData,
+              petNumber: petData.petNumber || i
+            });
+            console.log(`📚 Found Session Gallery pet for slot ${i}:`, {
+              name: petData.name || 'unnamed',
+              hasOriginalUrl: !!petData.originalUrl,
+              effects: Object.keys(petData.effects).join(', ')
+            });
+          }
+        } catch (e) {
+          console.warn(`Failed to parse session gallery pet ${i}:`, e);
+        }
+      }
+    }
+
+    // PRIORITY 2: Fall back to latest processed pets (from PetStorage with 10-min TTL)
+    const latestPetsFromStorage = getLatestProcessedPets(petCount);
+
+    // Merge: Use Session Gallery data where available, fill gaps with latest processed
+    let latestPets = [];
+    for (let i = 1; i <= petCount; i++) {
+      // Check Session Gallery first for this slot
+      const sessionPet = sessionGalleryPets.find(p => p.petNumber === i);
+      if (sessionPet) {
+        latestPets.push(sessionPet);
+        console.log(`✅ Using Session Gallery pet for slot ${i}`);
+      } else {
+        // Fall back to latest processed pet for this slot
+        const storagePet = latestPetsFromStorage.find(p => p.petNumber === i);
+        if (storagePet) {
+          latestPets.push(storagePet);
+          console.log(`✅ Using PetStorage pet for slot ${i}`);
+        }
+      }
+    }
 
     if (latestPets.length > 0) {
       console.log(`🎨 Populating from ${latestPets.length} processed pet(s)`);
