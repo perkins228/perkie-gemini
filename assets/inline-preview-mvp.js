@@ -510,7 +510,7 @@
      * Validate uploaded file
      */
     validateFile(file) {
-      const maxSize = 10 * 1024 * 1024; // 10MB
+      const maxSize = 15 * 1024 * 1024; // 15MB - covers Samsung 50MP photos
       const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
 
       if (!allowedTypes.includes(file.type)) {
@@ -523,7 +523,7 @@
       if (file.size > maxSize) {
         return {
           valid: false,
-          error: `File too large (${(file.size / 1024 / 1024).toFixed(1)}MB). Maximum 10MB`
+          error: `File too large (${(file.size / 1024 / 1024).toFixed(1)}MB). Maximum 15MB`
         };
       }
 

@@ -89,8 +89,8 @@ function validateAndSanitizeImageData(dataUrl) {
     return null;
   }
 
-  // Check size (data URLs can be large - limit to 10MB base64 encoded)
-  const maxSize = 10 * 1024 * 1024 * 1.37; // Base64 is ~37% larger
+  // Check size (data URLs can be large - limit to 15MB base64 encoded)
+  const maxSize = 15 * 1024 * 1024 * 1.37; // Base64 is ~37% larger
   if (dataUrl.length > maxSize) {
     console.warn('🔒 Rejected oversized data URL:', dataUrl.length, 'bytes');
     return null;
@@ -1243,7 +1243,7 @@ class PetProcessor {
               <label for="pet-upload-${this.sectionId}" class="upload-label">
                 <div class="upload-icon">📷</div>
                 <div class="upload-text">Tap to upload or take photo</div>
-                <div class="upload-hint">JPG or PNG • Max 10MB</div>
+                <div class="upload-hint">JPG or PNG • Max 15MB</div>
               </label>
             </div>
             
@@ -1666,8 +1666,8 @@ class PetProcessor {
       return;
     }
 
-    if (file.size > 10 * 1024 * 1024) {
-      this.showError('Image must be less than 10MB');
+    if (file.size > 15 * 1024 * 1024) {
+      this.showError('Image must be less than 15MB');
       return;
     }
 
