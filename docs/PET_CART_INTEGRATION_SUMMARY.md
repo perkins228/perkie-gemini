@@ -31,7 +31,7 @@ Successfully created a simple, elegant bridge between the pet background remover
 
 2. **`assets/pet-processor-v5.js`**
    - Enhanced `petProcessorComplete` event to include `sessionKey`
-   - Improved `emergencyCleanupPetData()` to clear pet selector data
+   - Improved `PetStorage.emergencyCleanup()` to clear pet selector data
    - Added pet selector instance cleanup and form field clearing
 
 ## 🔧 Technical Architecture
@@ -62,7 +62,7 @@ document.addEventListener('petSelected', (event) => {
 
 ### Session Management
 - Consistent session keys across components using file hash approach
-- Emergency cleanup method: `window.emergencyCleanupPetData()`
+- Emergency cleanup method: `PetStorage.emergencyCleanup()`
 - Automatic session restoration from `window.perkieEffects` cache
 
 ## 🎨 User Experience
@@ -125,7 +125,7 @@ document.addEventListener('petSelected', (event) => {
 ### Data Cleanup
 ```javascript
 // Clear all pet data and refresh selectors
-window.emergencyCleanupPetData();
+PetStorage.emergencyCleanup();
 // Returns: { success: true, itemsCleaned: 15, message: "..." }
 ```
 

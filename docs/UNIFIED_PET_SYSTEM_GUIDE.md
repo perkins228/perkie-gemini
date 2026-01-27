@@ -308,7 +308,7 @@ window.petDataManager.getStats();
 window.getPetCompatibilityReport();
 
 // Emergency cleanup
-window.emergencyCleanupPetData();
+PetStorage.emergencyCleanup();
 ```
 
 ### Performance Monitoring
@@ -402,7 +402,7 @@ Optimize API calls:
 1. **"Pet images not showing"**
    - Check localStorage quota
    - Verify blob URL generation
-   - Clear cache: `window.emergencyCleanupPetData()`
+   - Clear cache: `PetStorage.emergencyCleanup()`
 
 2. **"Mobile grid not responsive"**
    - Ensure `pet-mobile-grid.css` is loaded
@@ -424,7 +424,7 @@ window.petDataManager.getStats();
 window.getPetCompatibilityReport();
 
 // Force cleanup
-window.emergencyCleanupPetData();
+PetStorage.emergencyCleanup();
 
 // Reset to clean state
 localStorage.clear();
