@@ -221,8 +221,12 @@
 
     /**
      * Open modal
+     * WCAG 2.4.3: Focus trapped inside modal for keyboard accessibility
      */
     openModal() {
+      // WCAG: Store previously focused element for restoration on close
+      this.previouslyFocusedElement = document.activeElement;
+
       // Initialize pet metadata with defaults if not already set (e.g., direct upload)
       if (!this.petNumber) {
         this.petNumber = 1; // Default to Pet 1
@@ -259,13 +263,38 @@
 
       // NO modal position manipulation - CSS flexbox handles centering
 
+      // WCAG 2.4.3: Trap focus inside modal
+      const modalContent = this.modal.querySelector('.inline-preview-content');
+      if (modalContent && typeof window.trapFocus === 'function') {
+        window.trapFocus(modalContent);
+      }
+
+      // WCAG: Move focus to first focusable element (close button)
+      setTimeout(() => {
+        const closeButton = this.modal.querySelector('.inline-preview-close');
+        if (closeButton) {
+          closeButton.focus();
+        }
+      }, 100);
+
+      // WCAG 4.1.3: Announce modal opened to screen readers
+      if (window.AccessibilityAnnouncer) {
+        window.AccessibilityAnnouncer.announce('Pet preview modal opened. Upload your pet photo or select an effect.');
+      }
+
       console.log('🎨 Modal opened (centered), background scroll locked at:', this.scrollPosition);
     }
 
     /**
      * Close modal
+     * WCAG 2.4.3: Restore focus to trigger element on close
      */
     closeModal() {
+      // WCAG 2.4.3: Remove focus trap before hiding
+      if (typeof window.removeTrapFocus === 'function') {
+        window.removeTrapFocus();
+      }
+
       this.modal.hidden = true;
 
       // Restore body position and scroll
@@ -285,6 +314,11 @@
         } else {
           this.originalParent.appendChild(this.modal);
         }
+      }
+
+      // WCAG 2.4.3: Restore focus to previously focused element
+      if (this.previouslyFocusedElement && typeof this.previouslyFocusedElement.focus === 'function') {
+        this.previouslyFocusedElement.focus();
       }
 
       console.log('🎨 Modal closed, scroll restored to:', this.scrollPosition);
@@ -662,6 +696,11 @@
         // Show processing view
         this.showView('processing');
 
+        // WCAG 4.1.3: Announce processing start to screen readers
+        if (window.AccessibilityAnnouncer) {
+          window.AccessibilityAnnouncer.announceProcessingStart(45);
+        }
+
         // Correct image orientation based on EXIF metadata
         console.log('🔄 Correcting image orientation...');
         this.updateProgress('Preparing image...', '⏱️ A few seconds...');
@@ -798,6 +837,11 @@
         this.updateProgress('Complete!', '✅ Ready to preview');
         this.showResult();
 
+        // WCAG 4.1.3: Announce completion to screen readers
+        if (window.AccessibilityAnnouncer) {
+          window.AccessibilityAnnouncer.announceProgress(100);
+        }
+
         // Log detailed timing breakdown
         const totalTime = Date.now() - timing.totalStart;
         const orientationTime = timing.orientation.end - timing.orientation.start;
@@ -822,6 +866,11 @@
       } catch (error) {
         console.error('❌ Processing error:', error);
         this.stopProgressTimer();
+
+        // WCAG 4.1.3: Announce error to screen readers
+        if (window.AccessibilityAnnouncer) {
+          window.AccessibilityAnnouncer.announceError(error.message || 'Processing failed. Please try again.');
+        }
 
         // Record failed API call if processing was started
         if (startTime) {
@@ -1035,6 +1084,7 @@
 
     /**
      * Handle effect selection
+     * WCAG: Updates ARIA states and announces selection to screen readers
      */
     handleEffectSelect(btn) {
       // Defensive coding: Validate inputs
@@ -1049,10 +1099,16 @@
       this.effectBtns.forEach(b => {
         b.classList.remove('active');
         b.setAttribute('aria-checked', 'false'); // Screen reader accessibility
+        // Update radio input state
+        const radioInput = b.querySelector('input[type="radio"]');
+        if (radioInput) radioInput.checked = false;
       });
 
       btn.classList.add('active');
       btn.setAttribute('aria-checked', 'true'); // Screen reader accessibility
+      // Update radio input state
+      const selectedRadio = btn.querySelector('input[type="radio"]');
+      if (selectedRadio) selectedRadio.checked = true;
 
       // Update preview image
       this.currentEffect = effect;
@@ -1060,6 +1116,17 @@
 
       if (effectUrl) {
         this.petImage.src = effectUrl;
+      }
+
+      // WCAG 4.1.3: Announce effect change to screen readers
+      const effectNames = {
+        'enhancedblackwhite': 'Black & White',
+        'color': 'Color',
+        'ink_wash': 'Ink Wash',
+        'sketch': 'Marker'
+      };
+      if (window.AccessibilityAnnouncer) {
+        window.AccessibilityAnnouncer.announceEffectChange(effectNames[effect] || effect);
       }
 
       console.log('🎨 Effect selected:', effect);
