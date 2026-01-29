@@ -750,22 +750,36 @@ class PetProcessor {
         selectedEffect: latestPet.data.selectedEffect || latestPet.data.effect || 'enhancedblackwhite'
       };
 
-      // Restore all effects from new simplified format
+      // Restore all effects from storage
+      // PetStorage v3 saves effects as flat URL strings, not objects
       if (latestPet.data.effects && typeof latestPet.data.effects === 'object') {
         for (const [effectName, effectData] of Object.entries(latestPet.data.effects)) {
-          if (!effectData || typeof effectData !== 'object') continue;
+          if (!effectData) continue;
 
-          // Validate URLs/data for each effect
           let validatedEffect = { cacheHit: true };
 
-          if (effectData.gcsUrl && validateGCSUrl(effectData.gcsUrl)) {
-            validatedEffect.gcsUrl = effectData.gcsUrl;
+          // Handle string format (PetStorage v3 saves effects as URL strings)
+          if (typeof effectData === 'string') {
+            if (effectData.startsWith('https://') && validateGCSUrl(effectData)) {
+              validatedEffect.gcsUrl = effectData;
+            } else if (effectData.startsWith('data:')) {
+              const sanitized = validateAndSanitizeImageData(effectData);
+              if (sanitized) {
+                validatedEffect.dataUrl = sanitized;
+              }
+            }
           }
+          // Handle object format (legacy/direct saves)
+          else if (typeof effectData === 'object') {
+            if (effectData.gcsUrl && validateGCSUrl(effectData.gcsUrl)) {
+              validatedEffect.gcsUrl = effectData.gcsUrl;
+            }
 
-          if (effectData.dataUrl) {
-            const sanitized = validateAndSanitizeImageData(effectData.dataUrl);
-            if (sanitized) {
-              validatedEffect.dataUrl = sanitized;
+            if (effectData.dataUrl) {
+              const sanitized = validateAndSanitizeImageData(effectData.dataUrl);
+              if (sanitized) {
+                validatedEffect.dataUrl = sanitized;
+              }
             }
           }
 

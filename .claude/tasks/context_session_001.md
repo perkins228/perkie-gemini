@@ -245,6 +245,237 @@ The LCP element was NOT the hero banner - it was a **lazy-loaded image** in the 
 
 ---
 
+### 2026-01-29 - Bug Analysis: Navigation + Session Restoration Issues
+
+**Context**: After deploying commit `ca50f97` (async CSS optimizations), three bugs were reported on the pet processor page.
+
+#### Bug 1: Navigation Links Not Working (CRITICAL)
+
+**Symptom**: Clicking dropdown menu links on pet processor page does not navigate - dropdown just closes.
+
+**Root Cause Analysis**:
+- Two CSS rules apply `position: sticky; z-index: 3` to ALL `.section-header` elements:
+  1. `layout/theme.liquid` (lines 351-355): Critical CSS block
+  2. `sections/header.liquid` (lines 84-87): Safari z-index fix
+- The pet processor page has its own `.section-header` (the "Preview Your Perkie Print" heading)
+- This element becomes sticky with z-index: 3, overlapping the mega-menu dropdown (z-index: 1)
+- Clicks on dropdown links are intercepted by the pet processor's sticky section header
+
+**Evidence**:
+- `document.elementsFromPoint()` at dropdown link positions returns the pet processor section header, not the links
+- Mega-menu links have `visibility: visible` and correct positioning, but z-index hierarchy is wrong
+- Homepage works because it has no second `.section-header` overlapping the dropdown area
+
+**Caused by async CSS changes?**: **NO** - Pre-existing bug in CSS selector scoping
+
+**Files to Fix**:
+- `layout/theme.liquid` (line 351): Change `.section-header` to `.shopify-section-group-header-group.section-header`
+- `sections/header.liquid` (line 84): Same scoping fix
+
+#### Bug 2: Navigation Dropdown Center-Aligned
+
+**Status**: Likely pre-existing CSS specificity issue, not caused by async CSS changes.
+
+#### Bug 3: Session Restoration "No valid effects to restore"
+
+**Symptom**: Console shows "Pet found but no valid effects to restore" on page reload.
+
+**Root Cause**: `pet-processor.js` line 919 - session restoration finds pet data but `effects` object is empty after URL validation.
+
+**Possible causes**:
+- GCS URLs in localStorage have expired
+- URL validation rejecting previously valid URLs
+- Data corruption during storage
+
+**Caused by async CSS changes?**: **NO** - JavaScript/storage issue
+
+---
+
+### 2026-01-29 - Navigation Bug Fix (CRITICAL)
+
+**Fix Implemented**:
+- Scoped `.section-header` sticky CSS rule in `layout/theme.liquid` to only target header group sections
+- Changed selector from `.section-header` to `.shopify-section-group-header-group.section-header`
+- This prevents the pet processor section header from getting sticky positioning that overlaps mega-menu
+
+**Code Change** (`layout/theme.liquid` line 351):
+```css
+/* Before */
+.section-header {
+  position: sticky;
+  top: 0;
+  z-index: 3;
+}
+
+/* After */
+.shopify-section-group-header-group.section-header {
+  position: sticky;
+  top: 0;
+  z-index: 3;
+}
+```
+
+**Commit**: `a972cd3` - fix(nav): Scope section-header sticky positioning to header group only
+
+**Status**: ✅ DEPLOYED AND VERIFIED
+
+**Verification** (2026-01-29):
+- Navigated to pet processor page with cache bypass
+- Opened Shop dropdown - all menu items visible
+- Clicked "Portraits" link - successfully navigated to `/collections/personalized-pet-portraits`
+- **Navigation fix confirmed working in production**
+
+**Remaining Issues** (Non-Critical, Pre-Existing):
+1. Navigation center-alignment - Low priority, cosmetic
+2. Session restoration - Medium priority, GCS URL validation issue
+
+---
+
+### 2026-01-29 - Session Restoration Bug: Root Cause Analysis
+
+**Issue**: Console shows "Pet found but no valid effects to restore" on page reload.
+
+**Analysis by**: debug-specialist agent
+
+#### Root Cause Identified: FORMAT MISMATCH
+
+The bug is caused by a **data format mismatch** between how PetStorage saves effects and how pet-processor.js expects to read them.
+
+**PetStorage v3 (pet-storage.js, lines 516-520) saves effects as STRINGS:**
+```javascript
+// sanitizeEffects() stores just the URL string
+if (gcsUrl) {
+  sanitized[effectName] = gcsUrl;  // STRING: "https://storage.googleapis.com/..."
+} else if (dataUrl) {
+  sanitized[effectName] = dataUrl;  // STRING: "data:image/png;base64,..."
+}
+```
+
+**pet-processor.js (lines 755-776) expects effects as OBJECTS:**
+```javascript
+// Session restoration reads .gcsUrl and .dataUrl properties
+if (effectData.gcsUrl && validateGCSUrl(effectData.gcsUrl)) {
+  validatedEffect.gcsUrl = effectData.gcsUrl;  // Expects: effectData.gcsUrl
+}
+if (effectData.dataUrl) {
+  const sanitized = validateAndSanitizeImageData(effectData.dataUrl);  // Expects: effectData.dataUrl
+}
+```
+
+**What happens:**
+1. User uploads pet → effects saved as `{ enhancedblackwhite: "https://storage.googleapis.com/..." }`
+2. User refreshes page → pet-processor reads effects
+3. Loop: `effectData = "https://storage.googleapis.com/..."` (a string)
+4. `effectData.gcsUrl` is `undefined` (strings don't have a `.gcsUrl` property)
+5. `effectData.dataUrl` is `undefined`
+6. No valid effect data found → effect skipped
+7. After all effects: `Object.keys(this.currentPet.effects).length === 0`
+8. Log: "Pet found but no valid effects to restore"
+
+#### Evidence
+
+**pet-storage.js line 493-519** (sanitizeEffects function):
+- Deliberately stores effects as **flat URL strings** to save space
+- Comment says "prefer GCS URLs" and stores just the URL, not an object
+
+**pet-processor.js line 756**:
+- `if (!effectData || typeof effectData !== 'object') continue;`
+- This line SKIPS effects that are strings (which is what PetStorage stores!)
+
+#### Fix Required
+
+Two options:
+
+**Option A: Modify pet-processor.js to accept strings** (Recommended)
+- Simpler, backward compatible
+- Add check: `if (typeof effectData === 'string')` before object check
+- Convert string to appropriate URL type (GCS vs data URL)
+
+**Option B: Modify pet-storage.js to save objects**
+- More invasive, increases storage size
+- Would break restoration for users with existing string-format data
+
+#### Recommended Fix (Option A)
+
+In `pet-processor.js` around line 754-777, add handling for string format:
+
+```javascript
+for (const [effectName, effectData] of Object.entries(latestPet.data.effects)) {
+  // Handle string format (PetStorage v3 format)
+  if (typeof effectData === 'string') {
+    let validatedEffect = { cacheHit: true };
+    if (effectData.startsWith('https://') && validateGCSUrl(effectData)) {
+      validatedEffect.gcsUrl = effectData;
+    } else if (effectData.startsWith('data:')) {
+      const sanitized = validateAndSanitizeImageData(effectData);
+      if (sanitized) validatedEffect.dataUrl = sanitized;
+    }
+    if (validatedEffect.gcsUrl || validatedEffect.dataUrl) {
+      this.currentPet.effects[effectName] = validatedEffect;
+    }
+    continue;
+  }
+
+  // Handle object format (legacy/direct saves)
+  if (!effectData || typeof effectData !== 'object') continue;
+  // ... rest of existing code
+}
+```
+
+#### Priority: MEDIUM
+
+This bug prevents session restoration from working. Users who leave and return lose their processed pet images and must re-upload.
+
+**Impact**: Poor UX, increased API costs (re-processing), potential conversion loss.
+
+---
+
+### 2026-01-29 - Session Restoration Fix Implementation
+
+**Fix Implemented**: Modified `pet-processor.js` (lines 753-795) to handle both string and object format effects.
+
+**Code Change**:
+```javascript
+// Before: Only handled object format
+if (!effectData || typeof effectData !== 'object') continue;
+
+// After: Handle both string AND object formats
+if (!effectData) continue;
+
+// Handle string format (PetStorage v3 saves effects as URL strings)
+if (typeof effectData === 'string') {
+  if (effectData.startsWith('https://') && validateGCSUrl(effectData)) {
+    validatedEffect.gcsUrl = effectData;
+  } else if (effectData.startsWith('data:')) {
+    const sanitized = validateAndSanitizeImageData(effectData);
+    if (sanitized) validatedEffect.dataUrl = sanitized;
+  }
+}
+// Handle object format (legacy/direct saves)
+else if (typeof effectData === 'object') {
+  // ... existing object handling
+}
+```
+
+**Code Review** (code-quality-reviewer agent):
+
+| Criterion | Grade | Notes |
+|-----------|-------|-------|
+| Correctness | A | Handles both formats correctly |
+| Security | A | All validations preserved |
+| Edge Cases | A- | Arrays safely filtered out |
+| Backward Compatibility | A | No breaking changes |
+| Performance | A | Negligible overhead |
+| Code Style | A- | Minor DRY opportunity |
+
+**Overall Grade: A (APPROVED)**
+
+**File Modified**: `assets/pet-processor.js` (lines 753-795)
+
+**Status**: Ready for commit and deployment
+
+---
+
 ## Notes
 - Always append new work with timestamp
 - Archive when file > 400KB or task complete
