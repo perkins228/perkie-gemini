@@ -34,11 +34,19 @@
   }
 </script>
 
-<link href="{{ 'ks-main.css' | asset_url }}" rel="stylesheet">
-<link href="{{ 'ks-product.css' | asset_url }}" rel="stylesheet">
-<link href="{{ 'ks-sections.css' | asset_url }}" rel="stylesheet">
+{% comment %} Async load KondaSoft CSS to prevent render-blocking (Mobile LCP optimization) {% endcomment %}
+<link rel="preload" href="{{ 'ks-main.css' | asset_url }}" as="style" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="{{ 'ks-main.css' | asset_url }}"></noscript>
+
+<link rel="preload" href="{{ 'ks-product.css' | asset_url }}" as="style" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="{{ 'ks-product.css' | asset_url }}"></noscript>
+
+<link rel="preload" href="{{ 'ks-sections.css' | asset_url }}" as="style" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="{{ 'ks-sections.css' | asset_url }}"></noscript>
+
 {% comment %} Removed mobile-touch-optimization.css - Dawn handles touch targets properly {% endcomment %}
-<link href="{{ 'trust-signals-enhancement.css' | asset_url }}" rel="stylesheet">
+<link rel="preload" href="{{ 'trust-signals-enhancement.css' | asset_url }}" as="style" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="{{ 'trust-signals-enhancement.css' | asset_url }}"></noscript>
 
 <script src="{{ 'ks-main.js' | asset_url }}" defer="defer"></script>
 <script src="{{ 'ks-product.js' | asset_url }}" defer="defer"></script>

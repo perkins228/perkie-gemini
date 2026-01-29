@@ -17,11 +17,15 @@
     {%- unless settings.type_header_font.system? and settings.type_body_font.system? -%}
       <link rel="preconnect" href="https://fonts.shopifycdn.com" crossorigin>
     {%- endunless -%}
+
+    {% comment %} Preconnect to Shopify CDN for faster asset loading {% endcomment %}
+    <link rel="preconnect" href="https://cdn.shopify.com" crossorigin>
     
-    {% comment %} Google Fonts for Pet Name Styles {% endcomment %}
+    {% comment %} Google Fonts for Pet Name Styles - Async load to prevent render-blocking {% endcomment %}
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Ultra&family=DM+Serif+Display&family=Playball&family=Notable&family=Graduate&display=swap" rel="stylesheet">
+    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Ultra&family=DM+Serif+Display&family=Playball&family=Notable&family=Graduate&display=swap" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Ultra&family=DM+Serif+Display&family=Playball&family=Notable&family=Graduate&display=swap"></noscript>
 
     <title>
       {{ page_title }}
@@ -323,6 +327,48 @@
       /* Hide non-critical elements during load */
       .deferred-media { opacity: 0; }
       .animate--slide-in { opacity: 0; transform: translateY(5rem); }
+
+      /* Hero banner critical styles - prevent FOUC when async CSS loads */
+      .banner {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+      }
+      .banner__media {
+        position: absolute;
+        inset: 0;
+      }
+      .banner__media img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+      .banner--large { min-height: 580px; }
+      @media screen and (max-width: 749px) {
+        .banner--large { min-height: 420px; }
+      }
+      /* Section header critical */
+      .section-header {
+        position: sticky;
+        top: 0;
+        z-index: 3;
+      }
+      .header__heading-logo img {
+        max-width: 100%;
+        height: auto;
+      }
+      /* Product card skeleton - prevents layout shift */
+      .card { display: block; }
+      .card__inner { position: relative; }
+      .card__media { aspect-ratio: 1/1; overflow: hidden; }
+      /* Swiper skeleton - prevents carousel FOUC */
+      .swiper-slide { flex-shrink: 0; }
+      .swiper-wrapper { display: flex; }
+      /* Navigation skeleton */
+      .header__inline-menu { display: none; }
+      @media screen and (min-width: 990px) {
+        .header__inline-menu { display: block; }
+      }
     </style>
 
     <!-- Async load non-critical CSS -->
@@ -332,11 +378,12 @@
     <link rel="stylesheet" href="{{ 'component-cart-items.css' | asset_url }}" media="print" onload="this.media='all'">
 
     {%- if settings.cart_type == 'drawer' -%}
-      {{ 'component-cart-drawer.css' | asset_url | stylesheet_tag }}
-      {{ 'component-cart.css' | asset_url | stylesheet_tag }}
-      {{ 'component-totals.css' | asset_url | stylesheet_tag }}
-      {{ 'component-price.css' | asset_url | stylesheet_tag }}
-      {{ 'component-discounts.css' | asset_url | stylesheet_tag }}
+      {% comment %} Defer cart drawer CSS - loads in background, applied when user interacts {% endcomment %}
+      <link rel="stylesheet" href="{{ 'component-cart-drawer.css' | asset_url }}" media="print" onload="this.media='all'">
+      <link rel="stylesheet" href="{{ 'component-cart.css' | asset_url }}" media="print" onload="this.media='all'">
+      <link rel="stylesheet" href="{{ 'component-totals.css' | asset_url }}" media="print" onload="this.media='all'">
+      <link rel="stylesheet" href="{{ 'component-price.css' | asset_url }}" media="print" onload="this.media='all'">
+      <link rel="stylesheet" href="{{ 'component-discounts.css' | asset_url }}" media="print" onload="this.media='all'">
     {%- endif -%}
 
     {%- unless settings.type_body_font.system? -%}
@@ -389,8 +436,8 @@
       // Listen for CSS load completion
       window.addEventListener('load', handleCSSLoad);
       
-      // Fallback timeout to ensure animations are restored
-      setTimeout(handleCSSLoad, 1000);
+      // Fallback timeout to ensure animations are restored (3s for slow mobile 3G)
+      setTimeout(handleCSSLoad, 3000);
     </script>
 
     {% comment %} KondaSoft {% endcomment %}
