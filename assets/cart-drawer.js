@@ -2,9 +2,21 @@ class CartDrawer extends HTMLElement {
   constructor() {
     super();
 
+    // Create bound method once to avoid creating new functions on each bind
+    this.boundClose = this.close.bind(this);
+
     this.addEventListener('keyup', (evt) => evt.code === 'Escape' && this.close());
-    this.querySelector('#CartDrawer-Overlay').addEventListener('click', this.close.bind(this));
+    this.querySelector('#CartDrawer-Overlay')?.addEventListener('click', this.boundClose);
+    this.bindCloseButtons();
     this.setHeaderCartIconAccessibility();
+  }
+
+  // Bind click event listeners to all close buttons (replaces inline onclick)
+  // Note: Safe to call multiple times - old listeners are removed when DOM is replaced via innerHTML
+  bindCloseButtons() {
+    this.querySelectorAll('.drawer__close').forEach((button) => {
+      button.addEventListener('click', this.boundClose);
+    });
   }
 
   setHeaderCartIconAccessibility() {
@@ -84,7 +96,8 @@ class CartDrawer extends HTMLElement {
     });
 
     setTimeout(() => {
-      this.querySelector('#CartDrawer-Overlay').addEventListener('click', this.close.bind(this));
+      this.querySelector('#CartDrawer-Overlay')?.addEventListener('click', this.boundClose);
+      this.bindCloseButtons(); // Re-bind close buttons after HTML replacement
       this.open();
     });
   }
