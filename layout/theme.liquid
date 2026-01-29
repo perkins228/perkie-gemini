@@ -369,6 +369,36 @@
       @media screen and (min-width: 990px) {
         .header__inline-menu { display: block; }
       }
+      /* Banner content box - prevents text FOUC when section CSS loads async */
+      .banner__content {
+        position: relative;
+        z-index: 2;
+        display: flex;
+        flex-direction: column;
+        padding: 3rem;
+      }
+      .banner__box {
+        background: transparent;
+        max-width: 42rem;
+      }
+      .banner__heading {
+        margin-bottom: 1rem;
+      }
+      .banner__text {
+        margin-bottom: 1.5rem;
+      }
+      .banner__buttons {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1rem;
+      }
+      /* Ensure banner text visible during CSS load */
+      .banner__heading,
+      .banner__text,
+      .banner__buttons {
+        opacity: 1;
+        visibility: visible;
+      }
     </style>
 
     <!-- Async load non-critical CSS -->
