@@ -448,13 +448,16 @@
 
       // Critical CSS optimization: Restore animations once full CSS loads
       function handleCSSLoad() {
+        // Guard against double execution (load event + idle callback may both fire)
+        if (document.documentElement.classList.contains('css-loaded')) return;
+
         // Restore deferred media opacity
-        const deferredMedia = document.querySelectorAll('.deferred-media');
-        deferredMedia.forEach(el => el.style.opacity = '');
+        var deferredMedia = document.querySelectorAll('.deferred-media');
+        deferredMedia.forEach(function(el) { el.style.opacity = ''; });
 
         // Restore slide-in animations
-        const slideElements = document.querySelectorAll('.animate--slide-in');
-        slideElements.forEach(el => {
+        var slideElements = document.querySelectorAll('.animate--slide-in');
+        slideElements.forEach(function(el) {
           el.style.opacity = '';
           el.style.transform = '';
         });
@@ -463,11 +466,13 @@
         document.documentElement.classList.add('css-loaded');
       }
 
-      // Listen for CSS load completion
+      // Listen for CSS load completion (primary trigger)
       window.addEventListener('load', handleCSSLoad);
-      
-      // Fallback timeout to ensure animations are restored (3s for slow mobile 3G)
-      setTimeout(handleCSSLoad, 3000);
+
+      // Optimized fallback with requestIdleCallback polyfill (Safari compatibility)
+      // Use 2000ms timeout for slow 3G networks (reduced from 3000ms)
+      var rIC = window.requestIdleCallback || function(cb) { return setTimeout(cb, 1); };
+      rIC(handleCSSLoad, { timeout: 2000 });
     </script>
 
     {% comment %} KondaSoft {% endcomment %}
