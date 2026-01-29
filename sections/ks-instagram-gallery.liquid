@@ -80,13 +80,18 @@
                 >
               {% endunless %}
               {% if block.settings.img != blank %}
+                {% comment %} First 2 images load eagerly for LCP optimization, rest lazy load {% endcomment %}
                 <img
                   src="{{ block.settings.img | image_url: width: 480, height: 480, crop: 'center' }}"
                   class="img-fluid d-block"
                   alt="{{ block.settings.img.alt | escape }}"
                   width="480"
                   height="480"
-                  loading="lazy"
+                  {% if forloop.index <= 2 %}
+                    fetchpriority="high"
+                  {% else %}
+                    loading="lazy"
+                  {% endif %}
                 >
               {% else %}
                 {{ 'image' | placeholder_svg_tag: 'svg-placeholder' }}
