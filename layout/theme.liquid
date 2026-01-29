@@ -347,8 +347,8 @@
       @media screen and (max-width: 749px) {
         .banner--large { min-height: 420px; }
       }
-      /* Section header critical */
-      .section-header {
+      /* Section header critical - scoped to header group only to prevent overlap with mega-menu */
+      .shopify-section-group-header-group.section-header {
         position: sticky;
         top: 0;
         z-index: 3;
