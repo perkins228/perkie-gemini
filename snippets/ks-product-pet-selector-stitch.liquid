@@ -2568,6 +2568,14 @@
           // SUCCESS: Store GCS URL (100 bytes instead of 3.4MB base64!)
           localStorage.setItem(`pet_${i}_image_url`, uploadResult.url);
 
+          // CRITICAL FIX: Clear stale session gallery selection for this pet slot
+          // When user uploads a new image, it should override any previously selected gallery pet
+          // Without this, the Preview button would show the old gallery pet's effects instead of processing the new image
+          if (window.SessionPetGallery && typeof window.SessionPetGallery.clearSelection === 'function') {
+            window.SessionPetGallery.clearSelection(i);
+            console.log(`🧹 Cleared session gallery selection for Pet ${i} (new image uploaded)`);
+          }
+
           uploadText.textContent = 'CHANGE IMAGE?';
           uploadZone.classList.remove('uploading');
 
@@ -2589,6 +2597,12 @@
               type: compressedFile.type
             }];
             localStorage.setItem(`pet_${i}_images`, JSON.stringify(previewData));
+
+            // CRITICAL FIX: Clear stale session gallery selection for fallback path too
+            if (window.SessionPetGallery && typeof window.SessionPetGallery.clearSelection === 'function') {
+              window.SessionPetGallery.clearSelection(i);
+              console.log(`🧹 Cleared session gallery selection for Pet ${i} (fallback upload)`);
+            }
 
             uploadText.textContent = 'CHANGE IMAGE? (Offline)';
             uploadZone.classList.remove('uploading');
