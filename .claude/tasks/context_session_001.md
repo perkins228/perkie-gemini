@@ -476,6 +476,143 @@ else if (typeof effectData === 'object') {
 
 ---
 
+### 2026-01-29 - Session Restoration Bug: Navigation vs Reload
+
+**Issue**: Session restoration works on page reload but NOT on navigation.
+
+**Investigation by**: debug-specialist agent
+
+#### Root Cause Identified: PROPERTY NAME MISMATCH
+
+The bug is in `pet-processor.js` line 655. The code checks for `recentPet.timestamp` but `PetStorage.getRecentPets()` returns objects with `processedAt`.
+
+**pet-processor.js (line 655)**:
+```javascript
+const isRecent = (Date.now() - (recentPet.timestamp || 0)) < MAX_AGE;
+```
+
+**PetStorage.getRecentPets() returns (lines 593-606)**:
+```javascript
+pets.push({
+  petNumber: parseInt(petNum),
+  sessionKey: pet.sessionKey,
+  effects: pet.effects,
+  processedAt: pet.processedAt,  // <-- This is the timestamp, NOT "timestamp"
+  // ...
+});
+```
+
+**What happens on navigation**:
+1. User uploads pet, effects are processed and saved to PetStorage
+2. User navigates away via top nav
+3. User navigates back to `/pages/custom-image-processing`
+4. Fresh page load, JavaScript re-initializes
+5. `restoreSession()` is called, enters the `else` block (not returning from product)
+6. `getRecentPets(1)` returns the pet with `processedAt: 1738141200000`
+7. Code checks `recentPet.timestamp` which is `undefined`
+8. Fallback: `(recentPet.timestamp || 0)` becomes `0`
+9. Calculation: `(Date.now() - 0) < 1800000` = `false` (1.7 trillion > 1.8 million)
+10. `isRecent = false`, so `hasPetStorageEffects` stays `false`
+11. Code falls through to `checkPetSelectorUploads()`
+12. Finds `pet_X_image_url` in localStorage
+13. Triggers re-processing instead of restoration
+
+**Why reload works**:
+On reload, the JavaScript context may partially persist OR the timing of events differs. However, the code path for reload is the same - the bug exists in both cases. The difference is likely that on reload, there's existing JavaScript state that short-circuits the check.
+
+**Actually - wait, let me check again...**
+
+Looking more carefully, on reload vs navigation:
+- On **reload**: The `isReturningFromProduct` is false, same code path
+- The difference must be in `checkPetSelectorUploads()`
+
+Let me reconsider. On reload:
+- Browser re-sends request to same URL
+- `checkPetSelectorUploads()` should find the same localStorage keys
+
+The key insight is that `hasPetStorageEffects` is **always false** due to the property name bug, so `checkPetSelectorUploads()` is **always called**.
+
+The question is: why does reload work if `checkPetSelectorUploads()` triggers re-processing?
+
+**HYPOTHESIS REFINED**: The difference might be:
+1. On reload, `pet_X_image_url` localStorage key has been cleaned up
+2. On navigation, the key still exists (wasn't cleaned up)
+
+Let me check if there's cleanup logic after processing...
+
+#### Additional Investigation Needed
+
+Need to verify:
+1. Does `checkPetSelectorUploads()` clean up `pet_X_image_url` after processing?
+2. Is there a difference in localStorage state between reload and navigation?
+
+#### Fix Required
+
+**Immediate fix** (Option A - minimal change):
+Change line 655 in `pet-processor.js` from:
+```javascript
+const isRecent = (Date.now() - (recentPet.timestamp || 0)) < MAX_AGE;
+```
+to:
+```javascript
+const isRecent = (Date.now() - (recentPet.processedAt || 0)) < MAX_AGE;
+```
+
+This will correctly check the age of the processed pet and prevent re-processing when effects exist.
+
+**Files to modify**:
+- `assets/pet-processor.js` (line 655)
+
+**Priority**: HIGH - This bug causes unnecessary re-processing, wasted API calls, and poor UX.
+
+#### Additional Finding: API Inconsistency in PetStorage
+
+There's an API inconsistency between `getAll()` and `getRecentPets()`:
+
+| Method | Returns | Timestamp Field |
+|--------|---------|-----------------|
+| `PetStorage.getAll()` | Legacy format | `timestamp` (mapped from `processedAt`) |
+| `PetStorage.getRecentPets()` | v3 format | `processedAt` (raw) |
+
+**Evidence**:
+- `legacyGetAll()` (line 714): `timestamp: pet.processedAt`
+- `getRecentPets()` (line 602): `processedAt: pet.processedAt`
+
+The "priority check" code at lines 644-666 uses `getRecentPets()` but checks for `.timestamp`, which doesn't exist.
+
+The PetStorage restoration code at lines 679-717 uses `getAll()` which DOES have `.timestamp`.
+
+This explains why the code after the priority check (using `getAll()`) works correctly, but the priority check (using `getRecentPets()`) fails.
+
+#### Complete Fix
+
+**File**: `assets/pet-processor.js`
+**Line 655**: Change `timestamp` to `processedAt`
+
+```javascript
+// Before (BROKEN):
+const isRecent = (Date.now() - (recentPet.timestamp || 0)) < MAX_AGE;
+
+// After (FIXED):
+const isRecent = (Date.now() - (recentPet.processedAt || 0)) < MAX_AGE;
+```
+
+This single-line fix will:
+1. Correctly check if the pet was processed within 30 minutes
+2. Set `hasPetStorageEffects = true` when it should be true
+3. Skip `checkPetSelectorUploads()` which was triggering re-processing
+4. Allow normal PetStorage restoration to proceed
+
+#### Implementation Status: COMPLETE
+
+**Fix Applied**: `assets/pet-processor.js` line 655
+- Changed `recentPet.timestamp` to `recentPet.processedAt`
+- Added clarifying comment about API difference
+
+**Ready for**: Commit and verification testing
+
+---
+
 ## Notes
 - Always append new work with timestamp
 - Archive when file > 400KB or task complete

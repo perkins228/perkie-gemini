@@ -651,8 +651,9 @@ class PetProcessor {
               const effectCount = Object.keys(recentPet.effects || {}).length;
 
               // Check if pet was processed within last 30 minutes (fresh session)
+              // NOTE: getRecentPets() returns processedAt (not timestamp like getAll())
               const MAX_AGE = 30 * 60 * 1000;
-              const isRecent = (Date.now() - (recentPet.timestamp || 0)) < MAX_AGE;
+              const isRecent = (Date.now() - (recentPet.processedAt || 0)) < MAX_AGE;
 
               if (effectCount > 0 && isRecent) {
                 console.log(`🔄 [Priority Check] PetStorage has ${effectCount} processed effect(s), skipping pet selector re-processing`);
