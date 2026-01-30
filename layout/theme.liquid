@@ -24,6 +24,12 @@
     {% comment %} Google Fonts for Pet Name Styles - Async load to prevent render-blocking {% endcomment %}
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    {% comment %} Third-party analytics/ads preconnect - reduces TBT by ~50-100ms {% endcomment %}
+    <link rel="preconnect" href="https://www.googletagmanager.com" crossorigin>
+    <link rel="preconnect" href="https://connect.facebook.net" crossorigin>
+    <link rel="preconnect" href="https://www.google-analytics.com" crossorigin>
+
     <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Ultra&family=DM+Serif+Display&family=Playball&family=Notable&family=Graduate&display=swap" onload="this.onload=null;this.rel='stylesheet'">
     <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Ultra&family=DM+Serif+Display&family=Playball&family=Notable&family=Graduate&display=swap"></noscript>
 
