@@ -13,6 +13,19 @@
       padding-bottom: {{ section.settings.pb }}px;
     }
   }
+
+  /* Skeleton placeholder for lazy-loaded Instagram images - LCP fix 2026-01-30 */
+  #ks-instagram-gallery-{{ section.id }} .img-wrapper {
+    aspect-ratio: 1 / 1;
+    background: #f0f0f0;
+    overflow: hidden;
+  }
+
+  #ks-instagram-gallery-{{ section.id }} .instagram-lazy-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
 {%- endstyle -%}
 
 <div
@@ -80,18 +93,21 @@
                 >
               {% endunless %}
               {% if block.settings.img != blank %}
-                {% comment %} First 2 images load eagerly for LCP optimization, rest lazy load {% endcomment %}
+                {% comment %}
+                  All Instagram images lazy load with skeleton effect.
+                  Hero banner should be LCP element, not social proof images.
+                  See: .claude/tasks/context_session_001.md - LCP 7.9s fix (2026-01-30)
+                {% endcomment %}
                 <img
                   src="{{ block.settings.img | image_url: width: 480, height: 480, crop: 'center' }}"
-                  class="img-fluid d-block"
+                  class="img-fluid d-block instagram-lazy-img"
                   alt="{{ block.settings.img.alt | escape }}"
                   width="480"
                   height="480"
-                  {% if forloop.index <= 2 %}
-                    fetchpriority="high"
-                  {% else %}
-                    loading="lazy"
-                  {% endif %}
+                  loading="lazy"
+                  decoding="async"
+                  style="opacity: 0; transition: opacity 0.3s ease-in-out; background: #f0f0f0;"
+                  onload="this.style.opacity=1"
                 >
               {% else %}
                 {{ 'image' | placeholder_svg_tag: 'svg-placeholder' }}
