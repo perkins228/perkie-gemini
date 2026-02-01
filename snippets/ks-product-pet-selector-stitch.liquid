@@ -2544,6 +2544,15 @@
         // Show uploaded file names below pet name
         displayUploadedFiles(i, petFiles[i]);
 
+        // Save file metadata IMMEDIATELY (for state restoration during async upload)
+        // FIX: Previously saved after async upload - too late for state restoration
+        const fileMetadata = petFiles[i].map(file => ({
+          name: file.name,
+          size: file.size,
+          type: file.type
+        }));
+        localStorage.setItem(`pet_${i}_file_metadata`, JSON.stringify(fileMetadata));
+
         // Populate order properties and update file input with all files
         updateFileInputWithAllFiles(i, petFiles[i]);
         populateOrderProperties(i, petFiles[i]);
@@ -2620,14 +2629,8 @@
           };
           reader.readAsDataURL(compressedFile);
         }
-
-        // Save file metadata (for state restoration)
-        const fileMetadata = petFiles[i].map(file => ({
-          name: file.name,
-          size: file.size,
-          type: file.type
-        }));
-        localStorage.setItem(`pet_${i}_file_metadata`, JSON.stringify(fileMetadata));
+        // Note: File metadata is now saved immediately after file selection (before async upload)
+        // This ensures state restoration works even during upload
       });
 
       // Display uploaded file names with sizes and delete buttons
