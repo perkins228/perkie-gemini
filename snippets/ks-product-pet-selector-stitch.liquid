@@ -2518,6 +2518,15 @@
     statusContainer.innerHTML = html;
     statusWrapper.style.display = 'flex';
 
+    // FORCE BROWSER REPAINT: Fix for rendering bug where DOM updates but view doesn't refresh
+    // This tricks the browser into recalculating layout and repainting
+    void statusWrapper.offsetHeight; // Force reflow
+    statusWrapper.style.transform = 'translateZ(0)'; // Force GPU layer
+    requestAnimationFrame(() => {
+      statusWrapper.style.transform = '';
+      console.log(`🔄 Forced repaint complete`);
+    });
+
     console.log(`✅ displayUploadedFiles SUCCESS: set display=flex, innerHTML has ${html.length} chars`);
     console.log(`📁 Wrapper computed style: display=${window.getComputedStyle(statusWrapper).display}`);
 
