@@ -2511,9 +2511,6 @@
     statusContainer.innerHTML = html;
     statusWrapper.style.display = 'flex';
 
-    // Force browser repaint to ensure DOM changes are rendered
-    void statusWrapper.offsetHeight;
-
     // Attach delete button handlers
     const deleteButtons = statusContainer.querySelectorAll('.pet-detail__upload-status__file-delete');
     deleteButtons.forEach(btn => {
