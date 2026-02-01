@@ -96,7 +96,8 @@
                 {% comment %}
                   All Instagram images lazy load with skeleton effect.
                   Hero banner should be LCP element, not social proof images.
-                  See: .claude/tasks/context_session_001.md - LCP 7.9s fix (2026-01-30)
+                  fetchpriority="low" provides stronger signal than loading="lazy" alone.
+                  See: .claude/tasks/context_session_001.md - LCP fix (2026-01-30, strengthened 2026-01-31)
                 {% endcomment %}
                 <img
                   src="{{ block.settings.img | image_url: width: 480, height: 480, crop: 'center' }}"
@@ -106,6 +107,7 @@
                   height="480"
                   loading="lazy"
                   decoding="async"
+                  fetchpriority="low"
                   style="opacity: 0; transition: opacity 0.3s ease-in-out; background: #f0f0f0;"
                   onload="this.style.opacity=1"
                 >
