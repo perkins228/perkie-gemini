@@ -3727,9 +3727,20 @@
         }
       }
 
-      // If user selected MORE pets than processed, remaining pets will use product page uploads
-      if (latestPets.length < petCount) {
-        console.log(`ℹ️ ${petCount - latestPets.length} pet(s) will use product page uploads`);
+      // FALLBACK: For any pet slots without original URL, check direct upload from localStorage
+      // This handles cases where user uploaded but didn't preview the image
+      // NOTE: Only applies to fresh uploads - Session Gallery selections have originalUrl in their data
+      for (let i = 1; i <= petCount; i++) {
+        const originalUrlField = document.querySelector(`[data-pet-original-gcs-url="${i}"]`);
+        if (originalUrlField && !originalUrlField.value) {
+          const directUploadUrl = localStorage.getItem(`pet_${i}_image_url`);
+          if (directUploadUrl && isValidGCSUrl(directUploadUrl)) {
+            originalUrlField.value = directUploadUrl;
+            console.log(`✅ Pet ${i} original GCS URL (from direct upload): ${directUploadUrl.substring(0, 60)}...`);
+          } else if (directUploadUrl) {
+            console.warn(`⚠️ Pet ${i} has direct upload URL but failed validation: ${directUploadUrl.substring(0, 80)}`);
+          }
+        }
       }
 
       console.log('✅ Order properties populated from processed pets');
@@ -3817,6 +3828,22 @@
 
           artistNotesField.value = sanitizedNotes;
           console.log(`✅ Pet ${i} artist notes set: "${sanitizedNotes.substring(0, 50)}${sanitizedNotes.length > 50 ? '...' : ''}"`);
+        }
+      }
+    }
+
+    // FALLBACK: For any pet slots without original URL, check direct upload from localStorage
+    // This handles cases where user uploaded but didn't preview the image
+    // NOTE: Only applies to fresh uploads - Session Gallery selections have originalUrl in their data
+    for (let i = 1; i <= petCount; i++) {
+      const originalUrlField = document.querySelector(`[data-pet-original-gcs-url="${i}"]`);
+      if (originalUrlField && !originalUrlField.value) {
+        const directUploadUrl = localStorage.getItem(`pet_${i}_image_url`);
+        if (directUploadUrl && isValidGCSUrl(directUploadUrl)) {
+          originalUrlField.value = directUploadUrl;
+          console.log(`✅ Pet ${i} original GCS URL (from direct upload): ${directUploadUrl.substring(0, 60)}...`);
+        } else if (directUploadUrl) {
+          console.warn(`⚠️ Pet ${i} has direct upload URL but failed validation: ${directUploadUrl.substring(0, 80)}`);
         }
       }
     }
