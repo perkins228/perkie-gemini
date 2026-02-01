@@ -2521,6 +2521,13 @@
     console.log(`✅ displayUploadedFiles SUCCESS: set display=flex, innerHTML has ${html.length} chars`);
     console.log(`📁 Wrapper computed style: display=${window.getComputedStyle(statusWrapper).display}`);
 
+    // DEBUG: Check parent chain visibility
+    const petDetail = statusWrapper.closest('.pet-detail');
+    const petSection = statusWrapper.closest('[data-pet-details-section]');
+    console.log(`📁 Parent .pet-detail: style.display="${petDetail ? petDetail.style.display : 'NOT FOUND'}", computed=${petDetail ? window.getComputedStyle(petDetail).display : 'N/A'}`);
+    console.log(`📁 Parent pet-details-section: hidden=${petSection ? petSection.hidden : 'NOT FOUND'}`);
+    console.log(`📁 Wrapper dimensions: offsetHeight=${statusWrapper.offsetHeight}, offsetWidth=${statusWrapper.offsetWidth}`);
+
     // Attach delete button handlers
     const deleteButtons = statusContainer.querySelectorAll('.pet-detail__upload-status__file-delete');
     deleteButtons.forEach(btn => {
