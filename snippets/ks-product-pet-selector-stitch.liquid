@@ -3152,6 +3152,13 @@
                   // Display single file in UI
                   displayUploadedFiles(i, petFiles[i]);
 
+                  // FIX: Enable Preview button if GCS URL exists (was missing!)
+                  const gcsUrl = localStorage.getItem(`pet_${i}_image_url`);
+                  if (gcsUrl) {
+                    updatePreviewButtonState(i);
+                    console.log(`✅ Preview button enabled for Pet ${i} (GCS URL found)`);
+                  }
+
                   console.log(`✅ Restored file for Pet ${i}: ${fileMetadata[0].name}`);
                 }
               } catch (error) {
