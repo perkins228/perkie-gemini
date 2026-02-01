@@ -2454,6 +2454,173 @@
     }
   }
 
+  // === HELPER FUNCTIONS (moved outside loop for scope accessibility) ===
+  // These functions need to be accessible from both the upload handlers
+  // AND the state restoration code (applyStateToUI)
+
+  // Format file size for display
+  function formatFileSize(bytes) {
+    if (bytes === 0) return '0 B';
+    const k = 1024;
+    const sizes = ['B', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+  }
+
+  // Escape HTML to prevent XSS
+  function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+  }
+
+  // Display uploaded file names with sizes and delete buttons
+  function displayUploadedFiles(petIndex, files) {
+    const statusWrapper = container.querySelector(`[data-upload-status-wrapper="${petIndex}"]`);
+    const statusContainer = container.querySelector(`[data-upload-status="${petIndex}"]`);
+    if (!statusWrapper || !statusContainer) return;
+
+    if (files.length === 0) {
+      statusWrapper.style.display = 'none';
+      statusContainer.innerHTML = '';
+      return;
+    }
+
+    // Build HTML for file list
+    let html = '';
+    for (let j = 0; j < files.length; j++) {
+      const fileName = files[j].name;
+      const fileSize = formatFileSize(files[j].size);
+
+      html += `
+        <div class="pet-detail__upload-status__file" data-file-index="${j}">
+          <span class="pet-detail__upload-status__file-icon">✓</span>
+          <span class="pet-detail__upload-status__file-name">${escapeHtml(fileName)}</span>
+          <span class="pet-detail__upload-status__file-size">${fileSize}</span>
+          <button type="button"
+                  class="pet-detail__upload-status__file-delete"
+                  data-pet-index="${petIndex}"
+                  data-file-index="${j}"
+                  aria-label="Delete ${escapeHtml(fileName)}">×</button>
+        </div>
+      `;
+    }
+
+    statusContainer.innerHTML = html;
+    statusWrapper.style.display = 'flex';
+
+    // Attach delete button handlers
+    const deleteButtons = statusContainer.querySelectorAll('.pet-detail__upload-status__file-delete');
+    deleteButtons.forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        const petIdx = parseInt(btn.dataset.petIndex);
+        const fileIdx = parseInt(btn.dataset.fileIndex);
+        removeFile(petIdx, fileIdx);
+      });
+    });
+  }
+
+  // Update file input with all current files using DataTransfer API
+  function updateFileInputWithAllFiles(petIndex, files) {
+    const fileInput = container.querySelector(`[data-pet-file-input="${petIndex}"]`);
+    if (!fileInput) return;
+
+    try {
+      // Check if DataTransfer is supported
+      const dataTransfer = new DataTransfer();
+
+      // Add all files to DataTransfer
+      for (let j = 0; j < files.length; j++) {
+        dataTransfer.items.add(files[j]);
+      }
+
+      // Update file input with new FileList
+      fileInput.files = dataTransfer.files;
+    } catch (e) {
+      console.warn('DataTransfer API not supported, file input may not update correctly:', e);
+    }
+  }
+
+  // Populate hidden order properties for tracking
+  function populateOrderProperties(petIndex, files) {
+    const orderTypeField = document.getElementById(`order-type-${petIndex}`);
+    const processingStateField = document.getElementById(`processing-state-${petIndex}`);
+    const uploadTimestampField = document.getElementById(`upload-timestamp-${petIndex}`);
+
+    if (orderTypeField) {
+      orderTypeField.value = 'Express Upload';
+    }
+
+    if (processingStateField) {
+      processingStateField.value = 'uploaded_only';
+    }
+
+    if (uploadTimestampField) {
+      uploadTimestampField.value = new Date().toISOString();
+    }
+
+    // Note: Shopify file input automatically handles the file upload when form submits
+    // Files are attached to properties[Pet X Images] and uploaded to Shopify CDN
+  }
+
+  // Remove a file from the uploaded files list
+  function removeFile(petIndex, fileIndex) {
+    // Remove from petFiles array
+    if (fileIndex < 0 || fileIndex >= petFiles[petIndex].length) {
+      return;
+    }
+
+    petFiles[petIndex].splice(fileIndex, 1);
+
+    // Update UI (single file - always returns to empty after delete)
+    const uploadZone = container.querySelector(`[data-upload-zone="${petIndex}"]`);
+    const uploadText = container.querySelector(`[data-upload-text="${petIndex}"]`);
+    uploadText.textContent = 'Click or drag to upload';
+    uploadZone.classList.remove('has-files');
+
+    // Re-render file list
+    displayUploadedFiles(petIndex, petFiles[petIndex]);
+
+    // Update file input with remaining files
+    updateFileInputWithAllFiles(petIndex, petFiles[petIndex]);
+    populateOrderProperties(petIndex, petFiles[petIndex]);
+
+    // Save state after file deletion
+    savePetSelectorStateImmediate();
+
+    // Update preview if first file was removed
+    if (petFiles[petIndex].length > 0) {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const previewData = [{
+          name: petFiles[petIndex][0].name,
+          data: event.target.result,
+          size: petFiles[petIndex][0].size,
+          type: petFiles[petIndex][0].type
+        }];
+        localStorage.setItem(`pet_${petIndex}_images`, JSON.stringify(previewData));
+      };
+      reader.readAsDataURL(petFiles[petIndex][0]);
+
+      // Update file metadata in localStorage after deletion
+      const fileMetadata = petFiles[petIndex].map(file => ({
+        name: file.name,
+        size: file.size,
+        type: file.type
+      }));
+      localStorage.setItem(`pet_${petIndex}_file_metadata`, JSON.stringify(fileMetadata));
+      console.log(`💾 Updated metadata after deletion: ${fileMetadata.length} files for Pet ${petIndex}`);
+    } else {
+      localStorage.removeItem(`pet_${petIndex}_images`);
+      // Remove metadata when no files remain
+      localStorage.removeItem(`pet_${petIndex}_file_metadata`);
+      console.log(`🗑️ Removed metadata for Pet ${petIndex} (no files remaining)`);
+    }
+  }
+
+  // === END HELPER FUNCTIONS ===
+
   for (let i = 1; i <= 3; i++) {
     const uploadZone = container.querySelector(`[data-upload-zone="${i}"]`);
     const uploadText = container.querySelector(`[data-upload-text="${i}"]`);
@@ -2632,167 +2799,6 @@
         // Note: File metadata is now saved immediately after file selection (before async upload)
         // This ensures state restoration works even during upload
       });
-
-      // Display uploaded file names with sizes and delete buttons
-      function displayUploadedFiles(petIndex, files) {
-        const statusWrapper = container.querySelector(`[data-upload-status-wrapper="${petIndex}"]`);
-        const statusContainer = container.querySelector(`[data-upload-status="${petIndex}"]`);
-        if (!statusWrapper || !statusContainer) return;
-
-        if (files.length === 0) {
-          statusWrapper.style.display = 'none';
-          statusContainer.innerHTML = '';
-          return;
-        }
-
-        // Build HTML for file list
-        let html = '';
-        for (let j = 0; j < files.length; j++) {
-          const fileName = files[j].name;
-          const fileSize = formatFileSize(files[j].size);
-
-          html += `
-            <div class="pet-detail__upload-status__file" data-file-index="${j}">
-              <span class="pet-detail__upload-status__file-icon">✓</span>
-              <span class="pet-detail__upload-status__file-name">${escapeHtml(fileName)}</span>
-              <span class="pet-detail__upload-status__file-size">${fileSize}</span>
-              <button type="button"
-                      class="pet-detail__upload-status__file-delete"
-                      data-pet-index="${petIndex}"
-                      data-file-index="${j}"
-                      aria-label="Delete ${escapeHtml(fileName)}">×</button>
-            </div>
-          `;
-        }
-
-        statusContainer.innerHTML = html;
-        statusWrapper.style.display = 'flex';
-
-        // Attach delete button handlers
-        const deleteButtons = statusContainer.querySelectorAll('.pet-detail__upload-status__file-delete');
-        deleteButtons.forEach(btn => {
-          btn.addEventListener('click', (e) => {
-            e.preventDefault();
-            const petIdx = parseInt(btn.dataset.petIndex);
-            const fileIdx = parseInt(btn.dataset.fileIndex);
-            removeFile(petIdx, fileIdx);
-          });
-        });
-      }
-
-      // Remove a file from the uploaded files list
-      function removeFile(petIndex, fileIndex) {
-        // Remove from petFiles array
-        if (fileIndex < 0 || fileIndex >= petFiles[petIndex].length) {
-          return;
-        }
-
-        petFiles[petIndex].splice(fileIndex, 1);
-
-        // Update UI (single file - always returns to empty after delete)
-        const uploadZone = container.querySelector(`[data-upload-zone="${petIndex}"]`);
-        const uploadText = container.querySelector(`[data-upload-text="${petIndex}"]`);
-        uploadText.textContent = 'Click or drag to upload';
-        uploadZone.classList.remove('has-files');
-
-        // Re-render file list
-        displayUploadedFiles(petIndex, petFiles[petIndex]);
-
-        // Update file input with remaining files
-        updateFileInputWithAllFiles(petIndex, petFiles[petIndex]);
-        populateOrderProperties(petIndex, petFiles[petIndex]);
-
-        // Save state after file deletion
-        savePetSelectorStateImmediate();
-
-        // Update preview if first file was removed
-        if (petFiles[petIndex].length > 0) {
-          const reader = new FileReader();
-          reader.onload = (event) => {
-            const previewData = [{
-              name: petFiles[petIndex][0].name,
-              data: event.target.result,
-              size: petFiles[petIndex][0].size,
-              type: petFiles[petIndex][0].type
-            }];
-            localStorage.setItem(`pet_${petIndex}_images`, JSON.stringify(previewData));
-          };
-          reader.readAsDataURL(petFiles[petIndex][0]);
-
-          // NEW: Update file metadata in localStorage after deletion
-          const fileMetadata = petFiles[petIndex].map(file => ({
-            name: file.name,
-            size: file.size,
-            type: file.type
-          }));
-          localStorage.setItem(`pet_${petIndex}_file_metadata`, JSON.stringify(fileMetadata));
-          console.log(`💾 Updated metadata after deletion: ${fileMetadata.length} files for Pet ${petIndex}`);
-        } else {
-          localStorage.removeItem(`pet_${petIndex}_images`);
-          // NEW: Remove metadata when no files remain
-          localStorage.removeItem(`pet_${petIndex}_file_metadata`);
-          console.log(`🗑️ Removed metadata for Pet ${petIndex} (no files remaining)`);
-        }
-      }
-
-      // Update file input with all current files using DataTransfer API
-      function updateFileInputWithAllFiles(petIndex, files) {
-        const fileInput = container.querySelector(`[data-pet-file-input="${petIndex}"]`);
-        if (!fileInput) return;
-
-        try {
-          // Check if DataTransfer is supported
-          const dataTransfer = new DataTransfer();
-
-          // Add all files to DataTransfer
-          for (let j = 0; j < files.length; j++) {
-            dataTransfer.items.add(files[j]);
-          }
-
-          // Update file input with new FileList
-          fileInput.files = dataTransfer.files;
-        } catch (e) {
-          console.warn('DataTransfer API not supported, file input may not update correctly:', e);
-        }
-      }
-
-      // Format file size for display
-      function formatFileSize(bytes) {
-        if (bytes === 0) return '0 B';
-        const k = 1024;
-        const sizes = ['B', 'KB', 'MB', 'GB'];
-        const i = Math.floor(Math.log(bytes) / Math.log(k));
-        return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
-      }
-
-      // Escape HTML to prevent XSS
-      function escapeHtml(text) {
-        const div = document.createElement('div');
-        div.textContent = text;
-        return div.innerHTML;
-      }
-
-      // Populate hidden order properties for tracking
-      function populateOrderProperties(petIndex, files) {
-        const orderTypeField = document.getElementById(`order-type-${petIndex}`);
-        const processingStateField = document.getElementById(`processing-state-${petIndex}`);
-        const uploadTimestampField = document.getElementById(`upload-timestamp-${petIndex}`);
-
-        if (orderTypeField) {
-          orderTypeField.value = 'Express Upload';
-        }
-
-        if (processingStateField) {
-          processingStateField.value = 'uploaded_only';
-        }
-
-        if (uploadTimestampField) {
-          uploadTimestampField.value = new Date().toISOString();
-        }
-
-        // Note: Shopify file input automatically handles the file upload when form submits
-        // Files are attached to properties[Pet X Images] and uploaded to Shopify CDN
-      }
     }
   }
 
