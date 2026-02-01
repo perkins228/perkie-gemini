@@ -2476,11 +2476,20 @@
 
   // Display uploaded file names with sizes and delete buttons
   function displayUploadedFiles(petIndex, files) {
+    console.log(`📁 displayUploadedFiles called: petIndex=${petIndex}, files.length=${files ? files.length : 'undefined'}`);
+
     const statusWrapper = container.querySelector(`[data-upload-status-wrapper="${petIndex}"]`);
     const statusContainer = container.querySelector(`[data-upload-status="${petIndex}"]`);
-    if (!statusWrapper || !statusContainer) return;
+
+    console.log(`📁 DOM lookup: statusWrapper=${statusWrapper ? 'FOUND' : 'NULL'}, statusContainer=${statusContainer ? 'FOUND' : 'NULL'}`);
+
+    if (!statusWrapper || !statusContainer) {
+      console.error(`❌ displayUploadedFiles EARLY RETURN: missing DOM elements`);
+      return;
+    }
 
     if (files.length === 0) {
+      console.log(`📁 No files, hiding wrapper`);
       statusWrapper.style.display = 'none';
       statusContainer.innerHTML = '';
       return;
@@ -2508,6 +2517,9 @@
 
     statusContainer.innerHTML = html;
     statusWrapper.style.display = 'flex';
+
+    console.log(`✅ displayUploadedFiles SUCCESS: set display=flex, innerHTML has ${html.length} chars`);
+    console.log(`📁 Wrapper computed style: display=${window.getComputedStyle(statusWrapper).display}`);
 
     // Attach delete button handlers
     const deleteButtons = statusContainer.querySelectorAll('.pet-detail__upload-status__file-delete');
@@ -2709,6 +2721,7 @@
         updatePreviewButtonState(i); // Disable button during upload
 
         // Show uploaded file names below pet name
+        console.log(`📁 About to call displayUploadedFiles(${i}, petFiles[${i}]): length=${petFiles[i] ? petFiles[i].length : 'undefined'}`);
         displayUploadedFiles(i, petFiles[i]);
 
         // Save file metadata IMMEDIATELY (for state restoration during async upload)
