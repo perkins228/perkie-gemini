@@ -2787,6 +2787,26 @@
           // Enable preview button with pulse animation
           updatePreviewButtonState(i);
 
+          // FIX: Re-display file info after upload completes
+          // Something clears the status wrapper during async upload, so we re-show it here
+          // Use stored metadata since petFiles[i] might have been cleared
+          const storedMetadata = localStorage.getItem(`pet_${i}_file_metadata`);
+          if (storedMetadata) {
+            try {
+              const fileMetadata = JSON.parse(storedMetadata);
+              if (fileMetadata.length > 0) {
+                // Restore petFiles from metadata if it was cleared
+                if (!petFiles[i] || petFiles[i].length === 0) {
+                  petFiles[i] = fileMetadata.map(f => ({ name: f.name, size: f.size, type: f.type }));
+                }
+                displayUploadedFiles(i, petFiles[i]);
+                console.log(`🔄 Re-displayed file info after upload: ${fileMetadata[0].name}`);
+              }
+            } catch (e) {
+              console.warn(`⚠️ Failed to re-display file info:`, e);
+            }
+          }
+
           console.log(`✅ Pet ${i} uploaded to server:`, uploadResult.url);
 
         } else {
