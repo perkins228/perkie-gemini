@@ -90,8 +90,9 @@
              class="font-style-radio">
       <div class="font-style-preview">
         <span class="font-style-label">Blank</span>
-        <div class="font-preview-text" style="color: rgba(var(--color-foreground), 0.4);">
-          <span class="preview-pet-name" style="opacity: 0.6; font-style: italic;">No Name</span>
+        <!-- WCAG 1.4.3: Increased color opacity from 0.4/0.6 to 0.75 for 4.5:1 contrast -->
+        <div class="font-preview-text" style="color: rgba(var(--color-foreground), 0.75);">
+          <span class="preview-pet-name" style="font-style: italic;">No Name</span>
         </div>
       </div>
     </label>
@@ -228,7 +229,7 @@
     font-size: 0.75rem;
     text-transform: uppercase;
     letter-spacing: 0.05em;
-    color: rgba(var(--color-foreground), 0.6);
+    color: rgba(var(--color-foreground), 0.75); /* WCAG 1.4.3: Increased from 0.6 for 4.5:1 contrast */
     margin-bottom: 0.5rem;
   }
 

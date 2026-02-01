@@ -61,12 +61,87 @@ if (!customElements.get('product-form')) {
             formData.append('sections_url', window.location.pathname);
             self.cart.setActiveElement(document.activeElement);
           }
-          config.body = formData;
+
+          // === PET FEE: Check for additional pet fee variant ===
+          const petSelector = document.querySelector('.pet-selector-stitch');
+          const feeVariantInput = petSelector ? petSelector.querySelector('[data-pet-fee-variant-input]') : null;
+          const feeVariantId = feeVariantInput ? feeVariantInput.value : '';
+
+          if (feeVariantId && !hasFiles) {
+            // Multi-item submission: main product + pet fee product
+            const mainVariantId = self.form.querySelector('[name="id"]').value;
+
+            // Collect properties using FormData (natively handles form="" attribute)
+            const properties = {};
+            const tempFormData = new FormData(self.form);
+
+            tempFormData.forEach((value, key) => {
+              const match = key.match(/properties\[([^\]]+)\]/);
+              if (match && value) {
+                properties[match[1]] = value;
+              }
+            });
+
+            console.log('📝 [PetFee] Collected properties:', properties);
+
+            const petCount = petSelector.getAttribute('data-selected-pet-count') || '1';
+            // IMPORTANT: Target h1 directly - .product__title div contains both h1 AND hidden a>h2
+            // Using .textContent on parent would grab both, causing "Title Title" duplication
+            const rawTitle = document.querySelector('.product__title h1')?.textContent ||
+                             document.querySelector('.product__title')?.textContent || '';
+            const productTitle = rawTitle.replace(/\s+/g, ' ').trim() || 'Pet Product';
+
+            const items = [
+              {
+                id: parseInt(mainVariantId),
+                quantity: 1,
+                properties: properties
+              },
+              {
+                id: parseInt(feeVariantId),
+                quantity: 1,
+                properties: {
+                  '_linked_to_product': productTitle,
+                  '_pet_count': petCount,
+                  '_fee_type': 'additional_pets'
+                }
+              }
+            ];
+
+            // Build JSON body for multi-item cart add
+            const cartPayload = {
+              items: items
+            };
+
+            if (self.cart) {
+              cartPayload.sections = self.cart.getSectionsToRender().map((section) => section.id);
+              cartPayload.sections_url = window.location.pathname;
+            }
+
+            config.headers['Content-Type'] = 'application/json';
+            config.body = JSON.stringify(cartPayload);
+
+            // Enhanced debug logging for troubleshooting
+            console.log('💰 [PetFee] Multi-item cart add:', { mainVariant: mainVariantId, feeVariant: feeVariantId, petCount });
+            console.log('💰 [PetFee] Full payload:', JSON.stringify(cartPayload, null, 2));
+            console.log('💰 [PetFee] Parsed IDs - main:', parseInt(mainVariantId), 'fee:', parseInt(feeVariantId), 'isNaN:', isNaN(parseInt(feeVariantId)));
+          } else {
+            // Standard single-item submission
+            config.body = formData;
+          }
 
           fetch(`${routes.cart_add_url}`, config)
-            .then((response) => response.json())
+            .then((response) => {
+              // Log response status for debugging 422 errors
+              if (!response.ok) {
+                console.error('💰 [PetFee] Cart add failed with status:', response.status);
+              }
+              return response.json();
+            })
             .then((response) => {
               if (response.status) {
+                // Enhanced error logging for debugging
+                console.error('💰 [PetFee] Cart error response:', JSON.stringify(response, null, 2));
                 publish(PUB_SUB_EVENTS.cartError, {
                   source: 'product-form',
                   productVariantId: formData.get('id'),
@@ -98,9 +173,9 @@ if (!customElements.get('product-form')) {
 
                   // LAYER 1: Save customization + clear pet property fields after cart success
                   // This prevents carryover to next product while preserving processor bridge
+                  // NOTE: Pets are NOT cleared from Session Pet Gallery - they persist for multi-product purchases
                   self.savePetCustomization();  // Phase 2: Save for restoration
-                  self.clearPetPropertyFields(); // Phase 1: Clear form fields
-                  self.clearProcessedPets();     // Phase 1: Clear processed pet data
+                  self.clearPetPropertyFields(); // Phase 1: Clear form fields (NOT pet library)
                 });
               self.error = false;
               const quickAddModal = self.closest('quick-add-modal');
@@ -275,8 +350,10 @@ if (!customElements.get('product-form')) {
       }
 
       /**
-       * Clear processed pet data from localStorage after cart success
-       * This prevents processed pets from being reused for different products
+       * Clear processed pet data from localStorage
+       * DEPRECATED: No longer called automatically after cart success (2025-01-12)
+       * Pets now persist in Session Pet Gallery for multi-product purchases
+       * Kept for potential future use (e.g., manual "Clear Library" button)
        */
       clearProcessedPets() {
         try {

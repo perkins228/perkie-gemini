@@ -359,6 +359,32 @@
   transform: scale(0.98);
 }
 
+/* Crop Button - Mobile */
+.effect-grid-wrapper .crop-btn {
+  display: block;
+  width: 100%;
+  margin-top: 0.75rem;
+  padding: 0.875rem 1.25rem;
+  font-size: 1rem;
+  font-weight: 600;
+  min-height: 44px;
+}
+
+/* Try Another Pet Link - Mobile */
+.btn-link.process-another-btn {
+  background: none;
+  border: none;
+  color: rgba(var(--color-foreground), 0.6);
+  font-size: 0.875rem;
+  cursor: pointer;
+  padding: 0.5rem 0.75rem;
+  text-decoration: none;
+  min-height: 44px;
+  display: block;
+  text-align: center;
+  margin-top: 0.75rem;
+}
+
 /* Error View */
 .error-view {
   text-align: center;
@@ -456,37 +482,253 @@
   .processing-view {
     padding: 2rem 1rem;
   }
-  
+
   .progress-timer {
     font-size: 1.4rem;
   }
-  
+
   .processing-progress {
     height: 8px;
     max-width: 90%;
   }
-  
+
   .cancel-processing-btn {
     width: 100%;
     max-width: 200px;
   }
-  
+
   /* Reduce animation frequency on mobile for battery */
   .progress-bar::after {
     animation-duration: 3s;
   }
+
+  /* PHASE 2: Compact Image Preview (~70px savings) */
+  .pet-processor-container.has-result .pet-image-container {
+    max-height: 280px;
+    margin-bottom: 1rem; /* Reduced from 1.5rem */
+    position: relative;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .pet-processor-container.has-result .pet-image {
+    max-height: 280px;
+    object-fit: contain; /* Maintain aspect ratio */
+  }
+
+  /* Zoom indicator - shows tap-to-zoom capability */
+  .pet-processor-container.has-result .pet-image-container::before {
+    content: '🔍';
+    position: absolute;
+    bottom: 8px;
+    right: 8px;
+    background: rgba(0, 0, 0, 0.6);
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    opacity: 0.8;
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  /* PHASE 3: Compact Style Grid (~140px savings) */
+  /* Transform existing style cards into compact 1×4 grid (single row) */
+
+  .effect-grid-wrapper {
+    margin-bottom: 1rem; /* Reduced from 1.5rem */
+  }
+
+  .effect-grid-heading {
+    font-size: 1rem; /* Slightly smaller */
+    margin-bottom: 0.5rem; /* Reduced from default */
+  }
+
+  .effect-grid,
+  .effect-grid.style-selector__grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr) !important; /* 1×4 grid (single row) - override base */
+    gap: 0.5rem;
+    margin-bottom: 0.75rem; /* Reduced from 1rem */
+  }
+
+  /* Compact style buttons */
+  .effect-grid .effect-btn {
+    min-height: 88px; /* Compact height for single-row grid */
+    padding: 0.5rem 0.25rem; /* Tighter horizontal padding */
+    border: 2px solid rgba(var(--color-foreground), 0.15);
+    background: rgb(var(--color-background));
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.375rem;
+
+    /* Touch optimization */
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+  }
+
+  .effect-grid .effect-btn:active {
+    transform: scale(0.97);
+  }
+
+  .effect-grid .effect-btn.active {
+    border-color: rgb(var(--color-button));
+    background: rgba(var(--color-button), 0.08);
+    box-shadow: 0 0 0 1px rgb(var(--color-button));
+  }
+
+  /* Style card content - make more compact */
+  .effect-grid .style-card__content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.375rem;
+    width: 100%;
+  }
+
+  /* HYBRID APPROACH: Thumbnails for instant effects (B&W, Color) */
+  .effect-grid .style-card__image-wrapper {
+    width: 48px;
+    height: 48px;
+    border-radius: 6px;
+    overflow: hidden;
+    background: rgba(var(--color-foreground), 0.05);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .effect-grid .style-card__image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  /* Icons removed per user request - thumbnails only for all effects */
+
+  /* Compact labels */
+  .effect-grid .style-card__label {
+    font-size: 0.75rem;
+    font-weight: 500;
+    text-align: center;
+    line-height: 1.1;
+    margin: 0;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  /* Loading state for on-demand effects */
+  /* Spinner overlay (circular loader) - matches desktop but smaller */
+  .effect-grid .effect-btn--loading .style-card__image-wrapper::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 24px;
+    height: 24px;
+    margin: -12px 0 0 -12px;
+    border: 2.5px solid rgba(255, 255, 255, 0.3);
+    border-top-color: rgb(var(--color-button));
+    border-radius: 50%;
+    animation: spinner-rotate 1s linear infinite;
+    z-index: 2;
+  }
+
+  /* Backdrop for contrast */
+  .effect-grid .effect-btn--loading .style-card__image-wrapper::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.4);
+    border-radius: 6px;
+    z-index: 1;
+  }
+
+  @keyframes spinner-rotate {
+    to { transform: rotate(360deg); }
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 0.3; }
+    50% { opacity: 0.6; }
+  }
+
+  /* Disabled state */
+  .effect-grid .effect-btn--disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .effect-grid .effect-btn--disabled:active {
+    transform: none;
+  }
+
+  /* PHASE 5: Adaptive Heading (~60px savings) */
+  /* Compress section heading after processing to save vertical space */
+
+  /* Target section heading above processor (common Shopify section pattern) */
+  .pet-processor-container.has-result ~ .section-header,
+  .section-header:has(+ .pet-processor-container.has-result),
+  .pet-processor-section.has-result .section-header {
+    margin-bottom: 1rem !important; /* Reduced from 2rem */
+  }
+
+  /* Compact heading text size */
+  .pet-processor-container.has-result ~ .section-header .section-heading,
+  .section-header:has(+ .pet-processor-container.has-result) .section-heading,
+  .pet-processor-section.has-result .section-heading {
+    font-size: 1.25rem !important; /* Smaller, from ~2rem */
+    margin-bottom: 0.5rem !important; /* Tighter */
+    line-height: 1.2;
+  }
+
+  /* Hide subheading to save space */
+  .pet-processor-container.has-result ~ .section-header .section-subheading,
+  .section-header:has(+ .pet-processor-container.has-result) .section-subheading,
+  .pet-processor-section.has-result .section-subheading {
+    display: none;
+  }
+
+  /* Compact "Choose Style" heading inside grid */
+  .pet-processor-container.has-result .effect-grid-heading {
+    font-size: 0.9rem;
+    margin-bottom: 0.375rem;
+  }
 }
 
-/* Ultra-narrow screen optimizations */
+/* Ultra-narrow screen optimizations (Phase 3 compatible) */
 @media (max-width: 360px) {
   .effect-grid {
     gap: 0.375rem;
   }
-  
-  .effect-btn {
-    padding: 0.5rem 0.2rem;
+
+  .effect-grid .effect-btn {
+    min-height: 80px; /* Slightly smaller on ultra-narrow */
+    padding: 0.375rem 0.25rem;
   }
-  
+
+  .effect-grid .style-card__image-wrapper {
+    width: 48px;
+    height: 48px;
+  }
+
+  .effect-grid .style-card__label {
+    font-size: 0.65rem;
+  }
+
+  /* Legacy support for old class names (if any remain) */
   .effect-name {
     font-size: 0.6rem;
   }
@@ -494,12 +736,163 @@
 
 /* Very narrow screens */
 @media (max-width: 340px) {
+  .effect-grid .effect-btn {
+    min-height: 76px;
+  }
+
+  .effect-grid .style-card__image-wrapper {
+    width: 44px;
+    height: 44px;
+  }
+
+  .effect-grid .style-card__label {
+    font-size: 0.6rem;
+    letter-spacing: -0.02em;
+  }
+
+  /* Legacy support */
   .effect-btn .effect-name {
     font-size: 0.55rem;
     letter-spacing: -0.02em;
   }
-  
+
   .effect-emoji {
     font-size: 1.2rem;
+  }
+}
+
+/* ====================================================================
+   MOBILE ABOVE-FOLD OPTIMIZATIONS
+   ==================================================================== */
+
+/* Upload Zone Auto-Collapse (Mobile Only) */
+@media (max-width: 768px) {
+  /* Collapsed state after processing */
+  .pet-processor-container.has-result .upload-zone {
+    min-height: auto;
+    padding: 0;
+    border: none;
+    background: transparent;
+    margin-bottom: 0.75rem;
+  }
+
+  /* Hide full upload UI when collapsed */
+  .pet-processor-container.has-result .upload-zone .upload-label {
+    display: none;
+  }
+
+  /* Show compact "Change Photo" button */
+  .pet-processor-container.has-result .upload-zone::after {
+    content: '↻ Change Photo';
+    display: block;
+    width: 100%;
+    padding: 0.5rem 1rem;
+    background: rgba(var(--color-foreground), 0.05);
+    border: 1px solid rgba(var(--color-foreground), 0.15);
+    border-radius: 8px;
+    font-size: 0.875rem;
+    color: rgba(var(--color-foreground), 0.7);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+  }
+
+  .pet-processor-container.has-result .upload-zone::after:active {
+    background: rgba(var(--color-foreground), 0.08);
+    transform: scale(0.98);
+  }
+}
+
+/* ====================================================================
+   IMAGE ZOOM OVERLAY (Phase 2)
+   ==================================================================== */
+
+/* Fullscreen zoom overlay for mobile image preview */
+.image-zoom-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.zoom-backdrop {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.9);
+  cursor: pointer;
+}
+
+.zoom-container {
+  position: relative;
+  z-index: 1;
+  max-width: 90vw;
+  max-height: 90vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.zoom-image {
+  width: 100%;
+  height: auto;
+  max-width: 90vw;
+  max-height: 90vh;
+  object-fit: contain;
+  border-radius: 8px;
+}
+
+.zoom-close {
+  position: absolute;
+  top: -40px;
+  right: 0;
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  color: white;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  font-size: 1.5rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s ease;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.zoom-close:active {
+  background: rgba(255, 255, 255, 0.3);
+  transform: scale(0.95);
+}
+
+/* Tablet and desktop - larger zoom container */
+@media (min-width: 768px) {
+  .zoom-container {
+    max-width: 80vw;
+    max-height: 80vh;
+  }
+
+  .zoom-image {
+    max-width: 80vw;
+    max-height: 80vh;
   }
 }

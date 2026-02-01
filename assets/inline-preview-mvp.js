@@ -221,8 +221,12 @@
 
     /**
      * Open modal
+     * WCAG 2.4.3: Focus trapped inside modal for keyboard accessibility
      */
     openModal() {
+      // WCAG: Store previously focused element for restoration on close
+      this.previouslyFocusedElement = document.activeElement;
+
       // Initialize pet metadata with defaults if not already set (e.g., direct upload)
       if (!this.petNumber) {
         this.petNumber = 1; // Default to Pet 1
@@ -259,13 +263,38 @@
 
       // NO modal position manipulation - CSS flexbox handles centering
 
+      // WCAG 2.4.3: Trap focus inside modal
+      const modalContent = this.modal.querySelector('.inline-preview-content');
+      if (modalContent && typeof window.trapFocus === 'function') {
+        window.trapFocus(modalContent);
+      }
+
+      // WCAG: Move focus to first focusable element (close button)
+      setTimeout(() => {
+        const closeButton = this.modal.querySelector('.inline-preview-close');
+        if (closeButton) {
+          closeButton.focus();
+        }
+      }, 100);
+
+      // WCAG 4.1.3: Announce modal opened to screen readers
+      if (window.AccessibilityAnnouncer) {
+        window.AccessibilityAnnouncer.announce('Pet preview modal opened. Upload your pet photo or select an effect.');
+      }
+
       console.log('🎨 Modal opened (centered), background scroll locked at:', this.scrollPosition);
     }
 
     /**
      * Close modal
+     * WCAG 2.4.3: Restore focus to trigger element on close
      */
     closeModal() {
+      // WCAG 2.4.3: Remove focus trap before hiding
+      if (typeof window.removeTrapFocus === 'function') {
+        window.removeTrapFocus();
+      }
+
       this.modal.hidden = true;
 
       // Restore body position and scroll
@@ -285,6 +314,11 @@
         } else {
           this.originalParent.appendChild(this.modal);
         }
+      }
+
+      // WCAG 2.4.3: Restore focus to previously focused element
+      if (this.previouslyFocusedElement && typeof this.previouslyFocusedElement.focus === 'function') {
+        this.previouslyFocusedElement.focus();
       }
 
       console.log('🎨 Modal closed, scroll restored to:', this.scrollPosition);
@@ -351,6 +385,124 @@
     }
 
     /**
+     * Open modal with pre-processed effects from Session Gallery
+     * Skips processing entirely - effects are already generated
+     * @param {Object} data - Pet data from session gallery
+     * @param {number} data.petNumber - Pet number (1, 2, 3)
+     * @param {string} data.petName - Pet name
+     * @param {string} data.sessionKey - Session key for the pet
+     * @param {string} data.selectedEffect - Currently selected effect
+     * @param {Object} data.effects - Pre-processed effects { effectName: { gcsUrl, dataUrl, timestamp } }
+     * @param {string} data.artistNote - Artist notes
+     */
+    openWithPreProcessedEffects(data) {
+      console.log('🎨 Opening inline preview with pre-processed effects:', data);
+      console.log('🔍 Effects breakdown:', {
+        effectKeys: Object.keys(data.effects || {}),
+        ink_wash: data.effects?.ink_wash ? {
+          hasGcsUrl: !!data.effects.ink_wash.gcsUrl,
+          hasDataUrl: !!data.effects.ink_wash.dataUrl,
+          gcsUrlStart: data.effects.ink_wash.gcsUrl?.substring(0, 50)
+        } : 'NOT PRESENT',
+        sketch: data.effects?.sketch ? {
+          hasGcsUrl: !!data.effects.sketch.gcsUrl,
+          hasDataUrl: !!data.effects.sketch.dataUrl,
+          gcsUrlStart: data.effects.sketch.gcsUrl?.substring(0, 50)
+        } : 'NOT PRESENT'
+      });
+
+      // Store pet metadata
+      this.petNumber = data.petNumber;
+      this.petName = data.petName;
+
+      // Open the modal
+      this.openModal();
+
+      // Update header with pet name
+      this.updateHeader(data.petNumber, data.petName);
+
+      // Hide upload zone since we have pre-processed effects
+      if (this.uploadZone) {
+        this.uploadZone.hidden = true;
+      }
+
+      // Hide processing view, we're going straight to results
+      if (this.processingView) {
+        this.processingView.hidden = true;
+      }
+
+      // Convert effects from PetStorage format to inline preview format
+      // PetStorage: { effectName: { gcsUrl, dataUrl, timestamp } }
+      // InlinePreview: { effectName: urlString }
+      const effects = {};
+      for (const [effectName, effectData] of Object.entries(data.effects)) {
+        // Prefer GCS URL, fall back to dataUrl
+        effects[effectName] = effectData.gcsUrl || effectData.dataUrl || effectData;
+      }
+
+      // Set up currentPet with pre-processed effects
+      this.currentPet = {
+        sessionKey: data.sessionKey,
+        effects: effects
+      };
+
+      // Set the selected effect (default to B&W if not specified)
+      this.currentEffect = data.selectedEffect || 'enhancedblackwhite';
+
+      // Restore artist notes if provided
+      if (this.artistNotesInput && data.artistNote) {
+        this.artistNotesInput.value = data.artistNote;
+      }
+
+      // Show the result view directly (skip processing)
+      this.showResult();
+
+      // Check for missing Gemini effects (ink_wash, sketch)
+      // If they don't exist in the stored data, show locked thumbnails with appropriate message
+      const geminiEffects = ['ink_wash', 'sketch'];
+      const self = this;
+      geminiEffects.forEach(effectName => {
+        if (!effects[effectName]) {
+          console.log(`🔒 ${effectName} not in pre-processed effects, showing unavailable thumbnail`);
+          // Use renderLockedThumbnail for visual, then override click handler
+          self.renderLockedThumbnail(effectName, 'Not Available', 'Upload new image');
+
+          // Override the click handler to show appropriate message (not quota message)
+          const btn = self.modal.querySelector(`[data-effect="${effectName}"]`);
+          if (btn) {
+            const overlay = btn.querySelector('.inline-thumbnail-locked-overlay');
+            if (overlay) {
+              // Remove old handler by replacing with clone
+              const newOverlay = overlay.cloneNode(true);
+              overlay.parentNode.replaceChild(newOverlay, overlay);
+
+              // Add new handler with appropriate message
+              newOverlay.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                const message = '💡 This effect was not generated for this pet. Upload a new image on this page to get all 4 effects.';
+                if (self.geminiUI && typeof self.geminiUI.showToast === 'function') {
+                  self.geminiUI.showToast(message, 'info', 4000);
+                } else {
+                  alert(message);
+                }
+              });
+            }
+          }
+        }
+      });
+
+      // If selected effect is a missing Gemini effect, fall back to B&W
+      if (geminiEffects.includes(this.currentEffect) && !effects[this.currentEffect]) {
+        console.log(`⚠️ Selected effect ${this.currentEffect} not available, falling back to B&W`);
+        this.currentEffect = 'enhancedblackwhite';
+        this.selectEffect('enhancedblackwhite');
+      }
+
+      console.log('✅ Pre-processed effects loaded successfully');
+    }
+
+    /**
      * Convert URL (GCS or data URL) to File object
      */
     async urlToFile(url, filename) {
@@ -392,7 +544,7 @@
      * Validate uploaded file
      */
     validateFile(file) {
-      const maxSize = 10 * 1024 * 1024; // 10MB
+      const maxSize = 15 * 1024 * 1024; // 15MB - covers Samsung 50MP photos
       const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
 
       if (!allowedTypes.includes(file.type)) {
@@ -405,7 +557,7 @@
       if (file.size > maxSize) {
         return {
           valid: false,
-          error: `File too large (${(file.size / 1024 / 1024).toFixed(1)}MB). Maximum 10MB`
+          error: `File too large (${(file.size / 1024 / 1024).toFixed(1)}MB). Maximum 15MB`
         };
       }
 
@@ -531,14 +683,31 @@
       const warmthTracker = new window.APIWarmthTracker();
       let startTime = null;
 
+      // Detailed timing breakdown for debugging
+      const timing = {
+        totalStart: Date.now(),
+        orientation: { start: 0, end: 0 },
+        birefnet: { start: 0, end: 0 },
+        gemini: { start: 0, end: 0 },
+        gcsUpload: { start: 0, end: 0 }
+      };
+
       try {
         // Show processing view
         this.showView('processing');
 
+        // WCAG 4.1.3: Announce processing start to screen readers
+        if (window.AccessibilityAnnouncer) {
+          window.AccessibilityAnnouncer.announceProcessingStart(45);
+        }
+
         // Correct image orientation based on EXIF metadata
         console.log('🔄 Correcting image orientation...');
         this.updateProgress('Preparing image...', '⏱️ A few seconds...');
+        timing.orientation.start = Date.now();
         const correctedFile = await this.correctImageOrientation(file);
+        timing.orientation.end = Date.now();
+        console.log(`⏱️ Orientation correction: ${timing.orientation.end - timing.orientation.start}ms`);
         if (this.processingCancelled) return;
 
         // Detect API warmth for accurate countdown (both InSPyReNet and Gemini)
@@ -595,13 +764,16 @@
         console.log('🎨 Processing with AI...');
         this.updateProgress('Removing background...');
         startTime = Date.now();
+        timing.birefnet.start = Date.now();
         this.startProgressTimer(estimatedTime);
 
         const effects = await this.removeBackground(correctedFile);
+        timing.birefnet.end = Date.now();
         if (this.processingCancelled) return;
 
-        const inspyreNetTime = Date.now() - startTime;
-        console.log('✅ Background removal complete:', effects, `(${inspyreNetTime}ms)`);
+        const inspyreNetTime = timing.birefnet.end - timing.birefnet.start;
+        console.log(`⏱️ BiRefNet API (including network): ${inspyreNetTime}ms`);
+        console.log('✅ Background removal complete:', effects);
 
         // Record InSPyReNet API call for future warmth detection
         warmthTracker.recordServiceCall('inspirenet', true, inspyreNetTime);
@@ -610,6 +782,8 @@
         this.currentPet = {
           sessionKey: sessionKey, // Store for reuse in upload and save
           originalImage: null, // Will set if we upload to GCS later
+          originalUrl: null,  // GCS URL for original image (for fulfillment)
+          originalFile: correctedFile,  // Keep reference for upload
           processedImage: effects.enhancedblackwhite || effects.color,
           effects: {
             enhancedblackwhite: effects.enhancedblackwhite,
@@ -619,25 +793,41 @@
 
         // Generate AI effects if enabled
         if (this.geminiEnabled) {
-          const geminiStartTime = Date.now();
+          timing.gemini.start = Date.now();
           await this.generateAIEffects(this.currentPet.processedImage);
-          const geminiTime = Date.now() - geminiStartTime;
-          console.log(`✅ AI effects complete (${geminiTime}ms)`);
+          timing.gemini.end = Date.now();
+          const geminiTime = timing.gemini.end - timing.gemini.start;
+          console.log(`⏱️ Gemini API (including network): ${geminiTime}ms`);
 
           // Record Gemini API call for future warmth detection
           warmthTracker.recordServiceCall('gemini', true, geminiTime);
         }
 
-        // Upload all effects to GCS to prevent localStorage quota issues
-        console.log('☁️ Uploading effects to GCS...');
+        // Upload all effects AND original to GCS
+        console.log('☁️ Uploading effects and original to GCS...');
         this.updateProgress('Saving images to cloud...', '⏱️ A few seconds...');
+        timing.gcsUpload.start = Date.now();
 
         try {
-          const uploadedEffects = await this.uploadAllEffectsToGCS(this.currentPet.effects);
+          // Upload effects and original in parallel for speed
+          const [uploadedEffects, originalUrl] = await Promise.all([
+            this.uploadAllEffectsToGCS(this.currentPet.effects),
+            this.uploadOriginalToGCS(this.currentPet.originalFile, sessionKey)
+          ]);
+
           // Merge uploaded effects back (preserves Ink Wash/Marker that are already GCS URLs)
           this.currentPet.effects = { ...this.currentPet.effects, ...uploadedEffects };
-          console.log('✅ Effects uploaded to GCS');
+
+          // Store original URL for fulfillment
+          if (originalUrl) {
+            this.currentPet.originalUrl = originalUrl;
+            console.log(`✅ Original image uploaded to GCS: ${originalUrl}`);
+          }
+
+          timing.gcsUpload.end = Date.now();
+          console.log(`⏱️ GCS uploads: ${timing.gcsUpload.end - timing.gcsUpload.start}ms`);
         } catch (error) {
+          timing.gcsUpload.end = Date.now();
           console.error('❌ GCS upload failed, using data URLs as fallback:', error);
           // Continue with data URLs if upload fails (localStorage quota risk accepted)
         }
@@ -647,9 +837,40 @@
         this.updateProgress('Complete!', '✅ Ready to preview');
         this.showResult();
 
+        // WCAG 4.1.3: Announce completion to screen readers
+        if (window.AccessibilityAnnouncer) {
+          window.AccessibilityAnnouncer.announceProgress(100);
+        }
+
+        // Log detailed timing breakdown
+        const totalTime = Date.now() - timing.totalStart;
+        const orientationTime = timing.orientation.end - timing.orientation.start;
+        const birefnetTime = timing.birefnet.end - timing.birefnet.start;
+        const geminiTime = timing.gemini.end ? (timing.gemini.end - timing.gemini.start) : 0;
+        const gcsTime = timing.gcsUpload.end - timing.gcsUpload.start;
+        const accountedTime = orientationTime + birefnetTime + geminiTime + gcsTime;
+        const unaccountedTime = totalTime - accountedTime;
+
+        console.log('%c📊 TIMING BREAKDOWN', 'font-weight: bold; font-size: 14px; color: #007bff;');
+        console.log(`┌─────────────────────────────────────────────────────┐`);
+        console.log(`│ Orientation:    ${String(orientationTime).padStart(6)}ms  (${((orientationTime/totalTime)*100).toFixed(1)}%)`);
+        console.log(`│ BiRefNet API:   ${String(birefnetTime).padStart(6)}ms  (${((birefnetTime/totalTime)*100).toFixed(1)}%)`);
+        console.log(`│ Gemini API:     ${String(geminiTime).padStart(6)}ms  (${((geminiTime/totalTime)*100).toFixed(1)}%)`);
+        console.log(`│ GCS Uploads:    ${String(gcsTime).padStart(6)}ms  (${((gcsTime/totalTime)*100).toFixed(1)}%)`);
+        console.log(`│ Unaccounted:    ${String(unaccountedTime).padStart(6)}ms  (${((unaccountedTime/totalTime)*100).toFixed(1)}%)`);
+        console.log(`├─────────────────────────────────────────────────────┤`);
+        console.log(`│ TOTAL:          ${String(totalTime).padStart(6)}ms  (100%)`);
+        console.log(`└─────────────────────────────────────────────────────┘`);
+        console.log(`✅ Processing completed in ${Math.round(totalTime/1000)} seconds`);
+
       } catch (error) {
         console.error('❌ Processing error:', error);
         this.stopProgressTimer();
+
+        // WCAG 4.1.3: Announce error to screen readers
+        if (window.AccessibilityAnnouncer) {
+          window.AccessibilityAnnouncer.announceError(error.message || 'Processing failed. Please try again.');
+        }
 
         // Record failed API call if processing was started
         if (startTime) {
@@ -685,11 +906,13 @@
     }
 
     /**
-     * Remove background using InSPyReNet API
+     * Remove background using BiRefNet API (STAGING) / InSPyReNet API (PRODUCTION)
      * Uses /api/v2/process-with-effects endpoint like pet-processor.js
      */
     async removeBackground(file) {
-      const API_URL = 'https://inspirenet-bg-removal-api-725543555429.us-central1.run.app/api/v2/process-with-effects';
+      // STAGING: BiRefNet (faster, higher quality)
+      // PRODUCTION: 'https://inspirenet-bg-removal-api-725543555429.us-central1.run.app/api/v2/process-with-effects'
+      const API_URL = 'https://birefnet-bg-removal-api-753651513695.us-central1.run.app/api/v2/process-with-effects';
 
       // Use FormData with POST like pet-processor.js does
       const formData = new FormData();
@@ -714,9 +937,12 @@
       }
 
       // API returns base64 data for each effect
+      // BiRefNet returns full data URLs, InSPyReNet returns raw base64
       const effects = {};
       for (const [effectName, base64Data] of Object.entries(result.effects)) {
-        effects[effectName] = `data:image/png;base64,${base64Data}`;
+        effects[effectName] = base64Data.startsWith('data:image/')
+          ? base64Data  // Already a full data URL
+          : `data:image/png;base64,${base64Data}`;  // Raw base64, add prefix
       }
 
       return effects;
@@ -739,7 +965,7 @@
         this.geminiGenerating = true;
 
         // Update progress UI
-        this.updateProgress('Generating AI styles...', '⏱️ ~10 seconds for both styles...');
+        this.updateProgress('Generating artistic styles...', '⏱️ ~10 seconds for both styles...');
         console.log('🎨 Starting Gemini batch generation for Modern + Sketch styles');
 
         // Ensure processedUrl is a data URL (Gemini API requires base64 data URLs)
@@ -838,24 +1064,27 @@
           console.warn('⚠️ Gemini quota exhausted - only B&W and Color available today');
 
           // Render locked thumbnails for Ink Wash and Marker (prevents broken images)
-          this.renderLockedThumbnail('ink_wash');
-          this.renderLockedThumbnail('sketch');
+          this.renderLockedThumbnail('ink_wash', 'Limit Reached', 'Try B&W/Color');
+          this.renderLockedThumbnail('sketch', 'Limit Reached', 'Try B&W/Color');
 
           // Update UI to show quota exhausted state (buttons disabled, badges, etc.)
           if (this.geminiUI && typeof this.geminiUI.updateUI === 'function') {
             this.geminiUI.updateUI();
           }
-        }
+        } else {
+          // Handle all other errors (network, API, etc.)
+          console.warn('⚠️ Gemini unavailable - showing fallback thumbnails');
 
-        // Check if it's a network error
-        if (error.message && error.message.includes('network')) {
-          console.warn('⚠️ Network error during Gemini generation - check connectivity');
+          // Render locked thumbnails with "Unavailable" message
+          this.renderLockedThumbnail('ink_wash', 'Unavailable', 'Try again later');
+          this.renderLockedThumbnail('sketch', 'Unavailable', 'Try again later');
         }
       }
     }
 
     /**
      * Handle effect selection
+     * WCAG: Updates ARIA states and announces selection to screen readers
      */
     handleEffectSelect(btn) {
       // Defensive coding: Validate inputs
@@ -870,10 +1099,16 @@
       this.effectBtns.forEach(b => {
         b.classList.remove('active');
         b.setAttribute('aria-checked', 'false'); // Screen reader accessibility
+        // Update radio input state
+        const radioInput = b.querySelector('input[type="radio"]');
+        if (radioInput) radioInput.checked = false;
       });
 
       btn.classList.add('active');
       btn.setAttribute('aria-checked', 'true'); // Screen reader accessibility
+      // Update radio input state
+      const selectedRadio = btn.querySelector('input[type="radio"]');
+      if (selectedRadio) selectedRadio.checked = true;
 
       // Update preview image
       this.currentEffect = effect;
@@ -881,6 +1116,17 @@
 
       if (effectUrl) {
         this.petImage.src = effectUrl;
+      }
+
+      // WCAG 4.1.3: Announce effect change to screen readers
+      const effectNames = {
+        'enhancedblackwhite': 'Black & White',
+        'color': 'Color',
+        'ink_wash': 'Ink Wash',
+        'sketch': 'Marker'
+      };
+      if (window.AccessibilityAnnouncer) {
+        window.AccessibilityAnnouncer.announceEffectChange(effectNames[effect] || effect);
       }
 
       console.log('🎨 Effect selected:', effect);
@@ -923,11 +1169,13 @@
     }
 
     /**
-     * Render locked thumbnail when Gemini quota exhausted
+     * Render locked thumbnail when Gemini is unavailable
      * Replaces broken image with professional lock icon + helpful messaging
      * @param {string} effectName - 'ink_wash' or 'sketch'
+     * @param {string} primaryText - Main message (default: 'Limit Reached')
+     * @param {string} secondaryText - Subtext (default: 'Try B&W/Color')
      */
-    renderLockedThumbnail(effectName) {
+    renderLockedThumbnail(effectName, primaryText = 'Limit Reached', secondaryText = 'Try B&W/Color') {
       const btn = this.modal.querySelector(`[data-effect="${effectName}"]`);
       if (!btn) {
         console.warn(`🔒 Button not found for ${effectName}`);
@@ -949,7 +1197,7 @@
       // Hide the image element (prevents broken image icon)
       thumbnail.style.display = 'none';
 
-      // Create lock overlay
+      // Create lock overlay with custom messages
       const overlay = document.createElement('div');
       overlay.className = 'inline-thumbnail-locked-overlay';
       overlay.innerHTML = `
@@ -957,8 +1205,8 @@
           <path d="M12 2C9.243 2 7 4.243 7 7v3H6c-1.103 0-2 .897-2 2v8c0 1.103.897 2 2 2h12c1.103 0 2-.897 2-2v-8c0-1.103-.897-2-2-2h-1V7c0-2.757-2.243-5-5-5zm-3 5c0-1.654 1.346-3 3-3s3 1.346 3 3v3H9V7zm9 13H6v-8h12v8z" fill="currentColor"/>
           <circle cx="12" cy="16" r="1.5" fill="currentColor"/>
         </svg>
-        <span class="locked-primary-text">AI Limit</span>
-        <span class="locked-secondary-text">Try B&W/Color</span>
+        <span class="locked-primary-text">${primaryText}</span>
+        <span class="locked-secondary-text">${secondaryText}</span>
       `;
 
       // Add to thumbnail wrapper (parent of image)
@@ -975,7 +1223,7 @@
         this.showQuotaExhaustedMessage();
       });
 
-      console.log(`🔒 ${effectName} thumbnail locked (quota exhausted)`);
+      console.log(`🔒 ${effectName} thumbnail locked: ${primaryText}`);
     }
 
     /**
@@ -983,7 +1231,7 @@
      * Uses toast notification or alert fallback
      */
     showQuotaExhaustedMessage() {
-      const message = '💡 AI limit reached! Ink Wash and Marker reset at midnight UTC. Try B&W or Color now (unlimited)';
+      const message = '💡 Ink Wash & Marker limit reached! Resets at midnight. Try B&W or Color (unlimited)';
 
       // Use Gemini UI toast if available
       if (this.geminiUI && typeof this.geminiUI.showToast === 'function') {
@@ -1128,6 +1376,8 @@
         const petData = {
           artistNote: artistNotes, // PetStorage uses singular 'artistNote'
           effects: effects,
+          originalUrl: this.currentPet.originalUrl || '', // GCS URL for original image (fulfillment)
+          selectedEffect: this.currentEffect, // For Session Pet Gallery thumbnail badge
           filename: `pet_${this.petNumber}.jpg`,
           timestamp: Date.now()
         };
@@ -1154,6 +1404,16 @@
 
         // Close modal
         this.closeModal();
+
+        // Dispatch event for product page style card thumbnails
+        document.dispatchEvent(new CustomEvent('inlinePreviewClosed', {
+          bubbles: true,
+          detail: {
+            petNumber: this.petNumber,
+            sessionKey: sessionKey,
+            effects: effects
+          }
+        }));
 
         // Phase 3: Auto-select style button (only for single-pet orders)
         const petCount = this.getSelectedPetCount();
@@ -1333,6 +1593,52 @@
 
       } catch (error) {
         console.error(`❌ InSPyReNet upload failed for ${effectName}:`, error);
+        return null;
+      }
+    }
+
+    /**
+     * Upload original image to GCS for fulfillment purposes
+     * @param {File} file - Original image file
+     * @param {string} sessionKey - Session identifier
+     * @returns {Promise<string|null>} GCS URL or null
+     */
+    async uploadOriginalToGCS(file, sessionKey) {
+      if (!file) {
+        console.warn('⚠️ No original file to upload');
+        return null;
+      }
+
+      try {
+        console.log('📤 Uploading original image to GCS for fulfillment...');
+
+        const formData = new FormData();
+        formData.append('file', file, file.name);
+        formData.append('session_id', sessionKey);
+        formData.append('image_type', 'original');
+        formData.append('tier', 'temporary'); // 7-day retention
+
+        const response = await fetch(
+          'https://inspirenet-bg-removal-api-725543555429.us-central1.run.app/store-image',
+          {
+            method: 'POST',
+            body: formData
+          }
+        );
+
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}`);
+        }
+
+        const result = await response.json();
+        if (result.success && result.url) {
+          console.log(`✅ Original image uploaded: ${result.url}`);
+          return result.url;
+        }
+
+        return null;
+      } catch (error) {
+        console.error('❌ Original image upload failed:', error);
         return null;
       }
     }

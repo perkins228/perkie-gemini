@@ -16,14 +16,19 @@
     <!-- Modal Backdrop -->
     <div class="inline-preview-backdrop" data-modal-close></div>
 
-    <!-- Modal Content -->
-    <div class="inline-preview-content">
+    <!-- Modal Content - WCAG 4.1.2: role="dialog" with aria-modal for screen readers -->
+    <div class="inline-preview-content"
+         role="dialog"
+         aria-modal="true"
+         aria-labelledby="inline-preview-title"
+         aria-describedby="inline-preview-subtitle">
       <!-- Close Button -->
       <button class="inline-preview-close" data-modal-close aria-label="Close preview">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
           <line x1="18" y1="6" x2="6" y2="18"></line>
           <line x1="6" y1="6" x2="18" y2="18"></line>
         </svg>
+        <span class="visually-hidden">Close preview</span>
       </button>
 
       <!-- Modal Header -->
@@ -87,37 +92,58 @@
           </div>
 
           <!-- Effect Selection (shown after processing) -->
+          <!-- WCAG 1.3.1: Effect selection with radiogroup semantics -->
           <div class="inline-effect-grid-wrapper" hidden>
-            <h3 class="inline-effect-heading">Choose Style</h3>
-            <div class="inline-effect-grid">
+            <h3 class="inline-effect-heading" id="effect-selection-heading">Choose Style</h3>
+            <div class="inline-effect-grid" role="radiogroup" aria-labelledby="effect-selection-heading">
               <label class="inline-effect-btn active" data-effect="enhancedblackwhite">
+                <input type="radio" name="inline-effect-choice" value="enhancedblackwhite" class="visually-hidden" checked>
                 <div class="inline-effect-content">
                   <div class="inline-effect-image-wrapper">
-                    <img src="" alt="Black & White" class="inline-effect-image" data-style-preview="bw">
+                    {% if pet_block and pet_block.settings.style_preview_bw != blank %}
+                      <img src="{{ pet_block.settings.style_preview_bw | image_url: width: 100 }}" alt="" class="inline-effect-image" data-style-preview="bw" aria-hidden="true">
+                    {% else %}
+                      <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100'%3E%3Crect fill='%23f5f5f5' width='100' height='100'/%3E%3C/svg%3E" alt="" class="inline-effect-image" data-style-preview="bw" aria-hidden="true">
+                    {% endif %}
                   </div>
                   <p class="inline-effect-label">Black & White</p>
                 </div>
               </label>
               <label class="inline-effect-btn" data-effect="color">
+                <input type="radio" name="inline-effect-choice" value="color" class="visually-hidden">
                 <div class="inline-effect-content">
                   <div class="inline-effect-image-wrapper">
-                    <img src="" alt="Color" class="inline-effect-image" data-style-preview="color">
+                    {% if pet_block and pet_block.settings.style_preview_color != blank %}
+                      <img src="{{ pet_block.settings.style_preview_color | image_url: width: 100 }}" alt="" class="inline-effect-image" data-style-preview="color" aria-hidden="true">
+                    {% else %}
+                      <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100'%3E%3Crect fill='%23f5f5f5' width='100' height='100'/%3E%3C/svg%3E" alt="" class="inline-effect-image" data-style-preview="color" aria-hidden="true">
+                    {% endif %}
                   </div>
                   <p class="inline-effect-label">Color</p>
                 </div>
               </label>
               <label class="inline-effect-btn" data-effect="ink_wash">
+                <input type="radio" name="inline-effect-choice" value="ink_wash" class="visually-hidden">
                 <div class="inline-effect-content">
                   <div class="inline-effect-image-wrapper">
-                    <img src="" alt="Ink Wash" class="inline-effect-image" data-style-preview="ink_wash">
+                    {% if pet_block and pet_block.settings.style_preview_stencil != blank %}
+                      <img src="{{ pet_block.settings.style_preview_stencil | image_url: width: 100 }}" alt="" class="inline-effect-image" data-style-preview="ink_wash" aria-hidden="true">
+                    {% else %}
+                      <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100'%3E%3Crect fill='%23f5f5f5' width='100' height='100'/%3E%3C/svg%3E" alt="" class="inline-effect-image" data-style-preview="ink_wash" aria-hidden="true">
+                    {% endif %}
                   </div>
                   <p class="inline-effect-label">Ink Wash</p>
                 </div>
               </label>
               <label class="inline-effect-btn" data-effect="sketch">
+                <input type="radio" name="inline-effect-choice" value="sketch" class="visually-hidden">
                 <div class="inline-effect-content">
                   <div class="inline-effect-image-wrapper">
-                    <img src="" alt="Marker" class="inline-effect-image" data-style-preview="sketch">
+                    {% if pet_block and pet_block.settings.style_preview_sketch != blank %}
+                      <img src="{{ pet_block.settings.style_preview_sketch | image_url: width: 100 }}" alt="" class="inline-effect-image" data-style-preview="sketch" aria-hidden="true">
+                    {% else %}
+                      <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100'%3E%3Crect fill='%23f5f5f5' width='100' height='100'/%3E%3C/svg%3E" alt="" class="inline-effect-image" data-style-preview="sketch" aria-hidden="true">
+                    {% endif %}
                   </div>
                   <p class="inline-effect-label">Marker</p>
                 </div>

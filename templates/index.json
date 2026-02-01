@@ -9,452 +9,391 @@
  */
 {
   "sections": {
-    "image_banner_hDyVfU": {
+    "image_banner_qWieVe": {
       "type": "image-banner",
       "blocks": {
-        "heading_q4tWzh": {
+        "heading_diBRCf": {
           "type": "heading",
-          "disabled": true,
           "settings": {
-            "heading": "Image banner",
+            "heading": "From Phone to Frame.",
             "heading_size": "h1"
           }
         },
-        "text_wXt3N6": {
+        "text_rFjAk7": {
           "type": "text",
-          "disabled": true,
           "settings": {
-            "text": "Give customers details about the banner image(s) or content on the template.",
+            "text": "Gallery-quality portraits from everyday photos. Instant free previews.",
             "text_style": "body"
           }
         },
-        "buttons_qVXbBU": {
+        "buttons_cp4CKC": {
           "type": "buttons",
-          "disabled": true,
           "settings": {
-            "button_label_1": "Button label",
-            "button_link_1": "",
+            "button_label_1": "Start My Free Preview",
+            "button_link_1": "shopify://pages/custom-image-processing",
             "button_style_secondary_1": false,
-            "button_label_2": "Button label",
-            "button_link_2": "",
-            "button_style_secondary_2": false
+            "button_label_2": "Shop Now",
+            "button_link_2": "shopify://collections/personalized-pet-products-gifts",
+            "button_style_secondary_2": true
           }
         }
       },
       "block_order": [
-        "heading_q4tWzh",
-        "text_wXt3N6",
-        "buttons_qVXbBU"
+        "heading_diBRCf",
+        "text_rFjAk7",
+        "buttons_cp4CKC"
       ],
-      "disabled": true,
-      "name": "BFCM25 Discount Banner",
+      "custom_css": [
+        "@media screen and (min-width: 750px) {body, .gradient {/* Updates the variable used by most text to Pure White (RGB: 255, 255, 255) */ --color-foreground: 255, 255, 255 !important; --color-base-text: 255, 255, 255 !important; /* Fallback for elements not using variables */ color: #ffffff !important; } /* Force headers and links specifically */ h1, h2, h3, h4, h5, h6, a, .header__menu-item {color: #ffffff !important; }}"
+      ],
+      "name": "t:sections.image-banner.presets.name",
       "settings": {
-        "image": "shopify://shop_images/holiday_desktop_30percent__collection_banner.jpg",
-        "image_overlay_opacity": 0,
-        "image_height": "adapt",
+        "image": "shopify://shop_images/ufo_phone.png",
+        "image_2": "shopify://shop_images/UFO_homepage.png",
+        "image_overlay_opacity": 10,
+        "image_height": "large",
         "image_behavior": "none",
         "desktop_content_position": "middle-center",
         "desktop_content_alignment": "center",
-        "show_text_box": true,
-        "color_scheme": "scheme-f318d737-2be2-4346-8605-b2fbd6208608",
+        "show_text_box": false,
+        "color_scheme": "scheme-872ca72f-3acf-40b0-9717-028f5840921f",
         "stack_images_on_mobile": false,
         "mobile_content_alignment": "center",
-        "show_text_below": false
+        "show_text_below": true
       }
     },
-    "image_banner_gLx4T3": {
-      "type": "image-banner",
+    "how_it_works_fz8MHb": {
+      "type": "how-it-works",
       "blocks": {
-        "heading_F9zP8k": {
-          "type": "heading",
-          "disabled": true,
+        "step_yKpHU6": {
+          "type": "step",
           "settings": {
-            "heading": "Image banner",
-            "heading_size": "h1"
+            "icon_svg": "",
+            "icon_image": "shopify://shop_images/iphone_icon_5c34cf25-e680-4f67-8440-8e80882c1822.png",
+            "title": "1. Upload Your Photo",
+            "desc": "Choose a well-lit, high-resolution photo of your pet (JPG/PNG, max 10MB)."
           }
         },
-        "text_xt4rnB": {
-          "type": "text",
-          "disabled": true,
+        "step_98QJKX": {
+          "type": "step",
           "settings": {
-            "text": "Give customers details about the banner image(s) or content on the template.",
-            "text_style": "body"
+            "icon_svg": "",
+            "icon_image": "shopify://shop_images/effect_icon_8e3a06d7-b521-479b-ae07-94e9859b8dc4.jpg",
+            "title": "2. Select Your Style",
+            "desc": "Choose between 4 beautiful effects: Black & White, Color, Ink Wash and Marker."
           }
         },
-        "buttons_WVNnL7": {
-          "type": "buttons",
-          "disabled": true,
+        "step_bUiRHX": {
+          "type": "step",
           "settings": {
-            "button_label_1": "Button label",
-            "button_link_1": "",
-            "button_style_secondary_1": false,
-            "button_label_2": "Button label",
-            "button_link_2": "",
-            "button_style_secondary_2": false
+            "icon_svg": "",
+            "icon_image": "shopify://shop_images/tee_icon_d9e83313-6d5c-4ccf-aa5f-1bb0f4fea650.png",
+            "title": "3. Choose A Product",
+            "desc": "Pick a product to showcase your artwork, add to cart and checkout."
+          }
+        },
+        "step_XjgHrE": {
+          "type": "step",
+          "settings": {
+            "icon_svg": "",
+            "icon_image": "shopify://shop_images/approved_artwork_icon_4e473b24-d724-4bf0-a980-6ee0398a12d5.jpg",
+            "title": "4. Approve Your Artwork",
+            "desc": "Approve the digital artwork before printing. Unlimited edits included with your purchase."
+          }
+        },
+        "step_YzCMrW": {
+          "type": "step",
+          "settings": {
+            "icon_svg": "",
+            "icon_image": "shopify://shop_images/shipping_icon_d0053bc7-a315-459c-b764-5c7b9154bc9b.jpg",
+            "title": "5. We Create & Ship",
+            "desc": "Your custom art is created and shipped directly to you."
           }
         }
       },
       "block_order": [
-        "heading_F9zP8k",
-        "text_xt4rnB",
-        "buttons_WVNnL7"
+        "step_yKpHU6",
+        "step_98QJKX",
+        "step_bUiRHX",
+        "step_XjgHrE",
+        "step_YzCMrW"
       ],
-      "disabled": true,
-      "name": "Missed the deadline option 2",
+      "name": "How It Works",
       "settings": {
-        "image": "shopify://shop_images/still_time_to_make_it_meaningful2_abe7315b-4f13-4f13-816c-33ca836cb687.jpg",
-        "image_overlay_opacity": 0,
-        "image_height": "adapt",
-        "image_behavior": "none",
-        "desktop_content_position": "middle-center",
-        "desktop_content_alignment": "center",
-        "show_text_box": true,
-        "color_scheme": "",
-        "stack_images_on_mobile": true,
-        "mobile_content_alignment": "center",
-        "show_text_below": false
-      }
-    },
-    "ks_fancy_slideshow_CjgK6D": {
-      "type": "ks-fancy-slideshow",
-      "blocks": {
-        "slide_TYtCDA": {
-          "type": "slide",
-          "settings": {
-            "img_mobile": "shopify://shop_images/Nov_wk2_Sale-_Free_Digi_76f9ed82-8fd4-46fa-ad63-feaa3c637c43.png",
-            "img_desktop": "shopify://shop_images/Nov_wk2_Sale-_Free_Digi_76f9ed82-8fd4-46fa-ad63-feaa3c637c43.jpg",
-            "overlay_color": "#000000",
-            "overlay_opacity": 30,
-            "overlay_blur": 0,
-            "caption_position_mobile": "center",
-            "caption_text_align_mobile": "text-center",
-            "caption_position_desktop": "left",
-            "caption_text_align_desktop": "text-desktop-center",
-            "caption_max_width": "500",
-            "subtitle": "Miseed the shipping deadline?",
-            "subtitle_font_size": "fs-sm",
-            "title": "There is still time to make it meaningful!",
-            "title_font_size": "h1",
-            "description": "<p>Purchases placed today will receive a <strong>complimentary digital download*</strong> for you to email to your recipient on Christmas morning! </p><p>Not only will they enjoy the digital download as a background for all their devices, but also delight in the anticipation of receiving their custom package!<br/>No Code Necessary. </p>",
-            "description_font_size": "fs-lg",
-            "btn_primary_text": "Add FREE Digital Download to Cart",
-            "btn_primary_style": "button--primary",
-            "btn_primary_url": "",
-            "btn_secondary_text": "",
-            "btn_secondary_style": "button--secondary",
-            "btn_secondary_url": ""
-          }
-        }
-      },
-      "block_order": [
-        "slide_TYtCDA"
-      ],
-      "disabled": true,
-      "name": "Missed the deadline Header",
-      "settings": {
-        "color_scheme": "scheme-f87c2828-f6f5-4ee4-81f9-351a7b6ea793",
-        "slider_navigation": true,
-        "slider_pagination": "bullets",
-        "slider_effect": "slide",
-        "slider_speed": 700,
-        "slider_autoplay": 5,
-        "slider_partial": false,
-        "slider_spacing": false,
-        "media_mobile_height": 520,
-        "media_desktop_height": 610,
-        "media_adapt": false,
-        "pt": 36,
-        "pb": 36
-      }
-    },
-    "image_with_text_9bWqwm": {
-      "type": "image-with-text",
-      "blocks": {
-        "caption_f7Tpk4": {
-          "type": "caption",
-          "settings": {
-            "caption": "The Perfect Last Minute Gift",
-            "text_style": "caption-with-letter-spacing",
-            "text_size": "medium"
-          }
-        },
-        "heading_ViFRCt": {
-          "type": "heading",
-          "settings": {
-            "heading": "FREE $25 eGift Card",
-            "heading_size": "h0"
-          }
-        },
-        "text_7x7EPe": {
-          "type": "text",
-          "settings": {
-            "text": "<h5>When your purchase a $100 eGift Card</h5>",
-            "text_style": "body"
-          }
-        },
-        "button_bdt4J7": {
-          "type": "button",
-          "settings": {
-            "button_label": "Add Both to Cart",
-            "button_link": "shopify://products/gift-card",
-            "button_style_secondary": false
-          }
-        }
-      },
-      "block_order": [
-        "caption_f7Tpk4",
-        "heading_ViFRCt",
-        "text_7x7EPe",
-        "button_bdt4J7"
-      ],
-      "disabled": true,
-      "name": "Free Gift Card Offer ",
-      "settings": {
-        "image": "shopify://shop_images/digitalgiftcard_square_25.jpg",
-        "height": "adapt",
-        "desktop_image_width": "medium",
-        "layout": "text_first",
-        "image_behavior": "none",
-        "content_layout": "no-overlap",
-        "desktop_content_position": "middle",
-        "desktop_content_alignment": "center",
-        "mobile_content_alignment": "center",
-        "section_color_scheme": "scheme-9f6d3ba1-939b-4af9-b284-239ad849b276",
-        "color_scheme": "scheme-9f6d3ba1-939b-4af9-b284-239ad849b276",
+        "heading": "",
+        "subheading": "",
+        "color_scheme": "scheme-f318d737-2be2-4346-8605-b2fbd6208608",
         "padding_top": 8,
         "padding_bottom": 8
       }
     },
-    "ks_fancy_slideshow_P99t9J": {
-      "type": "ks-fancy-slideshow",
-      "blocks": {
-        "slide_tceyNm": {
-          "type": "slide",
-          "settings": {
-            "img_mobile": "shopify://shop_images/Valentines_25_Banner_square_copy2.jpg",
-            "img_desktop": "shopify://shop_images/Valentines_25_Banner_wide.jpg",
-            "overlay_color": "#121212",
-            "overlay_opacity": 0,
-            "overlay_blur": 0,
-            "caption_position_mobile": "bottom",
-            "caption_text_align_mobile": "text-center",
-            "caption_position_desktop": "bottom",
-            "caption_text_align_desktop": "text-desktop-center",
-            "caption_max_width": "900",
-            "subtitle": "",
-            "subtitle_font_size": "fs-sm",
-            "title": "",
-            "title_font_size": "h1",
-            "description": "",
-            "description_font_size": "fs-lg",
-            "btn_primary_text": "Add Mug to Cart",
-            "btn_primary_style": "button--primary",
-            "btn_primary_url": "shopify://products/limited-addition-valentines-coffee-mug",
-            "btn_secondary_text": "",
-            "btn_secondary_style": "button--secondary",
-            "btn_secondary_url": ""
-          }
-        }
-      },
-      "block_order": [
-        "slide_tceyNm"
-      ],
-      "name": "Valentine Banner",
-      "settings": {
-        "color_scheme": "",
-        "slider_navigation": false,
-        "slider_pagination": "bullets",
-        "slider_effect": "slide",
-        "slider_speed": 700,
-        "slider_autoplay": 5,
-        "slider_partial": false,
-        "slider_spacing": false,
-        "media_mobile_height": 400,
-        "media_desktop_height": 700,
-        "media_adapt": false,
-        "pt": 36,
-        "pb": 36
-      }
-    },
-    "image_with_text_ht9TLA": {
+    "image_with_text_WeJGQG": {
       "type": "image-with-text",
       "blocks": {
-        "caption_Xkxbmh": {
+        "caption_RkE3CT": {
           "type": "caption",
           "settings": {
-            "caption": "PERFECT FOR EVERY PET LOVER",
+            "caption": "Valentine's Day Sale",
             "text_style": "caption-with-letter-spacing",
             "text_size": "medium"
           }
         },
-        "heading_Mwzmck": {
+        "heading_NyQ7xN": {
           "type": "heading",
           "settings": {
-            "heading": "Gifts That Capture The Feeling Of Love",
+            "heading": "Free Mug With $75+ Purchase",
             "heading_size": "h1"
           }
         },
-        "text_PcqQhK": {
+        "text_XVLpMR": {
           "type": "text",
           "settings": {
-            "text": "<h5>Discover heartfelt gifts: personalized pet prints, custom created and individually printed on quality items.</h5>",
+            "text": "<p>Choose from two limited edition Valentine's Day designs. </p><p>Just add to cart and discount will auto apply. </p>",
             "text_style": "body"
           }
         },
-        "button_aAJmk9": {
+        "button_ngx6H3": {
           "type": "button",
           "settings": {
-            "button_label": "Shop All Gifts",
-            "button_link": "shopify://collections/personalized-pet-products-gifts",
+            "button_label": "Customize Now",
+            "button_link": "shopify://products/limited-addition-valentines-coffee-mug",
             "button_style_secondary": false
           }
         }
       },
       "block_order": [
-        "caption_Xkxbmh",
-        "heading_Mwzmck",
-        "text_PcqQhK",
-        "button_aAJmk9"
+        "caption_RkE3CT",
+        "heading_NyQ7xN",
+        "text_XVLpMR",
+        "button_ngx6H3"
       ],
+      "name": "t:sections.image-with-text.presets.name",
       "settings": {
-        "image": "shopify://shop_images/2024_Valentines_Day_Sale_Banner_Square_no_Text.jpg",
-        "height": "medium",
-        "desktop_image_width": "medium",
+        "image": "shopify://shop_images/Valentines_25_Banner_square_copy.jpg",
+        "height": "adapt",
+        "desktop_image_width": "small",
         "layout": "image_first",
         "image_behavior": "none",
         "content_layout": "no-overlap",
         "desktop_content_position": "middle",
         "desktop_content_alignment": "center",
         "mobile_content_alignment": "center",
-        "section_color_scheme": "scheme-f318d737-2be2-4346-8605-b2fbd6208608",
-        "color_scheme": "scheme-f318d737-2be2-4346-8605-b2fbd6208608",
+        "section_color_scheme": "scheme-4",
+        "color_scheme": "scheme-0d2d3905-9794-42ac-a4c7-5701425dd018",
         "padding_top": 8,
         "padding_bottom": 8
       }
     },
-    "ks_fancy_slideshow_FaQtVG": {
-      "type": "ks-fancy-slideshow",
+    "ks_instagram_gallery_KbxtFY": {
+      "type": "ks-instagram-gallery",
       "blocks": {
-        "slide_LKwkcd": {
+        "slide_aViCQd": {
           "type": "slide",
           "settings": {
-            "img_mobile": "shopify://shop_images/holidaymobile2.jpg",
-            "img_desktop": "shopify://shop_images/holidaydesktoppercentoff.jpg",
-            "overlay_color": "#121212",
-            "overlay_opacity": 0,
-            "overlay_blur": 0,
-            "caption_position_mobile": "bottom",
-            "caption_text_align_mobile": "text-center",
-            "caption_position_desktop": "bottom",
-            "caption_text_align_desktop": "text-desktop-center",
-            "caption_max_width": "900",
-            "subtitle": "",
-            "subtitle_font_size": "fs-sm",
-            "title": "",
-            "title_font_size": "h1",
-            "description": "",
-            "description_font_size": "fs-lg",
-            "btn_primary_text": "Shop Now",
-            "btn_primary_style": "button--primary",
-            "btn_primary_url": "shopify://collections/personalized-pet-products-gifts",
-            "btn_secondary_text": "",
-            "btn_secondary_style": "button--secondary",
-            "btn_secondary_url": ""
+            "img": "shopify://shop_images/Tote_Cat_IG_UGC__ibtoma_7317f89c-e08f-498d-90f2-40ef4b2f1756.png",
+            "product": "",
+            "product_bg_color": "#ffffff",
+            "product_text_color": "#121212",
+            "custom_badge": "",
+            "custom_badge_bg_color": "#334fb4"
           }
         },
-        "slide_qyBCUq": {
+        "slide_YYAHt7": {
           "type": "slide",
           "settings": {
-            "img_mobile": "shopify://shop_images/holidayornamentmobile.jpg",
-            "img_desktop": "shopify://shop_images/holidaydesktopornament.jpg",
-            "overlay_color": "#121212",
-            "overlay_opacity": 0,
-            "overlay_blur": 0,
-            "caption_position_mobile": "bottom",
-            "caption_text_align_mobile": "text-center",
-            "caption_position_desktop": "bottom",
-            "caption_text_align_desktop": "text-desktop-center",
-            "caption_max_width": "900",
-            "subtitle": "",
-            "subtitle_font_size": "fs-sm",
-            "title": "",
-            "title_font_size": "h1",
-            "description": "",
-            "description_font_size": "fs-lg",
-            "btn_primary_text": "Shop Now",
-            "btn_primary_style": "button--primary",
-            "btn_primary_url": "shopify://collections/personalized-pet-products-gifts",
-            "btn_secondary_text": "",
-            "btn_secondary_style": "button--secondary",
-            "btn_secondary_url": ""
+            "img": "shopify://shop_images/White_Frames_Dogs_Dogs_with_frames_UGC.jpg",
+            "product": "",
+            "product_bg_color": "#ffffff",
+            "product_text_color": "#121212",
+            "custom_badge": "",
+            "custom_badge_bg_color": "#334fb4"
+          }
+        },
+        "slide_xpdBYy": {
+          "type": "slide",
+          "settings": {
+            "img": "shopify://shop_images/ZipTote_Dog_Dogwithtote_IG_UGC.webp",
+            "product": "",
+            "product_bg_color": "#ffffff",
+            "product_text_color": "#121212",
+            "custom_badge": "",
+            "custom_badge_bg_color": "#334fb4"
+          }
+        },
+        "slide_hT9VaP": {
+          "type": "slide",
+          "settings": {
+            "img": "shopify://shop_images/Kids_Tee_Cat_Boy_smiling_with_mom_and_dog_Lifestyle_copy.jpg",
+            "product": "",
+            "product_bg_color": "#ffffff",
+            "product_text_color": "#121212",
+            "custom_badge": "",
+            "custom_badge_bg_color": "#334fb4"
+          }
+        },
+        "slide_HEm4qw": {
+          "type": "slide",
+          "settings": {
+            "img": "shopify://shop_images/RCeramicMug_Dog_IG_UGC__loki.wolfpupcopy.webp",
+            "product": "",
+            "product_bg_color": "#ffffff",
+            "product_text_color": "#121212",
+            "custom_badge": "",
+            "custom_badge_bg_color": "#334fb4"
+          }
+        },
+        "slide_mgUAdb": {
+          "type": "slide",
+          "settings": {
+            "img": "shopify://shop_images/Cropped_Pocket_Cat.webp",
+            "product": "",
+            "product_bg_color": "#ffffff",
+            "product_text_color": "#121212",
+            "custom_badge": "",
+            "custom_badge_bg_color": "#334fb4"
+          }
+        },
+        "slide_cj4dmJ": {
+          "type": "slide",
+          "settings": {
+            "img": "shopify://shop_images/Natural_Frames_Dog_sitting_in_front_of_frames_3_Lifestyle.jpg",
+            "product": "",
+            "product_bg_color": "#ffffff",
+            "product_text_color": "#121212",
+            "custom_badge": "",
+            "custom_badge_bg_color": "#334fb4"
+          }
+        },
+        "slide_YH8U7d": {
+          "type": "slide",
+          "settings": {
+            "img": "shopify://shop_images/HoodedSweatshirt_Dog_Photoshoot_Lifestyle_PetPose_Doodle_Detail_a582c379-039a-489a-8a2e-c02997939d56.jpg",
+            "product": "",
+            "product_bg_color": "#ffffff",
+            "product_text_color": "#121212",
+            "custom_badge": "",
+            "custom_badge_bg_color": "#334fb4"
+          }
+        },
+        "slide_GPTL6d": {
+          "type": "slide",
+          "settings": {
+            "img": "shopify://shop_images/WhiteFrame_Cat_IG_UGC__meow_gypsy_and_bowie.png",
+            "product": "",
+            "product_bg_color": "#ffffff",
+            "product_text_color": "#121212",
+            "custom_badge": "",
+            "custom_badge_bg_color": "#334fb4"
+          }
+        },
+        "slide_jBEzR9": {
+          "type": "slide",
+          "settings": {
+            "img": "shopify://shop_images/Black_Frame_Dog_dog_smiling_at_camera_with_frame_in_background_UGC__bubbatheaussiepup.webp",
+            "product": "",
+            "product_bg_color": "#ffffff",
+            "product_text_color": "#121212",
+            "custom_badge": "",
+            "custom_badge_bg_color": "#334fb4"
+          }
+        },
+        "slide_WmJzGw": {
+          "type": "slide",
+          "settings": {
+            "img": "shopify://shop_images/Classic_Pocket_Tee_Dogs_IG_UGC__holidayhomebody_4_retouched.webp",
+            "product": "",
+            "product_bg_color": "#ffffff",
+            "product_text_color": "#121212",
+            "custom_badge": "",
+            "custom_badge_bg_color": "#334fb4"
+          }
+        },
+        "slide_qjLic8": {
+          "type": "slide",
+          "settings": {
+            "img": "shopify://shop_images/BlackFrame_Dog_Review_UGC_HeatherA.august21_8768c633-94f7-49e1-b0c8-9dff8ef33129.png",
+            "product": "",
+            "product_bg_color": "#ffffff",
+            "product_text_color": "#121212",
+            "custom_badge": "",
+            "custom_badge_bg_color": "#334fb4"
+          }
+        },
+        "slide_EKNMfn": {
+          "type": "slide",
+          "settings": {
+            "img": "shopify://shop_images/CroppedPocketTee_Dog_FemaleModel_Sheispettingdogwithsmile_Lifestyle.webp",
+            "product": "",
+            "product_bg_color": "#ffffff",
+            "product_text_color": "#121212",
+            "custom_badge": "",
+            "custom_badge_bg_color": "#334fb4"
+          }
+        },
+        "slide_Yk3AXK": {
+          "type": "slide",
+          "settings": {
+            "img": "shopify://shop_images/White_Frame_Dog_IG_UGC__holidayhomebody_2_retouched.jpg",
+            "product": "",
+            "product_bg_color": "#ffffff",
+            "product_text_color": "#121212",
+            "custom_badge": "",
+            "custom_badge_bg_color": "#334fb4"
+          }
+        },
+        "slide_VXH4KK": {
+          "type": "slide",
+          "settings": {
+            "img": "shopify://shop_images/Pillow_Dog_dogonbedwithpillow_Lifestyle_unbleached.jpg",
+            "product": "",
+            "product_bg_color": "#ffffff",
+            "product_text_color": "#121212",
+            "custom_badge": "",
+            "custom_badge_bg_color": "#334fb4"
           }
         }
       },
       "block_order": [
-        "slide_LKwkcd",
-        "slide_qyBCUq"
+        "slide_aViCQd",
+        "slide_YYAHt7",
+        "slide_xpdBYy",
+        "slide_hT9VaP",
+        "slide_HEm4qw",
+        "slide_mgUAdb",
+        "slide_cj4dmJ",
+        "slide_YH8U7d",
+        "slide_GPTL6d",
+        "slide_jBEzR9",
+        "slide_WmJzGw",
+        "slide_qjLic8",
+        "slide_EKNMfn",
+        "slide_Yk3AXK",
+        "slide_VXH4KK"
       ],
-      "disabled": true,
-      "name": "KS - Fancy slideshow",
+      "name": "KS - Instagram gallery",
       "settings": {
         "color_scheme": "scheme-f318d737-2be2-4346-8605-b2fbd6208608",
-        "slider_navigation": true,
-        "slider_pagination": "bullets",
-        "slider_effect": "slide",
-        "slider_speed": 700,
-        "slider_autoplay": 0,
-        "slider_partial": false,
-        "slider_spacing": false,
-        "media_mobile_height": 400,
-        "media_desktop_height": 770,
-        "media_adapt": false,
-        "pt": 0,
-        "pb": 0
+        "title": "Perkie Prints in the Wild",
+        "header_title_instagram": false,
+        "heading_size": "h2",
+        "header_btn_text": "",
+        "header_btn_url": "",
+        "header_btn_style": "button--primary",
+        "slider_speed": 500,
+        "slider_spacing": true,
+        "slider_autoplay": 5,
+        "pt": 16,
+        "pb": 4
       }
     },
-    "ks_separator_hw3jyN": {
+    "ks_separator_taB9mE": {
       "type": "ks-separator",
       "name": "KS - Separator",
       "settings": {
-        "container": "page-width",
-        "opacity": 25,
+        "container": "",
+        "opacity": 10,
         "pt": 4,
-        "pb": 4
-      }
-    },
-    "ks_marquee_d9Eyaf": {
-      "type": "ks-marquee",
-      "blocks": {
-        "text_JPKLEr": {
-          "type": "text",
-          "disabled": true,
-          "settings": {
-            "text": "BOGO 50% OFF with code:BOGOPERK",
-            "url": ""
-          }
-        }
-      },
-      "block_order": [
-        "text_JPKLEr"
-      ],
-      "disabled": true,
-      "name": "KS - Marquee",
-      "settings": {
-        "color_scheme": "scheme-bbe9ca6b-0116-4f9e-8bc7-ac1f3a240349",
-        "font_size": "fs-lg",
-        "font_size_desktop": "fs-desktop-md",
-        "text_transform": "",
-        "letter_spacing": 2,
-        "img_opacity": 1,
-        "list_label": "Promotional list",
-        "marquee_duration": 18,
-        "marquee_direction": "left",
-        "separator_icon": "heart",
-        "separator_icon_size": 18,
-        "separator_icon_stroke_width": 1.5,
-        "gap": 0,
-        "pt": 4,
-        "pb": 4
+        "pb": 0
       }
     },
     "ks_simple_collections_GrfLhc": {
@@ -464,7 +403,7 @@
           "type": "collection",
           "settings": {
             "collection": "personalized-pet-portraits",
-            "img": "shopify://shop_images/natural_frameratio_939c3670-cc59-4472-9f7a-8a945087c4ed.webp",
+            "img": "shopify://shop_images/frame_button.png",
             "title": "Portraits"
           }
         },
@@ -472,15 +411,23 @@
           "type": "collection",
           "settings": {
             "collection": "personalized-pet-apparel",
-            "img": "shopify://shop_images/homepage-banner-pocketteenew.png",
-            "title": "Apparel & Accessories"
+            "img": "shopify://shop_images/apparel_icon_ff8976b0-df51-48ac-9962-f22e2c4f677f.png",
+            "title": "Apparel"
+          }
+        },
+        "collection_8Fmmc3": {
+          "type": "collection",
+          "settings": {
+            "collection": "accessories",
+            "img": "shopify://shop_images/accessorie_button.png",
+            "title": "Accessories"
           }
         },
         "collection_kFBiHa": {
           "type": "collection",
           "settings": {
             "collection": "personalized-home-decor",
-            "img": "shopify://shop_images/coffee_mug-removebg-preview_1.png",
+            "img": "shopify://shop_images/mug_icon_bb3bfdd8-f05b-41d6-875f-251b942ab876.png",
             "title": "Home"
           }
         },
@@ -488,12 +435,13 @@
           "type": "collection",
           "settings": {
             "collection": "personalized-kids-baby",
-            "img": "shopify://shop_images/Onesie_b8ff476f-8874-47aa-92e7-6535b1269938.png",
+            "img": "shopify://shop_images/kids_icon_4bba0068-9739-4cec-aa88-1fe014c514f9.png",
             "title": "Kids"
           }
         },
         "collection_MDq7kD": {
           "type": "collection",
+          "disabled": true,
           "settings": {
             "collection": "happy-holidays",
             "title": ""
@@ -501,17 +449,17 @@
         },
         "collection_zgAPDe": {
           "type": "collection",
-          "disabled": true,
           "settings": {
             "collection": "ready-to-ship",
-            "img": "shopify://shop_images/readymade-removebg-preview_2.webp",
-            "title": "Perkie Originals"
+            "img": "shopify://shop_images/perkie_originals_icon_0dc48871-6bb4-488d-83a2-eda62ae0c478.png",
+            "title": "Ready-to-Ship"
           }
         }
       },
       "block_order": [
         "collection_bAgHcW",
         "collection_ybQGrr",
+        "collection_8Fmmc3",
         "collection_kFBiHa",
         "collection_hbRgpp",
         "collection_MDq7kD",
@@ -519,28 +467,28 @@
       ],
       "name": "KS - Simple collections",
       "settings": {
-        "color_scheme": "scheme-f318d737-2be2-4346-8605-b2fbd6208608",
-        "title": "Featured Collections",
+        "color_scheme": "scheme-872ca72f-3acf-40b0-9717-028f5840921f",
+        "title": "Curated Collections",
         "heading_size": "h2",
         "description": "",
         "description_size": "fs-md",
         "label": "Featured collections",
-        "item_img_size": 130,
+        "item_img_size": 175,
         "item_show_title": true,
         "item_title_font_size": "fs-sm",
         "item_title_truncate": true,
         "item_show_product_count": false,
-        "pt": 20,
-        "pb": 20
+        "pt": 12,
+        "pb": 12
       }
     },
-    "ks_separator_VHgP3w": {
+    "ks_separator_TmVBzQ": {
       "type": "ks-separator",
       "name": "KS - Separator",
       "settings": {
-        "container": "page-width",
-        "opacity": 25,
-        "pt": 4,
+        "container": "",
+        "opacity": 10,
+        "pt": 0,
         "pb": 4
       }
     },
@@ -551,10 +499,10 @@
         "page_width": "",
         "show_only_img": false,
         "img_alignment": "right",
-        "mobile_before_img": "shopify://shop_images/anna_before_desktop.webp",
-        "mobile_after_img": "shopify://shop_images/anna_after_desktop.webp",
-        "desktop_before_img": "shopify://shop_images/anna_before_desktop.webp",
-        "desktop_after_img": "shopify://shop_images/anna_after_desktop.webp",
+        "mobile_before_img": "shopify://shop_images/ufocolor.png",
+        "mobile_after_img": "shopify://shop_images/Ufobw.png",
+        "desktop_before_img": "shopify://shop_images/ufocolor.png",
+        "desktop_after_img": "shopify://shop_images/Ufobw.png",
         "icv_controls_color": "#ffffff",
         "icv_controls_circle": false,
         "icv_smoothing": true,
@@ -573,103 +521,35 @@
         "title": "We Transform Your Photos Into Art",
         "title_font_size": "h2",
         "description": "<p>We convert your everyday photos into studio quality images without the hassle or cost of professional photography </p>",
-        "description_font_size": "fs-lg",
+        "description_font_size": "fs-sm",
         "btn_primary_text": "Free Preview",
         "btn_primary_style": "button--primary",
         "btn_primary_url": "shopify://pages/custom-image-processing",
         "btn_secondary_text": "",
         "btn_secondary_style": "button--secondary",
         "btn_secondary_url": "",
-        "pt": 20,
-        "pb": 20
-      }
-    },
-    "collapsible_content_mUfHFe": {
-      "type": "collapsible-content",
-      "blocks": {
-        "collapsible_row_8hzNN9": {
-          "type": "collapsible_row",
-          "settings": {
-            "heading": "Upload Your Image",
-            "icon": "paw_print",
-            "row_content": "<p>Upload your pet’s photo to our <a href=\"/pages/custom-image-processing\" title=\"Custom Image Processing\">Image Processor </a>— it’s just a preview! Leave a note for the artist with any preferences, and check our <a href=\"/pages/choosing-an-existing-photo\" title=\"How to Choose Your Photo\">How to Choose Your Photo</a> guide for tips to get the best Perkie Print.<br/><br/></p>",
-            "page": ""
-          }
-        },
-        "collapsible_row_EMdEzY": {
-          "type": "collapsible_row",
-          "settings": {
-            "heading": "Select Your Product",
-            "icon": "shirt",
-            "row_content": "<p>Choose your favorite product(s) to personalize with your pet's image and name.</p>",
-            "page": ""
-          }
-        },
-        "collapsible_row_HrK6An": {
-          "type": "collapsible_row",
-          "settings": {
-            "heading": "Approve Your Artwork",
-            "icon": "check_mark",
-            "row_content": "<p>Within 24 hours of placing your order, we’ll send you an email to start the photo selection process. Our artist will then work their magic, and in just 1-2 days you’ll get a preview of your custom Perkie Print in your inbox for your approval.</p>",
-            "page": ""
-          }
-        },
-        "collapsible_row_YApjC7": {
-          "type": "collapsible_row",
-          "settings": {
-            "heading": "We Create & Ship",
-            "icon": "truck",
-            "row_content": "<p>Once you give us the go-ahead, we’ll handcraft your Perkie Print and ship it out ASAP so you can start enjoying it or surprise someone special.</p>",
-            "page": ""
-          }
-        }
-      },
-      "block_order": [
-        "collapsible_row_8hzNN9",
-        "collapsible_row_EMdEzY",
-        "collapsible_row_HrK6An",
-        "collapsible_row_YApjC7"
-      ],
-      "settings": {
-        "caption": "",
-        "heading": "How it works",
-        "heading_size": "h1",
-        "heading_alignment": "center",
-        "layout": "none",
-        "container_color_scheme": "scheme-f318d737-2be2-4346-8605-b2fbd6208608",
-        "color_scheme": "scheme-f318d737-2be2-4346-8605-b2fbd6208608",
-        "open_first_collapsible_row": true,
-        "image_ratio": "adapt",
-        "desktop_layout": "image_second",
-        "padding_top": 20,
-        "padding_bottom": 24
-      }
-    },
-    "ks_separator_wjFBYC": {
-      "type": "ks-separator",
-      "name": "KS - Separator",
-      "settings": {
-        "container": "page-width",
-        "opacity": 25,
         "pt": 4,
-        "pb": 4
+        "pb": 12
       }
     },
     "featured_collection_Jxhrxe": {
       "type": "featured-collection",
+      "custom_css": [
+        "{text-align: center;}"
+      ],
       "settings": {
         "collection": "bestsellers",
         "products_to_show": 10,
-        "title": "",
-        "heading_size": "h1",
+        "title": "Loved by Pet Parents:",
+        "heading_size": "h2",
         "description": "",
         "show_description": false,
         "description_style": "body",
-        "columns_desktop": 4,
+        "columns_desktop": 6,
         "enable_desktop_slider": true,
-        "full_width": false,
-        "show_view_all": true,
-        "view_all_style": "link",
+        "full_width": true,
+        "show_view_all": false,
+        "view_all_style": "outline",
         "color_scheme": "scheme-f318d737-2be2-4346-8605-b2fbd6208608",
         "image_ratio": "square",
         "image_shape": "default",
@@ -679,41 +559,55 @@
         "quick_add": "none",
         "columns_mobile": "2",
         "swipe_on_mobile": true,
-        "padding_top": 20,
-        "padding_bottom": 20
+        "padding_top": 12,
+        "padding_bottom": 12
       }
     },
-    "ks_parallax_media_VzVbNE": {
-      "type": "ks-parallax-media",
-      "name": "KS - Parallax media",
+    "ks_media_slider_hDqb4F": {
+      "type": "ks-media-slider",
+      "blocks": {
+        "slide_rknEY3": {
+          "type": "slide",
+          "settings": {
+            "show_only_media": false,
+            "media_alignment": "left",
+            "img_height_mobile": 0,
+            "img_height_desktop": 0,
+            "video": "shopify://files/videos/ezgif-7-f855699035bc.mp4",
+            "video_autoplay": true,
+            "video_loop": true,
+            "video_muted": false,
+            "video_controls": false,
+            "external_video": "",
+            "text_align_mobile": "text-center",
+            "text_align_desktop": "text-tablet-center",
+            "subtitle": "GIVING BACK WITH EVERY PURCHASE",
+            "subtitle_font_size": "fs-xs",
+            "title": "Perkie's Purpose",
+            "title_font_size": "h1",
+            "description": "<p>At Perkie Prints, we believe that every animal deserves to be safe, happy, and loved. That’s why we will always donate a portion of every purchase to animal charities! Perkie Prints is proud to partner with Wags & Walk in support of their mission to break the stigma around rescue dogs and decrease the number of dogs euthanized in local shelters by proving that you can rescue wonderful dogs of all breeds, sizes, and temperaments.</p>",
+            "description_font_size": "fs-md",
+            "btn_primary_text": "Learn More",
+            "btn_primary_style": "button--primary",
+            "btn_primary_url": "shopify://pages/our-purpose",
+            "btn_secondary_text": "",
+            "btn_secondary_style": "button--secondary",
+            "btn_secondary_url": ""
+          }
+        }
+      },
+      "block_order": [
+        "slide_rknEY3"
+      ],
+      "custom_css": [
+        "/* Hide all slider navigation controls */.slider-buttons,.slider-counter,.slider-counter--current,.slider-counter--total,.slider-counter__link,.slideshow__controls,.slideshow__controls--border-radius {display: none !important;}"
+      ],
+      "name": "KS - Media Slider",
       "settings": {
-        "video_mobile": "shopify://files/videos/Brand Video_7e001be6-09d2-421d-8ca6-c5788c7fc467.mp4",
-        "video_desktop": "shopify://files/videos/Brand Video_7e001be6-09d2-421d-8ca6-c5788c7fc467.mp4",
-        "media_mobile_height": 400,
-        "media_desktop_height": 650,
-        "media_adapt": true,
-        "overlay_color": "#000000",
-        "overlay_opacity": 0,
-        "overlay_blur": 0,
-        "overlay_top_bottom_border": false,
-        "parallax_orientation": "down",
-        "parallax_scale": 1,
-        "color_scheme": "scheme-f318d737-2be2-4346-8605-b2fbd6208608",
-        "caption_max_width": "900",
-        "subtitle": "",
-        "subtitle_font_size": "fs-sm",
-        "title": "",
-        "title_font_size": "h1",
-        "description": "",
-        "description_font_size": "fs-lg",
-        "btn_primary_text": "",
-        "btn_primary_style": "button--primary",
-        "btn_primary_url": "",
-        "btn_secondary_text": "",
-        "btn_secondary_style": "button--secondary",
-        "btn_secondary_url": "",
-        "pt": 0,
-        "pb": 0
+        "color_scheme": "scheme-872ca72f-3acf-40b0-9717-028f5840921f",
+        "page_width": "",
+        "pt": 4,
+        "pb": 4
       }
     },
     "ks_testimonials_XBY9Fx": {
@@ -723,8 +617,18 @@
           "type": "slide",
           "settings": {
             "title": "Love our Perkie Prints",
-            "description": "<p>\"We’ve gotten Perkie Prints for all of our past 3 dogs. Just ordered #4 of our 5 month old puppy to add to our wall. Will get a nice big one when our pup is full grown. Love them!\"</p>",
+            "description": "<p></p><p>\"We’ve gotten Perkie Prints for all of our past 3 dogs. Just ordered #4 of our 5 month old puppy to add to our wall. Will get a nice big one when our pup is full grown. Love them!\"</p><p></p>",
             "author": "Merry M",
+            "author_subtitle": "Verified Customer",
+            "product": ""
+          }
+        },
+        "slide_JWnLin": {
+          "type": "slide",
+          "settings": {
+            "title": "She Loved It!",
+            "description": "<p></p><p>\"Ordered this for a client and she loved it so much we're ordering more! Great communication with the team on the design and it came so much faster than expected.\"</p><p></p>",
+            "author": "Jack P.",
             "author_subtitle": "Verified Customer",
             "product": ""
           }
@@ -753,18 +657,8 @@
           "type": "slide",
           "settings": {
             "title": "Would Give More Stars",
-            "description": "<p>\"If I could give more than 5 stars I would! The artwork turned out so good and the artist who made the print was so kind and easy to work with 10/10!\"</p>",
+            "description": "<p></p><p>\"If I could give more than 5 stars I would! The artwork turned out so good and the artist who made the print was so kind and easy to work with 10/10!\"</p><p></p>",
             "author": "Jennifer A.",
-            "author_subtitle": "Verified Customer",
-            "product": ""
-          }
-        },
-        "slide_JWnLin": {
-          "type": "slide",
-          "settings": {
-            "title": "She Loved It!",
-            "description": "<p>\"Ordered this for a client and she loved it so much we're ordering more! Great communication with the team on the design and it came so much faster than expected.\"</p>",
-            "author": "Jack P.",
             "author_subtitle": "Verified Customer",
             "product": ""
           }
@@ -773,7 +667,7 @@
           "type": "slide",
           "settings": {
             "title": "Highly recommend",
-            "description": "<p></p><p>\"Loved the mug I ordered for our sick pup. The quality was amazing and will be such a nicer reminder of our sweet boy.\"</p><p></p>",
+            "description": "<p></p><p>\"Loved the mug I ordered for our sick pup. </p><p>The quality was amazing and will be such a nicer reminder of our sweet boy.\"</p><p></p>",
             "author": "Alexa P",
             "author_subtitle": "Verified Customer",
             "product": ""
@@ -782,86 +676,48 @@
       },
       "block_order": [
         "slide_ANbW8t",
+        "slide_JWnLin",
         "slide_h4F9Mk",
         "slide_WjhPrf",
         "slide_xkn8X9",
-        "slide_JWnLin",
         "slide_XtVxbp"
+      ],
+      "custom_css": [
+        "{text-align: center;}"
       ],
       "name": "KS - Testimonials",
       "settings": {
         "color_scheme": "scheme-f318d737-2be2-4346-8605-b2fbd6208608",
-        "title": "",
+        "title": "From Our Customers:",
         "heading_size": "h2",
         "testimonial_show_stars": true,
         "stars_color_scheme": "#121212",
         "testimonial_title_font_size": "fs-lg",
-        "testimonial_description_font_size": "fs-md",
-        "testimonial_product_show_price": true,
-        "testimonial_product_img_size": 60,
-        "card_color_scheme": "scheme-0d2d3905-9794-42ac-a4c7-5701425dd018",
+        "testimonial_description_font_size": "fs-xs",
+        "testimonial_product_show_price": false,
+        "testimonial_product_img_size": 42,
+        "card_color_scheme": "scheme-9f6d3ba1-939b-4af9-b284-239ad849b276",
         "card_text_alignment": "left",
         "card_border_thickness": 0,
         "card_border_opacity": 0,
-        "card_corner_radius": 0,
+        "card_corner_radius": 8,
         "columns_desktop": 4,
         "pt": 8,
         "pb": 0
       }
-    },
-    "ks_parallax_media_NmcciF": {
-      "type": "ks-parallax-media",
-      "disabled": true,
-      "name": "KS - Parallax media",
-      "settings": {
-        "img_mobile": "shopify://shop_images/Digital_Download_Holiday_Queue_Email_Deliveryv5.jpg",
-        "img_desktop": "shopify://shop_images/Digital_Download_Holiday_Queue_Email_Deliveryv5-min.jpg",
-        "media_mobile_height": 400,
-        "media_desktop_height": 700,
-        "media_adapt": false,
-        "overlay_color": "#121212",
-        "overlay_opacity": 30,
-        "overlay_blur": 0,
-        "overlay_top_bottom_border": true,
-        "parallax_orientation": "left",
-        "parallax_scale": 1.1,
-        "color_scheme": "",
-        "caption_max_width": "900",
-        "subtitle": "Optional Subtitle",
-        "subtitle_font_size": "fs-sm",
-        "title": "Parallax Media",
-        "title_font_size": "h1",
-        "description": "<p>An optional description for this slide</p>",
-        "description_font_size": "fs-lg",
-        "btn_primary_text": "Primary button",
-        "btn_primary_style": "button--primary",
-        "btn_primary_url": "",
-        "btn_secondary_text": "Secondary button",
-        "btn_secondary_style": "button--secondary",
-        "btn_secondary_url": "",
-        "pt": 36,
-        "pb": 36
-      }
     }
   },
   "order": [
-    "image_banner_hDyVfU",
-    "image_banner_gLx4T3",
-    "ks_fancy_slideshow_CjgK6D",
-    "image_with_text_9bWqwm",
-    "ks_fancy_slideshow_P99t9J",
-    "image_with_text_ht9TLA",
-    "ks_fancy_slideshow_FaQtVG",
-    "ks_separator_hw3jyN",
-    "ks_marquee_d9Eyaf",
+    "image_banner_qWieVe",
+    "how_it_works_fz8MHb",
+    "image_with_text_WeJGQG",
+    "ks_instagram_gallery_KbxtFY",
+    "ks_separator_taB9mE",
     "ks_simple_collections_GrfLhc",
-    "ks_separator_VHgP3w",
+    "ks_separator_TmVBzQ",
     "ks_image_compare_FEc4MF",
-    "collapsible_content_mUfHFe",
-    "ks_separator_wjFBYC",
     "featured_collection_Jxhrxe",
-    "ks_parallax_media_VzVbNE",
-    "ks_testimonials_XBY9Fx",
-    "ks_parallax_media_NmcciF"
+    "ks_media_slider_hDqb4F",
+    "ks_testimonials_XBY9Fx"
   ]
 }

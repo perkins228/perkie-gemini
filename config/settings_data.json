@@ -12,15 +12,15 @@
     "logo": "{{ shop.brand.logo }}",
     "logo_width": 140,
     "favicon": "{{ shop.brand.square_logo }}",
-    "type_header_font": "young_serif_n4",
+    "type_header_font": "mono",
     "heading_scale": 100,
-    "type_body_font": "poppins_n4",
+    "type_body_font": "mono",
     "body_scale": 100,
-    "page_width": 1600,
+    "page_width": 1500,
     "spacing_sections": 0,
     "spacing_grid_horizontal": 8,
     "spacing_grid_vertical": 8,
-    "animations_reveal_on_scroll": true,
+    "animations_reveal_on_scroll": false,
     "animations_hover_elements": "default",
     "buttons_border_thickness": 0,
     "buttons_border_opacity": 40,
@@ -43,7 +43,7 @@
     "inputs_shadow_horizontal_offset": 0,
     "inputs_shadow_vertical_offset": 0,
     "inputs_shadow_blur": 5,
-    "card_style": "card",
+    "card_style": "standard",
     "card_image_padding": 0,
     "card_text_alignment": "left",
     "card_color_scheme": "scheme-f318d737-2be2-4346-8605-b2fbd6208608",
@@ -57,7 +57,7 @@
     "collection_card_style": "standard",
     "collection_card_image_padding": 0,
     "collection_card_text_alignment": "left",
-    "collection_card_color_scheme": "scheme-5bf212b3-c060-4789-9330-10bdcca4e3d7",
+    "collection_card_color_scheme": "scheme-f318d737-2be2-4346-8605-b2fbd6208608",
     "collection_card_border_thickness": 0,
     "collection_card_border_opacity": 10,
     "collection_card_corner_radius": 0,
@@ -159,6 +159,8 @@
     "cart_upsells_collection": "add-ons",
     "cart_upsells_heading": "Customers Also Added",
     "cart_upsells_btn_style": "",
+    "pet_fee_variant_2_pets": "43422221369427",
+    "pet_fee_variant_3_pets": "43422221402195",
     "cart_gift_upsell_show": true,
     "cart_gift_upsell_product": "48-hour-rush-fee",
     "cart_gift_upsell_heading": "Need it Under the Tree?",
@@ -200,30 +202,15 @@
           "enablePreviewMode": true
         }
       },
-      "6279071938380501511": {
-        "type": "shopify://apps/powerful-form-builder/blocks/app-embed/e4bcb1eb-35b2-42e6-bc37-bfe0e1542c9d",
-        "disabled": false,
-        "settings": {}
-      },
-      "234434759646961565": {
-        "type": "shopify://apps/bixgrow-affiliate/blocks/widget/b4f8e2e0-5ee6-49dd-b333-2e5542feb60a",
-        "disabled": true,
-        "settings": {}
-      },
-      "9859414570452352049": {
-        "type": "shopify://apps/bixgrow-affiliate/blocks/bixgrow_tracker/b4f8e2e0-5ee6-49dd-b333-2e5542feb60a",
-        "disabled": true,
-        "settings": {}
-      },
       "15683396631634586217": {
         "type": "shopify://apps/inbox/blocks/chat/841fc607-4181-4ad1-842d-e24d7f8bad6b",
         "disabled": false,
         "settings": {
-          "button_color": "#000000",
+          "button_color": "#ffa4aa",
           "secondary_color": "#ffffff",
           "ternary_color": "#6a6a6a",
           "button_icon": "chat_bubble",
-          "button_text": "chat_with_us",
+          "button_text": "no_text",
           "button_horizontal_position": "bottom_left",
           "button_vertical_position": "lowest",
           "greeting_message": ""
@@ -312,7 +299,7 @@
         "settings": {
           "background": "#fffaf6",
           "background_gradient": "",
-          "text": "#461312",
+          "text": "#121212",
           "button": "#ff5964",
           "button_label": "#ffffff",
           "secondary_button_label": "#461312",
@@ -394,6 +381,17 @@
           "button_label": "#461312",
           "secondary_button_label": "#121212",
           "shadow": "#121212"
+        }
+      },
+      "scheme-745b4d7d-e620-4384-97e7-bfb8ecf6d6cc": {
+        "settings": {
+          "background": "#dfc7b6",
+          "background_gradient": "",
+          "text": "#ffffff",
+          "button": "#ffa4aa",
+          "button_label": "#ffffff",
+          "secondary_button_label": "#121212",
+          "shadow": "#000000"
         }
       }
     }

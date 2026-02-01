@@ -37,18 +37,26 @@
     <div class="pet-selector__count-grid">
       {% for i in (1..max_pets_per_product) %}
       <label class="pet-count-btn">
-        <span>{{ i }}</span>
+        <span class="pet-count-btn__number">{{ i }}</span>
+        {% if i == 2 %}
+          <span class="pet-count-btn__fee">(+$10)</span>
+        {% elsif i == 3 %}
+          <span class="pet-count-btn__fee">(+$15)</span>
+        {% endif %}
         <input type="radio"
                name="pet-count"
                value="{{ i }}"
-               data-pet-count-radio>
+               data-pet-count-radio
+               data-fee-variant="{% if i == 2 %}{{ settings.pet_fee_variant_2_pets }}{% elsif i == 3 %}{{ settings.pet_fee_variant_3_pets }}{% endif %}">
       </label>
       {% endfor %}
     </div>
+    {% comment %} Hidden input to store selected fee variant ID for cart submission {% endcomment %}
+    <input type="hidden" name="pet_fee_variant_id" value="" data-pet-fee-variant-input>
   </div>
 
-  {% comment %} Pet Details Section {% endcomment %}
-  <div class="pet-selector__section">
+  {% comment %} Pet Details Section - Hidden until pet count is selected {% endcomment %}
+  <div class="pet-selector__section" data-pet-details-section hidden>
     <h2 class="pet-selector__section-heading">Pet Details</h2>
 
     {% comment %} Dynamic pet sections (1-3 based on selection) - All hidden initially {% endcomment %}
@@ -63,12 +71,14 @@
           {% comment %} Pet's Name {% endcomment %}
           <div class="pet-detail__name-group">
             <h4 class="pet-detail__section-heading">
-              {% if i == 1 %}Pet's Name{% else %}Pet {{ i }}'s Name{% endif %}
+              {% if i == 1 %}Pet's Name{% else %}Pet {{ i }}'s Name{% endif %}<span class="required-indicator" aria-hidden="true">*</span><span class="visually-hidden">(required)</span>
             </h4>
             <input type="text"
                    class="pet-detail__name-input"
                    name="properties[Pet {{ i }} Name]"
                    placeholder="Enter name"
+                   required
+                   aria-required="true"
                    form="{{ product_form_id }}"
                    data-pet-name-input="{{ i }}">
           </div>
@@ -79,20 +89,43 @@
               Pet's Photo
             </h4>
 
+            {% comment %} Session Pet Gallery - Shows previously processed pets {% endcomment %}
+            <div class="session-pet-gallery" data-session-gallery="{{ i }}" style="display: none;">
+              <div class="session-pet-gallery__header">
+                <span class="session-pet-gallery__label">Use a recent pet</span>
+                <button type="button" class="session-pet-gallery__toggle" data-gallery-toggle="{{ i }}" aria-expanded="true">
+                  <svg class="session-pet-gallery__toggle-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="6 9 12 15 18 9"></polyline>
+                  </svg>
+                </button>
+              </div>
+              <div class="session-pet-gallery__pets" data-gallery-pets="{{ i }}">
+                {% comment %} Pets populated via JavaScript from PetStorage.getRecentPets() {% endcomment %}
+              </div>
+              <div class="session-pet-gallery__divider">
+                <span>or upload new</span>
+              </div>
+            </div>
+
             <div class="pet-detail__image-actions">
               {% comment %} Upload Zone - Clickable area for file selection {% endcomment %}
+              {% comment %} WCAG 4.1.2: Enhanced with aria-describedby for file format instructions {% endcomment %}
               <div class="pet-detail__upload-zone"
                    data-upload-zone="{{ i }}"
                    tabindex="0"
                    role="button"
-                   aria-label="Click or drag to upload pet {{ i }} photo(s)">
-                <svg class="pet-detail__upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                   aria-label="Upload pet {{ i }} photo"
+                   aria-describedby="upload-instructions-{{ i }}">
+                <svg class="pet-detail__upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
                   <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
                   <polyline points="17 8 12 3 7 8"></polyline>
                   <line x1="12" y1="3" x2="12" y2="15"></line>
                 </svg>
                 <span class="pet-detail__upload-text" data-upload-text="{{ i }}">
                   Click or drag to upload
+                </span>
+                <span id="upload-instructions-{{ i }}" class="visually-hidden">
+                  Drag and drop an image, or press Enter to browse. Accepts JPG and PNG up to 15MB.
                 </span>
               </div>
 
@@ -106,10 +139,11 @@
 
               {% comment %} Native Shopify file upload - files uploaded to CDN on form submit {% endcomment %}
               {% comment %} HIDDEN FROM CUSTOMERS: Underscore prefix hides from cart/checkout {% endcomment %}
+              {% comment %} WCAG 1.3.1: Use visually-hidden instead of display:none for accessibility {% endcomment %}
               <input type="file"
                      name="properties[_pet_{{ i }}_images]"
                      accept="image/*"
-                     style="display: none;"
+                     class="visually-hidden"
                      form="{{ product_form_id }}"
                      data-pet-file-input="{{ i }}"
                      data-max-files="1"
@@ -173,6 +207,24 @@
                value=""
                form="{{ product_form_id }}"
                data-artist-notes="{{ i }}">
+        <input type="hidden"
+               id="pet-{{ i }}-session-key"
+               name="properties[_pet_{{ i }}_session_key]"
+               value=""
+               form="{{ product_form_id }}"
+               data-pet-session-key="{{ i }}">
+        <input type="hidden"
+               id="pet-{{ i }}-selected-effect"
+               name="properties[_pet_{{ i }}_selected_effect]"
+               value=""
+               form="{{ product_form_id }}"
+               data-pet-selected-effect="{{ i }}">
+        <input type="hidden"
+               id="pet-{{ i }}-original-gcs-url"
+               name="properties[_pet_{{ i }}_original_gcs_url]"
+               value=""
+               form="{{ product_form_id }}"
+               data-pet-original-gcs-url="{{ i }}">
 
       </div>
       {% endfor %}
@@ -181,7 +233,7 @@
 
   {% comment %} Style Selector - RESTORED: After Pet Details for proper UX flow {% endcomment %}
   <div class="pet-selector__section" data-style-section hidden>
-    <h2 class="pet-selector__section-heading">Choose Style</h2>
+    <h2 class="pet-selector__section-heading">Choose Style<span class="required-indicator" aria-hidden="true">*</span><span class="visually-hidden">(required)</span></h2>
     <div class="style-selector__grid">
 
       {% comment %} B&W Style {% endcomment %}
@@ -189,6 +241,7 @@
         <input type="radio"
                name="properties[Style]"
                value="Black & White"
+               required
                form="{{ product_form_id }}"
                data-style-radio="enhancedblackwhite">
         <div class="style-card__content">
@@ -196,11 +249,15 @@
             {% if block.settings.style_preview_bw != blank %}
               <img src="{{ block.settings.style_preview_bw | image_url: width: 320 }}"
                    alt="Black & White style preview"
-                   class="style-card__image">
+                   class="style-card__image"
+                   data-style-preview="bw"
+                   data-static-src="{{ block.settings.style_preview_bw | image_url: width: 320 }}">
             {% else %}
               <img src="{{ 'pet-bw-preview.jpg' | asset_url }}"
                    alt="Black & White style preview"
-                   class="style-card__image">
+                   class="style-card__image"
+                   data-style-preview="bw"
+                   data-static-src="{{ 'pet-bw-preview.jpg' | asset_url }}">
             {% endif %}
           </div>
           <p class="style-card__label">Black & White</p>
@@ -219,11 +276,15 @@
             {% if block.settings.style_preview_color != blank %}
               <img src="{{ block.settings.style_preview_color | image_url: width: 320 }}"
                    alt="Color style preview"
-                   class="style-card__image">
+                   class="style-card__image"
+                   data-style-preview="color"
+                   data-static-src="{{ block.settings.style_preview_color | image_url: width: 320 }}">
             {% else %}
               <img src="{{ 'pet-color-preview.jpg' | asset_url }}"
                    alt="Color style preview"
-                   class="style-card__image">
+                   class="style-card__image"
+                   data-style-preview="color"
+                   data-static-src="{{ 'pet-color-preview.jpg' | asset_url }}">
             {% endif %}
           </div>
           <p class="style-card__label">Color</p>
@@ -242,11 +303,15 @@
             {% if block.settings.style_preview_stencil != blank %}
               <img src="{{ block.settings.style_preview_stencil | image_url: width: 320 }}"
                    alt="Ink Wash style preview"
-                   class="style-card__image">
+                   class="style-card__image"
+                   data-style-preview="ink_wash"
+                   data-static-src="{{ block.settings.style_preview_stencil | image_url: width: 320 }}">
             {% else %}
               <img src="{{ 'pet-stencil-preview.jpg' | asset_url }}"
                    alt="Ink Wash style preview"
-                   class="style-card__image">
+                   class="style-card__image"
+                   data-style-preview="ink_wash"
+                   data-static-src="{{ 'pet-stencil-preview.jpg' | asset_url }}">
             {% endif %}
           </div>
           <p class="style-card__label">Ink Wash</p>
@@ -265,11 +330,15 @@
             {% if block.settings.style_preview_sketch != blank %}
               <img src="{{ block.settings.style_preview_sketch | image_url: width: 320 }}"
                    alt="Marker style preview"
-                   class="style-card__image">
+                   class="style-card__image"
+                   data-style-preview="sketch"
+                   data-static-src="{{ block.settings.style_preview_sketch | image_url: width: 320 }}">
             {% else %}
               <img src="{{ 'pet-sketch-preview.jpg' | asset_url }}"
                    alt="Marker style preview"
-                   class="style-card__image">
+                   class="style-card__image"
+                   data-style-preview="sketch"
+                   data-static-src="{{ 'pet-sketch-preview.jpg' | asset_url }}">
             {% endif %}
           </div>
           <p class="style-card__label">Marker</p>
@@ -279,10 +348,10 @@
     </div>
   </div>
 
-  {% comment %} Font Selector - RESTORED: After Style for proper UX flow {% endcomment %}
+  {% comment %} Font Selector - Hidden until pet count is selected {% endcomment %}
   {% if product.metafields.custom.supports_font_styles == true %}
-  <div class="pet-selector__section">
-    <h2 class="pet-selector__section-heading">Choose Font</h2>
+  <div class="pet-selector__section" data-font-section hidden>
+    <h2 class="pet-selector__section-heading">Choose Font<span class="required-indicator" aria-hidden="true">*</span><span class="visually-hidden">(required)</span></h2>
     <div class="font-selector__grid">
 
       {% comment %} No Text Option {% endcomment %}
@@ -290,6 +359,7 @@
         <input type="radio"
                name="properties[Font]"
                value="no-text"
+               required
                form="{{ product_form_id }}"
                data-font-radio="no-text">
         <div class="font-card__content">
@@ -394,8 +464,9 @@
 {% assign scheme_button_label = scheme.button_label | default: '#461312' %}
 
 <style>
-/* Google Fonts Import for Font Selector */
-@import url('https://fonts.googleapis.com/css2?family=Graduate&family=Merriweather:ital,wght@0,300;0,400;0,700;1,300;1,400;1,700&family=Rampart+One&family=Ms+Madi&family=Fascinate&display=swap');
+/* Pet Selector Fonts - Graduate already loaded in theme.liquid, remaining fonts loaded here */
+/* Note: These are pet name display fonts, only needed when font selector is used */
+@import url('https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,300;0,400;0,700;1,300;1,400;1,700&family=Rampart+One&family=Ms+Madi&family=Fascinate&display=swap');
 
 /* Pet Selector - Stitch Pattern Styles */
 /* Color variables set via inline style on container for instant theme editor updates */
@@ -468,6 +539,7 @@
 
 .pet-count-btn {
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   height: 3.5rem;
@@ -479,6 +551,23 @@
   font-weight: 600;
   transition: all 0.2s;
   border: 2px solid transparent;
+  gap: 0.125rem;
+}
+
+.pet-count-btn__number {
+  line-height: 1;
+}
+
+.pet-count-btn__fee {
+  display: block;
+  font-size: 0.65rem;
+  color: #6b7280;
+  font-weight: 400;
+  line-height: 1;
+}
+
+.pet-count-btn:has(input:checked) .pet-count-btn__fee {
+  color: var(--pet-selector-primary);
 }
 
 .pet-count-btn input {
@@ -859,6 +948,13 @@
   line-height: 1.3;
 }
 
+/* Required field indicator (red asterisk) */
+.required-indicator {
+  color: #ff5964;
+  margin-left: 2px;
+  font-weight: 400;
+}
+
 /* Image actions container (vertical stack layout) */
 .pet-detail__image-actions {
   display: flex;
@@ -903,6 +999,7 @@
 .pet-detail__upload-zone.has-files {
   border: 2px solid #22c55e;              /* Solid border (not dashed) */
   background-color: rgba(34, 197, 94, 0.08); /* Slightly stronger green tint */
+  padding: 5px 1rem;                       /* Reduced vertical padding for selected state */
 }
 
 /* Upload icon */
@@ -942,6 +1039,254 @@
 /* Checkbox label below upload zone */
 .pet-detail__image-actions > .pet-detail__checkbox-label {
   font-size: 9.5px;
+}
+
+/* === Session Pet Gallery === */
+/* Shows previously processed pets for quick reuse */
+
+.session-pet-gallery {
+  margin-bottom: 1rem;
+  border: 1px solid var(--pet-selector-gray-200);
+  border-radius: 0.5rem;
+  background-color: var(--pet-selector-gray-50);
+  overflow: hidden;
+}
+
+.session-pet-gallery__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.625rem 0.75rem;
+  background-color: var(--pet-selector-background);
+  border-bottom: 1px solid var(--pet-selector-gray-200);
+}
+
+.session-pet-gallery__label {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--pet-selector-gray-700);
+}
+
+.session-pet-gallery__toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--pet-selector-gray-500);
+  transition: transform 0.2s ease, color 0.2s ease;
+}
+
+.session-pet-gallery__toggle:hover {
+  color: var(--pet-selector-gray-700);
+}
+
+.session-pet-gallery__toggle[aria-expanded="false"] .session-pet-gallery__toggle-icon {
+  transform: rotate(-90deg);
+}
+
+.session-pet-gallery__pets {
+  display: flex;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+}
+
+.session-pet-gallery__pets::-webkit-scrollbar {
+  height: 4px;
+}
+
+.session-pet-gallery__pets::-webkit-scrollbar-track {
+  background: var(--pet-selector-gray-100);
+  border-radius: 2px;
+}
+
+.session-pet-gallery__pets::-webkit-scrollbar-thumb {
+  background: var(--pet-selector-gray-300);
+  border-radius: 2px;
+}
+
+.session-pet-gallery__pets.collapsed {
+  display: none;
+}
+
+/* Individual pet card in gallery */
+.session-pet-card {
+  flex-shrink: 0;
+  width: 80px;
+  scroll-snap-align: start;
+  cursor: pointer;
+  transition: transform 0.15s ease;
+}
+
+.session-pet-card:hover {
+  transform: scale(1.02);
+}
+
+.session-pet-card:active {
+  transform: scale(0.98);
+}
+
+.session-pet-card__image-wrapper {
+  position: relative;
+  width: 80px;
+  height: 80px;
+  border-radius: 0.375rem;
+  overflow: hidden;
+  border: 2px solid transparent;
+  background-color: var(--pet-selector-gray-200);
+  transition: border-color 0.2s ease;
+}
+
+.session-pet-card:hover .session-pet-card__image-wrapper,
+.session-pet-card:focus .session-pet-card__image-wrapper {
+  border-color: #ff5964;
+}
+
+.session-pet-card__image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Delete button - corner X with 48px touch target, 20px visual */
+.session-pet-card__delete {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background-color: rgba(0, 0, 0, 0.7);
+  color: #fff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.15s ease, background-color 0.15s ease, transform 0.15s ease;
+  z-index: 2;
+}
+
+/* Show delete button on card hover/focus */
+.session-pet-card:hover .session-pet-card__delete,
+.session-pet-card:focus .session-pet-card__delete,
+.session-pet-card:focus-within .session-pet-card__delete {
+  opacity: 1;
+}
+
+.session-pet-card__delete:hover {
+  background-color: #dc2626;
+  transform: scale(1.1);
+}
+
+.session-pet-card__delete:active {
+  transform: scale(0.95);
+}
+
+/* Mobile: Always show delete button (no hover state) */
+@media (hover: none) {
+  .session-pet-card__delete {
+    opacity: 1;
+    width: 28px;
+    height: 28px;
+    top: -6px;
+    right: -6px;
+  }
+}
+
+.session-pet-card__badge {
+  position: absolute;
+  bottom: 4px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 2px 6px;
+  background-color: rgba(0, 0, 0, 0.75);
+  color: #fff;
+  font-size: 0.625rem;
+  font-weight: 600;
+  border-radius: 3px;
+  white-space: nowrap;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.session-pet-card__meta {
+  margin-top: 0.25rem;
+  text-align: center;
+}
+
+.session-pet-card__age {
+  font-size: 0.625rem;
+  color: var(--pet-selector-gray-500);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Divider between gallery and upload zone */
+.session-pet-gallery__divider {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0 0.75rem 0.625rem;
+}
+
+.session-pet-gallery__divider::before,
+.session-pet-gallery__divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background-color: var(--pet-selector-gray-300);
+}
+
+.session-pet-gallery__divider span {
+  font-size: 0.6875rem;
+  font-weight: 500;
+  color: var(--pet-selector-gray-400);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Mobile optimizations */
+@media (max-width: 639px) {
+  .session-pet-card {
+    width: 72px;
+  }
+
+  .session-pet-card__image-wrapper {
+    width: 72px;
+    height: 72px;
+  }
+
+  .session-pet-gallery__pets {
+    gap: 0.625rem;
+    padding: 0.625rem;
+  }
+}
+
+/* Touch device optimizations */
+@media (hover: none) and (pointer: coarse) {
+  .session-pet-card {
+    min-width: 44px; /* Minimum touch target */
+  }
+
+  .session-pet-card:hover {
+    transform: none;
+  }
+
+  .session-pet-card:active {
+    transform: scale(0.96);
+  }
 }
 
 /* === Upload Status and Preview Button Wrapper === */
@@ -1351,6 +1696,9 @@
 {% comment %} EXIF orientation library for image rotation correction and compression {% endcomment %}
 <script src="https://cdn.jsdelivr.net/npm/blueimp-load-image@5.16.0/js/load-image.all.min.js"></script>
 
+{% comment %} Session Pet Gallery - Shows previously processed pets for quick reuse {% endcomment %}
+<script src="{{ 'session-pet-gallery.js' | asset_url }}" defer></script>
+
 <script>
 // Pet Selector Stitch - JavaScript
 (function() {
@@ -1425,6 +1773,162 @@
 
   const directUploadHandler = new DirectUploadHandler();
 
+  // ======================================================================
+  // DYNAMIC PET THUMBNAILS FOR STYLE CARDS
+  // Updates style selector images with customer's actual pet (V5 pattern)
+  // ======================================================================
+
+  /**
+   * Update style selection card images with actual processed pet images
+   * Follows the proven V5 pattern from pet-processor.js
+   * @param {Object} petData - Pet data object containing effects
+   */
+  function updateProductStyleCardPreviews(petData) {
+    if (!petData || !petData.effects) {
+      console.warn('[ProductStyleCards] No pet data or effects provided');
+      return;
+    }
+
+    try {
+      // Map effect keys to data-style-preview attribute values
+      // Matches V5 pattern exactly
+      const styleMap = {
+        'enhancedblackwhite': 'bw',
+        'color': 'color',
+        'ink_wash': 'ink_wash',
+        'sketch': 'sketch'
+      };
+
+      // Update each style card with the actual processed image
+      Object.entries(styleMap).forEach(function([effectKey, previewAttr]) {
+        const effectData = petData.effects[effectKey];
+        const imgElement = container.querySelector('[data-style-preview="' + previewAttr + '"]');
+
+        if (imgElement && effectData) {
+          // Handle both string URLs (v3 format) and object format (legacy)
+          let imageUrl;
+          if (typeof effectData === 'string') {
+            // V3 format: effect is stored as direct URL string
+            imageUrl = effectData;
+          } else {
+            // Legacy format: effect is object with dataUrl/gcsUrl properties
+            // For Gemini effects (ink_wash, sketch): prefer dataUrl (transparent version)
+            // For BiRefNet effects (color, enhancedblackwhite): prefer gcsUrl (already transparent)
+            imageUrl = effectData.dataUrl || effectData.gcsUrl;
+          }
+
+          if (imageUrl) {
+            imgElement.src = imageUrl;
+            imgElement.classList.add('style-card__image--dynamic');
+            console.log('[ProductStyleCards] Updated ' + previewAttr + ' with pet image (' + (typeof effectData === 'string' ? 'v3' : 'legacy') + ')');
+          }
+        }
+      });
+
+      console.log('[ProductStyleCards] Style card previews updated with pet images');
+    } catch (error) {
+      console.error('[ProductStyleCards] Error updating style card previews:', error);
+    }
+  }
+
+  /**
+   * Reset style cards to static placeholder images
+   * Called when pet selection is cleared or page loads without pet data
+   */
+  function resetStyleCardPreviews() {
+    try {
+      const styleImages = container.querySelectorAll('[data-style-preview]');
+      styleImages.forEach(function(img) {
+        const staticSrc = img.dataset.staticSrc;
+        if (staticSrc) {
+          img.src = staticSrc;
+          img.classList.remove('style-card__image--dynamic');
+        }
+      });
+      console.log('[ProductStyleCards] Style cards reset to static images');
+    } catch (error) {
+      console.error('[ProductStyleCards] Error resetting style cards:', error);
+    }
+  }
+
+  /**
+   * Initialize style cards on page load
+   * Check if there's existing pet data (session restoration)
+   */
+  function initializeStyleCardThumbnails() {
+    // Check sessionStorage for gallery-selected pet first
+    for (var i = 1; i <= 3; i++) {
+      var sessionData = sessionStorage.getItem('session_gallery_pet_' + i);
+      if (sessionData) {
+        try {
+          var petData = JSON.parse(sessionData);
+          if (petData && petData.effects) {
+            console.log('[ProductStyleCards] Restoring thumbnails from session gallery selection');
+            updateProductStyleCardPreviews(petData);
+            return; // Use first found pet
+          }
+        } catch (e) {
+          console.warn('[ProductStyleCards] Failed to parse session pet data:', e);
+        }
+      }
+    }
+
+    // Fallback: Check PetStorage for recent pets
+    if (window.PetStorage && typeof window.PetStorage.getRecentPets === 'function') {
+      var recentPets = window.PetStorage.getRecentPets(1);
+      if (recentPets && recentPets.length > 0) {
+        // Only update if pet was processed recently (within last hour)
+        var latestPet = recentPets[0];
+        var oneHourAgo = Date.now() - (60 * 60 * 1000);
+        if (latestPet.timestamp && latestPet.timestamp > oneHourAgo) {
+          console.log('[ProductStyleCards] Initializing thumbnails from recent pet');
+          updateProductStyleCardPreviews(latestPet);
+        }
+      }
+    }
+  }
+
+  // Listen for session gallery pet selection
+  document.addEventListener('sessionPetSelected', function(e) {
+    var petData = e.detail && e.detail.petData;
+    if (petData && petData.effects) {
+      console.log('[ProductStyleCards] Pet selected from session gallery, updating thumbnails');
+      updateProductStyleCardPreviews(petData);
+    }
+  });
+
+  // Listen for inline preview completion
+  document.addEventListener('inlinePreviewClosed', function(e) {
+    // After modal closes, check if we have updated pet data
+    setTimeout(function() {
+      if (window.PetStorage && typeof window.PetStorage.getRecentPets === 'function') {
+        var recentPets = window.PetStorage.getRecentPets(1);
+        if (recentPets && recentPets.length > 0) {
+          var latestPet = recentPets[0];
+          console.log('[ProductStyleCards] Inline preview completed, updating thumbnails');
+          updateProductStyleCardPreviews(latestPet);
+        }
+      }
+    }, 100); // Small delay to ensure PetStorage is updated
+  });
+
+  // Listen for selection cleared
+  document.addEventListener('sessionPetCleared', function(e) {
+    resetStyleCardPreviews();
+  });
+
+  // Initialize on DOMContentLoaded (if not already loaded)
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initializeStyleCardThumbnails);
+  } else {
+    // DOM already loaded, initialize after a short delay for PetStorage
+    setTimeout(initializeStyleCardThumbnails, 200);
+  }
+
+  // ======================================================================
+  // END DYNAMIC PET THUMBNAILS
+  // ======================================================================
+
   const maxPets = parseInt(container.dataset.maxPets) || 1;
   const petDetailsContainer = container.querySelector('[data-pet-details-container]');
   const countRadios = container.querySelectorAll('[data-pet-count-radio]');
@@ -1450,8 +1954,15 @@
       }
     });
 
+    // Show Pet Details section when pet count is selected (progressive disclosure)
+    const petDetailsSection = container.querySelector('[data-pet-details-section]');
+    if (petDetailsSection) {
+      petDetailsSection.hidden = (count === 0);
+    }
+
     updateFontPreviews();
     toggleStyleSection(); // Update style section visibility when pet count changes
+    toggleFontSection();  // Update font section visibility (requires pet name)
   }
 
   // Update font previews with ampersand formatting (matches old font-selector)
@@ -1509,6 +2020,37 @@
     } else {
       styleSection.hidden = true;
       console.log('🎨 Style section hidden (no pet names)');
+    }
+  }
+
+  // Toggle font section visibility based on whether any pet has a name
+  // (Only shows after customer enters pet name - progressive disclosure)
+  function toggleFontSection() {
+    const fontSection = container.querySelector('[data-font-section]');
+    if (!fontSection) return;
+
+    // Check if any visible pet has a name entered
+    const visiblePets = [...petDetailsContainer.querySelectorAll('.pet-detail')]
+      .filter(detail => detail.style.display !== 'none');
+
+    // If no pets are visible (count = 0), keep font section hidden
+    if (visiblePets.length === 0) {
+      fontSection.hidden = true;
+      return;
+    }
+
+    const hasAnyName = visiblePets.some(detail => {
+      const input = detail.querySelector('[data-pet-name-input]');
+      return input && input.value.trim().length > 0;
+    });
+
+    // Show/hide font section based on whether any pet has a name
+    if (hasAnyName) {
+      fontSection.hidden = false;
+      console.log('🔤 Font section shown (pet name entered)');
+    } else {
+      fontSection.hidden = true;
+      console.log('🔤 Font section hidden (no pet names)');
     }
   }
 
@@ -1605,12 +2147,26 @@
     console.log('✅ Variant selection updated');
   }
 
+  // Store pet fee variant ID based on pet count selection
+  function storePetFeeVariant(count, feeVariantId) {
+    const feeInput = container.querySelector('[data-pet-fee-variant-input]');
+    if (feeInput) {
+      // Only store fee variant for 2+ pets
+      feeInput.value = count > 1 ? feeVariantId : '';
+      console.log(`💰 Pet fee variant ${count > 1 ? 'set to: ' + feeVariantId : 'cleared (1 pet)'}`);
+    }
+    // Store pet count on container for cart submission logic
+    container.setAttribute('data-selected-pet-count', count);
+  }
+
   // Pet count change listener
   countRadios.forEach(radio => {
     radio.addEventListener('change', (e) => {
       const count = parseInt(e.target.value);
+      const feeVariantId = e.target.dataset.feeVariant || '';
       updatePetSections(count);
-      updateVariantSelection(count); // NEW: Update variant based on pet count
+      // REPLACED: updateVariantSelection(count) - fee now handled via separate product line item
+      storePetFeeVariant(count, feeVariantId);
       savePetSelectorStateImmediate(); // Save immediately on selection
     });
   });
@@ -1621,6 +2177,7 @@
     input.addEventListener('input', () => {
       updateFontPreviews();
       toggleStyleSection(); // Show/hide style section based on pet names
+      toggleFontSection();  // Show/hide font section based on pet names
       savePetSelectorState(); // Save with debounce on typing
     });
   });
@@ -1897,6 +2454,175 @@
     }
   }
 
+  // === HELPER FUNCTIONS (moved outside loop for scope accessibility) ===
+  // These functions need to be accessible from both the upload handlers
+  // AND the state restoration code (applyStateToUI)
+
+  // Format file size for display
+  function formatFileSize(bytes) {
+    if (bytes === 0) return '0 B';
+    const k = 1024;
+    const sizes = ['B', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+  }
+
+  // Escape HTML to prevent XSS
+  function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+  }
+
+  // Display uploaded file names with sizes and delete buttons
+  // Display uploaded file names with sizes and delete buttons
+  function displayUploadedFiles(petIndex, files) {
+    const statusWrapper = container.querySelector(`[data-upload-status-wrapper="${petIndex}"]`);
+    const statusContainer = container.querySelector(`[data-upload-status="${petIndex}"]`);
+
+    if (!statusWrapper || !statusContainer) return;
+
+    if (files.length === 0) {
+      statusWrapper.style.display = 'none';
+      statusContainer.innerHTML = '';
+      return;
+    }
+
+    // Build HTML for file list
+    let html = '';
+    for (let j = 0; j < files.length; j++) {
+      const fileName = files[j].name;
+      const fileSize = formatFileSize(files[j].size);
+
+      html += `
+        <div class="pet-detail__upload-status__file" data-file-index="${j}">
+          <span class="pet-detail__upload-status__file-icon">✓</span>
+          <span class="pet-detail__upload-status__file-name">${escapeHtml(fileName)}</span>
+          <span class="pet-detail__upload-status__file-size">${fileSize}</span>
+          <button type="button"
+                  class="pet-detail__upload-status__file-delete"
+                  data-pet-index="${petIndex}"
+                  data-file-index="${j}"
+                  aria-label="Delete ${escapeHtml(fileName)}">×</button>
+        </div>
+      `;
+    }
+
+    statusContainer.innerHTML = html;
+    statusWrapper.style.display = 'flex';
+
+    // Attach delete button handlers
+    const deleteButtons = statusContainer.querySelectorAll('.pet-detail__upload-status__file-delete');
+    deleteButtons.forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        const petIdx = parseInt(btn.dataset.petIndex);
+        const fileIdx = parseInt(btn.dataset.fileIndex);
+        removeFile(petIdx, fileIdx);
+      });
+    });
+  }
+
+  // Update file input with all current files using DataTransfer API
+  function updateFileInputWithAllFiles(petIndex, files) {
+    const fileInput = container.querySelector(`[data-pet-file-input="${petIndex}"]`);
+    if (!fileInput) return;
+
+    try {
+      // Check if DataTransfer is supported
+      const dataTransfer = new DataTransfer();
+
+      // Add all files to DataTransfer
+      for (let j = 0; j < files.length; j++) {
+        dataTransfer.items.add(files[j]);
+      }
+
+      // Update file input with new FileList
+      fileInput.files = dataTransfer.files;
+    } catch (e) {
+      console.warn('DataTransfer API not supported, file input may not update correctly:', e);
+    }
+  }
+
+  // Populate hidden order properties for tracking
+  function populateOrderProperties(petIndex, files) {
+    const orderTypeField = document.getElementById(`order-type-${petIndex}`);
+    const processingStateField = document.getElementById(`processing-state-${petIndex}`);
+    const uploadTimestampField = document.getElementById(`upload-timestamp-${petIndex}`);
+
+    if (orderTypeField) {
+      orderTypeField.value = 'Express Upload';
+    }
+
+    if (processingStateField) {
+      processingStateField.value = 'uploaded_only';
+    }
+
+    if (uploadTimestampField) {
+      uploadTimestampField.value = new Date().toISOString();
+    }
+
+    // Note: Shopify file input automatically handles the file upload when form submits
+    // Files are attached to properties[Pet X Images] and uploaded to Shopify CDN
+  }
+
+  // Remove a file from the uploaded files list
+  function removeFile(petIndex, fileIndex) {
+    // Remove from petFiles array
+    if (fileIndex < 0 || fileIndex >= petFiles[petIndex].length) {
+      return;
+    }
+
+    petFiles[petIndex].splice(fileIndex, 1);
+
+    // Update UI (single file - always returns to empty after delete)
+    const uploadZone = container.querySelector(`[data-upload-zone="${petIndex}"]`);
+    const uploadText = container.querySelector(`[data-upload-text="${petIndex}"]`);
+    uploadText.textContent = 'Click or drag to upload';
+    uploadZone.classList.remove('has-files');
+
+    // Re-render file list
+    displayUploadedFiles(petIndex, petFiles[petIndex]);
+
+    // Update file input with remaining files
+    updateFileInputWithAllFiles(petIndex, petFiles[petIndex]);
+    populateOrderProperties(petIndex, petFiles[petIndex]);
+
+    // Save state after file deletion
+    savePetSelectorStateImmediate();
+
+    // Update preview if first file was removed
+    if (petFiles[petIndex].length > 0) {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const previewData = [{
+          name: petFiles[petIndex][0].name,
+          data: event.target.result,
+          size: petFiles[petIndex][0].size,
+          type: petFiles[petIndex][0].type
+        }];
+        localStorage.setItem(`pet_${petIndex}_images`, JSON.stringify(previewData));
+      };
+      reader.readAsDataURL(petFiles[petIndex][0]);
+
+      // Update file metadata in localStorage after deletion
+      const fileMetadata = petFiles[petIndex].map(file => ({
+        name: file.name,
+        size: file.size,
+        type: file.type
+      }));
+      localStorage.setItem(`pet_${petIndex}_file_metadata`, JSON.stringify(fileMetadata));
+      console.log(`💾 Updated metadata after deletion: ${fileMetadata.length} files for Pet ${petIndex}`);
+    } else {
+      localStorage.removeItem(`pet_${petIndex}_images`);
+      // Remove metadata when no files remain
+      localStorage.removeItem(`pet_${petIndex}_file_metadata`);
+      console.log(`🗑️ Removed metadata for Pet ${petIndex} (no files remaining)`);
+    }
+  }
+
+  // === END HELPER FUNCTIONS ===
+
   for (let i = 1; i <= 3; i++) {
     const uploadZone = container.querySelector(`[data-upload-zone="${i}"]`);
     const uploadText = container.querySelector(`[data-upload-text="${i}"]`);
@@ -1987,6 +2713,15 @@
         // Show uploaded file names below pet name
         displayUploadedFiles(i, petFiles[i]);
 
+        // Save file metadata IMMEDIATELY (for state restoration during async upload)
+        // FIX: Previously saved after async upload - too late for state restoration
+        const fileMetadata = petFiles[i].map(file => ({
+          name: file.name,
+          size: file.size,
+          type: file.type
+        }));
+        localStorage.setItem(`pet_${i}_file_metadata`, JSON.stringify(fileMetadata));
+
         // Populate order properties and update file input with all files
         updateFileInputWithAllFiles(i, petFiles[i]);
         populateOrderProperties(i, petFiles[i]);
@@ -2011,11 +2746,39 @@
           // SUCCESS: Store GCS URL (100 bytes instead of 3.4MB base64!)
           localStorage.setItem(`pet_${i}_image_url`, uploadResult.url);
 
+          // CRITICAL FIX: Clear stale session gallery selection for this pet slot
+          // When user uploads a new image, it should override any previously selected gallery pet
+          // Without this, the Preview button would show the old gallery pet's effects instead of processing the new image
+          if (window.SessionPetGallery && typeof window.SessionPetGallery.clearSelection === 'function') {
+            window.SessionPetGallery.clearSelection(i);
+            console.log(`🧹 Cleared session gallery selection for Pet ${i} (new image uploaded)`);
+          }
+
           uploadText.textContent = 'CHANGE IMAGE?';
           uploadZone.classList.remove('uploading');
 
           // Enable preview button with pulse animation
           updatePreviewButtonState(i);
+
+          // FIX: Re-display file info after upload completes
+          // Something clears the status wrapper during async upload, so we re-show it here
+          // Use stored metadata since petFiles[i] might have been cleared
+          const storedMetadata = localStorage.getItem(`pet_${i}_file_metadata`);
+          if (storedMetadata) {
+            try {
+              const fileMetadata = JSON.parse(storedMetadata);
+              if (fileMetadata.length > 0) {
+                // Restore petFiles from metadata if it was cleared
+                if (!petFiles[i] || petFiles[i].length === 0) {
+                  petFiles[i] = fileMetadata.map(f => ({ name: f.name, size: f.size, type: f.type }));
+                }
+                displayUploadedFiles(i, petFiles[i]);
+                console.log(`🔄 Re-displayed file info after upload: ${fileMetadata[0].name}`);
+              }
+            } catch (e) {
+              console.warn(`⚠️ Failed to re-display file info:`, e);
+            }
+          }
 
           console.log(`✅ Pet ${i} uploaded to server:`, uploadResult.url);
 
@@ -2033,6 +2796,12 @@
             }];
             localStorage.setItem(`pet_${i}_images`, JSON.stringify(previewData));
 
+            // CRITICAL FIX: Clear stale session gallery selection for fallback path too
+            if (window.SessionPetGallery && typeof window.SessionPetGallery.clearSelection === 'function') {
+              window.SessionPetGallery.clearSelection(i);
+              console.log(`🧹 Cleared session gallery selection for Pet ${i} (fallback upload)`);
+            }
+
             uploadText.textContent = 'CHANGE IMAGE? (Offline)';
             uploadZone.classList.remove('uploading');
 
@@ -2049,176 +2818,9 @@
           };
           reader.readAsDataURL(compressedFile);
         }
-
-        // Save file metadata (for state restoration)
-        const fileMetadata = petFiles[i].map(file => ({
-          name: file.name,
-          size: file.size,
-          type: file.type
-        }));
-        localStorage.setItem(`pet_${i}_file_metadata`, JSON.stringify(fileMetadata));
+        // Note: File metadata is now saved immediately after file selection (before async upload)
+        // This ensures state restoration works even during upload
       });
-
-      // Display uploaded file names with sizes and delete buttons
-      function displayUploadedFiles(petIndex, files) {
-        const statusWrapper = container.querySelector(`[data-upload-status-wrapper="${petIndex}"]`);
-        const statusContainer = container.querySelector(`[data-upload-status="${petIndex}"]`);
-        if (!statusWrapper || !statusContainer) return;
-
-        if (files.length === 0) {
-          statusWrapper.style.display = 'none';
-          statusContainer.innerHTML = '';
-          return;
-        }
-
-        // Build HTML for file list
-        let html = '';
-        for (let j = 0; j < files.length; j++) {
-          const fileName = files[j].name;
-          const fileSize = formatFileSize(files[j].size);
-
-          html += `
-            <div class="pet-detail__upload-status__file" data-file-index="${j}">
-              <span class="pet-detail__upload-status__file-icon">✓</span>
-              <span class="pet-detail__upload-status__file-name">${escapeHtml(fileName)}</span>
-              <span class="pet-detail__upload-status__file-size">${fileSize}</span>
-              <button type="button"
-                      class="pet-detail__upload-status__file-delete"
-                      data-pet-index="${petIndex}"
-                      data-file-index="${j}"
-                      aria-label="Delete ${escapeHtml(fileName)}">×</button>
-            </div>
-          `;
-        }
-
-        statusContainer.innerHTML = html;
-        statusWrapper.style.display = 'flex';
-
-        // Attach delete button handlers
-        const deleteButtons = statusContainer.querySelectorAll('.pet-detail__upload-status__file-delete');
-        deleteButtons.forEach(btn => {
-          btn.addEventListener('click', (e) => {
-            e.preventDefault();
-            const petIdx = parseInt(btn.dataset.petIndex);
-            const fileIdx = parseInt(btn.dataset.fileIndex);
-            removeFile(petIdx, fileIdx);
-          });
-        });
-      }
-
-      // Remove a file from the uploaded files list
-      function removeFile(petIndex, fileIndex) {
-        // Remove from petFiles array
-        if (fileIndex < 0 || fileIndex >= petFiles[petIndex].length) {
-          return;
-        }
-
-        petFiles[petIndex].splice(fileIndex, 1);
-
-        // Update UI (single file - always returns to empty after delete)
-        const uploadZone = container.querySelector(`[data-upload-zone="${petIndex}"]`);
-        const uploadText = container.querySelector(`[data-upload-text="${petIndex}"]`);
-        uploadText.textContent = 'Click or drag to upload';
-        uploadZone.classList.remove('has-files');
-
-        // Re-render file list
-        displayUploadedFiles(petIndex, petFiles[petIndex]);
-
-        // Update file input with remaining files
-        updateFileInputWithAllFiles(petIndex, petFiles[petIndex]);
-        populateOrderProperties(petIndex, petFiles[petIndex]);
-
-        // Save state after file deletion
-        savePetSelectorStateImmediate();
-
-        // Update preview if first file was removed
-        if (petFiles[petIndex].length > 0) {
-          const reader = new FileReader();
-          reader.onload = (event) => {
-            const previewData = [{
-              name: petFiles[petIndex][0].name,
-              data: event.target.result,
-              size: petFiles[petIndex][0].size,
-              type: petFiles[petIndex][0].type
-            }];
-            localStorage.setItem(`pet_${petIndex}_images`, JSON.stringify(previewData));
-          };
-          reader.readAsDataURL(petFiles[petIndex][0]);
-
-          // NEW: Update file metadata in localStorage after deletion
-          const fileMetadata = petFiles[petIndex].map(file => ({
-            name: file.name,
-            size: file.size,
-            type: file.type
-          }));
-          localStorage.setItem(`pet_${petIndex}_file_metadata`, JSON.stringify(fileMetadata));
-          console.log(`💾 Updated metadata after deletion: ${fileMetadata.length} files for Pet ${petIndex}`);
-        } else {
-          localStorage.removeItem(`pet_${petIndex}_images`);
-          // NEW: Remove metadata when no files remain
-          localStorage.removeItem(`pet_${petIndex}_file_metadata`);
-          console.log(`🗑️ Removed metadata for Pet ${petIndex} (no files remaining)`);
-        }
-      }
-
-      // Update file input with all current files using DataTransfer API
-      function updateFileInputWithAllFiles(petIndex, files) {
-        const fileInput = container.querySelector(`[data-pet-file-input="${petIndex}"]`);
-        if (!fileInput) return;
-
-        try {
-          // Check if DataTransfer is supported
-          const dataTransfer = new DataTransfer();
-
-          // Add all files to DataTransfer
-          for (let j = 0; j < files.length; j++) {
-            dataTransfer.items.add(files[j]);
-          }
-
-          // Update file input with new FileList
-          fileInput.files = dataTransfer.files;
-        } catch (e) {
-          console.warn('DataTransfer API not supported, file input may not update correctly:', e);
-        }
-      }
-
-      // Format file size for display
-      function formatFileSize(bytes) {
-        if (bytes === 0) return '0 B';
-        const k = 1024;
-        const sizes = ['B', 'KB', 'MB', 'GB'];
-        const i = Math.floor(Math.log(bytes) / Math.log(k));
-        return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
-      }
-
-      // Escape HTML to prevent XSS
-      function escapeHtml(text) {
-        const div = document.createElement('div');
-        div.textContent = text;
-        return div.innerHTML;
-      }
-
-      // Populate hidden order properties for tracking
-      function populateOrderProperties(petIndex, files) {
-        const orderTypeField = document.getElementById(`order-type-${petIndex}`);
-        const processingStateField = document.getElementById(`processing-state-${petIndex}`);
-        const uploadTimestampField = document.getElementById(`upload-timestamp-${petIndex}`);
-
-        if (orderTypeField) {
-          orderTypeField.value = 'Express Upload';
-        }
-
-        if (processingStateField) {
-          processingStateField.value = 'uploaded_only';
-        }
-
-        if (uploadTimestampField) {
-          uploadTimestampField.value = new Date().toISOString();
-        }
-
-        // Note: Shopify file input automatically handles the file upload when form submits
-        // Files are attached to properties[Pet X Images] and uploaded to Shopify CDN
-      }
     }
   }
 
@@ -2229,6 +2831,32 @@
     if (previewBtn) {
       previewBtn.addEventListener('click', (e) => {
         e.preventDefault();
+
+        // Check for Session Gallery pet first (pre-processed effects already available)
+        const sessionGalleryData = sessionStorage.getItem(`session_gallery_pet_${i}`);
+        if (sessionGalleryData && window.inlinePreview && typeof window.inlinePreview.openWithPreProcessedEffects === 'function') {
+          try {
+            const petData = JSON.parse(sessionGalleryData);
+            console.log(`🎨 Opening pre-processed effects from Session Gallery for Pet ${i}:`, petData);
+
+            // Get pet name from input or use fallback
+            const petName = getPetName(i);
+
+            // Open modal with pre-processed effects (skip processing)
+            window.inlinePreview.openWithPreProcessedEffects({
+              petNumber: i,
+              petName: petName,
+              sessionKey: petData.sessionKey,
+              selectedEffect: petData.selectedEffect,
+              effects: petData.effects,
+              artistNote: petData.artistNote || ''
+            });
+            return;
+          } catch (parseError) {
+            console.warn(`⚠️ Failed to parse session gallery data for Pet ${i}, falling back to normal flow:`, parseError);
+            // Continue to normal flow if parsing fails
+          }
+        }
 
         // Check for GCS URL first (NEW format - server-first upload)
         const gcsUrl = localStorage.getItem(`pet_${i}_image_url`);
@@ -2517,6 +3145,13 @@
                   // Display single file in UI
                   displayUploadedFiles(i, petFiles[i]);
 
+                  // FIX: Enable Preview button if GCS URL exists (was missing!)
+                  const gcsUrl = localStorage.getItem(`pet_${i}_image_url`);
+                  if (gcsUrl) {
+                    updatePreviewButtonState(i);
+                    console.log(`✅ Preview button enabled for Pet ${i} (GCS URL found)`);
+                  }
+
                   console.log(`✅ Restored file for Pet ${i}: ${fileMetadata[0].name}`);
                 }
               } catch (error) {
@@ -2555,8 +3190,10 @@
         }
       }
 
-      // 5. Update font previews
+      // 5. Update font previews and visibility
       updateFontPreviews();
+      toggleStyleSection(); // Ensure style section visibility is correct after name restoration
+      toggleFontSection();  // Ensure font section visibility is correct after name restoration
 
       // 6. Check if user returned from processor
       const returnUrl = sessionStorage.getItem('pet_selector_return_url');
@@ -2604,100 +3241,174 @@
   /**
    * PHASE 2: Restore product-scoped customization
    * Allows customers to return to same product and see their work
-   * Prevents carryover to different products
+   * Now uses PetStorage v3 as primary source
    */
   function restoreProductScopedCustomization() {
-    if (!window.PetPropertyUtils) {
-      console.log('ℹ️ [PetProps] PetPropertyUtils not loaded, skipping restoration');
-      return;
-    }
-
+    console.log('🔄 === RESTORE: Checking for pet data to restore ===');
     try {
-      // Get current product ID
-      var productId = window.productId || null;
-      if (!productId) {
-        console.log('ℹ️ [PetProps] No product ID, skipping restoration');
+      var form = document.querySelector('[data-product-form] form');
+      if (!form) {
+        console.log('[PetRestore] No form found, skipping');
         return;
       }
 
-      // Load saved customization for THIS product
+      // PRIMARY: Try PetStorage v3 (check for recent pet data)
+      if (typeof PetStorage !== 'undefined' && PetStorage.getRecentPets) {
+        console.log('[PetRestore] Checking PetStorage v3...');
+        var recentPets = PetStorage.getRecentPets(1);
+
+        if (recentPets && recentPets.length > 0) {
+          var pet = recentPets[0];
+
+          // Check if pet was processed in last 30 minutes
+          var age = Date.now() - (pet.processedAt || 0);
+          var ageMinutes = Math.round(age / 60000);
+          console.log('[PetRestore] Found pet in v3, age:', ageMinutes, 'minutes');
+
+          if (age < 30 * 60 * 1000) {
+            console.log('✅ [PetRestore] Using recent pet from v3 storage:', {
+              sessionKey: pet.sessionKey,
+              name: pet.name,
+              selectedEffect: pet.selectedEffect,
+              originalGcsUrl: pet.originalGcsUrl ? '✅ present' : '❌ missing',
+              effectsAvailable: pet.effects ? Object.keys(pet.effects).join(', ') : 'none'
+            });
+            populateFormFromPet(form, pet);
+            return;
+          } else {
+            console.log('⚠️ [PetRestore] Pet too old (', ageMinutes, 'min), skipping v3');
+          }
+        } else {
+          console.log('[PetRestore] No pets found in v3 storage');
+        }
+      } else {
+        console.log('[PetRestore] PetStorage v3 not available');
+      }
+
+      // FALLBACK: Legacy petCustomization_product_ format
+      var productId = window.productId || null;
+      if (!productId) {
+        console.log('[PetRestore] No product ID, skipping');
+        return;
+      }
+
       var storageKey = 'petCustomization_product_' + productId;
       var savedData = localStorage.getItem(storageKey);
 
       if (!savedData) {
-        console.log('ℹ️ [PetProps] No saved customization for product', productId);
+        console.log('[PetRestore] No saved customization for product', productId);
         return;
       }
 
       var customization = JSON.parse(savedData);
 
-      // Validate customization (security check)
-      if (!window.PetPropertyUtils.isValidCustomization(customization)) {
-        console.warn('⚠️ [PetProps] Invalid customization data, removing');
-        localStorage.removeItem(storageKey);
-        return;
-      }
-
-      // Check timeout (10 minutes)
+      // Check timeout (10 minutes for legacy)
       var now = Date.now();
-      var RESTORE_TIMEOUT = window.PetPropertyUtils.RESTORE_TIMEOUT || (10 * 60 * 1000);
-
-      if (now - customization.timestamp > RESTORE_TIMEOUT) {
-        console.log('ℹ️ [PetProps] Customization expired, removing');
+      if (now - customization.timestamp > 10 * 60 * 1000) {
+        console.log('[PetRestore] Legacy customization expired, removing');
         localStorage.removeItem(storageKey);
         return;
       }
 
-      // Check product ID matches
-      if (customization.productId !== productId) {
-        console.warn('⚠️ [PetProps] Product ID mismatch, skipping restoration');
-        return;
-      }
+      console.log('[PetRestore] Restoring from legacy customization:', customization);
 
-      // Load pet data from processor storage (preserves bridge!)
-      var sessionKey = customization.sessionKey;
-      var petData = PetStorage.get(sessionKey);
+      // Session key
+      var sessionKeyInput = form.querySelector('[name="properties[_pet_1_session_key]"]');
+      if (sessionKeyInput) sessionKeyInput.value = customization.sessionKey || '';
 
-      if (!petData || !petData.effects) {
-        console.warn('⚠️ [PetProps] Pet data not found for session key:', sessionKey);
-        localStorage.removeItem(storageKey);
-        return;
-      }
+      // Pet name
+      var petNameInput = form.querySelector('[name="properties[Pet 1 Name]"]');
+      if (petNameInput) petNameInput.value = customization.petName || '';
 
-      console.log('✅ [PetProps] Restoring customization for product', productId, customization);
+      // Artist notes
+      var notesInput = form.querySelector('[name="properties[_pet_1_artist_notes]"]');
+      if (notesInput) notesInput.value = customization.artistNotes || '';
 
-      // Restore to form fields
-      var form = document.querySelector('[data-product-form] form');
-      if (form) {
-        // Session key
-        var sessionKeyInput = form.querySelector('[name="properties[_pet_1_session_key]"]');
-        if (sessionKeyInput) sessionKeyInput.value = customization.sessionKey;
+      // Selected effect
+      var effectInput = form.querySelector('[name="properties[_pet_1_selected_effect]"]');
+      if (effectInput) effectInput.value = customization.selectedEffect || '';
 
-        // Artist notes (sanitized by validation)
-        var notesInput = form.querySelector('[name="properties[_pet_1_artist_notes]"]');
-        if (notesInput) notesInput.value = customization.artistNotes || '';
+      // Processed image URL
+      var urlInput = form.querySelector('[name="properties[_pet_1_processed_image_url]"]');
+      if (urlInput) urlInput.value = customization.processedImageUrl || '';
 
-        // Selected effect
-        var effectInput = form.querySelector('[name="properties[_pet_1_selected_effect]"]');
-        if (effectInput) effectInput.value = customization.selectedEffect || '';
+      // Original GCS URL
+      var originalGcsInput = form.querySelector('[name="properties[_pet_1_original_gcs_url]"]');
+      if (originalGcsInput) originalGcsInput.value = customization.originalGcsUrl || '';
 
-        // Processed image URL
-        var urlInput = form.querySelector('[name="properties[_pet_1_processed_image_url]"]');
-        if (urlInput) urlInput.value = customization.processedImageUrl || '';
-
-        // Filename (from pet data)
-        var filenameInput = form.querySelector('[name="properties[_pet_1_filename]"]');
-        if (filenameInput && petData.filename) filenameInput.value = petData.filename;
-
-        console.log('✅ [PetProps] Form fields restored from saved customization');
-      }
-
-      // Trigger UI update to show restored pet
-      // The existing restorePetSelectorState() will handle UI rendering
+      console.log('[PetRestore] Form fields restored from legacy customization');
 
     } catch (error) {
-      console.error('❌ [PetProps] Error restoring customization:', error);
+      console.error('[PetRestore] Error restoring customization:', error);
     }
+  }
+
+  /**
+   * Populate form fields from PetStorage v3 pet data
+   */
+  function populateFormFromPet(form, pet) {
+    if (!form || !pet) return;
+
+    console.log('📝 === POPULATING FORM FROM V3 PET DATA ===');
+
+    // Get processed image URL for selected effect
+    var selectedEffect = pet.selectedEffect || 'enhancedblackwhite';
+    var processedImageUrl = pet.effects ? (pet.effects[selectedEffect] || pet.thumbnailUrl) : '';
+
+    var fieldsPopulated = {};
+
+    // Session key
+    var sessionKeyInput = form.querySelector('[name="properties[_pet_1_session_key]"]');
+    if (sessionKeyInput) {
+      sessionKeyInput.value = pet.sessionKey || '';
+      fieldsPopulated['_pet_1_session_key'] = pet.sessionKey || '(empty)';
+    }
+
+    // Pet name
+    var petNameInput = form.querySelector('[name="properties[Pet 1 Name]"]');
+    if (petNameInput) {
+      petNameInput.value = pet.name || '';
+      fieldsPopulated['Pet 1 Name'] = pet.name || '(empty)';
+    }
+
+    // Artist notes
+    var notesInput = form.querySelector('[name="properties[_pet_1_artist_notes]"]');
+    if (notesInput) {
+      notesInput.value = pet.artistNote || '';
+      fieldsPopulated['_pet_1_artist_notes'] = pet.artistNote ? pet.artistNote.substring(0, 50) + '...' : '(empty)';
+    }
+
+    // Selected effect
+    var effectInput = form.querySelector('[name="properties[_pet_1_selected_effect]"]');
+    if (effectInput) {
+      effectInput.value = selectedEffect;
+      fieldsPopulated['_pet_1_selected_effect'] = selectedEffect;
+    }
+
+    // Processed image URL
+    var urlInput = form.querySelector('[name="properties[_pet_1_processed_image_url]"]');
+    if (urlInput) {
+      urlInput.value = processedImageUrl;
+      fieldsPopulated['_pet_1_processed_image_url'] = processedImageUrl ? '✅ ' + processedImageUrl.substring(0, 60) + '...' : '❌ missing';
+    }
+
+    // Original GCS URL
+    var originalGcsInput = form.querySelector('[name="properties[_pet_1_original_gcs_url]"]');
+    if (originalGcsInput) {
+      originalGcsInput.value = pet.originalGcsUrl || '';
+      fieldsPopulated['_pet_1_original_gcs_url'] = pet.originalGcsUrl ? '✅ ' + pet.originalGcsUrl.substring(0, 60) + '...' : '❌ missing';
+    }
+
+    // Previous order number (for reorders)
+    var previousOrderInput = form.querySelector('[name="properties[_pet_1_previous_order_number]"]');
+    if (previousOrderInput) {
+      previousOrderInput.value = pet.previousOrderNumber || '';
+      fieldsPopulated['_pet_1_previous_order_number'] = pet.previousOrderNumber || '(none - new upload)';
+    }
+
+    console.log('📋 Form Fields Populated:');
+    console.table(fieldsPopulated);
+    console.log('📝 === END FORM POPULATION ===');
   }
 
   // === END STATE PERSISTENCE MODULE ===
@@ -2853,8 +3564,51 @@
     const petCount = parseInt(selectedCountRadio.value);
     console.log(`✅ Active pets: ${petCount}`);
 
-    // NEW: Try latest processed pets FIRST (processor → product page)
-    const latestPets = getLatestProcessedPets(petCount);
+    // PRIORITY 1: Check Session Gallery data FIRST (pets selected from library)
+    // Session Gallery stores pets with originalUrl that may be older than the 10-min TTL
+    const sessionGalleryPets = [];
+    for (let i = 1; i <= petCount; i++) {
+      const sessionData = sessionStorage.getItem(`session_gallery_pet_${i}`);
+      if (sessionData) {
+        try {
+          const petData = JSON.parse(sessionData);
+          if (petData && petData.effects && Object.keys(petData.effects).length > 0) {
+            sessionGalleryPets.push({
+              ...petData,
+              petNumber: petData.petNumber || i
+            });
+            console.log(`📚 Found Session Gallery pet for slot ${i}:`, {
+              name: petData.name || 'unnamed',
+              hasOriginalUrl: !!petData.originalUrl,
+              effects: Object.keys(petData.effects).join(', ')
+            });
+          }
+        } catch (e) {
+          console.warn(`Failed to parse session gallery pet ${i}:`, e);
+        }
+      }
+    }
+
+    // PRIORITY 2: Fall back to latest processed pets (from PetStorage with 10-min TTL)
+    const latestPetsFromStorage = getLatestProcessedPets(petCount);
+
+    // Merge: Use Session Gallery data where available, fill gaps with latest processed
+    let latestPets = [];
+    for (let i = 1; i <= petCount; i++) {
+      // Check Session Gallery first for this slot
+      const sessionPet = sessionGalleryPets.find(p => p.petNumber === i);
+      if (sessionPet) {
+        latestPets.push(sessionPet);
+        console.log(`✅ Using Session Gallery pet for slot ${i}`);
+      } else {
+        // Fall back to latest processed pet for this slot
+        const storagePet = latestPetsFromStorage.find(p => p.petNumber === i);
+        if (storagePet) {
+          latestPets.push(storagePet);
+          console.log(`✅ Using PetStorage pet for slot ${i}`);
+        }
+      }
+    }
 
     if (latestPets.length > 0) {
       console.log(`🎨 Populating from ${latestPets.length} processed pet(s)`);
@@ -2862,7 +3616,10 @@
       // Populate each available processed pet
       for (let i = 0; i < latestPets.length; i++) {
         const pet = latestPets[i];
-        const petNumber = i + 1;
+        // Use actual pet slot number from storage, NOT array index
+        // This ensures Pet 2's data goes to _pet_2_* fields even if sorted by timestamp
+        const petNumber = pet.petNumber || (i + 1);
+        console.log(`🎯 Processing pet "${pet.name || 'unnamed'}" → slot ${petNumber} (array index ${i})`);
 
         // CRITICAL FIX: Only populate artist notes if they exist for THIS SPECIFIC PET
         // Do NOT carry over notes from other pets in PetStorage
@@ -2896,7 +3653,13 @@
         if (urlField) {
           if (pet.effects && pet.effects[selectedStyle]) {
             const styleData = pet.effects[selectedStyle];
-            const gcsUrl = styleData.gcsUrl || styleData.dataUrl || '';
+            // V3 FORMAT FIX: Handle both string URLs (v3) and object format (legacy)
+            let gcsUrl;
+            if (typeof styleData === 'string') {
+              gcsUrl = styleData;  // V3 format: direct URL string
+            } else {
+              gcsUrl = styleData.gcsUrl || styleData.dataUrl || '';  // Legacy object format
+            }
 
             if (gcsUrl) {
               // SECURITY: Validate URL before populating (prevent URL injection)
@@ -2929,11 +3692,55 @@
             console.log(`ℹ️ Pet ${petNumber} has no filename - field cleared`);
           }
         }
+
+        // Populate original GCS URL for fulfillment (stores original uploaded image)
+        const originalUrlField = document.querySelector(`[data-pet-original-gcs-url="${petNumber}"]`);
+        if (originalUrlField) {
+          if (pet.originalUrl && pet.originalUrl.trim() !== '') {
+            // SECURITY: Validate URL before populating
+            if (isValidGCSUrl(pet.originalUrl)) {
+              originalUrlField.value = pet.originalUrl;
+              console.log(`✅ Pet ${petNumber} original GCS URL: ${pet.originalUrl.substring(0, 60)}...`);
+            } else {
+              console.error(`❌ Invalid original GCS URL for Pet ${petNumber}, skipping`);
+              originalUrlField.value = '';
+            }
+          } else {
+            // Clear if no original URL available
+            originalUrlField.value = '';
+            console.log(`ℹ️ Pet ${petNumber} has no original GCS URL - field cleared`);
+          }
+        }
+
+        // Populate session key for this pet
+        const sessionKeyField = document.querySelector(`[data-pet-session-key="${petNumber}"]`);
+        if (sessionKeyField) {
+          sessionKeyField.value = pet.sessionKey || '';
+          console.log(`✅ Pet ${petNumber} session key: ${pet.sessionKey || 'none'}`);
+        }
+
+        // Populate selected effect for this pet
+        const selectedEffectField = document.querySelector(`[data-pet-selected-effect="${petNumber}"]`);
+        if (selectedEffectField) {
+          selectedEffectField.value = selectedStyle || 'enhancedblackwhite';
+          console.log(`✅ Pet ${petNumber} selected effect: ${selectedStyle}`);
+        }
       }
 
-      // If user selected MORE pets than processed, remaining pets will use product page uploads
-      if (latestPets.length < petCount) {
-        console.log(`ℹ️ ${petCount - latestPets.length} pet(s) will use product page uploads`);
+      // FALLBACK: For any pet slots without original URL, check direct upload from localStorage
+      // This handles cases where user uploaded but didn't preview the image
+      // NOTE: Only applies to fresh uploads - Session Gallery selections have originalUrl in their data
+      for (let i = 1; i <= petCount; i++) {
+        const originalUrlField = document.querySelector(`[data-pet-original-gcs-url="${i}"]`);
+        if (originalUrlField && !originalUrlField.value) {
+          const directUploadUrl = localStorage.getItem(`pet_${i}_image_url`);
+          if (directUploadUrl && isValidGCSUrl(directUploadUrl)) {
+            originalUrlField.value = directUploadUrl;
+            console.log(`✅ Pet ${i} original GCS URL (from direct upload): ${directUploadUrl.substring(0, 60)}...`);
+          } else if (directUploadUrl) {
+            console.warn(`⚠️ Pet ${i} has direct upload URL but failed validation: ${directUploadUrl.substring(0, 80)}`);
+          }
+        }
       }
 
       console.log('✅ Order properties populated from processed pets');
@@ -3025,6 +3832,22 @@
       }
     }
 
+    // FALLBACK: For any pet slots without original URL, check direct upload from localStorage
+    // This handles cases where user uploaded but didn't preview the image
+    // NOTE: Only applies to fresh uploads - Session Gallery selections have originalUrl in their data
+    for (let i = 1; i <= petCount; i++) {
+      const originalUrlField = document.querySelector(`[data-pet-original-gcs-url="${i}"]`);
+      if (originalUrlField && !originalUrlField.value) {
+        const directUploadUrl = localStorage.getItem(`pet_${i}_image_url`);
+        if (directUploadUrl && isValidGCSUrl(directUploadUrl)) {
+          originalUrlField.value = directUploadUrl;
+          console.log(`✅ Pet ${i} original GCS URL (from direct upload): ${directUploadUrl.substring(0, 60)}...`);
+        } else if (directUploadUrl) {
+          console.warn(`⚠️ Pet ${i} has direct upload URL but failed validation: ${directUploadUrl.substring(0, 80)}`);
+        }
+      }
+    }
+
     return true; // Success
   }
 
@@ -3055,6 +3878,50 @@
 
       // Note: File inputs and all other inputs are now associated with form via
       // HTML5 form attribute - no need to move them manually!
+
+      // === CART DATA VERIFICATION LOGGING ===
+      console.log('🛒 === CART SUBMISSION - PET DATA VERIFICATION ===');
+
+      // Collect all pet properties being submitted
+      var petProperties = {};
+      var allInputs = form.querySelectorAll('input[name^="properties["]');
+      allInputs.forEach(function(input) {
+        var name = input.name;
+        var value = input.value;
+        // Only log pet-related properties
+        if (name.indexOf('pet') !== -1 || name.indexOf('Pet') !== -1 ||
+            name.indexOf('artist') !== -1 || name.indexOf('Style') !== -1) {
+          petProperties[name] = value ? (value.length > 100 ? value.substring(0, 100) + '...' : value) : '(empty)';
+        }
+      });
+
+      console.log('📋 Pet Properties Being Submitted:');
+      console.table(petProperties);
+
+      // Summary check for critical fields (only those required for fulfillment)
+      // Note: _session_key, _artist_notes, _previous_order_number are optional
+      var criticalFields = [
+        'properties[Pet 1 Name]',
+        'properties[_pet_1_selected_effect]',
+        'properties[_pet_1_processed_image_url]',
+        'properties[_pet_1_original_gcs_url]'
+      ];
+
+      var missingFields = [];
+      criticalFields.forEach(function(fieldName) {
+        var input = form.querySelector('[name="' + fieldName + '"]');
+        if (!input || !input.value) {
+          missingFields.push(fieldName);
+        }
+      });
+
+      if (missingFields.length > 0) {
+        console.warn('⚠️ Missing/Empty Critical Fields:', missingFields);
+      } else {
+        console.log('✅ All critical pet fields populated');
+      }
+
+      console.log('🛒 === END CART SUBMISSION VERIFICATION ===');
     });
 
     return true;
@@ -3070,6 +3937,86 @@
       setTimeout(setupFormSubmitHandler, 100);
     }
   }
+
+  // === BRIDGE V3 EVENT LISTENER ===
+  // Listen for petBridgeApplied event from main-product.liquid bridge
+  window.addEventListener('petBridgeApplied', function(event) {
+    var detail = event.detail;
+    if (!detail) return;
+
+    console.log('🌉 === BRIDGE V3 - PET DATA RECEIVED ===');
+    console.log('📦 Bridge Data:', {
+      petNumber: detail.petNumber,
+      sessionKey: detail.sessionKey,
+      name: detail.name,
+      artistNote: detail.artistNote ? detail.artistNote.substring(0, 50) + '...' : '(none)',
+      selectedEffect: detail.selectedEffect,
+      processedImageUrl: detail.processedImageUrl ? '✅ ' + detail.processedImageUrl.substring(0, 60) + '...' : '❌ missing',
+      originalGcsUrl: detail.originalGcsUrl ? '✅ ' + detail.originalGcsUrl.substring(0, 60) + '...' : '❌ missing',
+      previousOrderNumber: detail.previousOrderNumber || '(none - new upload)'
+    });
+
+    var form = document.querySelector('[data-product-form] form');
+    if (!form) {
+      console.warn('[PetSelector] No product form found');
+      return;
+    }
+
+    // Populate form fields directly from v3 pet data
+    var fieldsPopulated = [];
+
+    // Session key
+    var sessionKeyInput = form.querySelector('[name="properties[_pet_1_session_key]"]');
+    if (sessionKeyInput) {
+      sessionKeyInput.value = detail.sessionKey || '';
+      fieldsPopulated.push('_pet_1_session_key');
+    }
+
+    // Pet name (visible to customer)
+    var petNameInput = form.querySelector('[name="properties[Pet 1 Name]"]');
+    if (petNameInput) {
+      petNameInput.value = detail.name || '';
+      fieldsPopulated.push('Pet 1 Name');
+    }
+
+    // Artist notes
+    var notesInput = form.querySelector('[name="properties[_pet_1_artist_notes]"]');
+    if (notesInput) {
+      notesInput.value = detail.artistNote || '';
+      fieldsPopulated.push('_pet_1_artist_notes');
+    }
+
+    // Selected effect
+    var effectInput = form.querySelector('[name="properties[_pet_1_selected_effect]"]');
+    if (effectInput) {
+      effectInput.value = detail.selectedEffect || 'enhancedblackwhite';
+      fieldsPopulated.push('_pet_1_selected_effect');
+    }
+
+    // Processed image URL
+    var urlInput = form.querySelector('[name="properties[_pet_1_processed_image_url]"]');
+    if (urlInput) {
+      urlInput.value = detail.processedImageUrl || '';
+      fieldsPopulated.push('_pet_1_processed_image_url');
+    }
+
+    // Original GCS URL (for fulfillment)
+    var originalGcsInput = form.querySelector('[name="properties[_pet_1_original_gcs_url]"]');
+    if (originalGcsInput) {
+      originalGcsInput.value = detail.originalGcsUrl || '';
+      fieldsPopulated.push('_pet_1_original_gcs_url');
+    }
+
+    // Previous order number (for reorders)
+    var previousOrderInput = form.querySelector('[name="properties[_pet_1_previous_order_number]"]');
+    if (previousOrderInput) {
+      previousOrderInput.value = detail.previousOrderNumber || '';
+      fieldsPopulated.push('_pet_1_previous_order_number');
+    }
+
+    console.log('✅ Form Fields Populated:', fieldsPopulated.join(', '));
+    console.log('🌉 === END BRIDGE V3 ===');
+  });
 
   // === RESTORE STATE ON PAGE LOAD ===
   // Wait for DOM to be fully ready

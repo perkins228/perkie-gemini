@@ -1,0 +1,497 @@
+/**
+ * Crop Processor CSS - Mobile-First Styles
+ * 65% mobile traffic, 57% mobile revenue
+ */
+
+/* Container - Hidden by default */
+.crop-container {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1100;
+  background: #000;
+}
+
+.crop-container.active {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Modal wrapper */
+.crop-modal {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+  background: #1a1a1a;
+}
+
+/* Header */
+.crop-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background: #1a1a1a;
+  border-bottom: 1px solid #333;
+  flex-shrink: 0;
+}
+
+.crop-back {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  background: transparent;
+  border: none;
+  color: #fff;
+  cursor: pointer;
+  border-radius: 50%;
+  transition: background 0.2s ease;
+}
+
+.crop-back:hover,
+.crop-back:focus {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.crop-back:active {
+  transform: scale(0.95);
+}
+
+.crop-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #fff;
+  margin: 0;
+  text-align: center;
+}
+
+.crop-skip {
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #888;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.crop-skip:hover,
+.crop-skip:focus {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* Canvas wrapper */
+.crop-canvas-wrapper {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+  background: #0a0a0a;
+  touch-action: none; /* Prevent browser gestures */
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.crop-canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  touch-action: none;
+}
+
+.crop-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+}
+
+/* Controls section */
+.crop-controls {
+  padding: 16px;
+  background: #1a1a1a;
+  border-top: 1px solid #333;
+  flex-shrink: 0;
+}
+
+/* Aspect ratio buttons */
+.crop-aspect-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.crop-aspect-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 10px 14px;
+  min-width: 64px;
+  background: #2a2a2a;
+  border: 2px solid transparent;
+  border-radius: 12px;
+  color: #888;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.crop-aspect-btn:hover,
+.crop-aspect-btn:focus {
+  background: #333;
+  color: #fff;
+}
+
+.crop-aspect-btn.active {
+  background: #333;
+  border-color: #fff;
+  color: #fff;
+}
+
+.crop-aspect-btn:active {
+  transform: scale(0.97);
+}
+
+/* Aspect icons */
+.aspect-icon {
+  display: block;
+  border: 2px solid currentColor;
+  transition: border-color 0.2s ease;
+}
+
+.circle-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+}
+
+.square-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 4px;
+}
+
+.landscape-icon {
+  width: 36px;
+  height: 27px;
+  border-radius: 4px;
+}
+
+.portrait-icon {
+  width: 27px;
+  height: 36px;
+  border-radius: 4px;
+}
+
+.aspect-label {
+  font-size: 12px;
+  font-weight: 500;
+}
+
+/* Snap to Pet button (pink theme) */
+.crop-snap-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 10px 14px;
+  min-width: 80px;
+  background: rgba(236, 72, 153, 0.15);
+  border: 2px solid rgba(236, 72, 153, 0.5);
+  border-radius: 12px;
+  color: #ec4899;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-left: 8px;
+}
+
+.crop-snap-btn:hover,
+.crop-snap-btn:focus {
+  background: rgba(236, 72, 153, 0.25);
+  border-color: rgba(236, 72, 153, 0.8);
+  color: #f472b6;
+}
+
+.crop-snap-btn:active {
+  transform: scale(0.97);
+}
+
+.crop-snap-btn .snap-icon {
+  font-size: 22px;
+  line-height: 1;
+}
+
+.crop-snap-btn .snap-label {
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/* Hide snap button if no suggested bounds detected */
+.crop-snap-btn.hidden {
+  display: none;
+}
+
+/* Snap button focus visible */
+.crop-snap-btn:focus-visible {
+  outline: 2px solid #ec4899;
+  outline-offset: 2px;
+}
+
+/* Zoom controls */
+.crop-zoom-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+.crop-zoom-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  background: #2a2a2a;
+  border: none;
+  border-radius: 50%;
+  color: #fff;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.crop-zoom-btn:hover,
+.crop-zoom-btn:focus {
+  background: #444;
+}
+
+.crop-zoom-btn:active {
+  transform: scale(0.95);
+}
+
+.crop-zoom-slider {
+  width: 150px;
+  height: 4px;
+  -webkit-appearance: none;
+  appearance: none;
+  background: #444;
+  border-radius: 2px;
+  outline: none;
+}
+
+.crop-zoom-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  background: #fff;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.crop-zoom-slider::-webkit-slider-thumb:hover {
+  transform: scale(1.1);
+}
+
+.crop-zoom-slider::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  background: #fff;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+/* Footer */
+.crop-footer {
+  display: flex;
+  gap: 12px;
+  padding: 16px;
+  padding-bottom: max(16px, env(safe-area-inset-bottom));
+  background: #1a1a1a;
+  border-top: 1px solid #333;
+  flex-shrink: 0;
+}
+
+.crop-reset-btn {
+  flex: 1;
+  padding: 14px 24px;
+  font-size: 16px;
+  font-weight: 600;
+  color: #fff;
+  background: #333;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.crop-reset-btn:hover,
+.crop-reset-btn:focus {
+  background: #444;
+}
+
+.crop-reset-btn:active {
+  transform: scale(0.98);
+}
+
+.crop-apply-btn {
+  flex: 2;
+  padding: 14px 24px;
+  font-size: 16px;
+  font-weight: 600;
+  color: #000;
+  background: #fff;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.crop-apply-btn:hover,
+.crop-apply-btn:focus {
+  background: #f0f0f0;
+}
+
+.crop-apply-btn:active {
+  transform: scale(0.98);
+}
+
+/* Tablet/Desktop adjustments */
+@media (min-width: 768px) {
+  .crop-container {
+    background: rgba(0, 0, 0, 0.8);
+    align-items: center;
+    justify-content: center;
+  }
+
+  .crop-modal {
+    max-width: 600px;
+    max-height: 90vh;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  }
+
+  .crop-header {
+    padding: 16px 20px;
+  }
+
+  .crop-title {
+    font-size: 20px;
+  }
+
+  .crop-controls {
+    padding: 20px;
+  }
+
+  .crop-aspect-btn {
+    padding: 16px 28px;
+    min-width: 100px;
+  }
+
+  .crop-zoom-slider {
+    width: 200px;
+  }
+
+  .crop-footer {
+    padding: 20px;
+  }
+
+  .crop-reset-btn,
+  .crop-apply-btn {
+    padding: 16px 32px;
+    font-size: 17px;
+  }
+}
+
+/* Large screens */
+@media (min-width: 1024px) {
+  .crop-modal {
+    max-width: 700px;
+  }
+
+  .crop-canvas-wrapper {
+    min-height: 400px;
+  }
+}
+
+/* iOS Safe Area Support */
+@supports (padding: max(0px)) {
+  .crop-header {
+    padding-top: max(12px, env(safe-area-inset-top));
+  }
+
+  .crop-footer {
+    padding-bottom: max(16px, env(safe-area-inset-bottom));
+  }
+}
+
+/* Reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  .crop-back,
+  .crop-skip,
+  .crop-aspect-btn,
+  .crop-zoom-btn,
+  .crop-reset-btn,
+  .crop-apply-btn {
+    transition: none;
+  }
+}
+
+/* Focus visible for keyboard navigation */
+.crop-back:focus-visible,
+.crop-skip:focus-visible,
+.crop-aspect-btn:focus-visible,
+.crop-zoom-btn:focus-visible,
+.crop-reset-btn:focus-visible,
+.crop-apply-btn:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+}
+
+/* Loading state */
+.crop-container.loading .crop-canvas-wrapper::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 40px;
+  height: 40px;
+  margin: -20px 0 0 -20px;
+  border: 3px solid #333;
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: crop-spin 0.8s linear infinite;
+}
+
+@keyframes crop-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Touch feedback */
+@media (hover: none) and (pointer: coarse) {
+  .crop-aspect-btn:active,
+  .crop-zoom-btn:active,
+  .crop-reset-btn:active,
+  .crop-apply-btn:active {
+    opacity: 0.7;
+  }
+}

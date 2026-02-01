@@ -104,7 +104,7 @@ class GeminiEffectsUI {
       case 2:
         // Reminder - Friendly toast
         this.showToast(
-          `🎨 ${remaining} AI generation${remaining > 1 ? 's' : ''} left today`,
+          `🎨 ${remaining} Ink Wash/Marker generation${remaining > 1 ? 's' : ''} left today`,
           'info',
           4000
         );
@@ -113,7 +113,7 @@ class GeminiEffectsUI {
       case 3:
         // Warning - More urgent toast + persistent banner
         this.showToast(
-          `⚠️ Running low! ${remaining} AI generation${remaining > 1 ? 's' : ''} remaining`,
+          `⚠️ Running low! ${remaining} Ink Wash/Marker generation${remaining > 1 ? 's' : ''} remaining`,
           'warning',
           5000
         );
@@ -122,7 +122,7 @@ class GeminiEffectsUI {
       case 4:
         // Exhausted - Informative toast
         this.showToast(
-          `🎉 You've created 10 AI masterpieces today! Try B&W or Color (unlimited)`,
+          `🎉 You've created 10 masterpieces today! Try B&W or Color (unlimited)`,
           'exhausted',
           6000
         );
@@ -212,8 +212,8 @@ class GeminiEffectsUI {
         // Exhausted - helpful message
         emoji = '🎨';
         message = `
-          <strong>Daily AI Limit Reached</strong><br>
-          You've created 10 amazing AI portraits today!
+          <strong>Daily Limit Reached</strong><br>
+          You've created 10 amazing portraits today!
           Try our <strong>Classic B&W</strong> or <strong>Color</strong> effects (unlimited) while you wait for tomorrow's reset.
         `;
       } else {
@@ -221,7 +221,7 @@ class GeminiEffectsUI {
         emoji = '⚠️';
         message = `
           <strong>Almost Out!</strong><br>
-          Only <strong>${remaining}</strong> AI generation${remaining > 1 ? 's' : ''} left today.
+          Only <strong>${remaining}</strong> Ink Wash/Marker generation${remaining > 1 ? 's' : ''} left today.
           Choose wisely or switch to unlimited effects.
         `;
       }
@@ -337,14 +337,14 @@ class GeminiEffectsUI {
         btn.disabled = true;
         btn.style.opacity = '0.5';
         btn.style.cursor = 'not-allowed';
-        btn.title = 'Daily AI limit reached. Try B&W or Color (unlimited)';
+        btn.title = 'Daily limit reached. Try B&W or Color (unlimited)';
 
         // Add click handler to show helpful message
         btn.addEventListener('click', (e) => {
           e.preventDefault();
           e.stopPropagation();
           this.showToast(
-            '💡 Out of AI generations today! Try B&W or Color (unlimited)',
+            '💡 Out of Ink Wash & Marker for today. Try B&W or Color (unlimited)',
             'exhausted',
             5000
           );
@@ -397,7 +397,7 @@ class GeminiEffectsUI {
     // Set timeout for midnight
     setTimeout(() => {
       this.showToast(
-        '🆕 Your daily AI quota has reset! 10 fresh generations available',
+        '🆕 Daily limit reset! 10 fresh Ink Wash/Marker generations available',
         'info',
         6000
       );

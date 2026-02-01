@@ -283,7 +283,7 @@ The project completed Phase 1 with enhanced black & white processing:
 
 ### Session Management
 - Pet data stored in localStorage with structured format
-- Emergency cleanup method: `window.emergencyCleanupPetData()`
+- Emergency cleanup method: `PetStorage.emergencyCleanup()`
 - Automatic session restoration on page reload
 - Progressive loading state persistence
 
@@ -331,7 +331,7 @@ The project completed Phase 1 with enhanced black & white processing:
    - Solution: Check CORS configuration in API and Cloud Storage bucket
 
 3. **Session Data Issues**: Pet selection not persisting
-   - Solution: Use `window.emergencyCleanupPetData()` to reset
+   - Solution: Use `PetStorage.emergencyCleanup()` to reset
 
 4. **API Performance**: Slow processing times
    - Solution: Ensure GPU is enabled in Cloud Run configuration

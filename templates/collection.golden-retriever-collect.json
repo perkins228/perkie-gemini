@@ -1,0 +1,161 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "sections": {
+    "banner": {
+      "type": "main-collection-banner",
+      "disabled": true,
+      "settings": {
+        "show_collection_description": true,
+        "show_collection_image": true,
+        "color_scheme": "scheme-1"
+      }
+    },
+    "product-grid": {
+      "type": "main-collection-product-grid",
+      "settings": {
+        "products_per_page": 36,
+        "columns_desktop": 4,
+        "columns_mobile": "2",
+        "color_scheme": "scheme-f318d737-2be2-4346-8605-b2fbd6208608",
+        "image_ratio": "square",
+        "image_shape": "default",
+        "show_secondary_image": true,
+        "show_vendor": false,
+        "show_rating": true,
+        "quick_add": "none",
+        "enable_filtering": true,
+        "filter_type": "drawer",
+        "enable_sorting": true,
+        "show_color_swatches": true,
+        "padding_top": 12,
+        "padding_bottom": 12
+      }
+    },
+    "rich_text_PtqBrC": {
+      "type": "rich-text",
+      "blocks": {
+        "text_6dRVWG": {
+          "type": "text",
+          "settings": {
+            "text": "{{ collection.description }}"
+          }
+        }
+      },
+      "block_order": [
+        "text_6dRVWG"
+      ],
+      "name": "t:sections.rich-text.presets.name",
+      "settings": {
+        "desktop_content_position": "center",
+        "content_alignment": "center",
+        "color_scheme": "scheme-f318d737-2be2-4346-8605-b2fbd6208608",
+        "full_width": true,
+        "padding_top": 12,
+        "padding_bottom": 12
+      }
+    },
+    "collection_list_d4baEE": {
+      "type": "collection-list",
+      "blocks": {
+        "featured_collection_zQJB8F": {
+          "type": "featured_collection",
+          "settings": {
+            "collection": "men"
+          }
+        },
+        "featured_collection_GFHinL": {
+          "type": "featured_collection",
+          "settings": {
+            "collection": "women"
+          }
+        },
+        "featured_collection_aLtRrx": {
+          "type": "featured_collection",
+          "settings": {
+            "collection": "children"
+          }
+        },
+        "featured_collection_qiAfnp": {
+          "type": "featured_collection",
+          "settings": {
+            "collection": "babies"
+          }
+        }
+      },
+      "block_order": [
+        "featured_collection_zQJB8F",
+        "featured_collection_GFHinL",
+        "featured_collection_aLtRrx",
+        "featured_collection_qiAfnp"
+      ],
+      "disabled": true,
+      "settings": {
+        "title": "Collections",
+        "heading_size": "h2",
+        "image_ratio": "square",
+        "columns_desktop": 4,
+        "color_scheme": "",
+        "show_view_all": false,
+        "columns_mobile": "1",
+        "swipe_on_mobile": false,
+        "padding_top": 36,
+        "padding_bottom": 36
+      }
+    },
+    "collage_YTzxAt": {
+      "type": "collage",
+      "blocks": {
+        "image_6c8PRr": {
+          "type": "image",
+          "settings": {
+            "image": "shopify://shop_images/lifeofashowdog_Golden_crew.jpg"
+          }
+        },
+        "product_tEFBf6": {
+          "type": "product",
+          "settings": {
+            "product": "showgirl-era-crew-sweatshirt",
+            "second_image": false
+          }
+        },
+        "collection_afpdBK": {
+          "type": "collection",
+          "settings": {
+            "collection": ""
+          }
+        }
+      },
+      "block_order": [
+        "image_6c8PRr",
+        "product_tEFBf6",
+        "collection_afpdBK"
+      ],
+      "name": "t:sections.collage.presets.name",
+      "settings": {
+        "heading": "Multimedia collage",
+        "heading_size": "h1",
+        "desktop_layout": "left",
+        "mobile_layout": "collage",
+        "card_styles": "none",
+        "color_scheme": "",
+        "padding_top": 36,
+        "padding_bottom": 36
+      }
+    }
+  },
+  "order": [
+    "banner",
+    "product-grid",
+    "rich_text_PtqBrC",
+    "collection_list_d4baEE",
+    "collage_YTzxAt"
+  ]
+}

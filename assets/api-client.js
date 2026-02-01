@@ -1,30 +1,50 @@
 /**
  * API Client - Backend Communication Module
- * Handles all API interactions with InSPyReNet service
+ * Handles all API interactions with background removal service
  * Smart retry logic, caching, and progress tracking
+ *
+ * STAGING: Using BiRefNet service (60-100x faster than InSPyReNet)
+ * PRODUCTION: 'https://inspirenet-bg-removal-api-725543555429.us-central1.run.app'
  */
+
+// Toggle between services (set to true for BiRefNet staging)
+const USE_BIREFNET = true;
+
+const API_URLS = {
+  inspirenet: 'https://inspirenet-bg-removal-api-725543555429.us-central1.run.app',
+  birefnet: 'https://birefnet-bg-removal-api-753651513695.us-central1.run.app'
+};
 
 export class APIClient {
   constructor() {
-    this.baseUrl = 'https://inspirenet-bg-removal-api-725543555429.us-central1.run.app';
+    this.baseUrl = USE_BIREFNET ? API_URLS.birefnet : API_URLS.inspirenet;
     this.cache = new Map();
     this.pending = new Map();
     this.maxRetries = 2;
     this.timeout = 30000; // 30 seconds
+
+    console.log(`🔧 API Client initialized with ${USE_BIREFNET ? 'BiRefNet' : 'InSPyReNet'} service`);
   }
 
   async removeBackground(file) {
     const formData = new FormData();
     formData.append('file', file);
-    // Request all effects from API with JSON response for instant switching
-    formData.append('effects', 'color,enhancedblackwhite,optimized_popart,dithering');
+
+    // Request effects based on which service is active
+    // BiRefNet: color, enhancedblackwhite (alias for blackwhite)
+    // InSPyReNet: color, enhancedblackwhite, optimized_popart, dithering
+    const effects = USE_BIREFNET
+      ? 'color,enhancedblackwhite'
+      : 'color,enhancedblackwhite,optimized_popart,dithering';
+
+    formData.append('effects', effects);
     formData.append('session_id', 'perkie_' + Date.now());
     // Note: return_all_effects must be URL query parameter, not form data
 
     return this.request('/api/v2/process-with-effects?return_all_effects=true', {
       method: 'POST',
       body: formData,
-      timeout: 45000 // Longer timeout for initial processing
+      timeout: USE_BIREFNET ? 30000 : 45000 // BiRefNet is faster
     });
   }
 

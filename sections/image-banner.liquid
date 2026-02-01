@@ -1,4 +1,6 @@
-{{ 'section-image-banner.css' | asset_url | stylesheet_tag }}
+{% comment %} Async load section CSS to prevent render-blocking (LCP optimization) {% endcomment %}
+<link rel="stylesheet" href="{{ 'section-image-banner.css' | asset_url }}" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="{{ 'section-image-banner.css' | asset_url }}"></noscript>
 
 {%- if section.settings.image_height == 'adapt' and section.settings.image != blank -%}
   {%- style -%}

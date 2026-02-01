@@ -89,8 +89,8 @@ function validateAndSanitizeImageData(dataUrl) {
     return null;
   }
 
-  // Check size (data URLs can be large - limit to 10MB base64 encoded)
-  const maxSize = 10 * 1024 * 1024 * 1.37; // Base64 is ~37% larger
+  // Check size (data URLs can be large - limit to 15MB base64 encoded)
+  const maxSize = 15 * 1024 * 1024 * 1.37; // Base64 is ~37% larger
   if (dataUrl.length > maxSize) {
     console.warn('🔒 Rejected oversized data URL:', dataUrl.length, 'bytes');
     return null;
@@ -451,7 +451,9 @@ class PetProcessor {
     
     this.container = document.getElementById(`pet-processor-content-${sectionId}`);
     
-    this.apiUrl = 'https://inspirenet-bg-removal-api-725543555429.us-central1.run.app';
+    // STAGING: BiRefNet (faster, higher quality)
+    // PRODUCTION: 'https://inspirenet-bg-removal-api-725543555429.us-central1.run.app'
+    this.apiUrl = 'https://birefnet-bg-removal-api-753651513695.us-central1.run.app';
     this.currentPet = null;
     this.isProcessing = false;
     this.geminiGenerating = false;  // Track Gemini generation state separately
@@ -465,6 +467,10 @@ class PetProcessor {
     this.geminiClient = null;
     this.geminiUI = null;
     this.geminiEnabled = false;
+
+    // Track pending GCS uploads for deferred completion
+    // Uploads happen in background, awaited only at cart time
+    this.pendingGcsUploads = null;
 
     // Initialize
     this.init();
@@ -510,12 +516,165 @@ class PetProcessor {
     try {
       console.log('🔄 Attempting to restore session from localStorage');
 
-      // === NEW: Check for pet selector uploaded images FIRST ===
-      const petSelectorImage = await this.checkPetSelectorUploads();
-      if (petSelectorImage) {
-        console.log('📸 Found uploaded image from pet selector, auto-loading...');
-        await this.loadPetSelectorImage(petSelectorImage);
-        return; // Early return - don't check PetStorage
+      // === PRIORITY: Check if returning from product page ===
+      // If returning, skip pet selector check to avoid re-processing
+      const urlParams = new URLSearchParams(window.location.search);
+      const isReturningFromProduct = urlParams.get('from') === 'product' ||
+                                      sessionStorage.getItem('returning_from_product') === 'true';
+
+      if (isReturningFromProduct) {
+        console.log('🔙 Returning from product page - checking sessionStorage for saved state');
+        // Clear the return indicator (ProductMockupRenderer will also clear it)
+        sessionStorage.removeItem('returning_from_product');
+
+        // === FIX: Read from sessionStorage.processor_mockup_state ===
+        // When clicking products in mockup grid, only sessionStorage is saved (not PetStorage)
+        // ProductMockupRenderer.saveProcessorState() saves to processor_mockup_state
+        const savedState = sessionStorage.getItem('processor_mockup_state');
+        if (savedState) {
+          try {
+            const state = JSON.parse(savedState);
+
+            // Validate state freshness (expire after 30 minutes)
+            const MAX_AGE = 30 * 60 * 1000;
+            if (Date.now() - state.timestamp > MAX_AGE) {
+              console.log('🔙 Saved state expired, clearing');
+              sessionStorage.removeItem('processor_mockup_state');
+            } else if (state.petData && state.petData.effects) {
+              console.log('🔙 Restoring from sessionStorage.processor_mockup_state');
+
+              // Reconstruct currentPet from saved state
+              this.currentPet = {
+                id: state.petData.sessionKey || `pet_restored_${Date.now()}`,
+                filename: 'Pet',
+                effects: {},
+                selectedEffect: state.petData.selectedEffect || 'enhancedblackwhite'
+              };
+
+              // Restore all effects from saved state
+              for (const [effectName, effectData] of Object.entries(state.petData.effects)) {
+                if (effectData && (effectData.dataUrl || effectData.gcsUrl)) {
+                  this.currentPet.effects[effectName] = {
+                    gcsUrl: effectData.gcsUrl || '',
+                    dataUrl: effectData.dataUrl || null,
+                    cacheHit: true
+                  };
+                }
+              }
+
+              const effectCount = Object.keys(this.currentPet.effects).length;
+              if (effectCount > 0) {
+                console.log(`✅ [SessionStorage] Restored ${effectCount} effect(s):`, Object.keys(this.currentPet.effects));
+
+                // Show the result view
+                this.showResult({ effects: this.currentPet.effects });
+
+                // === Explicitly show views after RAF schedules ===
+                setTimeout(() => {
+                  const uploadZone = this.container.querySelector('.upload-zone');
+                  const effectGrid = this.container.querySelector('.effect-grid-wrapper');
+                  const resultView = this.container.querySelector('.processor-preview .result-view');
+                  const placeholder = this.container.querySelector('.preview-placeholder');
+                  const container = this.container.querySelector('.pet-processor-container');
+                  const inlineHeader = this.container.querySelector('.inline-section-header');
+
+                  if (uploadZone && !uploadZone.hidden) {
+                    uploadZone.hidden = true;
+                    console.log('🔧 [SessionStorage Restoration] Hiding upload zone');
+                  }
+                  if (effectGrid && effectGrid.hidden) {
+                    effectGrid.hidden = false;
+                    console.log('🔧 [SessionStorage Restoration] Showing effect grid');
+                  }
+                  if (resultView && resultView.hidden) {
+                    resultView.hidden = false;
+                    console.log('🔧 [SessionStorage Restoration] Showing result view');
+                  }
+                  if (placeholder && placeholder.style.display !== 'none') {
+                    placeholder.style.display = 'none';
+                    console.log('🔧 [SessionStorage Restoration] Hiding placeholder');
+                  }
+                  if (container && !container.classList.contains('has-result')) {
+                    container.classList.add('has-result');
+                    console.log('🔧 [SessionStorage Restoration] Adding has-result class');
+                  }
+                  if (inlineHeader && inlineHeader.hidden) {
+                    inlineHeader.hidden = false;
+                    console.log('🔧 [SessionStorage Restoration] Showing inline header');
+                  }
+                }, 50);
+
+                // Set initial image to selected effect
+                const img = this.container.querySelector('.pet-image');
+                if (img) {
+                  const selectedEffectData = this.currentPet.effects[this.currentPet.selectedEffect];
+                  if (selectedEffectData) {
+                    img.src = selectedEffectData.dataUrl || selectedEffectData.gcsUrl;
+                  }
+                }
+
+                // Update style card thumbnails
+                this.updateStyleCardPreviews({ effects: this.currentPet.effects });
+
+                // Dispatch event for mockup grid
+                document.dispatchEvent(new CustomEvent('petProcessingComplete', {
+                  detail: {
+                    sessionKey: this.currentPet.id,
+                    selectedEffect: this.currentPet.selectedEffect,
+                    effects: this.currentPet.effects,
+                    isRestored: true
+                  }
+                }));
+
+                return; // Successfully restored from sessionStorage
+              }
+            }
+          } catch (parseError) {
+            console.error('❌ Failed to parse processor_mockup_state:', parseError);
+          }
+        }
+
+        console.log('🔙 No valid sessionStorage state, falling back to PetStorage');
+        // Fall through to PetStorage check below
+      } else {
+        // === FIX: Check PetStorage FIRST before checking pet selector uploads ===
+        // PetStorage may already have fully processed effects (including Gemini effects)
+        // Only fall through to pet selector uploads if no processed effects found
+
+        let hasPetStorageEffects = false;
+
+        if (typeof PetStorage !== 'undefined') {
+          try {
+            const recentPets = PetStorage.getRecentPets(1);
+            if (recentPets && recentPets.length > 0) {
+              const recentPet = recentPets[0];
+              const effectCount = Object.keys(recentPet.effects || {}).length;
+
+              // Check if pet was processed within last 30 minutes (fresh session)
+              // NOTE: getRecentPets() returns processedAt (not timestamp like getAll())
+              const MAX_AGE = 30 * 60 * 1000;
+              const isRecent = (Date.now() - (recentPet.processedAt || 0)) < MAX_AGE;
+
+              if (effectCount > 0 && isRecent) {
+                console.log(`🔄 [Priority Check] PetStorage has ${effectCount} processed effect(s), skipping pet selector re-processing`);
+                hasPetStorageEffects = true;
+                // Fall through to PetStorage restoration below
+              }
+            }
+          } catch (err) {
+            console.warn('⚠️ PetStorage priority check failed:', err);
+          }
+        }
+
+        // Only check pet selector uploads if PetStorage doesn't have processed effects
+        if (!hasPetStorageEffects) {
+          const petSelectorImage = await this.checkPetSelectorUploads();
+          if (petSelectorImage) {
+            console.log('📸 Found uploaded image from pet selector, auto-loading...');
+            await this.loadPetSelectorImage(petSelectorImage);
+            return; // Early return - don't check PetStorage
+          }
+        }
       }
 
       // === EXISTING: Check PetStorage for processed pets ===
@@ -592,22 +751,36 @@ class PetProcessor {
         selectedEffect: latestPet.data.selectedEffect || latestPet.data.effect || 'enhancedblackwhite'
       };
 
-      // Restore all effects from new simplified format
+      // Restore all effects from storage
+      // PetStorage v3 saves effects as flat URL strings, not objects
       if (latestPet.data.effects && typeof latestPet.data.effects === 'object') {
         for (const [effectName, effectData] of Object.entries(latestPet.data.effects)) {
-          if (!effectData || typeof effectData !== 'object') continue;
+          if (!effectData) continue;
 
-          // Validate URLs/data for each effect
           let validatedEffect = { cacheHit: true };
 
-          if (effectData.gcsUrl && validateGCSUrl(effectData.gcsUrl)) {
-            validatedEffect.gcsUrl = effectData.gcsUrl;
+          // Handle string format (PetStorage v3 saves effects as URL strings)
+          if (typeof effectData === 'string') {
+            if (effectData.startsWith('https://') && validateGCSUrl(effectData)) {
+              validatedEffect.gcsUrl = effectData;
+            } else if (effectData.startsWith('data:')) {
+              const sanitized = validateAndSanitizeImageData(effectData);
+              if (sanitized) {
+                validatedEffect.dataUrl = sanitized;
+              }
+            }
           }
+          // Handle object format (legacy/direct saves)
+          else if (typeof effectData === 'object') {
+            if (effectData.gcsUrl && validateGCSUrl(effectData.gcsUrl)) {
+              validatedEffect.gcsUrl = effectData.gcsUrl;
+            }
 
-          if (effectData.dataUrl) {
-            const sanitized = validateAndSanitizeImageData(effectData.dataUrl);
-            if (sanitized) {
-              validatedEffect.dataUrl = sanitized;
+            if (effectData.dataUrl) {
+              const sanitized = validateAndSanitizeImageData(effectData.dataUrl);
+              if (sanitized) {
+                validatedEffect.dataUrl = sanitized;
+              }
             }
           }
 
@@ -674,13 +847,88 @@ class PetProcessor {
         // Show the result view
         this.showResult({ effects: this.currentPet.effects });
 
+        // === CRITICAL FIX: Explicitly show views after RAF schedules ===
+        // showResult() uses requestAnimationFrame which is async.
+        // Ensure views are shown immediately for restoration flow.
+        setTimeout(() => {
+          // Double-check views are visible (RAF might not have fired yet)
+          const uploadZone = this.container.querySelector('.upload-zone');
+          const effectGrid = this.container.querySelector('.effect-grid-wrapper');
+          const resultView = this.container.querySelector('.processor-preview .result-view');
+          const placeholder = this.container.querySelector('.preview-placeholder');
+          const container = this.container.querySelector('.pet-processor-container');
+          const inlineHeader = this.container.querySelector('.inline-section-header');
+
+          // Hide upload zone
+          if (uploadZone && !uploadZone.hidden) {
+            uploadZone.hidden = true;
+            console.log('🔧 [Restoration] Explicitly hiding upload zone');
+          }
+
+          // Show effect grid
+          if (effectGrid && effectGrid.hidden) {
+            effectGrid.hidden = false;
+            console.log('🔧 [Restoration] Explicitly showing effect grid');
+          }
+
+          // Show result view
+          if (resultView && resultView.hidden) {
+            resultView.hidden = false;
+            console.log('🔧 [Restoration] Explicitly showing result view');
+          }
+
+          // Hide placeholder
+          if (placeholder && placeholder.style.display !== 'none') {
+            placeholder.style.display = 'none';
+            console.log('🔧 [Restoration] Explicitly hiding placeholder');
+          }
+
+          // Add has-result class
+          if (container && !container.classList.contains('has-result')) {
+            container.classList.add('has-result');
+            console.log('🔧 [Restoration] Explicitly adding has-result class');
+          }
+
+          // Show inline section header (desktop side-by-side layout)
+          if (inlineHeader && inlineHeader.hidden) {
+            inlineHeader.hidden = false;
+            console.log('🔧 [Restoration] Explicitly showing inline section header');
+          }
+        }, 50); // Small delay to let RAF callback fire first if it will
+
         // Set initial image to selected effect
         const img = this.container.querySelector('.pet-image');
         if (img) {
           const selectedEffectData = this.currentPet.effects[this.currentPet.selectedEffect];
           if (selectedEffectData) {
-            img.src = selectedEffectData.gcsUrl || selectedEffectData.dataUrl;
+            // Prefer dataUrl (transparent for Gemini effects), fallback to gcsUrl
+            img.src = selectedEffectData.dataUrl || selectedEffectData.gcsUrl;
           }
+        }
+
+        // === CRITICAL: Populate style card thumbnails with cached images ===
+        // Without this, thumbnails show placeholders instead of user's pet
+        this.updateStyleCardPreviews({ effects: this.currentPet.effects });
+
+        // Highlight the selected effect button
+        const selectedBtn = this.container.querySelector(`[data-effect="${this.currentPet.selectedEffect}"]`);
+        if (selectedBtn) {
+          this.container.querySelectorAll('.effect-btn').forEach(btn => btn.classList.remove('active'));
+          selectedBtn.classList.add('active');
+        }
+
+        // Dispatch event for mockup grid restoration
+        // This triggers ProductMockupRenderer to show product previews
+        const selectedEffectUrl = this.currentPet.effects[this.currentPet.selectedEffect]?.gcsUrl ||
+                                   this.currentPet.effects[this.currentPet.selectedEffect]?.dataUrl;
+        if (selectedEffectUrl) {
+          this.dispatchProcessingComplete({
+            effects: this.currentPet.effects,
+            sessionKey: this.currentPet.id,
+            selectedEffect: this.currentPet.selectedEffect,
+            isRestoration: true // Flag to skip animations in mockup grid
+          });
+          console.log('📤 Dispatched petProcessingComplete for mockup grid restoration');
         }
       } else {
         console.log('🔄 Pet found but no valid effects to restore');
@@ -883,11 +1131,28 @@ class PetProcessor {
       let cleared = 0;
       // Clear up to 10 pet slots (pet_0 through pet_9)
       for (let i = 0; i < 10; i++) {
-        const key = `pet_${i}_images`;
-        if (localStorage.getItem(key)) {
-          localStorage.removeItem(key);
+        // Clear base64 format (pet_X_images)
+        const base64Key = `pet_${i}_images`;
+        if (localStorage.getItem(base64Key)) {
+          localStorage.removeItem(base64Key);
           cleared++;
-          console.log(`🧹 Cleared old upload: ${key}`);
+          console.log(`🧹 Cleared old upload: ${base64Key}`);
+        }
+
+        // FIX: Also clear GCS URL format (pet_X_image_url)
+        // This prevents re-processing when user returns to processor page
+        // after the 30-minute PetStorage timeout expires
+        const urlKey = `pet_${i}_image_url`;
+        if (localStorage.getItem(urlKey)) {
+          localStorage.removeItem(urlKey);
+          cleared++;
+          console.log(`🧹 Cleared GCS URL upload: ${urlKey}`);
+        }
+
+        // Clear metadata too (pet_X_file_metadata)
+        const metaKey = `pet_${i}_file_metadata`;
+        if (localStorage.getItem(metaKey)) {
+          localStorage.removeItem(metaKey);
         }
       }
 
@@ -905,10 +1170,11 @@ class PetProcessor {
   }
 
   initializeFeatures() {
-    // Initialize comparison manager
-    if (typeof ComparisonManager !== 'undefined') {
-      this.comparisonManager = new ComparisonManager(this);
-    }
+    // DISABLED: Comparison manager not part of current customer journey
+    // Caused unexpected comparison overlay trigger when selecting effects
+    // if (typeof ComparisonManager !== 'undefined') {
+    //   this.comparisonManager = new ComparisonManager(this);
+    // }
 
     // Initialize social sharing
     if (typeof PetSocialSharing !== 'undefined') {
@@ -934,6 +1200,19 @@ class PetProcessor {
       if (this.geminiEnabled) {
         console.log('🎨 Gemini AI effects enabled - Ink Wash and Marker styles available');
 
+        // Check quota on initialization to get accurate state BEFORE updating UI
+        this.geminiClient.checkQuota().then(() => {
+          console.log('🎨 Initial quota check complete:', this.geminiClient.quotaState);
+
+          // Update button states after quota check completes
+          this.updateEffectButtonStates();
+        }).catch(err => {
+          console.warn('🎨 Initial quota check failed, using default:', err);
+
+          // Still update buttons even if quota check fails (will use default state)
+          this.updateEffectButtonStates();
+        });
+
         // Initialize UI after container is rendered
         setTimeout(() => {
           this.geminiUI = new GeminiEffectsUI(this.geminiClient);
@@ -941,10 +1220,6 @@ class PetProcessor {
 
           // Start midnight quota reset checker
           this.geminiUI.checkQuotaReset();
-
-          // Update button states now that Gemini is initialized
-          // This ensures buttons reflect geminiEnabled = true for restored sessions
-          this.updateEffectButtonStates();
         }, 100);
       } else {
         console.log('🎨 Gemini AI effects disabled by feature flag');
@@ -983,7 +1258,7 @@ class PetProcessor {
               <label for="pet-upload-${this.sectionId}" class="upload-label">
                 <div class="upload-icon">📷</div>
                 <div class="upload-text">Tap to upload or take photo</div>
-                <div class="upload-hint">JPG or PNG • Max 10MB</div>
+                <div class="upload-hint">JPG or PNG • Max 15MB</div>
               </label>
             </div>
             
@@ -1000,6 +1275,12 @@ class PetProcessor {
               </button>
             </div>
             
+            <!-- Inline Section Heading (desktop side-by-side layout only) -->
+            <div class="inline-section-header" hidden>
+              <h2 class="inline-section-heading"></h2>
+              <p class="inline-section-subheading"></p>
+            </div>
+
             <!-- Effect Selection (shown in result view) -->
             <div class="effect-grid-wrapper" hidden>
               <h3 class="effect-grid-heading">Choose Style</h3>
@@ -1008,7 +1289,7 @@ class PetProcessor {
                 <label class="effect-btn style-card active" data-effect="enhancedblackwhite">
                   <div class="style-card__content">
                     <div class="style-card__image-wrapper">
-                      <img src="" alt="Black & White style preview" class="style-card__image" data-style-preview="bw">
+                      <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100'%3E%3Crect fill='%23f5f5f5' width='100' height='100'/%3E%3C/svg%3E" alt="Black & White style preview" class="style-card__image" data-style-preview="bw">
                     </div>
                     <p class="style-card__label">Black & White</p>
                   </div>
@@ -1016,7 +1297,7 @@ class PetProcessor {
                 <label class="effect-btn style-card" data-effect="color">
                   <div class="style-card__content">
                     <div class="style-card__image-wrapper">
-                      <img src="" alt="Color style preview" class="style-card__image" data-style-preview="color">
+                      <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100'%3E%3Crect fill='%23f5f5f5' width='100' height='100'/%3E%3C/svg%3E" alt="Color style preview" class="style-card__image" data-style-preview="color">
                     </div>
                     <p class="style-card__label">Color</p>
                   </div>
@@ -1024,7 +1305,7 @@ class PetProcessor {
                 <label class="effect-btn style-card" data-effect="ink_wash">
                   <div class="style-card__content">
                     <div class="style-card__image-wrapper">
-                      <img src="" alt="Ink Wash style preview" class="style-card__image" data-style-preview="ink_wash">
+                      <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100'%3E%3Crect fill='%23f5f5f5' width='100' height='100'/%3E%3C/svg%3E" alt="Ink Wash style preview" class="style-card__image" data-style-preview="ink_wash">
                     </div>
                     <p class="style-card__label">Ink Wash</p>
                   </div>
@@ -1032,73 +1313,20 @@ class PetProcessor {
                 <label class="effect-btn style-card" data-effect="sketch">
                   <div class="style-card__content">
                     <div class="style-card__image-wrapper">
-                      <img src="" alt="Marker style preview" class="style-card__image" data-style-preview="sketch">
+                      <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100'%3E%3Crect fill='%23f5f5f5' width='100' height='100'/%3E%3C/svg%3E" alt="Marker style preview" class="style-card__image" data-style-preview="sketch">
                     </div>
                     <p class="style-card__label">Marker</p>
                   </div>
                 </label>
               </div>
-            </div>
 
-            <!-- Actions (shown in result view) -->
-            <div class="action-buttons" hidden>
+              <!-- Crop Button - directly below style buttons -->
+              <button class="btn-secondary crop-btn" aria-label="Crop image">
+                ✂️ Crop Image
+              </button>
 
-              <!-- Inline Email Capture Section -->
-              <div class="email-capture-inline" role="region" aria-label="Email capture for free download">
-                <div class="email-capture-header">
-                  <h3 class="email-heading">Love it?</h3>
-                </div>
-
-                <!-- Primary CTA: Add to Product (moved inside container) -->
-                <button class="btn-primary-shop add-to-product-btn" aria-label="Add to product page">
-                  🛍️ Add to Product
-                </button>
-
-                <!-- OR Separator -->
-                <div class="cta-separator">
-                  <span class="separator-line"></span>
-                  <span class="separator-text">or</span>
-                  <span class="separator-line"></span>
-                </div>
-
-                <!-- Email prompt text -->
-                <p class="email-prompt-text">Enter your email to download this image and get updates on new styles and offers</p>
-
-                <form class="email-form-inline" id="email-form-inline-${this.sectionId}">
-                  <div class="email-input-group">
-                    <input type="email"
-                           class="email-input-inline"
-                           id="email-input-inline-${this.sectionId}"
-                           name="email"
-                           placeholder="your@email.com"
-                           autocomplete="email"
-                           autocorrect="off"
-                           autocapitalize="off"
-                           spellcheck="false"
-                           aria-label="Email address for download links"
-                           required>
-
-                    <button type="submit" class="btn-email-submit" aria-label="Submit email to get free download link">
-                      <span class="btn-text">Get Image</span>
-                      <span class="btn-icon">📥</span>
-                    </button>
-                  </div>
-
-                  <p class="email-privacy-note">
-                    We respect your privacy. Unsubscribe anytime.
-                    <a href="/policies/privacy-policy" target="_blank">Privacy Policy</a>
-                  </p>
-
-                  <div class="email-error-inline" role="alert" aria-live="polite" hidden></div>
-                  <div class="email-success-inline" role="status" aria-live="polite" hidden>
-                    <span class="success-icon">✓</span>
-                    <span class="success-message">Download link sent to your email!</span>
-                  </div>
-                </form>
-              </div>
-
-              <!-- Tertiary CTA: Try Another Pet -->
-              <button class="btn-link process-another-btn" aria-label="Process another pet image">
+              <!-- Try Another Pet Button - same styling as crop button -->
+              <button class="btn-secondary try-another-btn" aria-label="Process another pet image">
                 ↻ Try Another Pet
               </button>
             </div>
@@ -1147,6 +1375,16 @@ class PetProcessor {
               <div class="placeholder-text">Your processed image will appear here</div>
             </div>
           </div>
+        </div>
+
+        <!-- Scroll Hint - Encourages product discovery -->
+        <div class="scroll-hint-container" data-scroll-hint>
+          <p class="scroll-hint-text">See your pet on our products</p>
+          <span class="scroll-hint-arrow">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 5v14M5 12l7 7 7-7"/>
+            </svg>
+          </span>
         </div>
       </div>
     `;
@@ -1204,31 +1442,162 @@ class PetProcessor {
     }
   }
 
+  /**
+   * Load a pet from storage into the processor view
+   *
+   * @param {Object} pet - Pet data object with sessionKey, effects, selectedEffect
+   */
+  loadPetFromStorage(pet) {
+    if (!pet || !pet.effects) {
+      console.error('❌ Invalid pet data:', pet);
+      return;
+    }
+
+    // Reconstruct currentPet object
+    this.currentPet = {
+      id: pet.sessionKey,
+      filename: 'Pet',
+      effects: {},
+      selectedEffect: pet.selectedEffect || 'enhancedblackwhite'
+    };
+
+    // Restore effects from pet data
+    for (const [effectName, effectData] of Object.entries(pet.effects)) {
+      if (effectData && (effectData.gcsUrl || effectData.dataUrl)) {
+        this.currentPet.effects[effectName] = {
+          gcsUrl: effectData.gcsUrl || '',
+          dataUrl: effectData.dataUrl || null,
+          cacheHit: true
+        };
+      }
+    }
+
+    const effectCount = Object.keys(this.currentPet.effects).length;
+    if (effectCount === 0) {
+      console.warn('⚠️ Pet has no valid effects:', pet.sessionKey);
+      return;
+    }
+
+    console.log(`✅ Loaded pet ${pet.sessionKey} with ${effectCount} effect(s)`);
+
+    // Show the result view
+    this.showResult({ effects: this.currentPet.effects });
+
+    // Ensure views are properly shown
+    setTimeout(() => {
+      const uploadZone = this.container.querySelector('.upload-zone');
+      const effectGrid = this.container.querySelector('.effect-grid-wrapper');
+      const resultView = this.container.querySelector('.processor-preview .result-view');
+      const placeholder = this.container.querySelector('.preview-placeholder');
+      const container = this.container.querySelector('.pet-processor-container');
+      const inlineHeader = this.container.querySelector('.inline-section-header');
+
+      if (uploadZone) uploadZone.hidden = true;
+      if (effectGrid) effectGrid.hidden = false;
+      if (resultView) resultView.hidden = false;
+      if (placeholder) placeholder.style.display = 'none';
+      if (container) container.classList.add('has-result');
+      if (inlineHeader) inlineHeader.hidden = false;
+    }, 50);
+
+    // Set initial image to selected effect
+    const img = this.container.querySelector('.pet-image');
+    if (img) {
+      const selectedEffectData = this.currentPet.effects[this.currentPet.selectedEffect];
+      if (selectedEffectData) {
+        img.src = selectedEffectData.dataUrl || selectedEffectData.gcsUrl;
+      }
+    }
+
+    // Update style card thumbnails
+    this.updateStyleCardPreviews({ effects: this.currentPet.effects });
+
+    // Highlight the selected effect button
+    const selectedBtn = this.container.querySelector(`[data-effect="${this.currentPet.selectedEffect}"]`);
+    if (selectedBtn) {
+      this.container.querySelectorAll('.effect-btn').forEach(btn => btn.classList.remove('active'));
+      selectedBtn.classList.add('active');
+    }
+
+    // Dispatch event for mockup grid
+    this.dispatchProcessingComplete({
+      effects: this.currentPet.effects,
+      sessionKey: this.currentPet.id,
+      selectedEffect: this.currentPet.selectedEffect,
+      isRestoration: true
+    });
+  }
+
+  /**
+   * Get effect display name for UI
+   * @param {string} effectKey - Internal effect key
+   * @returns {string} Human-readable name
+   */
+  getEffectDisplayName(effectKey) {
+    const names = {
+      'enhancedblackwhite': 'B&W',
+      'color': 'Color',
+      'ink_wash': 'Ink Wash',
+      'sketch': 'Marker'
+    };
+    return names[effectKey] || effectKey;
+  }
+
+  /**
+   * Escape HTML to prevent XSS
+   * @param {string} str - String to escape
+   * @returns {string} Escaped string
+   */
+  escapeHtml(str) {
+    if (!str) return '';
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+  }
+
   bindEvents() {
     // File input
     const fileInput = this.container.querySelector('.file-input');
     fileInput?.addEventListener('change', (e) => this.handleFileSelect(e));
-    
+
     // Drag and drop
     const uploadZone = this.container.querySelector('[data-upload-zone]');
     uploadZone?.addEventListener('dragover', (e) => this.handleDragOver(e));
     uploadZone?.addEventListener('drop', (e) => this.handleDrop(e));
-    
+
+    // Click handler for collapsed upload zone (mobile "Change Photo" button)
+    uploadZone?.addEventListener('click', (e) => {
+      const container = this.container.querySelector('.pet-processor-container');
+      if (container?.classList.contains('has-result')) {
+        // In collapsed state, click anywhere on upload zone triggers file input
+        fileInput?.click();
+      }
+    });
+
+    // Phase 2: Tap-to-zoom on mobile image preview
+    const imageContainer = this.container.querySelector('.pet-image-container');
+    if (imageContainer && window.innerWidth <= 768) {
+      imageContainer.addEventListener('click', () => this.showImageZoom());
+    }
+
     // Effect buttons
     this.container.querySelectorAll('.effect-btn').forEach(btn => {
       btn.addEventListener('click', (e) => this.switchEffect(e.target.closest('.effect-btn')));
     });
     
     // Action buttons
-    this.container.querySelector('.add-to-product-btn')?.addEventListener('click', () => this.handleAddToProduct());
-    this.container.querySelector('.process-another-btn')?.addEventListener('click', async () => await this.processAnother());
+    this.container.querySelector('.crop-btn')?.addEventListener('click', () => this.handleCropClick());
     this.container.querySelector('.try-again-btn')?.addEventListener('click', () => this.reset());
+    this.container.querySelector('.try-another-btn')?.addEventListener('click', async () => await this.processAnother());
 
-    // Inline email capture form
-    const emailFormInline = this.container.querySelector('.email-form-inline');
-    if (emailFormInline) {
-      emailFormInline.addEventListener('submit', (e) => this.handleInlineEmailSubmit(e));
+    // Scroll hint - tap to scroll to product mockup grid
+    const scrollHint = this.container.querySelector('[data-scroll-hint]');
+    if (scrollHint) {
+      scrollHint.addEventListener('click', () => this.scrollToMockupGrid());
     }
+
+    // Listen for "Try Another Pet" event from mockup grid
+    document.addEventListener('tryAnotherPet', async () => await this.processAnother());
   }
   
   handleFileSelect(event) {
@@ -1247,7 +1616,64 @@ class PetProcessor {
     const file = event.dataTransfer.files?.[0];
     if (file) this.processFile(file);
   }
-  
+
+  /**
+   * Scroll to the product mockup grid section
+   * Called when user taps the scroll hint
+   */
+  scrollToMockupGrid() {
+    const mockupGrid = document.querySelector('.ks-product-mockup-grid');
+    if (mockupGrid) {
+      mockupGrid.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }
+
+  /**
+   * Phase 2: Show fullscreen image zoom overlay
+   * Displays the current processed image in a fullscreen overlay
+   * with backdrop and close button
+   */
+  showImageZoom() {
+    const petImage = this.container.querySelector('.pet-image');
+    if (!petImage || !petImage.src) {
+      console.warn('No image available to zoom');
+      return;
+    }
+
+    // Create overlay
+    const overlay = document.createElement('div');
+    overlay.className = 'image-zoom-overlay';
+    overlay.innerHTML = `
+      <div class="zoom-backdrop"></div>
+      <div class="zoom-container">
+        <img src="${petImage.src}" class="zoom-image" alt="Full size pet image">
+        <button class="zoom-close" aria-label="Close zoom">✕</button>
+      </div>
+    `;
+
+    // Close on backdrop click
+    const backdrop = overlay.querySelector('.zoom-backdrop');
+    backdrop?.addEventListener('click', () => overlay.remove());
+
+    // Close on button click
+    const closeBtn = overlay.querySelector('.zoom-close');
+    closeBtn?.addEventListener('click', () => overlay.remove());
+
+    // Close on Escape key
+    const handleEscape = (e) => {
+      if (e.key === 'Escape') {
+        overlay.remove();
+        document.removeEventListener('keydown', handleEscape);
+      }
+    };
+    document.addEventListener('keydown', handleEscape);
+
+    // Add overlay to body
+    document.body.appendChild(overlay);
+
+    console.log('🔍 Image zoom overlay displayed');
+  }
+
   async processFile(file) {
     // Validate file
     if (!file.type.startsWith('image/')) {
@@ -1255,8 +1681,8 @@ class PetProcessor {
       return;
     }
 
-    if (file.size > 10 * 1024 * 1024) {
-      this.showError('Image must be less than 10MB');
+    if (file.size > 15 * 1024 * 1024) {
+      this.showError('Image must be less than 15MB');
       return;
     }
 
@@ -1264,10 +1690,10 @@ class PetProcessor {
     this.showProcessing();
 
     try {
-      // Process image with API (no longer uploading original)
+      // Process image with API (uploads original to GCS in background for fulfillment)
       const result = await this.callAPI(file);
 
-      // Store result (no originalUrl - customer will upload on product page)
+      // Store result (originalUrl uploaded in background, available via effects._originalUrl)
       this.currentPet = {
         id: `pet_${crypto.randomUUID()}`,
         filename: file.name,
@@ -1300,15 +1726,145 @@ class PetProcessor {
     }
     return sessionId;
   }
-  
+
+  /**
+   * Show crop interface for post-processing crop
+   * Called after effects are applied, allows user to crop the result
+   * @param {string} imageUrl - URL of the processed image to crop
+   * @returns {Promise<{croppedUrl: string, croppedFile: File}|null>} Cropped result or null if cancelled
+   */
+  async showCropInterface(imageUrl) {
+    // Check if crop is enabled (feature flag)
+    const cropEnabled = localStorage.getItem('perkieprints_crop_enabled') !== 'false';
+    if (!cropEnabled || !window.CropProcessor) {
+      console.log('Crop disabled or CropProcessor not available');
+      return null;
+    }
+
+    return new Promise((resolve, reject) => {
+      // Get or create crop container
+      let cropContainer = document.querySelector('.crop-container');
+      if (!cropContainer) {
+        cropContainer = document.createElement('div');
+        cropContainer.className = 'crop-container';
+        cropContainer.setAttribute('aria-hidden', 'true');
+        document.body.appendChild(cropContainer);
+      }
+
+      // Initialize crop processor
+      const cropProcessor = new window.CropProcessor({
+        onCrop: async (croppedFile) => {
+          console.log('✂️ Post-processing crop applied');
+
+          // Convert cropped file to data URL for display
+          const reader = new FileReader();
+          reader.onload = () => {
+            resolve({
+              croppedUrl: reader.result,
+              croppedFile: croppedFile
+            });
+          };
+          reader.readAsDataURL(croppedFile);
+        },
+        onSkip: () => {
+          console.log('⏭️ Crop skipped');
+          resolve(null);
+        },
+        onCancel: () => {
+          console.log('❌ Crop cancelled');
+          resolve(null);
+        }
+      });
+
+      cropProcessor.init(cropContainer);
+
+      // Load processed image and show crop UI
+      cropProcessor.loadImage(imageUrl).then(() => {
+        cropProcessor.show();
+      }).catch(reject);
+    });
+  }
+
+  /**
+   * Handle crop button click - crops the currently selected effect
+   */
+  async handleCropClick() {
+    if (!this.currentPet || !this.currentPet.selectedEffect) {
+      console.warn('No effect selected for cropping');
+      return;
+    }
+
+    const selectedEffect = this.currentPet.selectedEffect;
+    const effectData = this.currentPet.effects?.[selectedEffect];
+
+    if (!effectData) {
+      console.warn('Effect data not found:', selectedEffect);
+      return;
+    }
+
+    // Get the image URL (prefer dataUrl for transparent Gemini effects, fallback to gcsUrl)
+    const imageUrl = effectData.dataUrl || effectData.gcsUrl;
+    if (!imageUrl) {
+      console.warn('No image URL found for effect:', selectedEffect);
+      return;
+    }
+
+    try {
+      const cropResult = await this.showCropInterface(imageUrl);
+
+      if (cropResult) {
+        // Update the effect with cropped version
+        this.currentPet.effects[selectedEffect].croppedUrl = cropResult.croppedUrl;
+        this.currentPet.effects[selectedEffect].croppedFile = cropResult.croppedFile;
+
+        // Update the displayed image
+        const petImage = this.container.querySelector('.pet-image');
+        if (petImage) {
+          petImage.src = cropResult.croppedUrl;
+        }
+
+        console.log('✅ Crop applied to effect:', selectedEffect);
+
+        // Dispatch petCropped event for mockup grid integration
+        document.dispatchEvent(new CustomEvent('petCropped', {
+          detail: {
+            effect: selectedEffect,
+            croppedUrl: cropResult.croppedUrl,
+            sessionKey: this.currentPet?.id,
+            timestamp: Date.now()
+          },
+          bubbles: true
+        }));
+        console.log('📤 petCropped event dispatched');
+      }
+    } catch (error) {
+      console.error('Crop error:', error);
+    }
+  }
+
   async callAPI(file) {
-    // Simple EXIF rotation fix for mobile photos
-    const fixedFile = await this.fixImageRotation(file);
-    
+    // Detailed timing breakdown for debugging
+    const timing = {
+      totalStart: Date.now(),
+      exifFix: { start: 0, end: 0 },
+      birefnet: { start: 0, end: 0 },
+      gcsUpload: { start: 0, end: 0 },
+      gemini: { start: 0, end: 0 }
+    };
+
+    // EXIF rotation fix SKIPPED - modern browsers + APIs handle EXIF automatically
+    // Saves ~1 second per upload (was doing unnecessary canvas rotation)
+    timing.exifFix.start = Date.now();
+    // Resize large images before upload to reduce bandwidth (1600px max)
+    // BiRefNet caps at 2048px anyway, so this saves 50-70% upload time for 12MP+ images
+    const resizedFile = await this.resizeImageForUpload(file, 1600);
+    timing.exifFix.end = Date.now();
+    console.log(`⏱️ Image prep (resize if needed): ${timing.exifFix.end - timing.exifFix.start}ms`);
+
     const formData = new FormData();
-    formData.append('file', fixedFile);
+    formData.append('file', resizedFile);
     formData.append('effects', 'enhancedblackwhite,color');
-    
+
     // Detect API warmth state BEFORE showing any timer
     const warmthTracker = new APIWarmthTracker();
     const warmthState = warmthTracker.getWarmthState();
@@ -1323,17 +1879,17 @@ class PetProcessor {
       initialMessage = '⚡ Fast processing mode active...';
       timeRemaining = '15 seconds remaining';
     } else if (warmthState === 'cold' || isFirstTime) {
-      // Cold API or first-time user: 75-85 seconds
-      estimatedTime = 80000;
-      initialMessage = isFirstTime ? 
-        '🤖 First-time setup - loading specialized pet AI...' : 
-        '🧠 Warming up AI model for premium quality...';
-      timeRemaining = '80 seconds remaining';
+      // Cold API or first-time user: 55-65 seconds (50s actual + 10s buffer)
+      estimatedTime = 60000;
+      initialMessage = isFirstTime ?
+        '🤖 First-time setup - loading pet processing engine...' :
+        '🧠 Warming up for premium quality...';
+      timeRemaining = '60 seconds remaining';
     } else {
-      // Unknown state: Conservative estimate
-      estimatedTime = 45000;
+      // Unknown state: Conservative estimate (35s actual + 5s buffer)
+      estimatedTime = 40000;
       initialMessage = '📤 Processing your pet photo...';
-      timeRemaining = '45 seconds remaining';
+      timeRemaining = '40 seconds remaining';
     }
     
     const startTime = Date.now();
@@ -1345,25 +1901,28 @@ class PetProcessor {
     this.updateProgressWithTimer(10, initialMessage, timeRemaining);
     
     // Add return_all_effects=true to get JSON response with all effects
+    timing.birefnet.start = Date.now();
     const responsePromise = fetch(`${this.apiUrl}/api/v2/process-with-effects?return_all_effects=true&effects=enhancedblackwhite,color`, {
       method: 'POST',
       body: formData
     });
-    
+
     // Setup unified progressive messaging based on timer duration
     this.setupProgressMessages(estimatedTime);
-    
+
     const response = await responsePromise;
-    
+
     if (!response.ok) {
       this.stopProgressTimer();
       throw new Error(`API error: ${response.status}`);
     }
-    
+
     // Continue with value-focused progress messages
     this.updateProgressWithTimer(75, '🏁 Finalizing your custom preview...', null);
-    
+
     const data = await response.json();
+    timing.birefnet.end = Date.now();
+    console.log(`⏱️ BiRefNet API (including network): ${timing.birefnet.end - timing.birefnet.start}ms`);
     
     // Process response - effects are nested in data.effects object
     const effects = {};
@@ -1371,129 +1930,268 @@ class PetProcessor {
     // API returns: {success: true, effects: {enhancedblackwhite: "base64...", ...}}
     const effectsData = data.effects || {};
     
-    // Upload all effects to GCS in parallel to avoid localStorage quota issues
-    const uploadPromises = [];
+    // OPTIMIZATION: Display results immediately with data URLs
+    // GCS uploads happen in BACKGROUND (saves ~14s from perceived time)
     const effectNames = Object.keys(effectsData);
+    const dataUrls = {};  // Store data URLs for immediate display
 
     for (const [effectName, base64Data] of Object.entries(effectsData)) {
-      // Convert base64 to data URL
-      const dataUrl = `data:image/png;base64,${base64Data}`;
+      // Convert base64 to data URL (handle both raw base64 and full data URLs)
+      // BiRefNet API returns full data URLs, InSPyReNet returns raw base64
+      const dataUrl = base64Data.startsWith('data:image/')
+        ? base64Data  // Already a full data URL
+        : `data:image/png;base64,${base64Data}`;  // Raw base64, add prefix
 
-      // Create upload promise (will execute in parallel)
-      const uploadPromise = this.uploadToGCS(
-        dataUrl,
+      dataUrls[effectName] = dataUrl;
+
+      // Set up effects with data URLs immediately (user sees results NOW)
+      effects[effectName] = {
+        gcsUrl: '',  // Will be populated when background upload completes
+        dataUrl: dataUrl  // Display immediately
+      };
+    }
+
+    // Fire GCS uploads in BACKGROUND (don't await - saves ~14.6s)
+    // Uploads complete silently, awaited only at cart time
+    timing.gcsUpload.start = Date.now();
+    console.log('🚀 Starting background GCS uploads (not blocking UI)...');
+
+    // Track original URL for fulfillment (populated by background upload)
+    let originalUrl = null;
+
+    const uploadPromises = effectNames.map(effectName =>
+      this.uploadToGCS(
+        dataUrls[effectName],
         this.getSessionId(),
         'processed',
         effectName
-      ).then(gcsUrl => ({
-        effectName,
-        gcsUrl,
-        dataUrl
-      }));
+      ).then(gcsUrl => {
+        // Update effect with GCS URL when upload completes
+        if (gcsUrl) {
+          effects[effectName].gcsUrl = gcsUrl;
+          effects[effectName].dataUrl = null;  // Clear data URL to save memory
+          console.log(`✅ ${effectName} uploaded to GCS (background): ${gcsUrl}`);
+        } else {
+          console.warn(`⚠️ ${effectName} background upload failed, keeping dataUrl`);
+        }
+        return { effectName, gcsUrl };
+      }).catch(err => {
+        console.error(`❌ ${effectName} background upload error:`, err);
+        return { effectName, gcsUrl: null };
+      })
+    );
 
-      uploadPromises.push(uploadPromise);
-    }
+    // Upload ORIGINAL image to GCS for fulfillment (runs in parallel with effects)
+    const originalUploadPromise = this.uploadOriginalToGCS(file, this.getSessionId())
+      .then(url => {
+        if (url) {
+          originalUrl = url;
+          // Store in effects object for easy access
+          effects._originalUrl = url;
+          console.log(`✅ Original image uploaded to GCS: ${url}`);
+        }
+        return { effectName: '_original', gcsUrl: url };
+      })
+      .catch(err => {
+        console.warn('⚠️ Original image upload failed (non-blocking):', err);
+        return { effectName: '_original', gcsUrl: null };
+      });
 
-    // Update progress: uploading effects
-    this.updateProgressWithTimer(78, '📤 Uploading effects to cloud storage...', null);
+    // Combine effect uploads + original upload
+    const allUploadPromises = [...uploadPromises, originalUploadPromise];
 
-    // Wait for all uploads to complete
-    const uploadResults = await Promise.all(uploadPromises);
+    // Store pending uploads - awaited at cart time via ensureUploadsComplete()
+    this.pendingGcsUploads = Promise.all(allUploadPromises).then(results => {
+      timing.gcsUpload.end = Date.now();
+      console.log(`⏱️ Background GCS uploads completed: ${timing.gcsUpload.end - timing.gcsUpload.start}ms`);
 
-    // Process upload results
-    for (const result of uploadResults) {
-      effects[result.effectName] = {
-        gcsUrl: result.gcsUrl || '', // Use GCS URL (CORS now fixed)
-        dataUrl: result.gcsUrl ? null : result.dataUrl  // Only keep dataUrl if upload failed
-      };
-
-      if (result.gcsUrl) {
-        console.log(`✅ ${result.effectName} uploaded to GCS: ${result.gcsUrl}`);
-      } else {
-        console.warn(`⚠️ ${result.effectName} upload failed, using dataUrl fallback`);
+      // RE-SAVE to PetStorage now that GCS URLs are available
+      // This fixes the issue where initial save had empty gcsUrl values
+      if (this.currentPet && typeof window.PetStorage !== 'undefined' && window.PetStorage.savePet) {
+        const petNumber = 1;  // Default to slot 1 for single-pet flow
+        console.log('🔄 Re-saving to PetStorage with GCS URLs:', {
+          effectsWithGcs: Object.entries(this.currentPet.effects || {})
+            .filter(([k, v]) => v && v.gcsUrl)
+            .map(([k]) => k)
+        });
+        window.PetStorage.savePet(petNumber, {
+          sessionKey: this.currentPet.id,
+          effects: this.currentPet.effects,
+          selectedEffect: this.selectedEffect || 'enhancedblackwhite',
+          originalGcsUrl: this.currentPet.effects?._originalUrl || '',
+          processedAt: Date.now()
+        });
       }
-    }
 
-    // Generate Gemini AI effects (Modern + Classic) if enabled
-    if (this.geminiEnabled && this.geminiClient) {
-      try {
-        // Set Gemini generation flag and reset main processing flag
+      this.pendingGcsUploads = null;  // Clear once complete
+      return results;
+    });
+
+    // DON'T AWAIT - Fire both GCS uploads AND Gemini generation in background
+    // This allows showResult() to be called immediately after BiRefNet completes (~15s)
+    // Gemini will update thumbnails progressively when ready (~37s later)
+
+    // Generate Gemini AI effects (Modern + Classic) in background if enabled
+    const SKIP_GEMINI_FOR_TESTING = false;  // Re-activated 2026-01-05
+    if (!SKIP_GEMINI_FOR_TESTING && this.geminiEnabled && this.geminiClient) {
+      // Get background-removed image for Gemini
+      const processedImage = data.processed_image || effectsData.color || effectsData.enhancedblackwhite;
+
+      if (processedImage) {
+        // Set flags for background generation
         this.geminiGenerating = true;
         this.isProcessing = false;  // Main processing complete, allow UI interactions
 
-        // Update progress for AI generation
-        this.updateProgressWithTimer(85, '✨ Generating AI artistic styles...', null);
+        // Update progress for artistic style generation
+        this.updateProgressWithTimer(85, '✨ Generating artistic styles...', null);
+        timing.gemini.start = Date.now();
 
-        // Get background-removed image for Gemini
-        const processedImage = data.processed_image || effectsData.color || effectsData.enhancedblackwhite;
+        // Convert to data URL if needed
+        const imageDataUrl = processedImage.startsWith('data:')
+          ? processedImage
+          : `data:image/png;base64,${processedImage}`;
 
-        if (processedImage) {
-          // Convert to data URL if needed
-          const imageDataUrl = processedImage.startsWith('data:')
-            ? processedImage
-            : `data:image/png;base64,${processedImage}`;
+        // Fire-and-forget: Generate in background, don't block UI
+        this.geminiClient.batchGenerate(imageDataUrl, {
+          sessionId: this.getSessionId()
+        }).then(async geminiResults => {
+          // SUCCESS: Gemini completed in background
+          timing.gemini.end = Date.now();
+          console.log(`⏱️ Gemini API (background): ${timing.gemini.end - timing.gemini.start}ms`);
 
-          // Batch generate both Modern and Classic styles
-          const geminiResults = await this.geminiClient.batchGenerate(imageDataUrl, {
-            sessionId: this.getSessionId()
-          });
+          // Only update if user hasn't uploaded a new image
+          if (this.currentPet && this.currentPet.effects) {
+            // Add Gemini effects to current pet's effects object (initial - with solid backgrounds)
+            this.currentPet.effects.ink_wash = {
+              gcsUrl: geminiResults.ink_wash.url,
+              dataUrl: null,
+              cacheHit: geminiResults.ink_wash.cacheHit,
+              processingTime: geminiResults.ink_wash.processingTime,
+              transparent: false  // Will be set to true after re-segmentation
+            };
 
-          // Add Gemini effects to effects object
-          effects.ink_wash = {
-            gcsUrl: geminiResults.ink_wash.url,
-            dataUrl: null, // Gemini effects use Cloud Storage URLs
-            cacheHit: geminiResults.ink_wash.cacheHit,
-            processingTime: geminiResults.ink_wash.processingTime
-          };
+            this.currentPet.effects.sketch = {
+              gcsUrl: geminiResults.sketch.url,
+              dataUrl: null,
+              cacheHit: geminiResults.sketch.cacheHit,
+              processingTime: geminiResults.sketch.processingTime,
+              transparent: false  // Will be set to true after re-segmentation
+            };
 
-          effects.sketch = {
-            gcsUrl: geminiResults.sketch.url,
-            dataUrl: null, // Gemini effects use Cloud Storage URLs
-            cacheHit: geminiResults.sketch.cacheHit,
-            processingTime: geminiResults.sketch.processingTime
-          };
+            // Store quota information
+            if (geminiResults.quota) {
+              this.geminiQuota = geminiResults.quota;
+              if (this.geminiUI) {
+                this.geminiUI.updateUI();
+              }
+            }
 
-          // Store quota information
-          if (geminiResults.quota) {
-            this.geminiQuota = geminiResults.quota;
+            console.log('🎨 Gemini AI effects generated (background):', {
+              ink_wash: geminiResults.ink_wash.cacheHit ? 'cached' : 'generated',
+              sketch: geminiResults.sketch.cacheHit ? 'cached' : 'generated',
+              quota: geminiResults.quota
+            });
 
-            // Update UI with new quota state
+            // Update thumbnails and button states progressively (shows solid bg versions first)
+            this.updateStyleCardPreviews(this.currentPet);
+            this.updateEffectButtonStates();
+
+            // ============================================================
+            // RE-SEGMENTATION: Remove solid backgrounds from Gemini effects
+            // Run both in parallel for speed, then update UI when done
+            // ============================================================
+            console.log('🔄 Starting background removal for AI effects...');
+            const resegmentStart = Date.now();
+
+            // Process both effects in parallel
+            const [inkWashResult, sketchResult] = await Promise.all([
+              this.resegmentGeminiEffect(geminiResults.ink_wash.url),
+              this.resegmentGeminiEffect(geminiResults.sketch.url)
+            ]);
+
+            const resegmentTime = Date.now() - resegmentStart;
+            console.log(`⏱️ AI effects re-segmentation: ${resegmentTime}ms`);
+
+            // Update effects with transparent versions (if still same pet)
+            if (this.currentPet && this.currentPet.effects) {
+              if (inkWashResult.success) {
+                this.currentPet.effects.ink_wash.dataUrl = inkWashResult.dataUrl;
+                this.currentPet.effects.ink_wash.transparent = true;
+                console.log('✅ Ink Wash: transparent background applied');
+              } else {
+                console.warn('⚠️ Ink Wash: keeping solid background (re-segmentation failed)');
+              }
+
+              if (sketchResult.success) {
+                this.currentPet.effects.sketch.dataUrl = sketchResult.dataUrl;
+                this.currentPet.effects.sketch.transparent = true;
+                console.log('✅ Marker: transparent background applied');
+              } else {
+                console.warn('⚠️ Marker: keeping solid background (re-segmentation failed)');
+              }
+
+              // Update UI with transparent versions
+              this.updateStyleCardPreviews(this.currentPet);
+              this.updateEffectButtonStates();
+
+              console.log('🎨 AI effects now have transparent backgrounds');
+
+              // CRITICAL: Update PetStorage with Gemini effects (ink_wash, sketch)
+              // The initial save happened after BiRefNet (B&W + Color only)
+              // This update adds the Gemini effects so they appear in Session Pet Gallery
+              if (typeof PetStorage !== 'undefined' && this.currentPet && this.currentPet.id) {
+                const updatedPetData = {
+                  effects: this.currentPet.effects,  // Now includes all 4 effects
+                  timestamp: Date.now()
+                };
+                console.log('📦 Saving Gemini effects to PetStorage:', {
+                  petId: this.currentPet.id,
+                  effectKeys: Object.keys(this.currentPet.effects),
+                  ink_wash: this.currentPet.effects.ink_wash ? {
+                    hasGcsUrl: !!this.currentPet.effects.ink_wash.gcsUrl,
+                    hasDataUrl: !!this.currentPet.effects.ink_wash.dataUrl
+                  } : 'NOT PRESENT',
+                  sketch: this.currentPet.effects.sketch ? {
+                    hasGcsUrl: !!this.currentPet.effects.sketch.gcsUrl,
+                    hasDataUrl: !!this.currentPet.effects.sketch.dataUrl
+                  } : 'NOT PRESENT'
+                });
+                PetStorage.save(this.currentPet.id, updatedPetData)
+                  .then(() => {
+                    console.log('✅ PetStorage updated with Gemini effects (ink_wash, sketch)');
+                  })
+                  .catch((err) => {
+                    console.warn('⚠️ Failed to update PetStorage with Gemini effects:', err);
+                  });
+              }
+            }
+          } else {
+            console.log('🎨 Gemini completed but user uploaded new image - discarding results');
+          }
+
+          // Reset generation flag
+          this.geminiGenerating = false;
+        }).catch(error => {
+          // ERROR: Gemini failed (quota, network, etc.)
+          timing.gemini.end = Date.now();
+          this.geminiGenerating = false;
+
+          console.error('🎨 Gemini generation failed (graceful degradation):', error);
+
+          // Graceful degradation - users still have B&W and Color
+          if (error.quotaExhausted) {
+            console.log('🎨 Gemini quota exhausted - only B&W and Color available');
+
             if (this.geminiUI) {
               this.geminiUI.updateUI();
             }
           }
 
-          console.log('🎨 Gemini AI effects generated:', {
-            ink_wash: geminiResults.ink_wash.cacheHit ? 'cached' : 'generated',
-            sketch: geminiResults.sketch.cacheHit ? 'cached' : 'generated',
-            quota: geminiResults.quota
-          });
-
-          // Update button states - Ink Wash and Marker should now be enabled
-          this.updateEffectButtonStates();
-        }
-
-        // Reset Gemini generation flag
-        this.geminiGenerating = false;
-      } catch (error) {
-        // Reset Gemini generation flag on error
-        this.geminiGenerating = false;
-
-        console.error('🎨 Gemini generation failed (graceful degradation):', error);
-
-        // Graceful degradation - don't fail the whole process
-        // Users still have B&W and Color effects
-        if (error.quotaExhausted) {
-          console.log('🎨 Gemini quota exhausted - only B&W and Color available');
-
-          // Update UI to show quota exhausted state
-          if (this.geminiUI) {
-            this.geminiUI.updateUI();
+          // Update button states to show AI effects unavailable
+          if (this.currentPet) {
+            this.updateEffectButtonStates();
           }
-
-          // Update button states - Modern and Classic should be disabled due to quota
-          this.updateEffectButtonStates();
-        }
+        });
       }
     }
 
@@ -1514,7 +2212,29 @@ class PetProcessor {
     const expectedSeconds = Math.round(estimatedTime / 1000);
     const finishedEarly = totalSeconds < expectedSeconds;
     console.log(`✅ Processing completed in ${totalSeconds} seconds ${finishedEarly ? '(ahead of schedule!)' : '(on time)'}`);
-    
+
+    // Log detailed timing breakdown
+    const exifTime = timing.exifFix.end - timing.exifFix.start;
+    const birefnetTime = timing.birefnet.end - timing.birefnet.start;
+    const geminiTime = timing.gemini.end ? (timing.gemini.end - timing.gemini.start) : 0;
+    // GCS uploads now happen in background - show "in progress" if not done
+    const gcsTime = timing.gcsUpload.end ? (timing.gcsUpload.end - timing.gcsUpload.start) : 0;
+    const gcsStatus = timing.gcsUpload.end ? `${gcsTime}ms` : 'background';
+    const accountedTime = exifTime + birefnetTime + geminiTime;  // Don't include GCS (it's background)
+    const unaccountedTime = totalTime - accountedTime;
+
+    console.log('%c📊 TIMING BREAKDOWN', 'font-weight: bold; font-size: 14px; color: #007bff;');
+    console.log(`┌─────────────────────────────────────────────────────┐`);
+    console.log(`│ EXIF Fix:       ${String(exifTime).padStart(6)}ms  (${((exifTime/totalTime)*100).toFixed(1)}%)`);
+    console.log(`│ BiRefNet API:   ${String(birefnetTime).padStart(6)}ms  (${((birefnetTime/totalTime)*100).toFixed(1)}%)`);
+    console.log(`│ GCS Uploads:    ${gcsStatus.padStart(10)}  (background - not blocking)`);
+    console.log(`│ Gemini API:     ${String(geminiTime).padStart(6)}ms  (${((geminiTime/totalTime)*100).toFixed(1)}%)`);
+    console.log(`│ Unaccounted:    ${String(unaccountedTime).padStart(6)}ms  (${((unaccountedTime/totalTime)*100).toFixed(1)}%)`);
+    console.log(`├─────────────────────────────────────────────────────┤`);
+    console.log(`│ TOTAL:          ${String(totalTime).padStart(6)}ms  (100%)`);
+    console.log(`│ 🚀 GCS uploads running in background - user sees results NOW`);
+    console.log(`└─────────────────────────────────────────────────────┘`);
+
     return {
       effects,
       selectedEffect: 'enhancedblackwhite'
@@ -1530,18 +2250,78 @@ class PetProcessor {
         img.onload = () => {
           const canvas = document.createElement('canvas');
           const ctx = canvas.getContext('2d');
-          
+
           // Set proper dimensions
           canvas.width = img.width;
           canvas.height = img.height;
-          
+
           // Draw image (browser handles EXIF automatically in most cases)
           ctx.drawImage(img, 0, 0);
-          
+
           canvas.toBlob((blob) => {
             resolve(new File([blob], file.name, { type: 'image/jpeg' }));
           }, 'image/jpeg', 0.9);
         };
+        img.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  /**
+   * Resize image before upload to reduce bandwidth and processing time
+   * BiRefNet API caps at 2048px anyway, so we resize to 1600px max
+   * Saves 50-70% upload bandwidth for 12MP+ images
+   * @param {File} file - Input image file
+   * @param {number} maxDimension - Maximum dimension (default 1600)
+   * @returns {Promise<File>} - Resized file or original if already small
+   */
+  async resizeImageForUpload(file, maxDimension = 1600) {
+    return new Promise((resolve) => {
+      // Use createImageBitmap for efficient image loading
+      const img = new Image();
+      img.onload = () => {
+        // Check if resize is needed
+        if (img.width <= maxDimension && img.height <= maxDimension) {
+          console.log(`📐 Image already optimized: ${img.width}x${img.height}`);
+          resolve(file);
+          return;
+        }
+
+        // Calculate new dimensions maintaining aspect ratio
+        let newWidth, newHeight;
+        if (img.width > img.height) {
+          newWidth = maxDimension;
+          newHeight = Math.round(img.height * (maxDimension / img.width));
+        } else {
+          newHeight = maxDimension;
+          newWidth = Math.round(img.width * (maxDimension / img.height));
+        }
+
+        // Create canvas and resize
+        const canvas = document.createElement('canvas');
+        canvas.width = newWidth;
+        canvas.height = newHeight;
+        const ctx = canvas.getContext('2d');
+
+        // Use high-quality image smoothing
+        ctx.imageSmoothingEnabled = true;
+        ctx.imageSmoothingQuality = 'high';
+        ctx.drawImage(img, 0, 0, newWidth, newHeight);
+
+        // Convert to blob with 90% quality JPEG
+        canvas.toBlob((blob) => {
+          const originalSize = file.size;
+          const newSize = blob.size;
+          const savings = Math.round((1 - newSize / originalSize) * 100);
+          console.log(`📐 Resized for upload: ${img.width}x${img.height} → ${newWidth}x${newHeight} (${savings}% smaller)`);
+          resolve(new File([blob], file.name, { type: 'image/jpeg' }));
+        }, 'image/jpeg', 0.90);
+      };
+
+      // Load image from file
+      const reader = new FileReader();
+      reader.onload = (e) => {
         img.src = e.target.result;
       };
       reader.readAsDataURL(file);
@@ -1562,7 +2342,66 @@ class PetProcessor {
       return '';
     }
   }
-  
+
+  /**
+   * Re-segment a Gemini-generated image through BiRefNet to remove solid background
+   * Gemini produces artistic effects with solid backgrounds - this makes them transparent
+   * @param {string} imageUrl - GCS URL of the Gemini-generated image
+   * @returns {Promise<{dataUrl: string, success: boolean}>} - Transparent image as data URL
+   */
+  async resegmentGeminiEffect(imageUrl) {
+    const startTime = Date.now();
+    console.log('🔄 Re-segmenting Gemini effect for transparent background...');
+
+    try {
+      // Fetch the Gemini image
+      const response = await fetch(imageUrl);
+      if (!response.ok) {
+        throw new Error(`Failed to fetch Gemini image: ${response.status}`);
+      }
+      const blob = await response.blob();
+
+      // Send to BiRefNet for background removal
+      const formData = new FormData();
+      formData.append('file', blob, 'gemini-effect.png');
+
+      const birefnetResponse = await fetch(
+        `${this.apiUrl}/remove-background?format=webp`,
+        {
+          method: 'POST',
+          body: formData
+        }
+      );
+
+      if (!birefnetResponse.ok) {
+        throw new Error(`BiRefNet re-segmentation failed: ${birefnetResponse.status}`);
+      }
+
+      // BiRefNet /remove-background returns raw binary image data, not JSON
+      // Convert the binary response to a data URL
+      const imageBlob = await birefnetResponse.blob();
+      const dataUrl = await new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result);
+        reader.readAsDataURL(imageBlob);
+      });
+
+      const elapsed = Date.now() - startTime;
+      console.log(`✅ Re-segmentation complete: ${elapsed}ms`);
+
+      return {
+        dataUrl: dataUrl,
+        success: true
+      };
+    } catch (error) {
+      console.error('❌ Re-segmentation failed:', error);
+      return {
+        dataUrl: null,
+        success: false
+      };
+    }
+  }
+
   switchEffect(button) {
     if (!button || !this.currentPet) return;
 
@@ -1586,10 +2425,10 @@ class PetProcessor {
     });
     button.classList.add('active');
 
-    // Update image - all effects now use GCS URLs (prefer GCS, fallback to dataUrl)
+    // Update image - prefer dataUrl (transparent for Gemini effects), fallback to gcsUrl
     const img = this.container.querySelector('.pet-image');
     if (img) {
-      const imageUrl = effectData.gcsUrl || effectData.dataUrl;
+      const imageUrl = effectData.dataUrl || effectData.gcsUrl;
       if (imageUrl) {
         img.src = imageUrl;
       }
@@ -1598,6 +2437,19 @@ class PetProcessor {
     // Update current selection
     this.currentPet.selectedEffect = effect;
     this.selectedEffect = effect;
+
+    // Dispatch effectChanged event for product mockup grid
+    const effectUrl = effectData.dataUrl || effectData.gcsUrl;
+    if (effectUrl) {
+      document.dispatchEvent(new CustomEvent('effectChanged', {
+        detail: {
+          effect: effect,
+          effectUrl: effectUrl,
+          sessionKey: this.currentPet.id
+        },
+        bubbles: true
+      }));
+    }
 
     // Show share button after effect selection
     if (this.sharing) {
@@ -1625,7 +2477,7 @@ class PetProcessor {
           btn.disabled = true;
           btn.classList.add('effect-btn--disabled');
           btn.classList.remove('effect-btn--loading', 'effect-btn--ready');
-          btn.title = 'Upload a photo to enable AI effects';
+          btn.title = 'Upload a photo to unlock all effects';
         }
       });
       return;
@@ -1653,6 +2505,10 @@ class PetProcessor {
           btn.disabled = false;
           btn.classList.remove('effect-btn--loading', 'effect-btn--disabled', 'effect-btn--ready');
           btn.title = `View ${effectLabel} effect`;
+
+          // Remove loading accessibility attributes
+          btn.removeAttribute('aria-label');
+          btn.removeAttribute('aria-busy');
           return;
         }
 
@@ -1661,7 +2517,7 @@ class PetProcessor {
           btn.disabled = true;
           btn.classList.add('effect-btn--disabled');
           btn.classList.remove('effect-btn--loading', 'effect-btn--ready');
-          btn.title = 'AI effects not available';
+          btn.title = 'Ink Wash & Marker unavailable';
           return;
         }
 
@@ -1674,7 +2530,7 @@ class PetProcessor {
             btn.disabled = true;
             btn.classList.add('effect-btn--disabled');
             btn.classList.remove('effect-btn--loading', 'effect-btn--ready');
-            btn.title = 'Daily AI limit reached (resets at midnight)';
+            btn.title = 'Daily limit reached (resets at midnight)';
             return;
           }
         }
@@ -1685,6 +2541,10 @@ class PetProcessor {
           btn.classList.add('effect-btn--loading');
           btn.classList.remove('effect-btn--disabled', 'effect-btn--ready');
           btn.title = `Generating ${effectLabel} effect...`;
+
+          // Add accessibility attributes for screen readers
+          btn.setAttribute('aria-label', `Generating ${effectLabel} effect, please wait`);
+          btn.setAttribute('aria-busy', 'true');
           return;
         }
 
@@ -1723,6 +2583,26 @@ class PetProcessor {
       const leftResultElements = this.container.querySelectorAll('.processor-controls .effect-grid-wrapper, .processor-controls .action-buttons');
       leftResultElements.forEach(el => el.hidden = false);
 
+      // Show inline section header for desktop side-by-side layout
+      const inlineSectionHeader = this.container.querySelector('.inline-section-header');
+      if (inlineSectionHeader) {
+        inlineSectionHeader.hidden = false;
+        // Copy heading text from original section header
+        const section = this.container.closest('.ks-pet-processor-section');
+        if (section) {
+          const originalHeading = section.querySelector('.section-heading');
+          const originalSubheading = section.querySelector('.section-subheading');
+          const inlineHeading = inlineSectionHeader.querySelector('.inline-section-heading');
+          const inlineSubheading = inlineSectionHeader.querySelector('.inline-section-subheading');
+          if (originalHeading && inlineHeading) {
+            inlineHeading.textContent = originalHeading.textContent;
+          }
+          if (originalSubheading && inlineSubheading) {
+            inlineSubheading.textContent = originalSubheading.textContent;
+          }
+        }
+      }
+
       // Show result view in right column
       const rightResultView = this.container.querySelector('.processor-preview .result-view');
       if (rightResultView) rightResultView.hidden = false;
@@ -1744,7 +2624,65 @@ class PetProcessor {
 
       // Update style card preview images with actual processed images
       this.updateStyleCardPreviews(result);
+
+      // Show scroll hint for product discovery (desktop only)
+      const scrollHint = this.container.querySelector('[data-scroll-hint]');
+      if (scrollHint) scrollHint.classList.add('visible');
+
+      // Dispatch event for product mockup grid to display
+      this.dispatchProcessingComplete(result);
     });
+  }
+
+  /**
+   * Dispatch petProcessingComplete event for product mockup grid integration
+   * Called after processing completes and result is displayed
+   * @param {Object} result - Processing result containing effects
+   */
+  dispatchProcessingComplete(result) {
+    if (!result || !result.effects || !this.currentPet) {
+      console.warn('[PetProcessor] Cannot dispatch processing complete - missing data');
+      return;
+    }
+
+    try {
+      // Get the current selected effect (default to enhancedblackwhite)
+      const selectedEffect = this.selectedEffect || 'enhancedblackwhite';
+      const effectData = result.effects[selectedEffect];
+      const effectUrl = effectData?.gcsUrl || effectData?.dataUrl;
+
+      // Prepare effects object with GCS URLs
+      const effects = {};
+      for (const [key, value] of Object.entries(result.effects)) {
+        if (value && (value.gcsUrl || value.dataUrl)) {
+          effects[key] = {
+            gcsUrl: value.gcsUrl || null,
+            dataUrl: value.dataUrl || null
+          };
+        }
+      }
+
+      // Get original URL from effects (uploaded in background)
+      const originalUrl = result.effects._originalUrl || null;
+
+      const eventDetail = {
+        sessionKey: this.currentPet.id,
+        selectedEffect: selectedEffect,
+        effectUrl: effectUrl,
+        effects: effects,
+        originalUrl: originalUrl,  // GCS URL for original image (for fulfillment)
+        timestamp: Date.now()
+      };
+
+      console.log('[PetProcessor] Dispatching petProcessingComplete event', eventDetail);
+
+      document.dispatchEvent(new CustomEvent('petProcessingComplete', {
+        detail: eventDetail,
+        bubbles: true
+      }));
+    } catch (error) {
+      console.error('[PetProcessor] Error dispatching processing complete event:', error);
+    }
   }
 
   /**
@@ -1770,9 +2708,10 @@ class PetProcessor {
         const imgElement = this.container.querySelector(selector);
 
         if (imgElement && effectData) {
-          // All effects now use GCS URLs (CORS fixed)
-          // Prefer GCS URL, fallback to dataUrl if upload failed
-          const imageUrl = effectData.gcsUrl || effectData.dataUrl;
+          // For Gemini effects (ink_wash, sketch): prefer dataUrl (transparent version from re-segmentation)
+          // For BiRefNet effects (color, enhancedblackwhite): prefer gcsUrl (already transparent)
+          // Fallback chain: dataUrl -> gcsUrl (ensures transparent AI effects are used when available)
+          const imageUrl = effectData.dataUrl || effectData.gcsUrl;
           if (imageUrl) {
             imgElement.src = imageUrl;
           }
@@ -1882,51 +2821,51 @@ class PetProcessor {
         }
       }, 12000);
       
-    } else if (estimatedTime >= 70000) {
-      // Cold start processing (75-85s)
+    } else if (estimatedTime >= 55000) {
+      // Cold start processing (55-65s)
       setTimeout(() => {
         if (!this.processingComplete) {
-          this.updateProgressWithTimer(15, '📦 Loading AI models into memory...', null);
+          this.updateProgressWithTimer(15, '📦 Loading processing engine...', null);
         }
-      }, 10000);
-      
+      }, 8000);
+
       setTimeout(() => {
         if (!this.processingComplete) {
           this.updateProgressWithTimer(30, '🔍 Analyzing your pet\'s unique features...', null);
         }
-      }, 25000);
-      
+      }, 19000);
+
       setTimeout(() => {
         if (!this.processingComplete) {
           this.updateProgressWithTimer(50, '🎨 Creating professional-quality effects...', null);
         }
-      }, 45000);
-      
+      }, 34000);
+
       setTimeout(() => {
         if (!this.processingComplete) {
           this.updateProgressWithTimer(75, '✨ Perfecting your pet\'s transformation...', null);
         }
-      }, 65000);
-      
+      }, 49000);
+
     } else {
-      // Conservative processing (unknown state: 45s)
+      // Conservative processing (unknown state: 40s)
       setTimeout(() => {
         if (!this.processingComplete) {
           this.updateProgressWithTimer(25, '🔍 Analyzing your pet\'s unique features...', null);
         }
-      }, 10000);
-      
+      }, 9000);
+
       setTimeout(() => {
         if (!this.processingComplete) {
           this.updateProgressWithTimer(50, '🎨 Creating professional-quality effects...', null);
         }
-      }, 22000);
-      
+      }, 20000);
+
       setTimeout(() => {
         if (!this.processingComplete) {
           this.updateProgressWithTimer(75, '✨ Perfecting your pet\'s transformation...', null);
         }
-      }, 34000);
+      }, 30000);
     }
   }
   
@@ -1934,9 +2873,9 @@ class PetProcessor {
   cancelProcessing() {
     this.processingComplete = true;
     this.stopProgressTimer();
-    this.hideAllViews();
-    const uploadView = this.container.querySelector('.upload-zone');
-    if (uploadView) uploadView.parentElement.hidden = false;
+    // Use reset() to properly clear state and remove has-result class
+    // This ensures upload zone shows in full expanded state (not collapsed)
+    this.reset();
     console.log('Processing cancelled by user');
   }
   
@@ -1960,12 +2899,35 @@ class PetProcessor {
       return false;
     }
 
-    // Upload to GCS if needed (InSPyReNet effects only - Gemini already has gcsUrl)
+    // Upload to GCS if needed
+    // For Gemini effects with transparent backgrounds: upload the transparent dataUrl to replace solid background
+    // For InSPyReNet effects: upload if not already uploaded
     console.log('📤 Uploading processed image to GCS if needed...');
     let gcsUrl = effectData.gcsUrl || '';
 
-    // Upload processed image if not already uploaded (InSPyReNet effects)
-    if (!gcsUrl && effectData.dataUrl) {
+    // For Gemini effects with transparent backgrounds, upload the transparent version
+    // This replaces the original Gemini output (solid background) with transparent version
+    const isGeminiEffect = selectedEffect === 'ink_wash' || selectedEffect === 'sketch';
+    const hasTransparentVersion = effectData.dataUrl && effectData.transparent === true;
+
+    if (isGeminiEffect && hasTransparentVersion) {
+      // Upload transparent version to GCS (replaces solid background)
+      console.log('📤 Uploading transparent AI effect to GCS...');
+      const transparentGcsUrl = await this.uploadToGCS(
+        effectData.dataUrl,
+        this.currentPet.id,
+        'processed',
+        `${selectedEffect}_transparent`
+      );
+      if (transparentGcsUrl) {
+        gcsUrl = transparentGcsUrl;
+        effectData.transparentGcsUrl = transparentGcsUrl; // Store transparent version URL
+        console.log(`✅ Transparent AI effect uploaded: ${transparentGcsUrl}`);
+      } else {
+        console.warn('⚠️ Transparent AI effect upload failed, using original');
+      }
+    } else if (!gcsUrl && effectData.dataUrl) {
+      // InSPyReNet effects or Gemini without transparent version
       gcsUrl = await this.uploadToGCS(
         effectData.dataUrl,
         this.currentPet.id,
@@ -1980,18 +2942,23 @@ class PetProcessor {
       }
     }
 
-    // Save only effects GCS URLs
-    // Customer provides name, selects effect, and uploads image on product page
-    // Artist notes are now captured in the inline preview modal
+    // Get original GCS URL from effects (uploaded in background)
+    const originalUrl = this.currentPet.effects._originalUrl || '';
+
+    // Save effects and original URL for fulfillment
+    // Uses PetStorage v3 unified storage system
     const petData = {
       effects: this.currentPet.effects, // ALL generated effects with GCS URLs
+      selectedEffect: selectedEffect,
+      originalUrl: originalUrl,         // GCS URL for original image (for fulfillment)
       timestamp: Date.now()             // For cleanup/sorting
     };
 
     // Save with GCS URLs to localStorage
     try {
       await PetStorage.save(this.currentPet.id, petData);
-      const totalPets = Object.keys(PetStorage.getAll()).length;
+      const allPets = PetStorage.getAll();
+      const totalPets = Object.keys(allPets).length;
       console.log(`✅ Pet saved: ${this.currentPet.id} (Total pets: ${totalPets})`);
     } catch (error) {
       console.error('❌ Failed to save pet:', error);
@@ -2002,350 +2969,20 @@ class PetProcessor {
     }
 
     // Dispatch event for Shopify integration
-    // Only include sessionKey and artistNote (customer provides name/effect on product page)
     document.dispatchEvent(new CustomEvent('petProcessorComplete', {
       detail: {
         sessionKey: this.currentPet.id,
         artistNote: artistNote,
-        effects: this.currentPet.effects  // All effect GCS URLs
+        effects: this.currentPet.effects,  // All effect GCS URLs
+        originalUrl: originalUrl,          // GCS URL for original image
+        selectedEffect: selectedEffect
       }
     }));
 
     return true;  // Success
   }
 
-  /**
-   * Handle Download FREE button click
-   * Opens email capture modal to collect email for download links
-   */
-
-  /**
-   * Validate email address
-   * Returns { valid: boolean, error: string }
-   */
-  validateEmail(email) {
-    // Basic format validation
-    var emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!email || email.trim() === '') {
-      return { valid: false, error: 'Email address is required' };
-    }
-    if (!emailRegex.test(email)) {
-      return { valid: false, error: 'Please enter a valid email address' };
-    }
-
-    // Disposable email detection (common providers)
-    var disposableDomains = [
-      'tempmail.com', 'guerrillamail.com', '10minutemail.com',
-      'throwaway.email', 'mailinator.com', 'trashmail.com'
-    ];
-    var domain = email.split('@')[1].toLowerCase();
-    if (disposableDomains.indexOf(domain) !== -1) {
-      return { valid: false, error: 'Please use a permanent email address' };
-    }
-
-    return { valid: true, error: '' };
-  }
-
-  /**
-   * Handle inline email form submission
-   */
-  async handleInlineEmailSubmit(event) {
-    event.preventDefault();
-
-    var form = this.container.querySelector('.email-form-inline');
-    var emailInput = this.container.querySelector('.email-input-inline');
-    var submitBtn = form.querySelector('.btn-email-submit');
-    var errorEl = this.container.querySelector('.email-error-inline');
-    var successEl = this.container.querySelector('.email-success-inline');
-
-    if (!emailInput || !submitBtn) {
-      console.error('❌ Form elements not found');
-      return;
-    }
-
-    var email = emailInput.value.trim();
-
-    // Validate email
-    var validation = this.validateEmail(email);
-    if (!validation.valid) {
-      emailInput.classList.add('error');
-      if (errorEl) {
-        errorEl.textContent = validation.error;
-        errorEl.hidden = false;
-      }
-      emailInput.focus();
-      return;
-    }
-
-    // Check if we have processed images to download
-    if (!this.currentPet || !this.currentPet.effects) {
-      emailInput.classList.add('error');
-      if (errorEl) {
-        errorEl.textContent = 'No processed images available to download';
-        errorEl.hidden = false;
-      }
-      return;
-    }
-
-    // Clear errors
-    emailInput.classList.remove('error');
-    if (errorEl) {
-      errorEl.textContent = '';
-      errorEl.hidden = true;
-    }
-
-    // Show loading state
-    submitBtn.disabled = true;
-    submitBtn.classList.add('loading');
-
-    console.log('📧 Capturing email via Shopify:', email);
-
-    // Get selected effect
-    var selectedEffect = this.currentPet.selectedEffect || 'enhancedblackwhite';
-    var effectData = this.currentPet.effects[selectedEffect];
-
-    // Check if selected effect is ready
-    if (!effectData || (!effectData.gcsUrl && !effectData.dataUrl)) {
-      console.error('❌ Selected effect not ready:', selectedEffect);
-      emailInput.classList.add('error');
-      if (errorEl) {
-        errorEl.textContent = 'The selected image is not ready yet. Please wait for processing to complete.';
-        errorEl.hidden = false;
-      }
-      submitBtn.disabled = false;
-      submitBtn.classList.remove('loading');
-      return;
-    }
-
-    try {
-      // Step 1: Submit to Shopify native form to capture email
-      var shopifyForm = document.getElementById('pet-email-capture-form');
-      if (!shopifyForm) {
-        throw new Error('Shopify email form not found');
-      }
-
-      // Populate hidden Shopify form with email and metadata
-      var shopifyEmailInput = document.getElementById('pet-email-input');
-      var shopifyNameInput = document.getElementById('pet-customer-name');
-      var shopifyTagsInput = document.getElementById('pet-email-tags');
-
-      shopifyEmailInput.value = email;
-      shopifyNameInput.value = email.split('@')[0];
-
-      // Build tags: pet-processor, style name, download date
-      var today = new Date().toISOString().split('T')[0];
-      var tags = 'pet-processor,' + selectedEffect + ',downloaded-' + today;
-      shopifyTagsInput.value = tags;
-
-      // Submit form via AJAX to avoid page reload
-      var formData = new FormData(shopifyForm);
-      var shopifyResponse = await fetch(shopifyForm.action, {
-        method: 'POST',
-        body: formData,
-        headers: {
-          'Accept': 'application/json'
-        }
-      });
-
-      // Shopify form submission may return various responses - we consider any non-error as success
-      console.log('✅ Email submitted to Shopify customer database with tags:', tags);
-
-      // Step 2: Download image directly using blob URL method
-      var imageUrl = effectData.dataUrl || effectData.gcsUrl;
-      var imageBlob = null;
-
-      if (imageUrl.startsWith('data:')) {
-        // Convert data URL to blob
-        var parts = imageUrl.split(',');
-        var mimeMatch = parts[0].match(/:(.*?);/);
-        var mime = mimeMatch ? mimeMatch[1] : 'image/png';
-        var bstr = atob(parts[1]);
-        var n = bstr.length;
-        var u8arr = new Uint8Array(n);
-        for (var i = 0; i < n; i++) {
-          u8arr[i] = bstr.charCodeAt(i);
-        }
-        imageBlob = new Blob([u8arr], {type: mime});
-      } else {
-        // Fetch GCS URL and convert to blob
-        var imageResponse = await fetch(imageUrl);
-        imageBlob = await imageResponse.blob();
-      }
-
-      // Create blob URL and trigger download
-      var blobUrl = URL.createObjectURL(imageBlob);
-      var downloadLink = document.createElement('a');
-      downloadLink.href = blobUrl;
-
-      // Generate filename: perkie-pet-{effect}-{timestamp}.png
-      var timestamp = new Date().getTime();
-      var filename = 'perkie-pet-' + selectedEffect + '-' + timestamp + '.png';
-      downloadLink.download = filename;
-
-      document.body.appendChild(downloadLink);
-      downloadLink.click();
-      document.body.removeChild(downloadLink);
-
-      // Clean up blob URL after a short delay
-      setTimeout(function() {
-        URL.revokeObjectURL(blobUrl);
-      }, 100);
-
-      console.log('✅ Image downloaded:', filename);
-
-      // Step 3: Save email to localStorage (backup)
-      try {
-        var emailData = {
-          email: email,
-          timestamp: new Date().toISOString(),
-          sessionId: this.currentPet ? this.currentPet.sessionId : null,
-          selectedEffect: selectedEffect
-        };
-        localStorage.setItem('perkie_email_capture', JSON.stringify(emailData));
-      } catch (error) {
-        console.error('❌ Failed to save email data to localStorage:', error);
-      }
-
-      // Step 4: Show success state
-      if (successEl) {
-        var successMsg = successEl.querySelector('.success-message');
-        if (successMsg) {
-          successMsg.textContent = 'Image downloaded! Check your downloads folder.';
-        }
-        successEl.hidden = false;
-      }
-
-      // Reset form
-      form.reset();
-
-      // Hide success message after 5 seconds
-      setTimeout(function() {
-        if (successEl) successEl.hidden = true;
-      }, 5000);
-
-    } catch (error) {
-      console.error('❌ Email capture or download failed:', error);
-      emailInput.classList.add('error');
-      if (errorEl) {
-        var errorMsg = error.message || 'Failed to process your request. Please try again.';
-        errorEl.textContent = errorMsg;
-        errorEl.hidden = false;
-      }
-    } finally {
-      // Reset button state
-      submitBtn.disabled = false;
-      submitBtn.classList.remove('loading');
-    }
-  }
-
-  /**
-   * Handle Add to Product button click
-   * Saves pet data and redirects to products
-   * Phase 4: Will add session bridge for seamless transition
-   */
-  async handleAddToProduct() {
-    console.log('🛍️ Add to Product button clicked');
-
-    // Save pet data first
-    const saved = await this.savePetData();
-    if (!saved) {
-      console.error('❌ Failed to save pet data');
-      return;
-    }
-
-    const btn = this.container.querySelector('.add-to-product-btn');
-    if (btn) {
-      btn.disabled = true;
-
-      // Smart redirect based on selected effect/style
-      let redirectUrl = '/collections/personalized-pet-products-gifts'; // Default fallback
-
-      try {
-        // Get current effect for smart routing
-        const currentEffect = this.currentPet?.selectedEffect || null;
-
-        // Smart routing: Return to product page if user came from one
-        const referrer = document.referrer;
-        if (referrer && referrer.includes('/products/')) {
-          redirectUrl = referrer;
-          console.log(`✅ Smart routing: Returning to product page: ${redirectUrl}`);
-        } else {
-          // Fallback: Main collection
-          redirectUrl = '/collections/personalized-pet-products-gifts?utm_source=processor&utm_medium=cta';
-          console.log(`ℹ️ Fallback routing: Using main collection: ${redirectUrl}`);
-        }
-
-        // Phase 4: Create session bridge before redirect
-        // Only pass GCS URLs (not dataUrls) to avoid localStorage quota issues
-        const effectsForBridge = {};
-        for (const [effectName, effectData] of Object.entries(this.currentPet.effects)) {
-          if (effectData.gcsUrl) {
-            // Only include GCS URL (not dataUrl)
-            effectsForBridge[effectName] = {
-              gcsUrl: effectData.gcsUrl
-            };
-          } else if (effectData.dataUrl) {
-            console.warn(`⚠️ ${effectName} missing GCS URL, will use dataUrl as fallback`);
-            // Fallback: include dataUrl only if no GCS URL available
-            effectsForBridge[effectName] = {
-              dataUrl: effectData.dataUrl
-            };
-          }
-        }
-
-        const bridgeData = {
-          sessionKey: this.currentPet.id,
-          artistNote: '', // Collected on product page
-          effects: effectsForBridge,
-          selectedEffect: this.currentPet.selectedEffect || 'enhancedblackwhite',
-          timestamp: Date.now(),
-          redirectUrl: redirectUrl
-        };
-
-        // Validate bridge size (should be ~400 bytes with GCS URLs, not 2.7MB with dataUrls)
-        const bridgeSize = JSON.stringify(bridgeData).length;
-        console.log(`📊 Bridge data size: ${(bridgeSize / 1024).toFixed(1)}KB`);
-        if (bridgeSize > 100000) { // 100KB threshold
-          console.error(`❌ Bridge data too large (${(bridgeSize / 1024).toFixed(1)}KB)! May cause quota issues.`);
-        }
-
-        // Save to sessionStorage (cleared after page load)
-        sessionStorage.setItem('processor_to_product_bridge', JSON.stringify(bridgeData));
-        console.log('🌉 Bridge data saved for product page redirect:', bridgeData);
-
-        // Verify sessionStorage was written
-        const verifyBridge = sessionStorage.getItem('processor_to_product_bridge');
-        if (verifyBridge) {
-          console.log('✅ Bridge verification: sessionStorage contains bridge data');
-          console.log('📦 Bridge contents:', JSON.parse(verifyBridge));
-        } else {
-          console.error('❌ Bridge verification FAILED: sessionStorage is empty after save!');
-        }
-
-        // Also save to localStorage as fallback (persist across sessions)
-        try {
-          localStorage.setItem('processor_to_product_bridge_backup', JSON.stringify({
-            ...bridgeData,
-            expiresAt: Date.now() + (5 * 60 * 1000) // 5 minute expiry
-          }));
-          console.log('💾 Bridge backup saved to localStorage (5 min expiry)');
-        } catch (e) {
-          console.warn('⚠️ Failed to save localStorage backup:', e);
-        }
-
-      } catch (error) {
-        console.warn('⚠️ Error in smart routing, using fallback:', error);
-      }
-
-      // Update button text
-      btn.innerHTML = '<span class="btn-text">✓ Taking you to products...</span>';
-
-      // Redirect after brief success message
-      setTimeout(() => {
-        window.location.href = redirectUrl;
-      }, 800); // Shorter delay (800ms vs 1500ms)
-    }
-  }
+  // Email capture and Add to Product methods removed - users now click products directly from mockup grid
 
 
   async saveToCart() {
@@ -2686,6 +3323,10 @@ class PetProcessor {
     const container = this.container.querySelector('.pet-processor-container');
     if (container) container.classList.remove('has-result');
 
+    // Hide scroll hint
+    const scrollHint = this.container.querySelector('[data-scroll-hint]');
+    if (scrollHint) scrollHint.classList.remove('visible');
+
     // Show upload zone
     const uploadZone = this.container.querySelector('[data-upload-zone]');
     if (uploadZone) uploadZone.hidden = false;
@@ -2764,6 +3405,63 @@ class PetProcessor {
   }
 
   /**
+   * Convert File object to data URL
+   * @param {File} file - File object to convert
+   * @returns {Promise<string>} Data URL (data:image/...;base64,...)
+   */
+  fileToDataUrl(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  }
+
+  /**
+   * Upload original image to GCS for fulfillment purposes
+   * Runs in background (fire-and-forget) - does not block processing
+   * @param {File} file - Original image file
+   * @param {string} sessionKey - Pet session identifier
+   * @returns {Promise<string|null>} GCS public URL or null if failed
+   */
+  async uploadOriginalToGCS(file, sessionKey) {
+    try {
+      console.log('📤 Uploading original image to GCS for fulfillment...');
+
+      // Convert file to data URL
+      const dataUrl = await this.fileToDataUrl(file);
+
+      // Use existing uploadToGCS method with 'original' type
+      const gcsUrl = await this.uploadToGCS(dataUrl, sessionKey, 'original', 'source');
+
+      if (gcsUrl) {
+        console.log(`✅ Original image uploaded to GCS: ${gcsUrl}`);
+        return gcsUrl;
+      } else {
+        console.warn('⚠️ Original image upload failed');
+        return null;
+      }
+    } catch (error) {
+      console.error('❌ Original image upload error:', error);
+      return null;
+    }
+  }
+
+  /**
+   * Ensure all background GCS uploads are complete
+   * Called before cart operations to guarantee GCS URLs are available
+   * @returns {Promise<void>}
+   */
+  async ensureUploadsComplete() {
+    if (this.pendingGcsUploads) {
+      console.log('⏳ Waiting for background GCS uploads to complete...');
+      await this.pendingGcsUploads;
+      console.log('✅ Background GCS uploads complete');
+    }
+  }
+
+  /**
    * Upload selected effect's images to GCS
    * Called from buy-buttons.liquid during cart integration
    * @param {string} sessionKey - Pet session identifier
@@ -2773,6 +3471,9 @@ class PetProcessor {
   async syncSelectedToCloud(sessionKey, effect, callback) {
     try {
       console.log(`📤 Syncing to cloud: ${sessionKey}, effect: ${effect}`);
+
+      // Ensure any background uploads are complete before proceeding
+      await this.ensureUploadsComplete();
 
       // Find pet in processed pets
       const pet = this.processedPets.find(p => p.id === sessionKey);

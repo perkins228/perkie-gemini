@@ -1,0 +1,37 @@
+# BiRefNet Background Removal API
+# Core dependencies
+
+# Web framework
+fastapi==0.109.0
+uvicorn[standard]==0.27.0
+python-multipart==0.0.6
+
+# BiRefNet via HuggingFace transformers (replaces rembg for GPU support)
+transformers>=4.39.0
+timm>=0.9.12
+accelerate>=0.28.0
+einops>=0.7.0
+kornia>=0.7.0
+
+# Image processing
+Pillow>=10.0.0
+numpy>=1.24.0
+opencv-python-headless>=4.8.0  # For effects processing (headless for server)
+
+# Real-ESRGAN for image cleanup and upscaling
+# Using ai-forever implementation (NO basicsr dependency - compatible with PyTorch 2.x)
+git+https://github.com/ai-forever/Real-ESRGAN.git@main
+huggingface-hub>=0.20.0
+
+# GPU acceleration for effects pipeline
+cupy-cuda11x>=12.0.0  # CuPy for GPU-accelerated numpy operations
+
+# Cloud Storage
+google-cloud-storage>=2.10.0
+
+# Monitoring and utilities
+psutil>=5.9.0
+python-dotenv>=1.0.0
+
+# Health checks
+httpx>=0.25.0

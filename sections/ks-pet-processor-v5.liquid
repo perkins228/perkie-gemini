@@ -3,20 +3,30 @@
   Type: ks-pet-processor-v5
 {%- endcomment -%}
 
-{{ 'pet-processor-v5.css' | asset_url | stylesheet_tag }}
-{{ 'pet-processor-mobile.css' | asset_url | stylesheet_tag }}
-{{ 'effect-comparison.css' | asset_url | stylesheet_tag }}
+{%- comment -%}
+  Async CSS loading for LCP optimization (cache busting v2.1)
+  Uses media="print" + onload pattern with noscript fallback for JS-disabled browsers
+{%- endcomment -%}
+<link rel="stylesheet" href="{{ 'pet-processor-v5.css' | asset_url }}?v=2.1" media="print" onload="this.media='all'">
+<link rel="stylesheet" href="{{ 'pet-processor-mobile.css' | asset_url }}?v=2.1" media="print" onload="this.media='all'">
+{%- comment -%} DISABLED: Comparison feature not in current customer journey {%- endcomment -%}
+{%- comment -%} {{ 'effect-comparison.css' | asset_url | stylesheet_tag }} {%- endcomment -%}
+<link rel="stylesheet" href="{{ 'crop-processor.css' | asset_url }}" media="print" onload="this.media='all'">
 {%- comment -%} Simple social sharing replaces complex 38KB implementation {%- endcomment -%}
-{{ 'pet-social-sharing-simple.css' | asset_url | stylesheet_tag }}
-{%- comment -%} Inline email capture for FREE download flow {%- endcomment -%}
-{{ 'inline-email-capture.css' | asset_url | stylesheet_tag }}
+<link rel="stylesheet" href="{{ 'pet-social-sharing-simple.css' | asset_url }}" media="print" onload="this.media='all'">
+<noscript>
+  <link rel="stylesheet" href="{{ 'pet-processor-v5.css' | asset_url }}">
+  <link rel="stylesheet" href="{{ 'pet-processor-mobile.css' | asset_url }}">
+  <link rel="stylesheet" href="{{ 'crop-processor.css' | asset_url }}">
+  <link rel="stylesheet" href="{{ 'pet-social-sharing-simple.css' | asset_url }}">
+</noscript>
 
 <section id="ks-pet-bg-remover-{{ section.id }}" class="ks-pet-processor-section color-{{ section.settings.color_scheme }}"
          data-section-type="ks-pet-processor-v5"
          data-section-id="{{ section.id }}"
          {% if section.settings.style_preview_bw != blank %}data-style-preview-bw="{{ section.settings.style_preview_bw | image_url: width: 320 }}"{% endif %}
          {% if section.settings.style_preview_color != blank %}data-style-preview-color="{{ section.settings.style_preview_color | image_url: width: 320 }}"{% endif %}
-         {% if section.settings.style_preview_modern != blank %}data-style-preview-modern="{{ section.settings.style_preview_modern | image_url: width: 320 }}"{% endif %}
+         {% if section.settings.style_preview_stencil != blank %}data-style-preview-stencil="{{ section.settings.style_preview_stencil | image_url: width: 320 }}"{% endif %}
          {% if section.settings.style_preview_sketch != blank %}data-style-preview-sketch="{{ section.settings.style_preview_sketch | image_url: width: 320 }}"{% endif %}>
   <a id="pet-processor" style="position: absolute; top: -80px;"></a>
   <div class="page-width">
@@ -59,7 +69,10 @@
 <script src="{{ 'gemini-api-client.js' | asset_url }}"></script>
 <script src="{{ 'gemini-effects-ui.js' | asset_url }}"></script>
 
-{% comment %} Mobile-First Pet Processor (ES6+) - Loads after Gemini modules {% endcomment %}
+{% comment %} Crop Processor - Load before pet processor {% endcomment %}
+<script src="{{ 'crop-processor.js' | asset_url }}"></script>
+
+{% comment %} Mobile-First Pet Processor (ES6+) - Loads after Gemini and Crop modules {% endcomment %}
 <script src="{{ 'pet-processor.js' | asset_url }}"></script>
 
 {% comment %} Simple Social Sharing (2KB vs 38KB) - Client-side only {% endcomment %}

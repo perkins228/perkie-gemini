@@ -124,13 +124,14 @@
    MODAL HEADER
    ============================================================================ */
 
+/* WCAG 1.4.11: Non-text contrast minimum 3:1 */
 .inline-preview-close {
   position: absolute;
   top: 1rem;
   right: 1rem;
   width: 40px;
   height: 40px;
-  background: rgba(0, 0, 0, 0.05);
+  background: rgba(0, 0, 0, 0.15); /* WCAG: Increased from 0.05 to meet 3:1 contrast */
   border: none;
   border-radius: 50%;
   cursor: pointer;
@@ -141,8 +142,11 @@
   transition: background 0.2s ease;
 }
 
-.inline-preview-close:hover {
-  background: rgba(0, 0, 0, 0.1);
+.inline-preview-close:hover,
+.inline-preview-close:focus {
+  background: rgba(0, 0, 0, 0.25); /* WCAG: Increased from 0.1 for better visibility */
+  outline: 2px solid #1a73e8; /* WCAG 2.4.7: Visible focus indicator */
+  outline-offset: 2px;
 }
 
 .inline-preview-header {
@@ -787,4 +791,43 @@
 
 .inline-progress-bar-wrapper {
   display: none !important; /* Hidden - using countdown timer for better UX */
+}
+
+/* ============================================================================
+   DESKTOP LAYOUT OPTIMIZATION - Continue Button Above Fold
+   Reduces vertical padding/spacing to ensure Continue button visible without scroll
+   Mobile layout unchanged (70% of traffic uses mobile)
+   ============================================================================ */
+
+@media (min-width: 769px) {
+  /* Reduce header vertical padding */
+  .inline-preview-header {
+    padding: 1.5rem 2rem 0.75rem;
+  }
+
+  /* Reduce body vertical padding and gap */
+  .inline-preview-body {
+    gap: 1.5rem;
+    padding: 1rem 2rem 1.5rem;
+  }
+
+  /* Tighter spacing between control sections */
+  .inline-preview-controls {
+    gap: 1rem;
+  }
+
+  /* Reduce effect grid top padding */
+  .inline-effect-grid-wrapper {
+    padding-top: 0.5rem;
+  }
+
+  /* Reduce artist notes section top padding */
+  .inline-artist-notes-section {
+    padding-top: 0.75rem;
+  }
+
+  /* Reduce action buttons top padding */
+  .inline-action-buttons {
+    padding-top: 0.5rem;
+  }
 }

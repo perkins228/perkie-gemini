@@ -1,0 +1,669 @@
+/**
+ * Product Mockup Grid Styles
+ * Mobile-first responsive design for displaying pet images on products
+ * Optimized for 70% mobile traffic
+ */
+
+/* =============================================================================
+   Section Container
+   ============================================================================= */
+
+.product-mockup-grid-section {
+  padding: 24px 0 48px;
+  background: rgb(var(--color-background));
+}
+
+.product-mockup-grid-section[style*="display: none"] {
+  display: none !important;
+}
+
+.product-mockup-grid-section.visible {
+  display: block !important;
+  animation: mockupGridFadeIn 0.5s ease-out;
+}
+
+@keyframes mockupGridFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* =============================================================================
+   Header
+   ============================================================================= */
+
+.mockup-grid__header {
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.mockup-grid__heading {
+  font-size: 24px;
+  font-weight: 700;
+  color: rgb(var(--color-foreground));
+  margin: 0 0 8px;
+  line-height: 1.2;
+}
+
+.mockup-grid__subheading {
+  font-size: 15px;
+  color: rgba(var(--color-foreground), 0.7);
+  margin: 0;
+  max-width: 500px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Crop Suggestion Hint */
+.mockup-grid__crop-hint {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 13px;
+  color: rgba(var(--color-foreground), 0.6);
+  margin: 12px auto 0;
+  padding: 8px 16px;
+  background: rgba(var(--color-foreground), 0.03);
+  border-radius: 20px;
+  max-width: fit-content;
+}
+
+.mockup-grid__crop-hint svg {
+  flex-shrink: 0;
+  opacity: 0.7;
+}
+
+.mockup-grid__crop-link {
+  background: none;
+  border: none;
+  padding: 0;
+  color: rgb(var(--color-button));
+  font-weight: 600;
+  font-size: inherit;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  transition: opacity 0.2s ease;
+}
+
+.mockup-grid__crop-link:hover {
+  opacity: 0.8;
+}
+
+.mockup-grid__crop-link:focus {
+  outline: 2px solid rgb(var(--color-button));
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+@media screen and (min-width: 750px) {
+  .mockup-grid__header {
+    margin-bottom: 32px;
+  }
+
+  .mockup-grid__heading {
+    font-size: 32px;
+  }
+
+  .mockup-grid__subheading {
+    font-size: 16px;
+  }
+}
+
+/* =============================================================================
+   Loading State
+   ============================================================================= */
+
+.mockup-grid__loading {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 16px;
+  text-align: center;
+}
+
+.mockup-grid__loading.visible {
+  display: flex;
+}
+
+.mockup-grid__loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid rgba(var(--color-foreground), 0.1);
+  border-top-color: rgb(var(--color-button));
+  border-radius: 50%;
+  animation: mockupSpinner 0.8s linear infinite;
+  margin-bottom: 16px;
+}
+
+@keyframes mockupSpinner {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.mockup-grid__loading p {
+  font-size: 14px;
+  color: rgba(var(--color-foreground), 0.6);
+  margin: 0;
+}
+
+/* =============================================================================
+   Grid Container
+   ============================================================================= */
+
+.mockup-grid__container {
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.mockup-grid__container.visible {
+  opacity: 1;
+}
+
+/* Mobile: 2-column grid with hero spanning full width */
+.mockup-grid__items {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+/* Desktop: 4x4 grid layout (4 rows, 4 columns) */
+@media screen and (min-width: 750px) {
+  .product-mockup-grid-section {
+    padding: 16px 0 48px; /* Reduced from 24px to bring grid above fold */
+  }
+
+  .mockup-grid__container {
+    position: relative;
+  }
+
+  .mockup-grid__items {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    /* Remove carousel/scroll properties */
+    overflow-x: visible;
+    scroll-snap-type: none;
+    padding: 4px 0;
+  }
+
+  /* No scrollbar needed for grid layout */
+  .mockup-grid__items::-webkit-scrollbar {
+    display: none;
+  }
+
+  .mockup-grid__items .mockup-card {
+    /* Reset flex properties, use grid sizing */
+    flex: none;
+    min-width: auto;
+    scroll-snap-align: none;
+  }
+}
+
+@media screen and (min-width: 990px) {
+  .mockup-grid__items {
+    gap: 20px;
+  }
+}
+
+/* =============================================================================
+   Navigation - Hidden (desktop uses 2x5 grid, mobile uses expand toggle)
+   ============================================================================= */
+
+.mockup-grid__nav {
+  display: none;
+}
+
+/* =============================================================================
+   Mockup Card
+   ============================================================================= */
+
+.mockup-card {
+  background: #fff;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.mockup-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+/* Hero card (first product) spans full width on mobile grid */
+.mockup-card--hero {
+  grid-column: 1 / -1;
+}
+
+/* Desktop grid: hero card is same size as others */
+@media screen and (min-width: 750px) {
+  .mockup-card--hero {
+    grid-column: auto; /* Normal size in 5-column grid */
+  }
+}
+
+/* Expandable cards (products 10+) hidden by default on mobile */
+.mockup-card--expandable {
+  display: none;
+}
+
+.mockup-grid__items.expanded .mockup-card--expandable {
+  display: block;
+  animation: mockupCardExpand 0.3s ease-out;
+}
+
+@keyframes mockupCardExpand {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Desktop grid: all cards visible */
+@media screen and (min-width: 750px) {
+  .mockup-card--expandable {
+    display: block; /* Always visible in grid layout */
+  }
+}
+
+/* =============================================================================
+   Card Link
+   ============================================================================= */
+
+.mockup-card__link {
+  display: flex;
+  flex-direction: column;
+  text-decoration: none;
+  color: inherit;
+  height: 100%;
+}
+
+/* =============================================================================
+   Image Container with Pet Overlay
+   ============================================================================= */
+
+.mockup-card__image-container {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  background: #f5f5f5;
+}
+
+/* Hero card uses same 4:3 aspect ratio as other cards */
+/* No override needed - inherits from .mockup-card__image-container */
+
+/* Product template image (background) */
+.mockup-card__template {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.mockup-card:hover .mockup-card__template {
+  transform: scale(1.05);
+}
+
+/* Pet image overlay - positioned via CSS custom properties */
+.mockup-card__pet {
+  position: absolute;
+  top: var(--pet-top, 20%);
+  left: var(--pet-left, 20%);
+  width: var(--pet-width, 60%);
+  height: var(--pet-height, 60%);
+  object-fit: contain;
+  transform: rotate(var(--pet-rotation, 0deg));
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+  opacity: 0;
+}
+
+.mockup-card__pet.visible {
+  opacity: 1;
+}
+
+/* =============================================================================
+   Product-Type-Specific Blend Modes
+   Creates "printed on product" effect instead of floating overlay
+   ============================================================================= */
+
+/* Fabric products (tees, sweatshirts, totes, pillows) - multiply blend shows texture */
+.mockup-card[data-blend-category="fabric"] .mockup-card__pet.visible {
+  mix-blend-mode: multiply;
+  opacity: 0.92;
+}
+
+/* Ceramic products (mugs) - lighter blend for curved surfaces */
+.mockup-card[data-blend-category="ceramic"] .mockup-card__pet.visible {
+  mix-blend-mode: multiply;
+  opacity: 0.95;
+}
+
+/* Hard surfaces (phone cases) - subtle blend for smooth surfaces */
+.mockup-card[data-blend-category="hard-surface"] .mockup-card__pet.visible {
+  mix-blend-mode: multiply;
+  opacity: 0.95;
+}
+
+/* Paper products (cards, stickers) - very subtle blend */
+.mockup-card[data-blend-category="paper"] .mockup-card__pet.visible {
+  mix-blend-mode: multiply;
+  opacity: 0.97;
+}
+
+/* Framed prints - NO blend mode, full opacity (pet image IS the product) */
+.mockup-card[data-blend-category="framed"] .mockup-card__pet.visible {
+  mix-blend-mode: normal;
+  opacity: 1;
+}
+
+/* Default fallback - slight blend for unknown product types */
+.mockup-card[data-blend-category="default"] .mockup-card__pet.visible {
+  mix-blend-mode: multiply;
+  opacity: 0.95;
+}
+
+/* Badge styling */
+.mockup-card__badge {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  z-index: 2;
+}
+
+.mockup-card__badge--popular {
+  background: linear-gradient(135deg, #ff6b9d 0%, #ee5a8f 100%);
+  color: #fff;
+}
+
+/* =============================================================================
+   Card Info
+   ============================================================================= */
+
+.mockup-card__info {
+  padding: 12px;
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.mockup-card--hero .mockup-card__info {
+  padding: 16px;
+}
+
+.mockup-card__title {
+  font-size: 14px;
+  font-weight: 600;
+  margin: 0 0 6px;
+  color: rgb(var(--color-foreground));
+  line-height: 1.3;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.mockup-card--hero .mockup-card__title {
+  font-size: 16px;
+}
+
+.mockup-card__meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  margin-bottom: 6px;
+}
+
+.mockup-card__price {
+  color: rgba(var(--color-foreground), 0.7);
+  font-weight: 500;
+}
+
+.mockup-card__variants-count {
+  color: rgba(var(--color-foreground), 0.5);
+  font-size: 12px;
+}
+
+.mockup-card__variants-count::before {
+  content: '|';
+  margin-right: 8px;
+  color: rgba(var(--color-foreground), 0.3);
+}
+
+.mockup-card__rating {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: rgba(var(--color-foreground), 0.6);
+}
+
+.mockup-card__review-count {
+  color: rgba(var(--color-foreground), 0.5);
+}
+
+@media screen and (min-width: 750px) {
+  .mockup-card__info {
+    padding: 14px;
+  }
+
+  .mockup-card__title {
+    font-size: 15px;
+  }
+
+  .mockup-card__meta {
+    font-size: 14px;
+  }
+}
+
+/* =============================================================================
+   CTA Button
+   ============================================================================= */
+
+.mockup-card__cta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: calc(100% - 24px);
+  margin: 0 12px 12px;
+  padding: 10px 16px;
+  background: rgb(var(--color-button));
+  color: rgb(var(--color-button-text));
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.1s ease;
+}
+
+/* Hero card CTA uses same styling as regular cards for consistency */
+
+.mockup-card__cta:hover {
+  background: rgb(var(--color-button-hover, var(--color-button)));
+  transform: translateY(-1px);
+}
+
+.mockup-card__cta:active {
+  transform: translateY(0);
+}
+
+.mockup-card__cta svg {
+  flex-shrink: 0;
+  transition: transform 0.2s ease;
+}
+
+.mockup-card:hover .mockup-card__cta svg {
+  transform: translateX(3px);
+}
+
+/* =============================================================================
+   Expand/Collapse Toggle (Mobile Only)
+   ============================================================================= */
+
+.mockup-grid__toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  max-width: 280px;
+  margin: 24px auto 0;
+  padding: 14px 24px;
+  background: rgba(var(--color-foreground), 0.05);
+  border: 2px solid rgba(var(--color-foreground), 0.1);
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 600;
+  color: rgb(var(--color-foreground));
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.mockup-grid__toggle:hover {
+  background: rgba(var(--color-foreground), 0.08);
+  border-color: rgba(var(--color-foreground), 0.2);
+}
+
+.mockup-grid__toggle-icon {
+  transition: transform 0.3s ease;
+}
+
+.mockup-grid__toggle[aria-expanded="true"] .mockup-grid__toggle-icon {
+  transform: rotate(180deg);
+}
+
+/* Hide toggle on desktop (all products visible) */
+@media screen and (min-width: 750px) {
+  .mockup-grid__toggle {
+    display: none;
+  }
+}
+
+/* =============================================================================
+   Touch Optimization (Mobile)
+   ============================================================================= */
+
+@media (hover: none) and (pointer: coarse) {
+  .mockup-card {
+    /* Remove hover effects on touch devices */
+    transform: none !important;
+  }
+
+  .mockup-card:active {
+    transform: scale(0.98) !important;
+  }
+
+  .mockup-card__template {
+    transform: none !important;
+  }
+
+  /* Ensure minimum touch target size */
+  .mockup-card__link {
+    min-height: 44px;
+  }
+
+  .mockup-card__cta {
+    min-height: 44px;
+  }
+}
+
+/* =============================================================================
+   Dark Mode Support
+   ============================================================================= */
+
+@media (prefers-color-scheme: dark) {
+  .mockup-card {
+    background: rgb(var(--color-background));
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  }
+
+  .mockup-card:hover {
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+  }
+
+  .mockup-card__image-container {
+    background: rgba(var(--color-foreground), 0.05);
+  }
+}
+
+/* =============================================================================
+   Accessibility
+   ============================================================================= */
+
+.mockup-card__link:focus-visible {
+  outline: 2px solid rgb(var(--color-button));
+  outline-offset: 2px;
+}
+
+.mockup-grid__toggle:focus-visible {
+  outline: 2px solid rgb(var(--color-button));
+  outline-offset: 2px;
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .product-mockup-grid-section.visible,
+  .mockup-card,
+  .mockup-card__template,
+  .mockup-card__pet,
+  .mockup-card__cta,
+  .mockup-card__cta svg,
+  .mockup-grid__toggle-icon,
+  .mockup-grid__items.expanded .mockup-card--expandable {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+/* =============================================================================
+   Print Zone Debug Preview
+   ============================================================================= */
+
+.mockup-card__zone-preview {
+  position: absolute;
+  top: var(--zone-top, 20%);
+  left: var(--zone-left, 20%);
+  width: var(--zone-width, 60%);
+  height: var(--zone-height, 60%);
+  background: rgba(255, 0, 0, 0.15);
+  border: 2px dashed #ff0000;
+  border-radius: 4px;
+  pointer-events: none;
+  z-index: 100;
+  box-sizing: border-box;
+}
+
+/* Label removed for cleaner view - zone box speaks for itself */
+
+/* =============================================================================
+   Print Styles
+   ============================================================================= */
+
+@media print {
+  .product-mockup-grid-section {
+    display: none !important;
+  }
+}

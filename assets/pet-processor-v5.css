@@ -378,6 +378,10 @@
   to { transform: rotate(360deg); }
 }
 
+@keyframes spinner-rotate {
+  to { transform: rotate(360deg); }
+}
+
 .effect-btn.active {
   border-color: rgb(var(--color-button));
   background: rgba(var(--color-button), 0.1);
@@ -527,6 +531,65 @@
 
 .btn-secondary:hover {
   background: rgba(var(--color-foreground), 0.15);
+}
+
+/* Crop Button - below style cards */
+.effect-grid-wrapper .crop-btn {
+  display: block;
+  width: 100%;
+  margin-top: 1rem;
+  padding: 1rem 1.5rem;
+  font-size: 1.125rem;
+  font-weight: 600;
+}
+
+/* Try Another Pet Button - Enlarged & Prominent */
+.effect-grid-wrapper .try-another-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  margin-top: 0.75rem;
+  padding: 1rem 1.5rem;
+  font-size: 1.125rem;
+  font-weight: 600;
+  background: linear-gradient(135deg, rgb(var(--color-button)) 0%, rgba(var(--color-button), 0.85) 100%);
+  color: rgb(var(--color-button-text));
+  border: none;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(var(--color-button), 0.25);
+  transition: all 0.2s ease;
+}
+
+.effect-grid-wrapper .try-another-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(var(--color-button), 0.35);
+  background: linear-gradient(135deg, rgba(var(--color-button), 0.95) 0%, rgba(var(--color-button), 0.8) 100%);
+}
+
+.effect-grid-wrapper .try-another-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 6px rgba(var(--color-button), 0.2);
+}
+
+/* Try Another Pet Link */
+.btn-link.process-another-btn {
+  background: none;
+  border: none;
+  color: rgba(var(--color-foreground), 0.6);
+  font-size: 0.9rem;
+  cursor: pointer;
+  padding: 0.5rem 1rem;
+  text-decoration: none;
+  transition: color 0.2s ease;
+  margin-top: 1rem;
+  display: block;
+  text-align: center;
+}
+
+.btn-link.process-another-btn:hover {
+  color: rgb(var(--color-foreground));
 }
 
 /* Utility Classes */
@@ -908,6 +971,11 @@
   }
 }
 
+/* Inline section header - hidden on all devices (keep original header visible) */
+.inline-section-header {
+  display: none !important;
+}
+
 /* Desktop side-by-side layout - only when result is shown and for mouse/trackpad users */
 @media (min-width: 1024px) and (hover: hover) {
   /* Increase container width for desktop */
@@ -940,47 +1008,113 @@
     display: flex;
     gap: var(--desktop-gap);
     align-items: flex-start;
+    /* Shared background for unified block appearance */
+    background: rgba(var(--color-foreground), 0.02);
+    border: 1px solid rgba(var(--color-foreground), 0.08);
+    border-radius: 16px;
+    padding: 1rem; /* Reduced from 1.5rem for tighter layout */
   }
-  
-  /* Left column: Controls (fixed width) */
+
+  /* LEFT column: Controls (fixed width for compact layout) */
   .pet-processor-container.has-result .processor-controls {
-    flex: 0 0 var(--desktop-left-column);
+    order: 1; /* Visual order: appears first (left) */
+    flex: 0 0 380px; /* Fixed width for compact controls */
+    min-width: 320px;
+    max-width: 420px; /* Cap for ultra-wide displays */
+  }
+
+  /* RIGHT column: Preview (flexible, fills remaining space) */
+  .pet-processor-container.has-result .processor-preview {
+    order: 2; /* Visual order: appears second (right) */
+    flex: 1; /* Grows to fill remaining space - larger preview */
+    min-width: 400px; /* Minimum preview size */
     position: sticky;
     top: 20px;
     max-height: calc(100vh - 40px);
-    overflow-y: auto;
-  }
-  
-  /* Right column: Preview (flexible width) */
-  .pet-processor-container.has-result .processor-preview {
-    flex: 1;
-    min-width: var(--desktop-right-min);
     display: block;
   }
-  
-  /* Move effect grid to left column on desktop */
+
+  /* Keep original section header visible and centered on desktop */
+  .ks-pet-processor-section .section-header {
+    display: block !important;
+    text-align: center;
+    margin-bottom: 1.5rem; /* Reduced from 2rem */
+  }
+
+  /* Effect grid wrapper - fills left column width */
   .processor-controls .effect-grid-wrapper {
-    margin-top: 1.5rem;
-  }
-  
-  /* Stack action buttons vertically in left column */
-  .processor-controls .action-buttons {
+    margin-top: 0;
+    margin-bottom: 1rem; /* Reduced from 1.25rem */
+    display: flex;
     flex-direction: column;
-    gap: 0.75rem;
-  }
-  
-  .processor-controls .action-buttons button {
+    align-items: stretch; /* Fill available width */
     width: 100%;
   }
-  
-  /* Preview area styling */
+
+  /* Choose Style heading - clear hierarchy */
+  .processor-controls .effect-grid-heading {
+    margin-bottom: 0.5rem; /* Reduced from 0.75rem */
+    font-size: 0.9375rem; /* ~15px */
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: rgb(var(--color-foreground));
+  }
+
+  /* Style selector 2x2 grid on desktop - fills left column */
+  .processor-controls .effect-grid.style-selector__grid {
+    grid-template-columns: repeat(2, 1fr) !important; /* 2x2 grid */
+    gap: 0.75rem; /* Reduced from 1rem for tighter layout */
+    width: 100%; /* Fill available width */
+    margin: 0;
+  }
+
+  /* Style cards - comfortable size for left column, centered */
+  .processor-controls .style-card__content {
+    align-items: center; /* Center the image wrapper horizontally */
+    gap: 0.5rem;
+  }
+
+  .processor-controls .style-card__image-wrapper {
+    max-width: 140px;
+    max-height: 140px;
+  }
+
+  .processor-controls .style-card__label {
+    font-size: 0.8rem;
+  }
+
+  /* Action buttons (Crop and Try Another Pet) - full width */
+  .processor-controls .crop-btn,
+  .processor-controls .try-another-btn {
+    width: 100%; /* Full width of left column */
+    margin-top: 0.5rem; /* Reduced from 0.75rem */
+    margin-left: 0;
+    margin-right: 0;
+  }
+
+  /* Ensure all controls fill left column width */
+  .pet-processor-container.has-result .processor-controls > * {
+    width: 100%;
+  }
+
+  /* Preview area styling - constrained height for above-fold optimization */
   .processor-preview .pet-image-container {
-    min-height: 500px;
+    min-height: auto; /* Remove fixed minimum */
+    max-height: 400px; /* Reduced from 500px to bring products above fold */
     display: flex;
     align-items: center;
     justify-content: center;
     background: rgba(var(--color-foreground), 0.03);
     border-radius: 12px;
+    overflow: hidden;
+  }
+
+  .processor-preview .pet-image {
+    width: 100%;
+    height: auto;
+    max-height: 400px; /* Reduced from 500px */
+    object-fit: contain;
   }
   
   /* Processing overlay for left column */
@@ -996,6 +1130,141 @@
     justify-content: center;
     border-radius: 12px;
     z-index: 10;
+  }
+}
+
+/* Large Desktop (1440px+) - Slightly larger left column */
+@media (min-width: 1440px) and (hover: hover) {
+  .pet-processor-container.has-result .processor-controls {
+    flex: 0 0 400px; /* +20px for larger screens */
+  }
+
+  .processor-preview .pet-image-container,
+  .processor-preview .pet-image {
+    max-height: 450px; /* Reduced from 560px */
+  }
+}
+
+/* XL Desktop (1920px+) - Even larger left column for 4K displays */
+@media (min-width: 1920px) and (hover: hover) {
+  .pet-processor-container.has-result .processor-controls {
+    flex: 0 0 420px; /* +40px for 4K displays */
+  }
+
+  .processor-preview .pet-image-container,
+  .processor-preview .pet-image {
+    max-height: 500px; /* Reduced from 620px */
+  }
+}
+
+/* =============================================================================
+   Scroll Hint - Encourages discovery of Product Grid below
+   ============================================================================= */
+
+.scroll-hint-container {
+  display: none; /* Hidden by default, shown via JS when result displayed */
+  text-align: center;
+  padding: 1.25rem 1rem 1.5rem;
+  margin-top: 0.75rem;
+  background: linear-gradient(to bottom, transparent 0%, rgba(var(--color-button), 0.06) 100%);
+  border-radius: 12px;
+  cursor: pointer;
+  min-height: 48px; /* Touch-friendly tap target */
+  animation: fadeInUp 0.5s ease 0.3s both;
+  transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.scroll-hint-container:active {
+  transform: scale(0.98);
+  background: rgba(var(--color-button), 0.1);
+}
+
+.scroll-hint-container.visible {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Initial pulse animation to draw attention (runs once then settles) */
+.scroll-hint-container.visible {
+  animation: fadeInUp 0.5s ease 0.3s both, subtlePulse 2s ease-in-out 1s 2;
+}
+
+.scroll-hint-text {
+  font-size: 1rem;
+  color: rgba(var(--color-foreground), 0.85);
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+}
+
+.scroll-hint-arrow {
+  display: inline-block;
+  width: 28px;
+  height: 28px;
+  color: rgb(var(--color-button));
+  animation: bounce 2s ease-in-out infinite;
+}
+
+.scroll-hint-arrow svg {
+  width: 100%;
+  height: 100%;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes bounce {
+  0%, 20%, 50%, 80%, 100% {
+    transform: translateY(0);
+  }
+  40% {
+    transform: translateY(6px);
+  }
+  60% {
+    transform: translateY(3px);
+  }
+}
+
+@keyframes subtlePulse {
+  0%, 100% {
+    opacity: 1;
+    box-shadow: 0 0 0 0 rgba(var(--color-button), 0);
+  }
+  50% {
+    opacity: 0.9;
+    box-shadow: 0 0 0 4px rgba(var(--color-button), 0.1);
+  }
+}
+
+/* Desktop: Position scroll hint below processor */
+@media (min-width: 1024px) and (hover: hover) {
+  .scroll-hint-container {
+    padding: 0.75rem 1rem;
+    margin-top: 0.5rem;
+    background: rgba(var(--color-button), 0.04);
+  }
+
+  .scroll-hint-container:hover {
+    background: rgba(var(--color-button), 0.08);
+    transform: translateY(2px);
+  }
+
+  .scroll-hint-text {
+    font-size: 0.9375rem;
+  }
+
+  .scroll-hint-arrow {
+    width: 24px;
+    height: 24px;
   }
 }
 
@@ -1015,23 +1284,29 @@
   }
 }
 
-/* Graceful degradation for older browsers */
+/* Graceful degradation for older browsers (side-by-side: controls left, preview right) */
 @supports not (display: flex) {
   @media (min-width: 1024px) {
     .processor-columns {
       display: table;
       width: 100%;
     }
-    
+
     .processor-controls,
     .processor-preview {
       display: table-cell;
       vertical-align: top;
     }
-    
+
+    /* Controls on left (fixed width) */
     .processor-controls {
-      width: var(--desktop-left-column);
+      width: 380px;
       padding-right: var(--desktop-gap);
+    }
+
+    /* Preview on right (flexible) */
+    .processor-preview {
+      width: auto;
     }
   }
 }
@@ -1039,7 +1314,8 @@
 /* Preview placeholder for desktop */
 .preview-placeholder {
   display: none; /* Hidden on mobile */
-  min-height: 500px;
+  min-height: 300px; /* Reduced to match compact preview */
+  max-height: 500px;
   background: rgba(var(--color-foreground), 0.03);
   border-radius: 12px;
   flex-direction: column;
@@ -1179,18 +1455,34 @@
 
 /* Loading state for style cards */
 .style-card.effect-btn--loading .style-card__image-wrapper {
-  border-color: orange;
-  box-shadow: 0 0 0 2px rgba(255, 165, 0, 0.3);
+  border-color: rgb(var(--color-button));
+  box-shadow: 0 0 0 2px rgba(var(--color-button), 0.3);
 }
 
-.style-card.effect-btn--loading .style-card__image-wrapper::after {
-  content: '⏳';
+/* Spinner overlay (circular loader) */
+.style-card.effect-btn--loading .style-card__image-wrapper::before {
+  content: '';
   position: absolute;
   top: 50%;
   left: 50%;
-  transform: translate(-50%, -50%);
-  font-size: 2rem;
-  animation: spin 1s linear infinite;
+  width: 28px;
+  height: 28px;
+  margin: -14px 0 0 -14px;
+  border: 3px solid rgba(255, 255, 255, 0.3);
+  border-top-color: rgb(var(--color-button));
+  border-radius: 50%;
+  animation: spinner-rotate 1s linear infinite;
+  z-index: 2;
+}
+
+/* Semi-transparent backdrop for contrast */
+.style-card.effect-btn--loading .style-card__image-wrapper::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  border-radius: 6px;
+  z-index: 1;
 }
 
 /* Disabled state for style cards */
@@ -1239,4 +1531,25 @@
 .style-card .effect-name {
   display: none;
 }
+
+/* =============================================================================
+   Highlight Pulse Animation
+   Used when user clicks "Crop your image" from mockup grid
+   ============================================================================= */
+
+@keyframes highlight-pulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(var(--color-button), 0.7);
+  }
+  50% {
+    box-shadow: 0 0 0 8px rgba(var(--color-button), 0);
+  }
+}
+
+.highlight-pulse {
+  animation: highlight-pulse 0.6s ease-in-out 3;
+  outline: 2px solid rgb(var(--color-button));
+  outline-offset: 2px;
+}
+
 
