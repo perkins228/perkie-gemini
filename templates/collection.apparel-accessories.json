@@ -18,78 +18,6 @@
         "color_scheme": "scheme-1"
       }
     },
-    "ks_simple_collections_CKipXY": {
-      "type": "ks-simple-collections",
-      "blocks": {
-        "collection_JDm6Qj": {
-          "type": "collection",
-          "settings": {
-            "collection": "t-shirts",
-            "img": "shopify://shop_images/tee_collection_website_-_cell_copy.jpg",
-            "title": ""
-          }
-        },
-        "collection_zUWBDx": {
-          "type": "collection",
-          "settings": {
-            "collection": "",
-            "title": ""
-          }
-        },
-        "collection_mrGzEh": {
-          "type": "collection",
-          "settings": {
-            "collection": "",
-            "title": ""
-          }
-        },
-        "collection_cikTMB": {
-          "type": "collection",
-          "settings": {
-            "collection": "",
-            "title": ""
-          }
-        },
-        "collection_H3jynq": {
-          "type": "collection",
-          "settings": {
-            "collection": "",
-            "title": ""
-          }
-        },
-        "collection_rCWbm3": {
-          "type": "collection",
-          "settings": {
-            "collection": "",
-            "title": ""
-          }
-        }
-      },
-      "block_order": [
-        "collection_JDm6Qj",
-        "collection_zUWBDx",
-        "collection_mrGzEh",
-        "collection_cikTMB",
-        "collection_H3jynq",
-        "collection_rCWbm3"
-      ],
-      "name": "KS - Simple collections",
-      "settings": {
-        "color_scheme": "",
-        "title": "Shop by Style",
-        "heading_size": "h2",
-        "description": "",
-        "description_size": "fs-md",
-        "label": "Featured collections",
-        "item_img_size": 120,
-        "item_show_title": true,
-        "item_title_font_size": "fs-xs",
-        "item_title_truncate": true,
-        "item_show_product_count": true,
-        "pt": 36,
-        "pb": 36
-      }
-    },
     "product-grid": {
       "type": "main-collection-product-grid",
       "settings": {
@@ -107,6 +35,10 @@
         "filter_type": "drawer",
         "enable_sorting": true,
         "show_color_swatches": true,
+        "expand_variants_as_products": false,
+        "expand_variant_option": "color",
+        "max_expanded_variants": 4,
+        "preferred_variant_size": "11\" × 14\"",
         "padding_top": 12,
         "padding_bottom": 12
       }
@@ -185,7 +117,6 @@
   },
   "order": [
     "banner",
-    "ks_simple_collections_CKipXY",
     "product-grid",
     "rich_text_PtqBrC",
     "collection_list_d4baEE"
