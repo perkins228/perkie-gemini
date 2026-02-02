@@ -178,6 +178,7 @@
                     {%- assign shown_values = '|' -%}
                     {%- assign variant_count = 0 -%}
                     {%- assign max_variants = section.settings.max_expanded_variants -%}
+                    {%- assign preferred_size = section.settings.preferred_variant_size | downcase -%}
 
                     {%- for variant in product.variants -%}
                       {%- assign variant_value = variant.options[expand_option_index] -%}
@@ -189,6 +190,24 @@
                           {%- assign shown_values = shown_values | append: variant_value | append: '|' -%}
                           {%- assign variant_count = variant_count | plus: 1 -%}
                           {%- assign grid_item_index = grid_item_index | plus: 1 -%}
+
+                          {%- comment -%}
+                            Find the BEST variant for this color value.
+                            Prefer variant matching preferred_size, otherwise use first match (current variant).
+                          {%- endcomment -%}
+                          {%- assign best_variant = variant -%}
+                          {%- if preferred_size != blank -%}
+                            {%- for search_variant in product.variants -%}
+                              {%- assign search_color = search_variant.options[expand_option_index] -%}
+                              {%- if search_color == variant_value -%}
+                                {%- assign search_title_lower = search_variant.title | downcase -%}
+                                {%- if search_title_lower contains preferred_size -%}
+                                  {%- assign best_variant = search_variant -%}
+                                  {%- break -%}
+                                {%- endif -%}
+                              {%- endif -%}
+                            {%- endfor -%}
+                          {%- endif -%}
 
                           {% assign lazy_load = false %}
                           {%- if grid_item_index > 2 -%}
@@ -204,7 +223,7 @@
                           >
                             {% render 'card-product',
                               card_product: product,
-                              card_variant: variant,
+                              card_variant: best_variant,
                               media_aspect_ratio: section.settings.image_ratio,
                               image_shape: section.settings.image_shape,
                               show_secondary_image: false,
@@ -521,6 +540,13 @@
       "default": 4,
       "label": "Maximum variants per product",
       "info": "Limits grid items to prevent crowding"
+    },
+    {
+      "type": "text",
+      "id": "preferred_variant_size",
+      "default": "11\" × 14\"",
+      "label": "Preferred size for variant images",
+      "info": "When expanding by color, show the image from this size variant. Leave blank for first variant."
     },
     {
       "type": "header",
