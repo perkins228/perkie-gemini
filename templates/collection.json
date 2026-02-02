@@ -35,7 +35,7 @@
         "filter_type": "drawer",
         "enable_sorting": true,
         "show_color_swatches": true,
-        "expand_variants_as_products": true,
+        "expand_variants_as_products": false,
         "expand_variant_option": "color",
         "max_expanded_variants": 6,
         "preferred_variant_size": "11\" × 14\"",
