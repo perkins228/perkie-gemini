@@ -3,6 +3,7 @@
 
   Accepts:
   - card_product: {Object} Product Liquid object (optional)
+  - card_variant: {Object} Variant Liquid object - when set, displays this specific variant (optional)
   - media_aspect_ratio: {String} Size of the product image card. Values are "square" and "portrait". Default is "square" (optional)
   - image_shape: {String} Image mask to apply to the product image card. Values are "arch", "blob", "chevronleft", "chevronright", "diamond", "parallelogram", and "round". (optional)
   - show_secondary_image: {Boolean} Show the secondary image on hover. Default: false (optional)
@@ -19,6 +20,7 @@
 
   Usage:
   {% render 'card-product', show_vendor: section.settings.show_vendor %}
+  {% render 'card-product', card_product: product, card_variant: variant %}
 {% endcomment %}
 {%- unless skip_styles -%}
   {{ 'component-rating.css' | asset_url | stylesheet_tag }}
@@ -30,11 +32,44 @@
 {%- endunless -%}
 {%- if card_product and card_product != empty -%}
   {%- liquid
+    comment
+      Variant Expansion Support:
+      When card_variant is provided, use variant-specific image and URL.
+      This enables showing each color variant as its own card in collection grids.
+    endcomment
+
+    # Determine the display image (variant image or product featured image)
+    if card_variant and card_variant.featured_image
+      assign card_display_image = card_variant.featured_image
+    elsif card_variant and card_variant.image
+      assign card_display_image = card_variant.image
+    else
+      assign card_display_image = card_product.featured_media
+    endif
+
+    # Build the card URL (with variant parameter if variant is specified)
+    # Use within: collection to preserve collection context in URL
+    assign base_url = card_product.url | within: collection
+    if card_variant
+      assign card_url = base_url | append: '?variant=' | append: card_variant.id
+      # Get the variant option value for display (e.g., "Blue", "Red")
+      assign variant_option_value = card_variant.title | split: ' / ' | first
+      assign card_display_title = card_product.title | append: ' - ' | append: variant_option_value
+    else
+      assign card_url = base_url
+      assign card_display_title = card_product.title
+    endif
+
+    # Disable secondary image hover when showing a specific variant
+    if card_variant
+      assign show_secondary_image = false
+    endif
+
     assign ratio = 1
-    if card_product.featured_media and media_aspect_ratio == 'portrait'
+    if card_display_image and media_aspect_ratio == 'portrait'
       assign ratio = 0.8
-    elsif card_product.featured_media and media_aspect_ratio == 'adapt'
-      assign ratio = card_product.featured_media.aspect_ratio
+    elsif card_display_image and media_aspect_ratio == 'adapt'
+      assign ratio = card_display_image.aspect_ratio
     endif
     if ratio == 0 or ratio == null
       assign ratio = 1
@@ -44,42 +79,42 @@
     <div
       class="
         card card--{{ settings.card_style }}
-        {% if card_product.featured_media %} card--media{% else %} card--text{% endif %}
+        {% if card_display_image %} card--media{% else %} card--text{% endif %}
         {% if settings.card_style == 'card' %} color-{{ settings.card_color_scheme }} gradient{% endif %}
         {% if image_shape and image_shape != 'default' %} card--shape{% endif %}
         {% if extend_height %} card--extend-height{% endif %}
-        {% if card_product.featured_media == nil and settings.card_style == 'card' %} ratio{% endif %}
+        {% if card_display_image == nil and settings.card_style == 'card' %} ratio{% endif %}
         {% if horizontal_class %} card--horizontal{% endif %}
       "
       style="--ratio-percent: {{ 1 | divided_by: ratio | times: 100 }}%;"
     >
       <div
-        class="card__inner {% if settings.card_style == 'standard' %}color-{{ settings.card_color_scheme }} gradient{% endif %}{% if card_product.featured_media or settings.card_style == 'standard' %} ratio{% endif %}"
+        class="card__inner {% if settings.card_style == 'standard' %}color-{{ settings.card_color_scheme }} gradient{% endif %}{% if card_display_image or settings.card_style == 'standard' %} ratio{% endif %}"
         style="--ratio-percent: {{ 1 | divided_by: ratio | times: 100 }}%;"
       >
-        {%- if card_product.featured_media -%}
+        {%- if card_display_image -%}
           <div class="card__media{% if image_shape and image_shape != 'default' %} shape--{{ image_shape }} color-{{ settings.card_color_scheme }} gradient{% endif %}">
             <div class="media media--transparent media--hover-effect">
               {% comment %}theme-check-disable ImgLazyLoading{% endcomment %}
               <img
                 srcset="
-                  {%- if card_product.featured_media.width >= 165 -%}{{ card_product.featured_media | image_url: width: 165 }} 165w,{%- endif -%}
-                  {%- if card_product.featured_media.width >= 360 -%}{{ card_product.featured_media | image_url: width: 360 }} 360w,{%- endif -%}
-                  {%- if card_product.featured_media.width >= 533 -%}{{ card_product.featured_media | image_url: width: 533 }} 533w,{%- endif -%}
-                  {%- if card_product.featured_media.width >= 720 -%}{{ card_product.featured_media | image_url: width: 720 }} 720w,{%- endif -%}
-                  {%- if card_product.featured_media.width >= 940 -%}{{ card_product.featured_media | image_url: width: 940 }} 940w,{%- endif -%}
-                  {%- if card_product.featured_media.width >= 1066 -%}{{ card_product.featured_media | image_url: width: 1066 }} 1066w,{%- endif -%}
-                  {{ card_product.featured_media | image_url }} {{ card_product.featured_media.width }}w
+                  {%- if card_display_image.width >= 165 -%}{{ card_display_image | image_url: width: 165 }} 165w,{%- endif -%}
+                  {%- if card_display_image.width >= 360 -%}{{ card_display_image | image_url: width: 360 }} 360w,{%- endif -%}
+                  {%- if card_display_image.width >= 533 -%}{{ card_display_image | image_url: width: 533 }} 533w,{%- endif -%}
+                  {%- if card_display_image.width >= 720 -%}{{ card_display_image | image_url: width: 720 }} 720w,{%- endif -%}
+                  {%- if card_display_image.width >= 940 -%}{{ card_display_image | image_url: width: 940 }} 940w,{%- endif -%}
+                  {%- if card_display_image.width >= 1066 -%}{{ card_display_image | image_url: width: 1066 }} 1066w,{%- endif -%}
+                  {{ card_display_image | image_url }} {{ card_display_image.width }}w
                 "
-                src="{{ card_product.featured_media | image_url: width: 533 }}"
+                src="{{ card_display_image | image_url: width: 533 }}"
                 sizes="(min-width: {{ settings.page_width }}px) {{ settings.page_width | minus: 130 | divided_by: 4 }}px, (min-width: 990px) calc((100vw - 130px) / 4), (min-width: 750px) calc((100vw - 120px) / 3), calc((100vw - 35px) / 2)"
-                alt="{{ card_product.featured_media.alt | escape }}"
+                alt="{{ card_display_image.alt | default: card_display_title | escape }}"
                 class="motion-reduce"
                 {% unless lazy_load == false %}
                   loading="lazy"
                 {% endunless %}
-                width="{{ card_product.featured_media.width }}"
-                height="{{ card_product.featured_media.height }}"
+                width="{{ card_display_image.width }}"
+                height="{{ card_display_image.height }}"
               >
               {% comment %}theme-check-enable ImgLazyLoading{% endcomment %}
 
@@ -110,17 +145,17 @@
           <div class="card__information">
             <h3
               class="card__heading"
-              {% if card_product.featured_media == null and settings.card_style == 'standard' %}
-                id="title-{{ section_id }}-{{ card_product.id }}"
+              {% if card_display_image == null and settings.card_style == 'standard' %}
+                id="title-{{ section_id }}-{{ card_product.id }}{% if card_variant %}-{{ card_variant.id }}{% endif %}"
               {% endif %}
             >
               <a
-                href="{% comment %} KondaSoft {% endcomment %}{{ card_product.url | within: collection }}{% comment %} /KondaSoft {% endcomment %}"
-                id="StandardCardNoMediaLink-{{ section_id }}-{{ card_product.id }}"
+                href="{{ card_url }}"
+                id="StandardCardNoMediaLink-{{ section_id }}-{{ card_product.id }}{% if card_variant %}-{{ card_variant.id }}{% endif %}"
                 class="full-unstyled-link"
-                aria-labelledby="StandardCardNoMediaLink-{{ section_id }}-{{ card_product.id }} NoMediaStandardBadge-{{ section_id }}-{{ card_product.id }}"
+                aria-labelledby="StandardCardNoMediaLink-{{ section_id }}-{{ card_product.id }}{% if card_variant %}-{{ card_variant.id }}{% endif %} NoMediaStandardBadge-{{ section_id }}-{{ card_product.id }}{% if card_variant %}-{{ card_variant.id }}{% endif %}"
               >
-                {{ card_product.title | escape }}
+                {{ card_display_title | escape }}
               </a>
             </h3>
           </div>
@@ -152,18 +187,18 @@
       <div class="card__content">
         <div class="card__information">
           <h3
-            class="card__heading{% if card_product.featured_media or settings.card_style == 'standard' %} h5{% endif %}"
-            {% if card_product.featured_media or settings.card_style == 'card' %}
-              id="title-{{ section_id }}-{{ card_product.id }}"
+            class="card__heading{% if card_display_image or settings.card_style == 'standard' %} h5{% endif %}"
+            {% if card_display_image or settings.card_style == 'card' %}
+              id="title-{{ section_id }}-{{ card_product.id }}{% if card_variant %}-{{ card_variant.id }}{% endif %}"
             {% endif %}
           >
             <a
-              href="{% comment %} KondaSoft {% endcomment %}{{ card_product.url | within: collection }}{% comment %} /KondaSoft {% endcomment %}"
-              id="CardLink-{{ section_id }}-{{ card_product.id }}"
+              href="{{ card_url }}"
+              id="CardLink-{{ section_id }}-{{ card_product.id }}{% if card_variant %}-{{ card_variant.id }}{% endif %}"
               class="full-unstyled-link"
-              aria-labelledby="CardLink-{{ section_id }}-{{ card_product.id }} Badge-{{ section_id }}-{{ card_product.id }}"
+              aria-labelledby="CardLink-{{ section_id }}-{{ card_product.id }}{% if card_variant %}-{{ card_variant.id }}{% endif %} Badge-{{ section_id }}-{{ card_product.id }}{% if card_variant %}-{{ card_variant.id }}{% endif %}"
             >
-              {{ card_product.title | escape }}
+              {{ card_display_title | escape }}
             </a>
           </h3>
           {%- comment -%} Unified Color/Material Swatches Display - Perkie Prints {%- endcomment -%}

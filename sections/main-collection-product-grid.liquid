@@ -153,33 +153,153 @@
               "
             >
               {% assign skip_card_product_styles = false %}
+              {% assign grid_item_index = 0 %}
               {%- for product in collection.products -%}
-                {% assign lazy_load = false %}
-                {%- if forloop.index > 2 -%}
-                  {%- assign lazy_load = true -%}
+                {%- comment -%}
+                  Variant Expansion Logic:
+                  When expand_variants_as_products is enabled, show each color/material variant
+                  as its own product card instead of grouping them under one product.
+                {%- endcomment -%}
+                {%- if section.settings.expand_variants_as_products and product.variants.size > 1 -%}
+                  {%- assign expand_option = section.settings.expand_variant_option -%}
+                  {%- assign expand_option_index = -1 -%}
+
+                  {%- comment -%} Find the index of the color/material option {%- endcomment -%}
+                  {%- for option in product.options -%}
+                    {%- assign option_lower = option | downcase -%}
+                    {%- if option_lower == expand_option or option_lower contains expand_option -%}
+                      {%- assign expand_option_index = forloop.index0 -%}
+                      {%- break -%}
+                    {%- endif -%}
+                  {%- endfor -%}
+
+                  {%- if expand_option_index != -1 -%}
+                    {%- comment -%} Loop through variants and show unique option values as separate cards {%- endcomment -%}
+                    {%- assign shown_values = '|' -%}
+                    {%- assign variant_count = 0 -%}
+                    {%- assign max_variants = section.settings.max_expanded_variants -%}
+                    {%- assign preferred_size = section.settings.preferred_variant_size | downcase -%}
+
+                    {%- for variant in product.variants -%}
+                      {%- assign variant_value = variant.options[expand_option_index] -%}
+                      {%- assign check_value = '|' | append: variant_value | append: '|' -%}
+
+                      {%- comment -%} Skip if we've already shown this option value (dedupe) {%- endcomment -%}
+                      {%- unless shown_values contains check_value -%}
+                        {%- if variant_count < max_variants -%}
+                          {%- assign shown_values = shown_values | append: variant_value | append: '|' -%}
+                          {%- assign variant_count = variant_count | plus: 1 -%}
+                          {%- assign grid_item_index = grid_item_index | plus: 1 -%}
+
+                          {%- comment -%}
+                            Find the BEST variant for this color value.
+                            Prefer variant matching preferred_size, otherwise use first match (current variant).
+                          {%- endcomment -%}
+                          {%- assign best_variant = variant -%}
+                          {%- if preferred_size != blank -%}
+                            {%- for search_variant in product.variants -%}
+                              {%- assign search_color = search_variant.options[expand_option_index] -%}
+                              {%- if search_color == variant_value -%}
+                                {%- assign search_title_lower = search_variant.title | downcase -%}
+                                {%- if search_title_lower contains preferred_size -%}
+                                  {%- assign best_variant = search_variant -%}
+                                  {%- break -%}
+                                {%- endif -%}
+                              {%- endif -%}
+                            {%- endfor -%}
+                          {%- endif -%}
+
+                          {% assign lazy_load = false %}
+                          {%- if grid_item_index > 2 -%}
+                            {%- assign lazy_load = true -%}
+                          {%- endif -%}
+
+                          <li
+                            class="grid__item{% if settings.animations_reveal_on_scroll %} scroll-trigger animate--slide-in{% endif %}"
+                            {% if settings.animations_reveal_on_scroll %}
+                              data-cascade
+                              style="--animation-order: {{ grid_item_index }};"
+                            {% endif %}
+                          >
+                            {% render 'card-product',
+                              card_product: product,
+                              card_variant: best_variant,
+                              media_aspect_ratio: section.settings.image_ratio,
+                              image_shape: section.settings.image_shape,
+                              show_secondary_image: false,
+                              show_vendor: section.settings.show_vendor,
+                              show_rating: section.settings.show_rating,
+                              show_color_swatches: section.settings.show_color_swatches,
+                              lazy_load: lazy_load,
+                              skip_styles: skip_card_product_styles,
+                              quick_add: section.settings.quick_add,
+                              section_id: section.id
+                            %}
+                          </li>
+                          {%- assign skip_card_product_styles = true -%}
+                        {%- endif -%}
+                      {%- endunless -%}
+                    {%- endfor -%}
+                  {%- else -%}
+                    {%- comment -%} No matching option found, render product normally {%- endcomment -%}
+                    {%- assign grid_item_index = grid_item_index | plus: 1 -%}
+                    {% assign lazy_load = false %}
+                    {%- if grid_item_index > 2 -%}
+                      {%- assign lazy_load = true -%}
+                    {%- endif -%}
+                    <li
+                      class="grid__item{% if settings.animations_reveal_on_scroll %} scroll-trigger animate--slide-in{% endif %}"
+                      {% if settings.animations_reveal_on_scroll %}
+                        data-cascade
+                        style="--animation-order: {{ grid_item_index }};"
+                      {% endif %}
+                    >
+                      {% render 'card-product',
+                        card_product: product,
+                        media_aspect_ratio: section.settings.image_ratio,
+                        image_shape: section.settings.image_shape,
+                        show_secondary_image: section.settings.show_secondary_image,
+                        show_vendor: section.settings.show_vendor,
+                        show_rating: section.settings.show_rating,
+                        show_color_swatches: section.settings.show_color_swatches,
+                        lazy_load: lazy_load,
+                        skip_styles: skip_card_product_styles,
+                        quick_add: section.settings.quick_add,
+                        section_id: section.id
+                      %}
+                    </li>
+                    {%- assign skip_card_product_styles = true -%}
+                  {%- endif -%}
+                {%- else -%}
+                  {%- comment -%} Normal product card (expansion disabled or single variant) {%- endcomment -%}
+                  {%- assign grid_item_index = grid_item_index | plus: 1 -%}
+                  {% assign lazy_load = false %}
+                  {%- if grid_item_index > 2 -%}
+                    {%- assign lazy_load = true -%}
+                  {%- endif -%}
+                  <li
+                    class="grid__item{% if settings.animations_reveal_on_scroll %} scroll-trigger animate--slide-in{% endif %}"
+                    {% if settings.animations_reveal_on_scroll %}
+                      data-cascade
+                      style="--animation-order: {{ grid_item_index }};"
+                    {% endif %}
+                  >
+                    {% render 'card-product',
+                      card_product: product,
+                      media_aspect_ratio: section.settings.image_ratio,
+                      image_shape: section.settings.image_shape,
+                      show_secondary_image: section.settings.show_secondary_image,
+                      show_vendor: section.settings.show_vendor,
+                      show_rating: section.settings.show_rating,
+                      show_color_swatches: section.settings.show_color_swatches,
+                      lazy_load: lazy_load,
+                      skip_styles: skip_card_product_styles,
+                      quick_add: section.settings.quick_add,
+                      section_id: section.id
+                    %}
+                  </li>
+                  {%- assign skip_card_product_styles = true -%}
                 {%- endif -%}
-                <li
-                  class="grid__item{% if settings.animations_reveal_on_scroll %} scroll-trigger animate--slide-in{% endif %}"
-                  {% if settings.animations_reveal_on_scroll %}
-                    data-cascade
-                    style="--animation-order: {{ forloop.index }};"
-                  {% endif %}
-                >
-                  {% render 'card-product',
-                    card_product: product,
-                    media_aspect_ratio: section.settings.image_ratio,
-                    image_shape: section.settings.image_shape,
-                    show_secondary_image: section.settings.show_secondary_image,
-                    show_vendor: section.settings.show_vendor,
-                    show_rating: section.settings.show_rating,
-                    show_color_swatches: section.settings.show_color_swatches,
-                    lazy_load: lazy_load,
-                    skip_styles: skip_card_product_styles,
-                    quick_add: section.settings.quick_add,
-                    section_id: section.id
-                  %}
-                </li>
-                {%- assign skip_card_product_styles = true -%}
               {%- endfor -%}
             </ul>
 
@@ -388,6 +508,45 @@
       "default": true,
       "label": "Show variant swatches",
       "info": "Display available Color or Material options as small indicators on product cards. Sold-out variants show strikethrough."
+    },
+    {
+      "type": "header",
+      "content": "Variant Expansion"
+    },
+    {
+      "type": "checkbox",
+      "id": "expand_variants_as_products",
+      "default": false,
+      "label": "Show color variants as separate products",
+      "info": "Each color variant appears as its own product card in the grid"
+    },
+    {
+      "type": "select",
+      "id": "expand_variant_option",
+      "default": "color",
+      "label": "Variant option to expand",
+      "options": [
+        { "value": "color", "label": "Color" },
+        { "value": "material", "label": "Material" }
+      ],
+      "info": "Which variant option creates separate cards"
+    },
+    {
+      "type": "range",
+      "id": "max_expanded_variants",
+      "min": 2,
+      "max": 8,
+      "step": 1,
+      "default": 4,
+      "label": "Maximum variants per product",
+      "info": "Limits grid items to prevent crowding"
+    },
+    {
+      "type": "text",
+      "id": "preferred_variant_size",
+      "default": "11\" × 14\"",
+      "label": "Preferred size for variant images",
+      "info": "When expanding by color, show the image from this size variant. Leave blank for first variant."
     },
     {
       "type": "header",
