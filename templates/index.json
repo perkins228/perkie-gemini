@@ -101,9 +101,9 @@
       ],
       "name": "t:sections.image-banner.presets.name",
       "settings": {
-        "image": "shopify://shop_images/homepage_ufo-ezgif.com-video-to-gif-converter.gif",
+        "image": "shopify://shop_images/hompage_ufo_5_4.gif",
         "image_overlay_opacity": 10,
-        "image_height": "large",
+        "image_height": "adapt",
         "image_behavior": "none",
         "desktop_content_position": "middle-right",
         "desktop_content_alignment": "center",
