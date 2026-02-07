@@ -102,7 +102,7 @@
       "name": "t:sections.image-banner.presets.name",
       "settings": {
         "image": "shopify://shop_images/ufo_phone.png",
-        "image_2": "shopify://shop_images/homepage_gif.gif",
+        "image_2": "shopify://shop_images/ufo_phone.png",
         "image_overlay_opacity": 10,
         "image_height": "medium",
         "image_behavior": "none",
