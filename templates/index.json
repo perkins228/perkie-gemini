@@ -49,7 +49,7 @@
       "name": "KS - Fancy slideshow",
       "settings": {
         "color_scheme": "scheme-f318d737-2be2-4346-8605-b2fbd6208608",
-        "slider_navigation": true,
+        "slider_navigation": false,
         "slider_pagination": "bullets",
         "slider_effect": "slide",
         "slider_speed": 700,
