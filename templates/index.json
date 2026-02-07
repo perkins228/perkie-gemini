@@ -16,7 +16,7 @@
           "type": "slide",
           "settings": {
             "img_mobile": "shopify://shop_images/homepage_ufo_mobile.gif",
-            "img_desktop": "shopify://shop_images/homepage_ufo-ezgif.com-video-to-gif-converter.gif",
+            "img_desktop": "shopify://shop_images/homepage_ufo_16.9.gif",
             "overlay_color": "#121212",
             "overlay_opacity": 0,
             "overlay_blur": 0,
@@ -43,7 +43,6 @@
       "block_order": [
         "slide_CkA7Ti"
       ],
-      "disabled": true,
       "custom_css": [],
       "name": "KS - Fancy slideshow",
       "settings": {
@@ -96,6 +95,7 @@
         "text_rFjAk7",
         "buttons_cp4CKC"
       ],
+      "disabled": true,
       "custom_css": [
         "@media screen and (min-width: 750px) {body, .gradient {/* Updates the variable used by most text to Pure White (RGB: 255, 255, 255) */ --color-foreground: 255, 255, 255 !important; --color-base-text: 255, 255, 255 !important; /* Fallback for elements not using variables */ color: #ffffff !important; } /* Force headers and links specifically */ h1, h2, h3, h4, h5, h6, a, .header__menu-item {color: #ffffff !important; }}"
       ],
