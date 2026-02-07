@@ -48,10 +48,9 @@
       ],
       "name": "t:sections.image-banner.presets.name",
       "settings": {
-        "image": "shopify://shop_images/ufo_phone.png",
-        "image_2": "shopify://shop_images/homepage_gif.gif",
+        "image": "shopify://shop_images/homepage_ufo.gif",
         "image_overlay_opacity": 10,
-        "image_height": "large",
+        "image_height": "medium",
         "image_behavior": "none",
         "desktop_content_position": "middle-center",
         "desktop_content_alignment": "center",
