@@ -44,7 +44,7 @@
         "slide_CkA7Ti"
       ],
       "custom_css": [
-        "@media screen and (min-width: 750px) {body, .gradient {/* Updates the variable used by most text to Pure White (RGB: 255, 255, 255) */ --color-foreground: 255, 255, 255 !important; --color-base-text: 255, 255, 255 !important; /* Fallback for elements not using variables */ color: #ffffff !important; } /* Force headers and links specifically */ h1, h2, h3, h4, h5, h6, a, .header__menu-item {color: #ffffff !important; }}"
+        "@media screen and (min-width: 750px) {body, .gradient {/* Updates the variable used by most text to Pure White (RGB: 255, 255, 255) */ --color-foreground: 255, 255, 255 !important; --color-base-text: 255, 255, 255 !important; /* Fallback for elements not using variables */ color: #ffffff !important; } /* Force headers and links specifically */ h1, h2, h3, h4, h5, h6, p, a, .header__menu-item {color: #ffffff !important; }}"
       ],
       "name": "KS - Fancy slideshow",
       "settings": {
@@ -60,7 +60,7 @@
         "media_desktop_height": 700,
         "media_adapt": false,
         "pt": 0,
-        "pb": 4
+        "pb": 0
       }
     },
     "image_banner_qWieVe": {
