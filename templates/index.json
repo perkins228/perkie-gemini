@@ -103,7 +103,7 @@
       "settings": {
         "image": "shopify://shop_images/homepage_ufo_mobile.gif",
         "image_overlay_opacity": 10,
-        "image_height": "adapt",
+        "image_height": "large",
         "image_behavior": "none",
         "desktop_content_position": "middle-right",
         "desktop_content_alignment": "center",
