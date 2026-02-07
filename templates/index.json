@@ -30,7 +30,7 @@
             "title": "Your Pet, Everywhere.",
             "title_font_size": "h1",
             "description": "<p>Gallery-quality portraits from everyday photos. Instant free previews.<br/><br/></p>",
-            "description_font_size": "fs-sm",
+            "description_font_size": "fs-md",
             "btn_primary_text": "See Free Preview",
             "btn_primary_style": "button--primary",
             "btn_primary_url": "shopify://pages/custom-image-processing",
@@ -43,7 +43,9 @@
       "block_order": [
         "slide_CkA7Ti"
       ],
-      "custom_css": [],
+      "custom_css": [
+        "@media screen and (min-width: 750px) {body, .gradient {/* Updates the variable used by most text to Pure White (RGB: 255, 255, 255) */ --color-foreground: 255, 255, 255 !important; --color-base-text: 255, 255, 255 !important; /* Fallback for elements not using variables */ color: #ffffff !important; } /* Force headers and links specifically */ h1, h2, h3, h4, h5, h6, a, .header__menu-item {color: #ffffff !important; }}"
+      ],
       "name": "KS - Fancy slideshow",
       "settings": {
         "color_scheme": "scheme-f318d737-2be2-4346-8605-b2fbd6208608",
