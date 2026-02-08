@@ -10,9 +10,11 @@ from datetime import datetime, timedelta
 from google.cloud import storage, secretmanager
 from google.oauth2 import service_account
 from src.config import settings
+import hashlib
 from src.models.schemas import (
     GenerateRequest, GenerateResponse,
     BatchGenerateRequest, BatchGenerateResponse,
+    CustomGenerateRequest,
     QuotaStatus, StyleResult, ArtisticStyle,
     SignedUrlRequest, SignedUrlResponse,
     ConfirmUploadRequest, ConfirmUploadResponse,
@@ -74,7 +76,7 @@ async def health_check():
     return {
         "status": "healthy",
         "model": settings.gemini_model,
-        "styles": ["ink_wash", "pen_and_marker"],
+        "styles": ["ink_wash", "pen_and_marker", "custom"],
         "timestamp": time.time()
     }
 
@@ -213,6 +215,115 @@ async def generate_artistic_style(request: Request, req: GenerateRequest):
         raise
     except Exception as e:
         logger.error(f"Error generating {req.style.value}: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/api/v1/generate-custom", response_model=GenerateResponse)
+async def generate_custom_style(request: Request, req: CustomGenerateRequest):
+    """
+    Generate image from a custom prompt (no preset style).
+
+    Used by the inline Gemini processor on product pages.
+    Same rate limiting and caching as named styles.
+    Returns 400 (not 500) on safety blocks.
+    """
+    client_ip = request.client.host
+    identifiers = {
+        "customer_id": req.customer_id,
+        "session_id": req.session_id,
+        "ip_address": client_ip
+    }
+
+    try:
+        # 1. Check rate limit
+        quota_before = await rate_limiter.check_rate_limit(**identifiers)
+        if not quota_before.allowed:
+            raise HTTPException(
+                status_code=429,
+                detail=f"Rate limit exceeded. Resets at {quota_before.reset_time}"
+            )
+
+        # 2. Store original
+        original_url, original_hash = await storage_manager.store_original_image(
+            image_data=req.image_data,
+            customer_id=req.customer_id,
+            session_id=req.session_id
+        )
+
+        # 3. Hash prompt for cache key
+        prompt_hash = hashlib.sha256(req.prompt.encode('utf-8')).hexdigest()
+
+        # 4. Check cache
+        cached_url = await storage_manager.get_cached_generation(
+            image_hash=original_hash,
+            style="custom",
+            customer_id=req.customer_id,
+            session_id=req.session_id,
+            prompt_hash=prompt_hash
+        )
+
+        if cached_url:
+            logger.info(f"Cache hit: custom prompt {prompt_hash[:16]}")
+            return GenerateResponse(
+                success=True,
+                image_url=cached_url,
+                original_url=original_url,
+                style="custom",
+                cache_hit=True,
+                quota_remaining=quota_before.remaining,
+                quota_limit=quota_before.limit,
+                processing_time_ms=0,
+                warning_level=quota_before.warning_level
+            )
+
+        # 5. Generate with Gemini using custom prompt
+        generated_image, processing_time = await gemini_client.generate_from_custom_prompt(
+            image_data=req.image_data,
+            prompt=req.prompt
+        )
+
+        # 6. Store generated
+        generated_url = await storage_manager.store_generated_image(
+            image_data=generated_image,
+            original_hash=original_hash,
+            style="custom",
+            customer_id=req.customer_id,
+            session_id=req.session_id,
+            prompt_hash=prompt_hash,
+            prompt_text=req.prompt
+        )
+
+        # 7. Consume quota
+        quota_after = await rate_limiter.consume_quota(
+            **identifiers,
+            style="custom"
+        )
+
+        return GenerateResponse(
+            success=True,
+            image_url=generated_url,
+            original_url=original_url,
+            style="custom",
+            cache_hit=False,
+            quota_remaining=quota_after.remaining,
+            quota_limit=quota_after.limit,
+            processing_time_ms=int(processing_time * 1000),
+            warning_level=quota_after.warning_level
+        )
+
+    except HTTPException:
+        raise
+    except ValueError as e:
+        error_msg = str(e)
+        if "safety_blocked" in error_msg:
+            raise HTTPException(
+                status_code=400,
+                detail="Your prompt was flagged by content safety filters. Please try a different description."
+            )
+        logger.error(f"Error generating custom style: {e}")
+        raise HTTPException(status_code=500, detail=error_msg)
+    except Exception as e:
+        logger.error(f"Error generating custom style: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
 

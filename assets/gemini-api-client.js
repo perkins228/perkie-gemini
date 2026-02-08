@@ -327,6 +327,76 @@ class GeminiAPIClient {
   }
 
   /**
+   * Generate image from a custom prompt (for inline Gemini processor)
+   * Calls /api/v1/generate-custom instead of /api/v1/generate
+   */
+  async generateCustom(imageDataUrl, prompt, options = {}) {
+    if (!this.enabled) {
+      throw new Error('Gemini effects are not enabled');
+    }
+
+    // Check quota before making expensive API call
+    const quota = await this.checkQuota();
+    if (!quota.allowed || quota.remaining < 1) {
+      const error = new Error('Daily quota exhausted');
+      error.quotaExhausted = true;
+      error.remaining = quota.remaining;
+      throw error;
+    }
+
+    // Extract base64 from data URL
+    const base64Image = imageDataUrl.includes(',')
+      ? imageDataUrl.split(',')[1]
+      : imageDataUrl;
+
+    const requestBody = {
+      image_data: base64Image,
+      prompt: prompt,
+      customer_id: this.customerId,
+      session_id: options.sessionId || ('session_' + Date.now())
+    };
+
+    try {
+      const response = await this.request('/api/v1/generate-custom', {
+        method: 'POST',
+        body: JSON.stringify(requestBody),
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        timeout: this.timeout
+      });
+
+      // Update quota state from response
+      this.quotaState = {
+        remaining: response.quota_remaining,
+        limit: response.quota_limit,
+        warningLevel: response.warning_level,
+        lastChecked: Date.now()
+      };
+
+      return {
+        success: true,
+        url: response.image_url,
+        originalUrl: response.original_url,
+        style: response.style,
+        cacheHit: response.cache_hit,
+        quota: {
+          remaining: response.quota_remaining,
+          limit: response.quota_limit,
+          warningLevel: response.warning_level
+        },
+        processingTime: response.processing_time_ms
+      };
+    } catch (error) {
+      if (error.response && error.response.status === 429) {
+        error.quotaExhausted = true;
+        error.remaining = 0;
+      }
+      throw error;
+    }
+  }
+
+  /**
    * Core request method with retry logic and timeout
    */
   async request(endpoint, options = {}) {

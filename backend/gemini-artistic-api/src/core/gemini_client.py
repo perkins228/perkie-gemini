@@ -2,6 +2,7 @@
 from google import genai
 from google.genai import types
 import base64
+import re
 import time
 import asyncio
 import logging
@@ -83,6 +84,36 @@ class GeminiClient:
         self.client = genai.Client(api_key=settings.gemini_api_key)
         logger.info(f"Initialized Gemini client (new SDK): {self.model_name}")
 
+    @staticmethod
+    def _prepare_image(image_data: str) -> Image.Image:
+        """Decode, validate, and resize a base64 image for Gemini processing.
+
+        Returns a PIL Image ready for the Gemini API.
+        """
+        if ',' in image_data:
+            image_data = image_data.split(',')[1]
+        image_bytes = base64.b64decode(image_data)
+
+        MAX_IMAGE_SIZE = 50 * 1024 * 1024  # 50MB
+        if len(image_bytes) > MAX_IMAGE_SIZE:
+            raise ValueError(f"Image too large: {len(image_bytes)/1024/1024:.1f}MB (max 50MB)")
+
+        try:
+            input_image = Image.open(BytesIO(image_bytes))
+        except Exception as e:
+            raise ValueError(f"Invalid image format: {str(e)}")
+
+        MIN_DIMENSION = 256
+        MAX_DIMENSION = 4096
+        if input_image.width < MIN_DIMENSION or input_image.height < MIN_DIMENSION:
+            raise ValueError(f"Image too small: {input_image.size} (min {MIN_DIMENSION}x{MIN_DIMENSION})")
+
+        if input_image.width > MAX_DIMENSION or input_image.height > MAX_DIMENSION:
+            logger.info(f"Resizing image from {input_image.size} to fit {MAX_DIMENSION}px")
+            input_image.thumbnail((MAX_DIMENSION, MAX_DIMENSION), Image.Resampling.LANCZOS)
+
+        return input_image
+
     async def generate_artistic_style(
         self,
         image_data: str,
@@ -101,32 +132,7 @@ class GeminiClient:
         start_time = time.time()
 
         try:
-            # Decode base64 image
-            if ',' in image_data:
-                image_data = image_data.split(',')[1]
-            image_bytes = base64.b64decode(image_data)
-
-            # Validate image size
-            MAX_IMAGE_SIZE = 50 * 1024 * 1024  # 50MB
-            if len(image_bytes) > MAX_IMAGE_SIZE:
-                raise ValueError(f"Image too large: {len(image_bytes)/1024/1024:.1f}MB (max 50MB)")
-
-            # Convert to PIL Image with validation
-            try:
-                input_image = Image.open(BytesIO(image_bytes))
-            except Exception as e:
-                raise ValueError(f"Invalid image format: {str(e)}")
-
-            # Validate dimensions
-            MIN_DIMENSION = 256
-            MAX_DIMENSION = 4096
-            if input_image.width < MIN_DIMENSION or input_image.height < MIN_DIMENSION:
-                raise ValueError(f"Image too small: {input_image.size} (min {MIN_DIMENSION}x{MIN_DIMENSION})")
-
-            # Resize if too large
-            if input_image.width > MAX_DIMENSION or input_image.height > MAX_DIMENSION:
-                logger.info(f"Resizing image from {input_image.size} to fit {MAX_DIMENSION}px")
-                input_image.thumbnail((MAX_DIMENSION, MAX_DIMENSION), Image.Resampling.LANCZOS)
+            input_image = self._prepare_image(image_data)
 
             # Get style prompt
             prompt = STYLE_PROMPTS[style]
@@ -214,6 +220,123 @@ class GeminiClient:
 
         except Exception as e:
             logger.error(f"Gemini API error: {e}")
+            raise
+
+
+    @staticmethod
+    def sanitize_prompt(prompt: str) -> str:
+        """Sanitize custom prompt text for safety"""
+        # Strip HTML/script tags
+        prompt = re.sub(r'<[^>]+>', '', prompt)
+        # Remove null bytes and control characters (keep newlines/tabs)
+        prompt = re.sub(r'[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]', '', prompt)
+        return prompt.strip()
+
+    async def generate_from_custom_prompt(
+        self,
+        image_data: str,
+        prompt: str
+    ) -> Tuple[str, float]:
+        """
+        Generate artistic portrait using a custom prompt.
+
+        Args:
+            image_data: Base64 encoded image
+            prompt: Custom prompt text from theme editor
+
+        Returns:
+            Tuple of (generated_image_base64, processing_time_seconds)
+        """
+        start_time = time.time()
+
+        try:
+            input_image = self._prepare_image(image_data)
+
+            # Sanitize and frame the custom prompt
+            sanitized = self.sanitize_prompt(prompt)
+            if not sanitized:
+                raise ValueError("Prompt is empty after sanitization")
+
+            framed_prompt = (
+                "You are generating an artistic portrait of a pet. "
+                "Apply the following style instruction while keeping the pet recognizable: "
+                f"{sanitized}"
+            )
+
+            # Generate with Gemini
+            logger.info(f"Generating with custom prompt ({len(sanitized)} chars)...")
+
+            response = await retry_with_backoff(
+                lambda: self.client.models.generate_content(
+                    model=self.model_name,
+                    contents=[framed_prompt, input_image],
+                    config=types.GenerateContentConfig(
+                        response_modalities=["IMAGE"],
+                        temperature=0.7,
+                        top_p=settings.gemini_top_p,
+                        top_k=settings.gemini_top_k,
+                        safety_settings=[
+                            types.SafetySetting(
+                                category="HARM_CATEGORY_HATE_SPEECH",
+                                threshold="BLOCK_ONLY_HIGH"
+                            ),
+                            types.SafetySetting(
+                                category="HARM_CATEGORY_HARASSMENT",
+                                threshold="BLOCK_ONLY_HIGH"
+                            ),
+                            types.SafetySetting(
+                                category="HARM_CATEGORY_DANGEROUS_CONTENT",
+                                threshold="BLOCK_ONLY_HIGH"
+                            ),
+                            types.SafetySetting(
+                                category="HARM_CATEGORY_SEXUALLY_EXPLICIT",
+                                threshold="BLOCK_ONLY_HIGH"
+                            ),
+                        ]
+                    )
+                )
+            )
+
+            # Check safety filters
+            if response.prompt_feedback:
+                logger.warning(f"Prompt feedback: {response.prompt_feedback}")
+                if hasattr(response.prompt_feedback, 'block_reason'):
+                    block_reason = response.prompt_feedback.block_reason
+                    logger.error(f"Custom prompt blocked by safety filter: {block_reason}")
+                    raise ValueError(f"safety_blocked: {block_reason}")
+
+            if not response.candidates:
+                logger.error("No candidates returned for custom prompt")
+                raise ValueError("safety_blocked: No content generated")
+
+            candidate = response.candidates[0]
+            if hasattr(candidate, 'finish_reason') and candidate.finish_reason != 1:
+                logger.warning(f"Generation stopped early: {candidate.finish_reason}")
+                if candidate.finish_reason == 3:
+                    raise ValueError("safety_blocked: Content blocked due to safety concerns")
+
+            # Extract generated image
+            if not response.parts:
+                raise ValueError("No image generated by Gemini")
+
+            generated_image_data = None
+            for part in response.parts:
+                if part.inline_data is not None:
+                    generated_image_data = part.inline_data.data
+                    break
+
+            if generated_image_data is None or len(generated_image_data) == 0:
+                raise ValueError("Empty image data from custom prompt generation")
+
+            generated_base64 = base64.b64encode(generated_image_data).decode('utf-8')
+
+            processing_time = time.time() - start_time
+            logger.info(f"Generated custom prompt result in {processing_time:.2f}s")
+
+            return generated_base64, processing_time
+
+        except Exception as e:
+            logger.error(f"Gemini custom prompt error: {e}")
             raise
 
 

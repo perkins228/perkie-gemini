@@ -702,11 +702,25 @@
                   This allows independent control of each module per product
                 {% endcomment %}
 
+                {% comment %} Check if Gemini processor coexistence should hide this {% endcomment %}
+                {% liquid
+                  assign hide_for_gemini = false
+                  for b in section.blocks
+                    if b.type == 'ks_gemini_processor' and b.settings.coexistence_mode == 'only_gemini'
+                      assign hide_for_gemini = true
+                      break
+                    endif
+                  endfor
+                %}
+
                 {% comment %} Check if pet selector should be shown (default true for backward compatibility) {% endcomment %}
                 {% liquid
                   assign show_pet_selector = product.metafields.custom.enable_pet_selector
                   if show_pet_selector == blank
                     assign show_pet_selector = true
+                  endif
+                  if hide_for_gemini
+                    assign show_pet_selector = false
                   endif
                 %}
 
@@ -731,6 +745,17 @@
                     {% render 'ks-product-pet-customizer', product: product, block: block %}
                   {%- endcomment -%}
                 </div>
+              {%- when 'ks_gemini_processor' -%}
+                {%- unless block.settings.coexistence_mode == 'only_selector' -%}
+                  <div class="product__gemini-processor" {{ block.shopify_attributes }}>
+                    {% render 'ks-gemini-processor-inline',
+                      product: product,
+                      block: block,
+                      product_form_id: product_form_id,
+                      section: section
+                    %}
+                  </div>
+                {%- endunless -%}
               {%- when 'buy_buttons' -%}
                 {%- render 'buy-buttons',
                   block: block,
@@ -1325,6 +1350,93 @@
           "label": "Show Recent Pets",
           "default": true,
           "info": "Display previously uploaded pets for quick selection"
+        }
+      ]
+    },
+    {
+      "type": "ks_gemini_processor",
+      "name": "Gemini Pet Processor",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "paragraph",
+          "content": "Embedded Gemini AI processor. Customers upload a photo, it's processed with a single Gemini prompt, and the result is saved to the order."
+        },
+        {
+          "type": "header",
+          "content": "Prompt Configuration"
+        },
+        {
+          "type": "select",
+          "id": "gemini_style",
+          "label": "Gemini Style",
+          "options": [
+            { "value": "ink_wash", "label": "Ink Wash (Asian Ink Painting)" },
+            { "value": "pen_and_marker", "label": "Pen & Marker (Sketch)" },
+            { "value": "custom", "label": "Custom Prompt" }
+          ],
+          "default": "ink_wash",
+          "info": "Select a preset style or choose 'Custom Prompt' to write your own."
+        },
+        {
+          "type": "textarea",
+          "id": "custom_prompt",
+          "label": "Custom Gemini Prompt",
+          "info": "Only used when 'Custom Prompt' is selected above. Write the full prompt for Gemini image generation.",
+          "placeholder": "Transform this pet photo into a watercolor painting with soft pastel tones..."
+        },
+        {
+          "type": "text",
+          "id": "style_display_name",
+          "label": "Style Display Name",
+          "default": "",
+          "info": "Human-readable name shown to customers (e.g., 'Watercolor Portrait'). If blank, defaults to the selected style name."
+        },
+        {
+          "type": "header",
+          "content": "Display Settings"
+        },
+        {
+          "type": "checkbox",
+          "id": "show_pet_name_input",
+          "label": "Show Pet Name Input",
+          "default": true,
+          "info": "Whether to show a pet name field before processing."
+        },
+        {
+          "type": "checkbox",
+          "id": "show_artist_notes",
+          "label": "Show Artist Notes Field",
+          "default": false,
+          "info": "Whether to show a notes-for-artist textarea."
+        },
+        {
+          "type": "image_picker",
+          "id": "example_result_image",
+          "label": "Example Result Image",
+          "info": "Optional preview image shown in the upload zone to demonstrate the style."
+        },
+        {
+          "type": "header",
+          "content": "Coexistence"
+        },
+        {
+          "type": "select",
+          "id": "coexistence_mode",
+          "label": "Show alongside Pet Selector?",
+          "options": [
+            { "value": "only_gemini", "label": "Only Gemini Processor (hide pet selector)" },
+            { "value": "only_selector", "label": "Only Standard Pet Selector (hide this)" },
+            { "value": "both", "label": "Both visible" }
+          ],
+          "default": "only_gemini",
+          "info": "Controls how this block interacts with the Pet Image Selector block on this product."
+        },
+        {
+          "type": "color_scheme",
+          "id": "color_scheme",
+          "label": "Color scheme",
+          "default": "scheme-1"
         }
       ]
     },

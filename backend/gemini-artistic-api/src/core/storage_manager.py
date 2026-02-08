@@ -62,23 +62,32 @@ class StorageManager:
 
         return blob.public_url, image_hash
 
+    def _cache_key(self, image_hash: str, style: str, prompt_hash: Optional[str] = None) -> str:
+        """Build cache key component from style or prompt hash"""
+        if prompt_hash:
+            return f"{image_hash}_custom_{prompt_hash[:16]}"
+        return f"{image_hash}_{style}"
+
     async def get_cached_generation(
         self,
         image_hash: str,
         style: str,
         customer_id: Optional[str] = None,
-        session_id: Optional[str] = None
+        session_id: Optional[str] = None,
+        prompt_hash: Optional[str] = None
     ) -> Optional[str]:
         """
-        Check if we've already generated this image+style
+        Check if we've already generated this image+style (or image+prompt)
 
-        Cache key: {image_hash}_{style}.jpg
+        Cache key: {image_hash}_{style}.jpg or {image_hash}_custom_{prompt_hash[:16]}.jpg
         """
+        cache_key = self._cache_key(image_hash, style, prompt_hash)
+
         # Determine path
         if customer_id:
-            blob_path = f"gemini-generated/customers/{customer_id}/{image_hash}_{style}.jpg"
+            blob_path = f"gemini-generated/customers/{customer_id}/{cache_key}.jpg"
         elif session_id:
-            blob_path = f"gemini-generated/temp/{session_id}/{image_hash}_{style}.jpg"
+            blob_path = f"gemini-generated/temp/{session_id}/{cache_key}.jpg"
         else:
             return None
 
@@ -96,7 +105,9 @@ class StorageManager:
         original_hash: str,
         style: str,
         customer_id: Optional[str] = None,
-        session_id: Optional[str] = None
+        session_id: Optional[str] = None,
+        prompt_hash: Optional[str] = None,
+        prompt_text: Optional[str] = None
     ) -> str:
         """
         Store generated image
@@ -107,24 +118,33 @@ class StorageManager:
         # Decode
         image_bytes = base64.b64decode(image_data)
 
+        # Build cache key
+        cache_key = self._cache_key(original_hash, style, prompt_hash)
+
         # Determine path
         if customer_id:
-            blob_path = f"gemini-generated/customers/{customer_id}/{original_hash}_{style}.jpg"
+            blob_path = f"gemini-generated/customers/{customer_id}/{cache_key}.jpg"
         elif session_id:
-            blob_path = f"gemini-generated/temp/{session_id}/{original_hash}_{style}.jpg"
+            blob_path = f"gemini-generated/temp/{session_id}/{cache_key}.jpg"
         else:
-            blob_path = f"gemini-generated/temp/anonymous/{original_hash}_{style}.jpg"
+            blob_path = f"gemini-generated/temp/anonymous/{cache_key}.jpg"
 
         blob = self.bucket.blob(blob_path)
 
-        # Upload
-        blob.metadata = {
+        # Upload with metadata
+        metadata = {
             'customer_id': customer_id or 'anonymous',
             'session_id': session_id or 'none',
             'style': style,
             'original_hash': original_hash,
             'generated_date': datetime.utcnow().isoformat(),
         }
+        if prompt_hash:
+            metadata['prompt_hash'] = prompt_hash
+        if prompt_text:
+            metadata['prompt'] = prompt_text[:200]  # Truncate for metadata limits
+
+        blob.metadata = metadata
         blob.upload_from_string(image_bytes, content_type='image/jpeg')
         logger.info(f"Stored generated: {blob_path}")
 

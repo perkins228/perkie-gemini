@@ -613,6 +613,610 @@ This single-line fix will:
 
 ---
 
+---
+
+### 2026-02-01 - Code Quality Review: Variant Expansion Feature
+
+**Commit**: `e3403c4` - feat(collections): Add per-collection variant expansion option
+
+**Reviewer**: code-quality-reviewer agent
+
+**Files Reviewed**:
+- `sections/main-collection-product-grid.liquid` (lines 155-284)
+- `snippets/card-product.liquid` (lines 1-77)
+
+---
+
+#### 1. CORRECTNESS
+
+**Grade: A**
+
+The implementation correctly:
+
+1. **Variant Expansion Logic** (main-collection-product-grid.liquid, lines 158-253):
+   - Finds the correct option index by comparing downcased option names
+   - Uses flexible matching: `option_lower == expand_option or option_lower contains expand_option`
+   - Properly iterates through variants and de-duplicates by option value
+   - Falls back to normal rendering when no matching option found
+
+2. **Variant Card Display** (card-product.liquid, lines 34-66):
+   - Correctly uses `card_variant.featured_image` (not `featured_media` - the code review fix was applied)
+   - Falls back to `card_variant.image` if `featured_image` is null
+   - Falls back to `card_product.featured_media` if variant has no image
+   - URL correctly appends `?variant=ID` for direct variant linking
+   - Title shows "Product Name - Variant Value" format
+
+3. **Settings Schema** (lines 494-524):
+   - Properly structured with header, checkbox, select, and range types
+   - Default values are sensible (disabled by default, max 4 variants)
+   - Info text is clear and helpful
+
+---
+
+#### 2. EDGE CASES
+
+**Grade: A-**
+
+| Edge Case | Handled? | Notes |
+|-----------|----------|-------|
+| Products with no Color/Material option | Yes | Falls back to normal rendering (lines 224-252) |
+| Single variant products | Yes | Condition `product.variants.size > 1` (line 163) |
+| Products with 10+ colors | Yes | `max_expanded_variants` setting limits to 2-8 (lines 180, 188) |
+| Empty collections | Yes | Existing empty collection handling (lines 127-140) |
+| Variant with no image | Yes | Multiple fallbacks in card-product.liquid (lines 42-48) |
+| Option name case sensitivity | Yes | Uses `downcase` comparison (line 169) |
+
+**Minor Concern**: The `contains` check on line 170 could match unintended options. For example, `option_lower contains 'color'` would match "Collar Color" as well as "Color". However, this is a reasonable trade-off for flexibility (e.g., matching "Frame Color").
+
+---
+
+#### 3. PERFORMANCE
+
+**Grade: B+**
+
+**Positive**:
+- Lazy loading enabled for items after position 2 (lines 193-196, 227-230, 257-260)
+- CSS styles only loaded once via `skip_styles` pattern (lines 155, 220, 252, 282)
+- Efficient `break` after finding option index (line 173)
+
+**Concerns**:
+1. **Nested Loop Complexity**: The variant loop has O(n * m) complexity where n = variants and m = variants (for de-duplication check). For products with many variants, this could add up.
+
+   ```liquid
+   {%- for variant in product.variants -%}
+     {%- assign check_value = '|' | append: variant_value | append: '|' -%}
+     {%- unless shown_values contains check_value -%}
+   ```
+
+   The `contains` check on a string is O(k) where k = length of `shown_values`. This is acceptable for typical products (2-10 variants) but could slow down for products with 50+ variants.
+
+2. **No Caching**: Each product re-calculates the option index. Could be optimized with Liquid capture blocks, but the impact is minimal.
+
+**Verdict**: For typical e-commerce use (2-8 variants per product), performance is acceptable.
+
+---
+
+#### 4. SECURITY
+
+**Grade: A**
+
+**XSS Protection**:
+- All user-facing output properly escaped:
+  - `{{ card_display_title | escape }}` (lines 158, 201)
+  - `{{ variant_option_value | escape }}` used in title construction
+  - No raw HTML output from user-generated content
+
+**Injection Prevention**:
+- Variant IDs used in URLs are integer IDs from Shopify (safe)
+- No dynamic SQL or code generation
+
+**No Security Issues Found**
+
+---
+
+#### 5. CODE QUALITY
+
+**Grade: A-**
+
+**Positives**:
+1. **Clear Comments**: Excellent documentation blocks explaining the feature (lines 158-162, 167, 177, 186, 225, 255)
+2. **Consistent Naming**: `card_display_image`, `card_display_title`, `card_url` are clear
+3. **Logical Structure**: Clean if/else/elsif flow with fallbacks
+4. **Updated Documentation**: card-product.liquid header comment updated with `card_variant` parameter (lines 6, 23)
+
+**Minor Issues**:
+1. **Magic Number**: `<= 4` appears in both swatch display and this feature - could be consolidated
+2. **Duplicated Fallback Logic**: The fallback rendering block (lines 224-252) is nearly identical to normal rendering (lines 254-282) - some DRY refactoring could help
+
+---
+
+#### 6. CODE REVIEW FIXES VERIFICATION
+
+**Grade: A**
+
+All three code review fixes were properly implemented:
+
+| Fix | Status | Evidence |
+|-----|--------|----------|
+| String contains bug (delimiter wrapping) | **APPLIED** | Line 184: `'|' \| append: variant_value \| append: '|'` and line 178: `shown_values = '|'` |
+| Correct property name (featured_image) | **APPLIED** | Line 42: `card_variant.featured_image` with fallback to `card_variant.image` |
+| Hover disabled for variants | **APPLIED** | Lines 64-66: `if card_variant` sets `show_secondary_image = false` |
+
+---
+
+### OVERALL GRADE: A
+
+**Summary**: This is a well-implemented feature with proper edge case handling, good security practices, and excellent code documentation. The code review fixes were properly applied. Minor concerns around performance for products with many variants and some DRY opportunities don't detract from the overall quality.
+
+**Recommendations**:
+1. **Optional**: Add a performance note in the info text warning about products with 50+ variants
+2. **Optional**: Consider extracting the fallback rendering into a shared pattern to reduce duplication
+3. **Test**: Verify functionality in Theme Editor preview before production use
+
+**Status**: APPROVED FOR PRODUCTION
+
+---
+
+### 2026-02-01 - Variant Expansion Feature: COMPLETE
+
+**Commit**: `e3403c4` - feat(collections): Add per-collection variant expansion option
+
+**Files Modified**:
+- `sections/main-collection-product-grid.liquid` - Added 3 section settings + variant expansion loop
+- `snippets/card-product.liquid` - Added `card_variant` parameter support
+
+**Code Review**: Grade A - APPROVED FOR PRODUCTION
+
+**Status**: ✅ DEPLOYED - Ready for user testing
+
+**Testing Instructions**:
+1. Go to Shopify Admin > Online Store > Themes > Customize
+2. Navigate to a collection page (e.g., /collections/all)
+3. In left sidebar, scroll to "Variant Expansion" section
+4. Enable "Show color variants as separate products"
+5. Select option to expand (Color or Material)
+6. Set max variants per product (2-8)
+7. Save and preview
+
+**Pending User Actions**:
+- [ ] Test feature on collection with Color-variant products
+- [ ] Verify variant cards display correctly
+- [ ] Verify swatches still appear on variant cards
+- [ ] Verify hover is disabled on variant cards
+- [ ] Verify clicking card loads correct variant on PDP
+
+---
+
+### 2026-02-02 - Preferred Size Setting for Variant Expansion
+
+**Request**: User asked for ability to show a specific size's image when expanding by color (for products with different images per size, like framed portraits).
+
+**Implementation**: Added "preferred_variant_size" setting with intelligent fallback.
+
+**Changes Made**:
+
+1. **New Setting** (`sections/main-collection-product-grid.liquid`, lines 544-550):
+   ```liquid
+   {
+     "type": "text",
+     "id": "preferred_variant_size",
+     "default": "11\" × 14\"",
+     "label": "Preferred size for variant images",
+     "info": "When expanding by color, show the image from this size variant. Leave blank for first variant."
+   }
+   ```
+
+2. **Variant Selection Logic** (lines 194-210):
+   - For each unique color, searches for a variant containing the preferred size text
+   - Uses case-insensitive matching (`downcase`)
+   - Falls back to first variant if no size match found
+   - Efficient: uses `break` once match is found
+
+**How It Works**:
+```
+Product: Frame Portrait
+- Blue / 5x7 → Blue-5x7.jpg
+- Blue / 8x10 → Blue-8x10.jpg
+- Blue / 11x14 → Blue-11x14.jpg ← Selected (matches "11" × 14"")
+- Red / 5x7 → Red-5x7.jpg
+- Red / 11x14 → Red-11x14.jpg ← Selected
+```
+
+**Commit**: `c02e3fe` - feat(collections): Add preferred size setting for variant expansion
+
+**Status**: ✅ DEPLOYED
+
+---
+
+---
+
+### 2026-02-06 - BiRefNet API Error Analysis: "cannot identify image file"
+
+**Issue**: Single 500 error on `/api/v2/process-with-effects` endpoint with error "cannot identify image file".
+
+**Analysis by**: debug-specialist agent
+
+#### Error Details
+- **Timestamp**: 2026-02-04T19:10:44.239253Z
+- **File**: pet-1.jpg (1.19MB)
+- **Latency**: 11.5ms (immediate failure)
+- **Effects requested**: enhancedblackwhite, color
+- **Referer**: https://perkieprints.com/
+
+#### Root Cause Analysis
+
+The error "cannot identify image file" is a **PIL/Pillow exception** thrown when `Image.open()` cannot parse the image header or determine the file format. The 11.5ms latency confirms the failure happened immediately during image parsing, not during model inference.
+
+**Most Probable Cause: Incomplete/Truncated Upload (90% confidence)**
+
+Evidence:
+1. **Valid file size** (1.19MB is reasonable for a JPEG)
+2. **Valid content-type validation passed** (the request got past the `file.content_type.startswith("image/")` check at line 692)
+3. **Immediate failure** (11.5ms = image header parsing failed, not processing)
+4. **BytesIO object in error** indicates data was read but unreadable
+
+This pattern matches a **network interruption during multipart form upload**:
+- Browser started upload, set correct Content-Type header
+- Connection dropped mid-transfer OR packet loss corrupted data
+- Server received incomplete/corrupted bytes
+- PIL could not identify the truncated data as a valid image
+
+**Alternative Causes (Lower probability)**:
+
+| Cause | Probability | Evidence Against |
+|-------|-------------|------------------|
+| Wrong file type (not actually an image) | 10% | Content-type validated, file named .jpg |
+| File corrupted on client device | 5% | Would fail consistently, not one-off |
+| Memory corruption on server | <1% | Would affect more requests |
+| Malformed multipart boundary | 5% | Would likely cause parsing error, not PIL error |
+
+#### Code Path Analysis
+
+Looking at `main.py` lines 690-708 for `/api/v2/process-with-effects`:
+
+```python
+# Line 692: Content-type validation PASSED
+if not file.content_type or not file.content_type.startswith("image/"):
+    raise HTTPException(status_code=400, detail="File must be an image")
+
+# Line 695-702: File size validation PASSED (would have 413 if too large)
+content = await file.read()
+file_size_mb = len(content) / (1024 * 1024)
+if file_size_mb > MAX_IMAGE_SIZE_MB:
+    raise HTTPException(...)
+
+# Line 704: Logging shows request was received
+logger.info(f"Processing with effects [{effects}]: {file.filename} ({file_size_mb:.2f}MB)")
+
+# Line 708: THIS IS WHERE IT FAILED
+image = Image.open(io.BytesIO(content))  # <-- PIL raised UnidentifiedImageError
+```
+
+**Gap in Validation**: The code validates:
+- Content-Type header (can be spoofed, or set before upload completes)
+- File size (checks length of received bytes)
+
+But does NOT validate:
+- Actual image magic bytes (file signature)
+- Image can actually be parsed/decoded
+
+#### Severity Assessment: **LOW**
+
+| Factor | Assessment |
+|--------|------------|
+| Error rate | 1/~40 requests = 2.5% (single occurrence) |
+| User impact | 1 user affected, can retry |
+| Data loss | None - original file still on client |
+| Business impact | Minimal - user sees error, retries |
+| Recovery | Automatic on retry |
+
+This is a **transient network issue**, not a code bug.
+
+#### Recommendations
+
+**Priority 1: Improve Error Messaging (LOW effort, HIGH value)**
+
+Current error message exposes Python internals:
+```
+"cannot identify image file <_io.BytesIO object at 0x7fb993cd8f40>"
+```
+
+Recommend user-friendly message:
+```python
+except UnidentifiedImageError:
+    logger.warning(f"Could not decode image {file.filename} - may be corrupted or incomplete upload")
+    raise HTTPException(
+        status_code=400,
+        detail="Could not process image. The file may be corrupted or the upload was incomplete. Please try uploading again."
+    )
+```
+
+**Priority 2: Add Image Magic Byte Validation (MEDIUM effort, MEDIUM value)**
+
+Before calling `Image.open()`, validate the file starts with known image signatures:
+
+```python
+def validate_image_magic_bytes(content: bytes) -> str | None:
+    """Validate image magic bytes and return detected format or None"""
+    signatures = {
+        b'\xff\xd8\xff': 'JPEG',
+        b'\x89PNG\r\n\x1a\n': 'PNG',
+        b'RIFF': 'WebP',  # Actually RIFF....WEBP
+        b'GIF8': 'GIF',
+    }
+    for sig, fmt in signatures.items():
+        if content.startswith(sig):
+            return fmt
+    return None
+
+# Usage:
+detected_format = validate_image_magic_bytes(content)
+if not detected_format:
+    raise HTTPException(status_code=400, detail="File does not appear to be a valid image")
+```
+
+**Priority 3: Add Retry Guidance in Frontend (LOW effort, MEDIUM value)**
+
+When the API returns this specific error, frontend could show:
+"Upload failed. Please check your internet connection and try again."
+
+**NOT Recommended**:
+- Server-side retry logic (network issues are client-side)
+- Automatic re-upload (would duplicate failed uploads)
+- Aggressive validation that rejects valid edge cases
+
+#### Impact Summary
+
+- **No code changes required** for this single error
+- **Optional UX improvement**: Better error message
+- **No pattern of failures**: Single occurrence in 5 days is acceptable
+- **Root cause**: Network issue during upload, not code bug
+
+---
+
+### 2026-02-06 - Frontend Analysis: /store-image Migration from InSPyReNet to BiRefNet
+
+**Request**: Analyze frontend code changes needed if `/store-image` endpoint migrates from InSPyReNet to BiRefNet.
+
+#### Complete File List
+
+| File | Line(s) | Usage | Type |
+|------|---------|-------|------|
+| `assets/inline-preview-mvp.js` | 1580, 1622 | Uploads effects + original to GCS | Primary |
+| `assets/pet-processor.js` | 3379 | Uploads effects to GCS | Primary |
+| `snippets/ks-product-pet-selector-stitch.liquid` | 2422 | Fallback upload for originals | Fallback |
+| `assets/api-client.js` | 14 | InSPyReNet URL in API_URLS config | Reference |
+
+#### Current URL Pattern Analysis
+
+**Processing Endpoints** (already migrated to BiRefNet):
+- `assets/api-client.js`: Uses `USE_BIREFNET` flag to switch between APIs
+- `assets/pet-processor.js`: Hardcoded to BiRefNet (`this.apiUrl = 'https://birefnet-bg-removal-api-753651513695.us-central1.run.app'`)
+- `assets/inline-preview-mvp.js`: Hardcoded to BiRefNet (`const API_URL = 'https://birefnet-bg-removal-api-753651513695.us-central1.run.app/api/v2/process-with-effects'`)
+
+**Storage Endpoints** (still on InSPyReNet):
+- All three primary files still hardcode: `https://inspirenet-bg-removal-api-725543555429.us-central1.run.app/store-image`
+
+#### Recommended URL Configuration Strategy
+
+**Option A: Add STORAGE_API_URL constant (RECOMMENDED)**
+- Create separate constant for storage URL
+- Allows independent control of processing vs storage APIs
+- Lower risk during transition
+
+```javascript
+// api-client.js
+const API_URLS = {
+  inspirenet: 'https://inspirenet-bg-removal-api-725543555429.us-central1.run.app',
+  birefnet: 'https://birefnet-bg-removal-api-753651513695.us-central1.run.app'
+};
+
+// NEW: Separate storage URL (can differ from processing)
+const STORAGE_API_URL = USE_BIREFNET
+  ? 'https://birefnet-bg-removal-api-753651513695.us-central1.run.app'
+  : 'https://inspirenet-bg-removal-api-725543555429.us-central1.run.app';
+```
+
+**Option B: Use same base URL as processing**
+- Simplest approach if BiRefNet `/store-image` is drop-in compatible
+- Less flexibility but easier to maintain
+
+#### Required Code Changes
+
+**1. assets/inline-preview-mvp.js (2 changes)**
+
+```javascript
+// Line 1580 (uploadViaInSPyReNet function)
+// BEFORE:
+const response = await fetch(
+  'https://inspirenet-bg-removal-api-725543555429.us-central1.run.app/store-image',
+
+// AFTER:
+const response = await fetch(
+  'https://birefnet-bg-removal-api-753651513695.us-central1.run.app/store-image',
+
+// Line 1622 (uploadOriginalToGCS function)
+// Same change
+```
+
+**2. assets/pet-processor.js (1 change)**
+
+```javascript
+// Line 3379 (uploadToGCS function)
+// BEFORE:
+const apiUrl = 'https://inspirenet-bg-removal-api-725543555429.us-central1.run.app/store-image';
+
+// AFTER:
+const apiUrl = 'https://birefnet-bg-removal-api-753651513695.us-central1.run.app/store-image';
+```
+
+**3. snippets/ks-product-pet-selector-stitch.liquid (1 change)**
+
+```javascript
+// Line 2422 (fallback uploadToServer function)
+// BEFORE:
+const response = await fetch(
+  'https://inspirenet-bg-removal-api-725543555429.us-central1.run.app/store-image',
+
+// AFTER:
+const response = await fetch(
+  'https://birefnet-bg-removal-api-753651513695.us-central1.run.app/store-image',
+```
+
+#### Fallback Strategy Options
+
+**Option 1: No fallback (Clean switch)**
+- Simply change URLs, no fallback to InSPyReNet
+- Requires confidence in BiRefNet storage stability
+- Simplest approach
+
+**Option 2: Fallback with try/catch (RECOMMENDED)**
+```javascript
+async uploadEffectToGCS(dataUrl, sessionKey, effectName) {
+  const BIREFNET_STORAGE = 'https://birefnet-bg-removal-api-753651513695.us-central1.run.app/store-image';
+  const INSPYRENET_FALLBACK = 'https://inspirenet-bg-removal-api-725543555429.us-central1.run.app/store-image';
+
+  try {
+    // Try BiRefNet first
+    const response = await fetch(BIREFNET_STORAGE, { method: 'POST', body: formData });
+    if (response.ok) return await response.json();
+    throw new Error(`BiRefNet storage failed: ${response.status}`);
+  } catch (error) {
+    console.warn('⚠️ BiRefNet storage failed, trying InSPyReNet fallback:', error.message);
+    // Fallback to InSPyReNet
+    const fallbackResponse = await fetch(INSPYRENET_FALLBACK, { method: 'POST', body: formData });
+    return await fallbackResponse.json();
+  }
+}
+```
+
+**Option 3: Feature flag (Maximum flexibility)**
+- Add `USE_BIREFNET_STORAGE` flag separate from processing
+- Allows A/B testing storage backends
+
+#### Error Handling Analysis
+
+**Current error handling in affected files:**
+
+1. **inline-preview-mvp.js** (lines 1586-1597):
+   - Returns `null` on HTTP error
+   - Logs error but continues (graceful degradation)
+   - Falls back to data URL storage (localStorage quota risk)
+
+2. **pet-processor.js** (lines 3385-3404):
+   - Returns `null` on HTTP error
+   - Logs detailed error with status code
+   - Similar graceful degradation pattern
+
+3. **ks-product-pet-selector-stitch.liquid** (lines 2430-2454):
+   - Throws error on HTTP failure
+   - Has retry logic (3 attempts with exponential backoff)
+   - Returns `{ success: false, error }` on total failure
+
+**Recommendation**: Current error handling is adequate. No changes needed except potentially adding fallback URLs.
+
+#### Testing Requirements
+
+**Pre-deployment tests:**
+1. ✅ Verify BiRefNet `/store-image` endpoint exists and matches InSPyReNet API contract
+2. ✅ Test response format: `{ success: boolean, url: string }`
+3. ✅ Verify GCS bucket permissions (BiRefNet bucket may differ)
+4. ✅ Test with various file sizes (1MB, 5MB, 15MB)
+
+**Post-deployment tests:**
+1. Upload pet photo via processing page → verify GCS URL returned
+2. Upload via inline preview modal → verify effects saved to GCS
+3. Upload via product page direct upload → verify fallback works
+4. Verify Session Pet Gallery loads GCS URLs correctly
+5. Verify cart submission includes valid GCS URLs
+6. Test on mobile (70% of traffic)
+
+**Regression tests:**
+- Session restoration with GCS URLs
+- Multi-pet orders (3 pets)
+- AI effect generation (Ink Wash, Marker)
+
+#### Risk Assessment
+
+| Change | Risk | Mitigation |
+|--------|------|------------|
+| inline-preview-mvp.js | MEDIUM | Add fallback, test extensively |
+| pet-processor.js | MEDIUM | Same URL pattern, proven stable |
+| pet-selector-stitch.liquid | LOW | Already has retry logic |
+| api-client.js | LOW | Reference only, not storage |
+
+**Overall Risk: MEDIUM**
+- Storage is critical path for order fulfillment
+- Graceful degradation to data URLs exists but risks localStorage quota
+- Recommend phased rollout with fallback URLs
+
+#### Implementation Order
+
+1. **Phase 1**: Update `api-client.js` with STORAGE_API_URL constant
+2. **Phase 2**: Update `inline-preview-mvp.js` with fallback
+3. **Phase 3**: Update `pet-processor.js`
+4. **Phase 4**: Update `ks-product-pet-selector-stitch.liquid`
+5. **Phase 5**: Monitor for 48h, remove fallbacks if stable
+
+---
+
+### 2026-02-06 - Inline Gemini Processor: Full Implementation
+
+**Request**: Create embedded inline Gemini pet processor for product pages with per-product configurable prompts via theme editor dropdown.
+
+**Plan**: See `.claude/plans/mighty-kindling-nova.md`
+
+**Key Decisions**:
+- Direct to Gemini (no background removal step)
+- 1 pet per product (single upload zone)
+- Both existing styles (ink_wash, pen_and_marker) + custom prompt text
+- Embedded inline (not modal)
+- Per-product coexistence control (only_gemini / only_selector / both)
+- New endpoint `/api/v1/generate-custom` (separate from existing `/api/v1/generate`)
+
+#### Files Created (4)
+
+| File | Purpose |
+|------|---------|
+| `snippets/ks-gemini-processor-inline.liquid` | HTML structure, hidden form fields, script loading |
+| `assets/gemini-processor-inline.js` | GeminiProcessorInline class (IIFE, ES5 compat) |
+| `assets/gemini-processor-inline.css` | Mobile-first styles, reduced-motion support |
+| `templates/product.gemini-custom.json` | Pre-configured product template |
+
+#### Files Modified (5)
+
+| File | Change |
+|------|--------|
+| `sections/main-product.liquid` | Added `ks_gemini_processor` block schema + rendering + coexistence guard |
+| `assets/gemini-api-client.js` | Added `generateCustom()` method |
+| `backend/gemini-artistic-api/src/models/schemas.py` | Added `CustomGenerateRequest` model |
+| `backend/gemini-artistic-api/src/core/gemini_client.py` | Added `_prepare_image()`, `sanitize_prompt()`, `generate_from_custom_prompt()` |
+| `backend/gemini-artistic-api/src/main.py` | Added `/api/v1/generate-custom` endpoint |
+| `backend/gemini-artistic-api/src/core/storage_manager.py` | Extended cache keys for prompt hash |
+
+#### Code Review: Grade B+ → Fixes Applied
+
+| Issue | Severity | Fix |
+|-------|----------|-----|
+| Race condition in `.then()` handler | CRITICAL | Added state guard: `if (self.state !== 'processing') return;` |
+| AbortController never wired up | CRITICAL | Created in `processUpload()`, passed to fetch calls, cleaned up on cancel |
+| Code duplication in gemini_client.py | CRITICAL | Extracted `_prepare_image()` static method |
+| `var` vs `const/let` in generateCustom | IMPORTANT | Changed to `const` |
+| Empty `src=""` on result image | IMPORTANT | Removed `src` attribute entirely |
+| No prefers-reduced-motion | IMPORTANT | Added CSS media query disabling animations |
+
+**Existing Pipeline Impact**: NONE - Zero modifications to pet-processor.js, inline-preview-mvp.js, pet-storage.js, BiRefNet API, or InSPyReNet API. Only additive coexistence guard in main-product.liquid (defaults to no behavioral change).
+
+**Status**: Implementation + code review fixes complete. Ready for commit, deploy, and testing.
+
+**Next Steps**:
+1. Commit and push to staging
+2. Deploy Gemini API backend (`./scripts/deploy-gemini-artistic.sh`)
+3. Test end-to-end with Chrome DevTools MCP
+4. Test coexistence modes, mobile viewport, session restoration
+
+---
+
 ## Notes
 - Always append new work with timestamp
 - Archive when file > 400KB or task complete

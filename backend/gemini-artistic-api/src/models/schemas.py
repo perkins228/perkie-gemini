@@ -66,6 +66,14 @@ class BatchGenerateResponse(BaseModel):
     warning_level: int = Field(1, description="Warning level: 1=silent, 2=reminder, 3=warning, 4=exhausted")
 
 
+class CustomGenerateRequest(BaseModel):
+    """Request to generate image from a custom prompt (no preset style)"""
+    image_data: str = Field(..., description="Base64 encoded image (raw pet photo)")
+    prompt: str = Field(..., description="Custom prompt text for Gemini", min_length=10, max_length=1000)
+    customer_id: Optional[str] = Field(None, description="Customer ID")
+    session_id: Optional[str] = Field(None, description="Session ID")
+
+
 class SignedUrlRequest(BaseModel):
     """Request for signed upload URL"""
     customer_id: Optional[str] = Field(None, description="Customer ID")
