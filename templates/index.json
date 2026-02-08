@@ -100,7 +100,8 @@
       ],
       "name": "t:sections.image-banner.presets.name",
       "settings": {
-        "image": "shopify://shop_images/homepage_ufo_1366x768_beacf7c0-4b75-46d3-aa96-c57f774f6330.gif",
+        "image": "shopify://shop_images/ufo_mobile_800px.png",
+        "image_2": "shopify://shop_images/homepage_ufo_800px.gif",
         "image_overlay_opacity": 10,
         "image_height": "medium",
         "image_behavior": "none",
