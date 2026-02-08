@@ -106,7 +106,7 @@
         "show_vendor": false,
         "show_rating": true,
         "padding_top": 4,
-        "padding_bottom": 4
+        "padding_bottom": 8
       }
     }
   },
