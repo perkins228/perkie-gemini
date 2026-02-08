@@ -30,7 +30,7 @@
           "settings": {
             "gemini_style": "ink_wash",
             "custom_prompt": "",
-            "style_display_name": "",
+            "style_display_name": "Portrait",
             "show_pet_name_input": true,
             "show_artist_notes": false,
             "coexistence_mode": "only_gemini",
