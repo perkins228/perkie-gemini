@@ -69,7 +69,7 @@ class BatchGenerateResponse(BaseModel):
 class CustomGenerateRequest(BaseModel):
     """Request to generate image from a custom prompt (no preset style)"""
     image_data: str = Field(..., description="Base64 encoded image (raw pet photo)")
-    prompt: str = Field(..., description="Custom prompt text for Gemini", min_length=10, max_length=1000)
+    prompt: str = Field(..., description="Custom prompt text for Gemini", min_length=10, max_length=5000)
     customer_id: Optional[str] = Field(None, description="Customer ID")
     session_id: Optional[str] = Field(None, description="Session ID")
 
