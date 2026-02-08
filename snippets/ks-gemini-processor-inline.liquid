@@ -128,6 +128,17 @@
     </div>
   {% endif %}
 
+  {% comment %} STATE: uploaded (upload-only fallback when generation quota exhausted) {% endcomment %}
+  <div class="gemini-processor__uploaded" data-gemini-uploaded style="display: none;">
+    <div class="uploaded__image-wrapper">
+      <img class="uploaded__image" data-gemini-uploaded-image alt="Your uploaded pet photo">
+    </div>
+    <p class="uploaded__message">Photo uploaded! We'll create your {{ style_display_name }} portrait and include it with your order.</p>
+    <div class="uploaded__actions">
+      <button type="button" class="uploaded__retry-btn" data-gemini-uploaded-retry>Try Different Photo</button>
+    </div>
+  </div>
+
   {% comment %} STATE: error {% endcomment %}
   <div class="gemini-processor__error" data-gemini-error style="display: none;">
     <p class="error__message" data-gemini-error-message>Something went wrong. Please try again.</p>
@@ -170,6 +181,11 @@
          value=""
          form="{{ product_form_id }}"
          data-gemini-form-artist-notes>
+  <input type="hidden"
+         name="properties[_processing_status]"
+         value=""
+         form="{{ product_form_id }}"
+         data-gemini-form-processing-status>
 </div>
 
 <script src="{{ 'gemini-api-client.js' | asset_url }}" defer></script>

@@ -20,8 +20,9 @@ class Settings(BaseSettings):
     gemini_top_k: int = 40
 
     # Rate Limiting - Gemini effects only (B&W and Color unlimited)
-    rate_limit_daily: int = 10      # Customer/IP daily limit for Gemini artistic effects (generous for testing)
+    rate_limit_daily: int = 10      # Customer/IP daily limit for named styles (ink_wash, pen_and_marker)
     rate_limit_burst: int = 10      # Session daily limit (kept same for consistency)
+    rate_limit_custom_daily: int = 3  # Custom prompt daily limit (Gemini 3 Pro is more expensive)
 
     # Email Rate Limits (separate from image generation)
     email_rate_limit_daily: int = 3     # Emails per day per customer/IP (1 send + 2 retries)

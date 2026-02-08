@@ -25,7 +25,7 @@
   function GeminiProcessorInline(container) {
     this.container = container;
     this.geminiClient = null;
-    this.state = 'idle'; // idle | uploading | processing | result | error
+    this.state = 'idle'; // idle | uploading | processing | result | uploaded | error
     this.originalFile = null;
     this.originalDataUrl = null;
     this.processedUrl = null;
@@ -76,6 +76,10 @@
       petNameInput: c.querySelector('[data-gemini-pet-name]'),
       artistNotes: c.querySelector('[data-gemini-artist-notes]'),
       notesSection: c.querySelector('[data-gemini-notes-section]'),
+      // Uploaded state (upload-only fallback)
+      uploaded: c.querySelector('[data-gemini-uploaded]'),
+      uploadedImage: c.querySelector('[data-gemini-uploaded-image]'),
+      uploadedRetryBtn: c.querySelector('[data-gemini-uploaded-retry]'),
       // Hidden form fields
       formPetName: c.querySelector('[data-gemini-form-pet-name]'),
       formStyle: c.querySelector('[data-gemini-form-style]'),
@@ -83,7 +87,8 @@
       formOriginalUrl: c.querySelector('[data-gemini-form-original-url]'),
       formSessionKey: c.querySelector('[data-gemini-form-session-key]'),
       formSelectedEffect: c.querySelector('[data-gemini-form-selected-effect]'),
-      formArtistNotes: c.querySelector('[data-gemini-form-artist-notes]')
+      formArtistNotes: c.querySelector('[data-gemini-form-artist-notes]'),
+      formProcessingStatus: c.querySelector('[data-gemini-form-processing-status]')
     };
   };
 
@@ -146,6 +151,13 @@
         self.reset();
       });
     }
+
+    // Uploaded state retry
+    if (this.els.uploadedRetryBtn) {
+      this.els.uploadedRetryBtn.addEventListener('click', function() {
+        self.reset();
+      });
+    }
   };
 
   GeminiProcessorInline.prototype.initGeminiClient = function() {
@@ -193,40 +205,69 @@
     this.setState('processing');
     this.abortController = new AbortController();
 
-    // Convert file to data URL, then optimize and send to Gemini
+    // Convert file to data URL, then optimize
     var reader = new FileReader();
     reader.onload = function(e) {
       self.originalDataUrl = e.target.result;
 
-      // Optimize image for Gemini (resize to 800x800 max)
+      // Optimize image (resize to 800x800 max)
       self.geminiClient.optimizeImageForGemini(self.originalDataUrl, 800)
         .then(function(optimizedDataUrl) {
-          // Start parallel operations
-          var geminiPromise = self.processWithGemini(optimizedDataUrl);
-          var uploadPromise = self.uploadOriginalToGCS(optimizedDataUrl);
+          // Determine quota type based on style
+          var quotaType = (self.config.geminiStyle === 'custom' && self.config.customPrompt) ? 'custom' : 'named';
 
-          return Promise.all([geminiPromise, uploadPromise]);
+          // Check quota BEFORE starting parallel operations
+          return self.geminiClient.checkQuota(quotaType).then(function(quota) {
+            return { optimizedDataUrl: optimizedDataUrl, quota: quota };
+          });
         })
-        .then(function(results) {
-          // Guard: if user cancelled while promises were in-flight, don't overwrite idle state
-          if (self.state !== 'processing') return;
+        .then(function(ctx) {
+          if (self.state !== 'processing') return; // User cancelled
 
-          var geminiResult = results[0];
-          var gcsUrl = results[1];
+          if (!ctx.quota.allowed || ctx.quota.remaining < 1) {
+            // UPLOAD-ONLY MODE: quota exhausted, upload original only
+            console.log('GeminiProcessorInline: Quota exhausted, entering upload-only mode');
+            return self.uploadOriginalToGCS(ctx.optimizedDataUrl)
+              .then(function(gcsUrl) {
+                if (self.state !== 'processing') return;
+                self.originalGcsUrl = gcsUrl;
+                self.showUploadOnlyConfirmation(ctx.optimizedDataUrl);
+              });
+          }
 
-          self.processedUrl = geminiResult.url;
-          self.originalGcsUrl = gcsUrl;
+          // NORMAL MODE: parallel upload + Gemini generation
+          var geminiPromise = self.processWithGemini(ctx.optimizedDataUrl);
+          var uploadPromise = self.uploadOriginalToGCS(ctx.optimizedDataUrl);
 
-          self.displayResult(geminiResult.url);
-          self.saveToPetStorage();
-          self.populateFormFields();
+          return Promise.all([geminiPromise, uploadPromise])
+            .then(function(results) {
+              if (self.state !== 'processing') return;
+
+              var geminiResult = results[0];
+              var gcsUrl = results[1];
+
+              self.processedUrl = geminiResult.url;
+              self.originalGcsUrl = gcsUrl;
+
+              self.displayResult(geminiResult.url);
+              self.saveToPetStorage();
+              self.populateFormFields();
+            });
         })
         .catch(function(error) {
-          if (error.name === 'AbortError') return; // User cancelled — no error to show
+          if (error.name === 'AbortError') return; // User cancelled
           console.error('GeminiProcessorInline: Processing failed', error);
           if (self.state === 'processing') {
             if (error.quotaExhausted) {
-              self.showError('Daily portrait limit reached (10/day). Please try again tomorrow.');
+              // Fallback: if quota error slips through, still try upload-only
+              self.uploadOriginalToGCS(self.originalDataUrl)
+                .then(function(gcsUrl) {
+                  self.originalGcsUrl = gcsUrl;
+                  self.showUploadOnlyConfirmation(self.originalDataUrl);
+                })
+                .catch(function() {
+                  self.showError('Something went wrong. Please try again.');
+                });
             } else if (error.message && error.message.indexOf('safety') !== -1) {
               self.showError('Your prompt was flagged by content safety filters. Please try a different photo.');
             } else {
@@ -366,6 +407,7 @@
     if (els.uploadZone) els.uploadZone.style.display = 'none';
     if (els.processing) els.processing.style.display = 'none';
     if (els.result) els.result.style.display = 'none';
+    if (els.uploaded) els.uploaded.style.display = 'none';
     if (els.error) els.error.style.display = 'none';
     if (els.notesSection) els.notesSection.style.display = 'none';
 
@@ -379,6 +421,10 @@
         break;
       case 'result':
         if (els.result) els.result.style.display = '';
+        if (els.notesSection) els.notesSection.style.display = '';
+        break;
+      case 'uploaded':
+        if (els.uploaded) els.uploaded.style.display = '';
         if (els.notesSection) els.notesSection.style.display = '';
         break;
       case 'error':
@@ -476,6 +522,7 @@
     if (this.els.formSessionKey) this.els.formSessionKey.value = this.sessionKey || '';
     if (this.els.formSelectedEffect) this.els.formSelectedEffect.value = this.config.geminiStyle;
     if (this.els.formArtistNotes) this.els.formArtistNotes.value = artistNotes;
+    if (this.els.formProcessingStatus) this.els.formProcessingStatus.value = 'completed';
 
     // Also update on pet name change
     var self = this;
@@ -498,6 +545,82 @@
     }
   };
 
+  GeminiProcessorInline.prototype.showUploadOnlyConfirmation = function(imageDataUrl) {
+    this.stopProgressAnimation();
+
+    // Show the original photo in the uploaded state
+    if (this.els.uploadedImage) {
+      this.els.uploadedImage.src = imageDataUrl || '';
+    }
+
+    this.setState('uploaded');
+    this.populateFormFieldsUploadOnly();
+    this.saveToPetStorageUploadOnly();
+  };
+
+  GeminiProcessorInline.prototype.populateFormFieldsUploadOnly = function() {
+    var petName = '';
+    if (this.els.petNameInput) {
+      petName = this.els.petNameInput.value.trim();
+    }
+
+    var artistNotes = '';
+    if (this.els.artistNotes) {
+      artistNotes = this.els.artistNotes.value.trim();
+    }
+
+    if (this.els.formPetName) this.els.formPetName.value = petName;
+    if (this.els.formStyle) this.els.formStyle.value = this.config.styleDisplayName;
+    if (this.els.formProcessedUrl) this.els.formProcessedUrl.value = ''; // No AI generation
+    if (this.els.formOriginalUrl) this.els.formOriginalUrl.value = this.originalGcsUrl || '';
+    if (this.els.formSessionKey) this.els.formSessionKey.value = this.sessionKey || '';
+    if (this.els.formSelectedEffect) this.els.formSelectedEffect.value = this.config.geminiStyle;
+    if (this.els.formArtistNotes) this.els.formArtistNotes.value = artistNotes;
+    if (this.els.formProcessingStatus) this.els.formProcessingStatus.value = 'pending_manual';
+
+    // Live update listeners
+    var self = this;
+    if (this.els.petNameInput && !this.els.petNameInput._geminiListenerAttached) {
+      this.els.petNameInput.addEventListener('input', function() {
+        if (self.els.formPetName) self.els.formPetName.value = this.value.trim();
+        if (self.state === 'uploaded') self.saveToPetStorageUploadOnly();
+      });
+      this.els.petNameInput._geminiListenerAttached = true;
+    }
+
+    if (this.els.artistNotes && !this.els.artistNotes._geminiListenerAttached) {
+      this.els.artistNotes.addEventListener('input', function() {
+        if (self.els.formArtistNotes) self.els.formArtistNotes.value = this.value.trim();
+        if (self.state === 'uploaded') self.saveToPetStorageUploadOnly();
+      });
+      this.els.artistNotes._geminiListenerAttached = true;
+    }
+  };
+
+  GeminiProcessorInline.prototype.saveToPetStorageUploadOnly = function() {
+    if (typeof PetStorage === 'undefined') return;
+
+    var petName = '';
+    if (this.els.petNameInput) {
+      petName = this.els.petNameInput.value.trim();
+    }
+
+    try {
+      PetStorage.savePet(1, {
+        sessionKey: this.sessionKey,
+        name: petName,
+        artistNote: this.els.artistNotes ? this.els.artistNotes.value.trim() : '',
+        originalGcsUrl: this.originalGcsUrl || '',
+        effects: {},
+        selectedEffect: '',
+        processedAt: Date.now(),
+        uploadOnly: true
+      });
+    } catch (e) {
+      console.warn('GeminiProcessorInline: Failed to save upload-only to PetStorage', e);
+    }
+  };
+
   GeminiProcessorInline.prototype.clearFormFields = function() {
     if (this.els.formPetName) this.els.formPetName.value = '';
     if (this.els.formStyle) this.els.formStyle.value = '';
@@ -506,6 +629,7 @@
     if (this.els.formSessionKey) this.els.formSessionKey.value = '';
     if (this.els.formSelectedEffect) this.els.formSelectedEffect.value = '';
     if (this.els.formArtistNotes) this.els.formArtistNotes.value = '';
+    if (this.els.formProcessingStatus) this.els.formProcessingStatus.value = '';
   };
 
   // --- Session Restoration ---

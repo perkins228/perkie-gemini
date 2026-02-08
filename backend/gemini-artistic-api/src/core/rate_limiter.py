@@ -36,7 +36,8 @@ class RateLimiter:
         self.db = firestore.Client(project=settings.project_id)
         self.daily_limit = settings.rate_limit_daily
         self.burst_limit = settings.rate_limit_burst
-        logger.info(f"Initialized rate limiter: daily={self.daily_limit}, burst={self.burst_limit}")
+        self.custom_daily_limit = settings.rate_limit_custom_daily
+        logger.info(f"Initialized rate limiter: daily={self.daily_limit}, burst={self.burst_limit}, custom={self.custom_daily_limit}")
 
     def _get_reset_date(self) -> datetime:
         """Get next midnight UTC reset time"""
@@ -44,27 +45,37 @@ class RateLimiter:
         tomorrow = now + timedelta(days=1)
         return tomorrow.replace(hour=0, minute=0, second=0, microsecond=0)
 
+    def _get_limit(self, quota_type: str, identity_type: str) -> int:
+        """Get the limit for a given quota type and identity type"""
+        if quota_type == "custom":
+            return self.custom_daily_limit
+        if identity_type == "session":
+            return self.burst_limit
+        return self.daily_limit
+
     async def check_rate_limit(
         self,
         customer_id: Optional[str] = None,
         session_id: Optional[str] = None,
-        ip_address: Optional[str] = None
+        ip_address: Optional[str] = None,
+        quota_type: str = "named"
     ) -> QuotaStatus:
         """
         Check rate limit without consuming quota
 
         Priority: customer_id > session_id > ip_address
+        quota_type: "named" (10/day) or "custom" (3/day)
         """
         # Determine which quota to check
         if customer_id:
-            doc_ref = self.db.collection('rate_limits').document(f'customer_{customer_id}')
-            limit = self.daily_limit
+            doc_ref = self.db.collection('rate_limits').document(f'customer_{customer_id}_{quota_type}')
+            limit = self._get_limit(quota_type, "customer")
         elif session_id:
-            doc_ref = self.db.collection('rate_limits').document(f'session_{session_id}')
-            limit = self.burst_limit
+            doc_ref = self.db.collection('rate_limits').document(f'session_{session_id}_{quota_type}')
+            limit = self._get_limit(quota_type, "session")
         else:
-            doc_ref = self.db.collection('rate_limits').document(f'ip_{ip_address}')
-            limit = self.daily_limit
+            doc_ref = self.db.collection('rate_limits').document(f'ip_{ip_address}_{quota_type}')
+            limit = self._get_limit(quota_type, "ip")
 
         # Get current status
         doc = doc_ref.get()
@@ -110,23 +121,25 @@ class RateLimiter:
         customer_id: Optional[str] = None,
         session_id: Optional[str] = None,
         ip_address: Optional[str] = None,
-        style: Optional[str] = None
+        style: Optional[str] = None,
+        quota_type: str = "named"
     ) -> QuotaStatus:
         """
         Atomically consume quota using Firestore transaction
 
         This prevents race conditions with concurrent requests
+        quota_type: "named" (10/day) or "custom" (3/day)
         """
         # Determine which quota to consume
         if customer_id:
-            doc_ref = self.db.collection('rate_limits').document(f'customer_{customer_id}')
-            limit = self.daily_limit
+            doc_ref = self.db.collection('rate_limits').document(f'customer_{customer_id}_{quota_type}')
+            limit = self._get_limit(quota_type, "customer")
         elif session_id:
-            doc_ref = self.db.collection('rate_limits').document(f'session_{session_id}')
-            limit = self.burst_limit
+            doc_ref = self.db.collection('rate_limits').document(f'session_{session_id}_{quota_type}')
+            limit = self._get_limit(quota_type, "session")
         else:
-            doc_ref = self.db.collection('rate_limits').document(f'ip_{ip_address}')
-            limit = self.daily_limit
+            doc_ref = self.db.collection('rate_limits').document(f'ip_{ip_address}_{quota_type}')
+            limit = self._get_limit(quota_type, "ip")
 
         # Atomic transaction
         @firestore.transactional
