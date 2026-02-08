@@ -27,6 +27,13 @@
           "type": "price",
           "settings": {}
         },
+        "junip_junip_product_summary_KhnN8a": {
+          "type": "shopify://apps/junip/blocks/junip-product-summary/dc14f5a8-ed15-41b1-ad08-cfba23f9789b",
+          "settings": {
+            "product": "{{product}}",
+            "alignment": ""
+          }
+        },
         "variant_picker": {
           "type": "variant_picker",
           "settings": {
@@ -77,6 +84,7 @@
         "ks_breadcrumb_xEHhJ8",
         "title",
         "price",
+        "junip_junip_product_summary_KhnN8a",
         "variant_picker",
         "ks_gemini_processor_inline",
         "quantity_selector",
@@ -86,7 +94,7 @@
       ],
       "settings": {
         "enable_sticky_info": true,
-        "color_scheme": "scheme-1",
+        "color_scheme": "scheme-f318d737-2be2-4346-8605-b2fbd6208608",
         "media_size": "small",
         "constrain_to_viewport": true,
         "media_fit": "contain",
