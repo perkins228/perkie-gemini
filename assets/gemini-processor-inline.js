@@ -16,7 +16,7 @@
 
   var PROGRESS_MESSAGES = [
     'Creating your portrait...',
-    'AI is working its magic...',
+    'Working our magic...',
     'Almost there...',
     'Adding finishing touches...',
     'Perfecting the details...'
@@ -179,7 +179,7 @@
 
     // Check Gemini client availability
     if (!this.geminiClient) {
-      this.showError('AI portrait service is not available. Please try again later.');
+      this.showError('Portrait service is not available. Please try again later.');
       return;
     }
 
