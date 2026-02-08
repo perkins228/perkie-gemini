@@ -41,8 +41,21 @@
             "swatch_shape": "circle"
           }
         },
+        "ks_gemini_processor_rWqr3P": {
+          "type": "ks_gemini_processor",
+          "settings": {
+            "gemini_style": "ink_wash",
+            "custom_prompt": "",
+            "style_display_name": "Portrait",
+            "show_pet_name_input": true,
+            "show_artist_notes": false,
+            "coexistence_mode": "only_gemini",
+            "color_scheme": "scheme-1"
+          }
+        },
         "ks_pet_selector_E8PiYh": {
           "type": "ks_pet_selector",
+          "disabled": true,
           "settings": {
             "custom_image_fee": "0.00",
             "max_pets_per_product": 3,
@@ -141,6 +154,7 @@
         "junip_junip_product_summary_AC3qBc",
         "price",
         "variant_picker",
+        "ks_gemini_processor_rWqr3P",
         "ks_pet_selector_E8PiYh",
         "quantity_selector",
         "buy_buttons",
@@ -306,7 +320,8 @@
           "settings": {
             "product": "{{product}}",
             "title": "",
-            "alignment": ""
+            "alignment": "",
+            "sortOrder": "mostRecent"
           }
         }
       },
