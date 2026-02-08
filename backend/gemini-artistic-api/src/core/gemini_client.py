@@ -81,8 +81,9 @@ class GeminiClient:
 
     def __init__(self):
         self.model_name = settings.gemini_model
+        self.custom_model_name = settings.gemini_custom_model
         self.client = genai.Client(api_key=settings.gemini_api_key)
-        logger.info(f"Initialized Gemini client (new SDK): {self.model_name}")
+        logger.info(f"Initialized Gemini client (new SDK): styles={self.model_name}, custom={self.custom_model_name}")
 
     @staticmethod
     def _prepare_image(image_data: str) -> Image.Image:
@@ -263,12 +264,12 @@ class GeminiClient:
                 f"{sanitized}"
             )
 
-            # Generate with Gemini
-            logger.info(f"Generating with custom prompt ({len(sanitized)} chars)...")
+            # Generate with Gemini (custom model — may differ from named styles)
+            logger.info(f"Generating with custom prompt ({len(sanitized)} chars) using {self.custom_model_name}...")
 
             response = await retry_with_backoff(
                 lambda: self.client.models.generate_content(
-                    model=self.model_name,
+                    model=self.custom_model_name,
                     contents=[framed_prompt, input_image],
                     config=types.GenerateContentConfig(
                         response_modalities=["IMAGE"],

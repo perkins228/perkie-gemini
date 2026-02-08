@@ -76,6 +76,7 @@ async def health_check():
     return {
         "status": "healthy",
         "model": settings.gemini_model,
+        "custom_model": settings.gemini_custom_model,
         "styles": ["ink_wash", "pen_and_marker", "custom"],
         "timestamp": time.time()
     }

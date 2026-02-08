@@ -14,6 +14,7 @@ class Settings(BaseSettings):
     # API key loaded from Secret Manager or environment variable
     gemini_api_key: str  # No default - must be provided via env var or Secret Manager
     gemini_model: str = "gemini-2.5-flash-image"
+    gemini_custom_model: str = "gemini-2.5-flash-image"  # Model for /generate-custom endpoint (can differ from gemini_model)
     gemini_temperature: float = 0.7
     gemini_top_p: float = 0.9
     gemini_top_k: int = 40
