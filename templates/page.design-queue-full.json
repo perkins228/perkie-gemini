@@ -89,7 +89,7 @@
           "type": "button",
           "settings": {
             "button_label": "Add FREE Digital Download to Cart",
-            "button_link": "shopify://products/personalized-pet-portrait-digital-artwork-download-1",
+            "button_link": "shopify://products/personalized-pet-portrait-digital-artwork-download",
             "button_style_secondary": false
           }
         }
