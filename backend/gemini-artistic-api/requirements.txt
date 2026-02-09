@@ -8,7 +8,7 @@ pydantic==2.10.3  # Updated for compatibility
 pydantic-settings==2.6.1  # Updated for compatibility
 
 # Google Cloud dependencies
-google-genai==1.47.0  # New SDK - replaces deprecated google-generativeai
+google-genai==1.56.0  # New SDK - replaces deprecated google-generativeai (>=1.51.0 required for Gemini 3)
 google-cloud-firestore==2.19.0  # Updated for compatibility
 google-cloud-storage==2.19.0  # Updated for compatibility
 google-cloud-secret-manager==2.21.1  # For loading GCS signer credentials

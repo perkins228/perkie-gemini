@@ -30,12 +30,21 @@ class GeminiAPIClient {
     // Customer ID for rate limiting (session-based with localStorage persistence)
     this.customerId = this.getOrCreateCustomerId();
 
-    // Quota state (cached from last API response)
+    // Quota state for named styles (cached from last API response)
     // FIX: Include 'allowed: true' so timeout fallback doesn't trigger false exhaustion
     this.quotaState = {
       allowed: true,      // Essential for quota check fallback
       remaining: 10,
       limit: 10,
+      warningLevel: 1,
+      lastChecked: null
+    };
+
+    // Separate quota state for custom prompts (3/day, more expensive model)
+    this.customQuotaState = {
+      allowed: true,
+      remaining: 3,
+      limit: 3,
       warningLevel: 1,
       lastChecked: null
     };
@@ -91,20 +100,22 @@ class GeminiAPIClient {
 
   /**
    * Check rate limit quota without consuming it
+   * @param {string} quotaType - 'named' (10/day) or 'custom' (3/day)
    */
-  async checkQuota() {
+  async checkQuota(quotaType = 'named') {
     if (!this.enabled) {
-      return { allowed: true, remaining: 10, limit: 10, warningLevel: 1 };
+      const limit = quotaType === 'custom' ? 3 : 10;
+      return { allowed: true, remaining: limit, limit: limit, warningLevel: 1 };
     }
 
     try {
-      const response = await this.request(`/api/v1/quota?customer_id=${this.customerId}`, {
+      const response = await this.request(`/api/v1/quota?customer_id=${this.customerId}&quota_type=${quotaType}`, {
         method: 'GET',
         timeout: 15000 // 15 seconds (handles cold start Firestore connection)
       });
 
-      // Update cached quota state with 'allowed' property
-      this.quotaState = {
+      // Update the correct cached quota state
+      const state = {
         allowed: response.allowed !== false,  // Default true if missing
         remaining: response.remaining,
         limit: response.limit,
@@ -112,11 +123,17 @@ class GeminiAPIClient {
         lastChecked: Date.now()
       };
 
+      if (quotaType === 'custom') {
+        this.customQuotaState = state;
+      } else {
+        this.quotaState = state;
+      }
+
       return response;
     } catch (error) {
       console.error('Quota check failed:', error);
       // Return cached state on error
-      return this.quotaState;
+      return quotaType === 'custom' ? this.customQuotaState : this.quotaState;
     }
   }
 
@@ -318,6 +335,78 @@ class GeminiAPIClient {
       };
     } catch (error) {
       // Enhance error with quota information
+      if (error.response && error.response.status === 429) {
+        error.quotaExhausted = true;
+        error.remaining = 0;
+      }
+      throw error;
+    }
+  }
+
+  /**
+   * Generate image from a custom prompt (for inline Gemini processor)
+   * Calls /api/v1/generate-custom instead of /api/v1/generate
+   * Uses separate 'custom' quota pool (3/day)
+   */
+  async generateCustom(imageDataUrl, prompt, options = {}) {
+    if (!this.enabled) {
+      throw new Error('Gemini effects are not enabled');
+    }
+
+    // Check custom quota before making expensive API call (3/day limit)
+    const quota = await this.checkQuota('custom');
+    if (!quota.allowed || quota.remaining < 1) {
+      const error = new Error('Daily quota exhausted');
+      error.quotaExhausted = true;
+      error.remaining = quota.remaining;
+      throw error;
+    }
+
+    // Extract base64 from data URL
+    const base64Image = imageDataUrl.includes(',')
+      ? imageDataUrl.split(',')[1]
+      : imageDataUrl;
+
+    const requestBody = {
+      image_data: base64Image,
+      prompt: prompt,
+      customer_id: this.customerId,
+      session_id: options.sessionId || ('session_' + Date.now())
+    };
+
+    try {
+      const response = await this.request('/api/v1/generate-custom', {
+        method: 'POST',
+        body: JSON.stringify(requestBody),
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        timeout: this.timeout
+      });
+
+      // Update custom quota state from response (separate pool)
+      this.customQuotaState = {
+        allowed: response.quota_remaining > 0,
+        remaining: response.quota_remaining,
+        limit: response.quota_limit,
+        warningLevel: response.warning_level,
+        lastChecked: Date.now()
+      };
+
+      return {
+        success: true,
+        url: response.image_url,
+        originalUrl: response.original_url,
+        style: response.style,
+        cacheHit: response.cache_hit,
+        quota: {
+          remaining: response.quota_remaining,
+          limit: response.quota_limit,
+          warningLevel: response.warning_level
+        },
+        processingTime: response.processing_time_ms
+      };
+    } catch (error) {
       if (error.response && error.response.status === 429) {
         error.quotaExhausted = true;
         error.remaining = 0;

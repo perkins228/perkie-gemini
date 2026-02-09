@@ -1,0 +1,192 @@
+{% comment %}
+  Inline Gemini Pet Processor
+  Embedded directly on product pages for single-prompt AI pet portrait generation.
+  Configured via the ks_gemini_processor block in main-product section.
+
+  Required params: product, block, product_form_id, section
+{% endcomment %}
+
+{% liquid
+  assign gemini_style = block.settings.gemini_style | default: 'ink_wash'
+  assign custom_prompt = block.settings.custom_prompt | default: ''
+  assign show_pet_name = block.settings.show_pet_name_input
+  assign show_artist_notes = block.settings.show_artist_notes
+
+  assign style_display_name = block.settings.style_display_name
+  if style_display_name == blank
+    case gemini_style
+      when 'ink_wash'
+        assign style_display_name = 'Ink Wash'
+      when 'pen_and_marker'
+        assign style_display_name = 'Pen & Marker'
+      when 'custom'
+        assign style_display_name = 'Custom Portrait'
+    endcase
+  endif
+%}
+
+<link rel="stylesheet" href="{{ 'gemini-processor-inline.css' | asset_url }}" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="{{ 'gemini-processor-inline.css' | asset_url }}"></noscript>
+
+<div class="gemini-processor-inline color-{{ block.settings.color_scheme }}"
+     data-gemini-processor
+     data-product-id="{{ product.id }}"
+     data-product-handle="{{ product.handle }}"
+     data-product-form-id="{{ product_form_id }}"
+     data-gemini-style="{{ gemini_style }}"
+     data-custom-prompt="{{ custom_prompt | escape }}"
+     data-style-display-name="{{ style_display_name | escape }}"
+     data-show-pet-name="{{ show_pet_name }}"
+     data-show-artist-notes="{{ show_artist_notes }}"
+     data-section-id="{{ section.id }}">
+
+  {% comment %} Header {% endcomment %}
+  <div class="gemini-processor__header">
+    <h3 class="gemini-processor__title">Upload Your Pet Photo</h3>
+    <p class="gemini-processor__subtitle">We'll create your {{ style_display_name }} portrait</p>
+  </div>
+
+  {% comment %} Pet Name Input (before upload) {% endcomment %}
+  {% if show_pet_name %}
+    <div class="gemini-processor__pet-name">
+      <label for="gemini-pet-name-{{ section.id }}" class="gemini-processor__label">Pet's Name</label>
+      <input type="text"
+             id="gemini-pet-name-{{ section.id }}"
+             class="gemini-processor__name-input"
+             placeholder="Enter your pet's name"
+             data-gemini-pet-name
+             autocomplete="off">
+    </div>
+  {% endif %}
+
+  {% comment %} STATE: idle — Upload Zone {% endcomment %}
+  <div class="gemini-processor__upload-zone" data-gemini-upload-zone>
+    {% if block.settings.example_result_image != blank %}
+      <div class="upload-zone__example">
+        <img src="{{ block.settings.example_result_image | image_url: width: 200 }}"
+             alt="Example {{ style_display_name }} result"
+             width="200"
+             height="200"
+             loading="lazy">
+      </div>
+    {% else %}
+      <div class="upload-zone__icon">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+          <circle cx="12" cy="13" r="4"/>
+        </svg>
+      </div>
+    {% endif %}
+    <span class="upload-zone__text">Tap to upload or take photo</span>
+    <span class="upload-zone__hint">JPG or PNG &bull; Max 15MB</span>
+    <input type="file"
+           accept="image/jpeg,image/png,image/webp"
+           class="upload-zone__file-input visually-hidden"
+           data-gemini-file-input
+           aria-label="Upload pet photo for {{ style_display_name }} portrait">
+  </div>
+
+  {% comment %} STATE: processing {% endcomment %}
+  <div class="gemini-processor__processing" data-gemini-processing style="display: none;">
+    <div class="processing__spinner">
+      <svg class="processing__spinner-svg" viewBox="0 0 50 50">
+        <circle class="processing__spinner-circle" cx="25" cy="25" r="20" fill="none" stroke-width="4"/>
+      </svg>
+    </div>
+    <div class="processing__progress-bar">
+      <div class="processing__progress-fill" data-gemini-progress-fill></div>
+    </div>
+    <p class="processing__text" data-gemini-progress-text>Creating your portrait...</p>
+    <button type="button" class="processing__cancel-btn" data-gemini-cancel>Cancel</button>
+  </div>
+
+  {% comment %} STATE: result {% endcomment %}
+  <div class="gemini-processor__result" data-gemini-result style="display: none;">
+    <div class="result__image-wrapper">
+      <img class="result__image" data-gemini-result-image alt="Your {{ style_display_name }} pet portrait">
+    </div>
+    <div class="result__actions">
+      <button type="button" class="result__retry-btn" data-gemini-retry>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="23 4 23 10 17 10"/>
+          <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
+        </svg>
+        Try Different Photo
+      </button>
+    </div>
+  </div>
+
+  {% comment %} Artist Notes (shown after result) {% endcomment %}
+  {% if show_artist_notes %}
+    <div class="gemini-processor__artist-notes" data-gemini-notes-section style="display: none;">
+      <label for="gemini-artist-notes-{{ section.id }}" class="gemini-processor__label">Notes for Artist (optional)</label>
+      <textarea id="gemini-artist-notes-{{ section.id }}"
+                class="gemini-processor__notes-textarea"
+                placeholder="Any special requests or notes..."
+                rows="2"
+                data-gemini-artist-notes></textarea>
+    </div>
+  {% endif %}
+
+  {% comment %} STATE: uploaded (upload-only fallback when generation quota exhausted) {% endcomment %}
+  <div class="gemini-processor__uploaded" data-gemini-uploaded style="display: none;">
+    <div class="uploaded__image-wrapper">
+      <img class="uploaded__image" data-gemini-uploaded-image alt="Your uploaded pet photo">
+    </div>
+    <p class="uploaded__message">Photo uploaded! We'll create your {{ style_display_name }} portrait and include it with your order.</p>
+    <div class="uploaded__actions">
+      <button type="button" class="uploaded__retry-btn" data-gemini-uploaded-retry>Try Different Photo</button>
+    </div>
+  </div>
+
+  {% comment %} STATE: error {% endcomment %}
+  <div class="gemini-processor__error" data-gemini-error style="display: none;">
+    <p class="error__message" data-gemini-error-message>Something went wrong. Please try again.</p>
+    <button type="button" class="error__retry-btn" data-gemini-error-retry>Try Again</button>
+  </div>
+
+  {% comment %} HIDDEN FORM FIELDS — Same pattern as ks-product-pet-selector-stitch.liquid {% endcomment %}
+  <input type="hidden"
+         name="properties[Pet 1 Name]"
+         value=""
+         form="{{ product_form_id }}"
+         data-gemini-form-pet-name>
+  <input type="hidden"
+         name="properties[Style]"
+         value=""
+         form="{{ product_form_id }}"
+         data-gemini-form-style>
+  <input type="hidden"
+         name="properties[_pet_1_processed_image_url]"
+         value=""
+         form="{{ product_form_id }}"
+         data-gemini-form-processed-url>
+  <input type="hidden"
+         name="properties[_pet_1_original_gcs_url]"
+         value=""
+         form="{{ product_form_id }}"
+         data-gemini-form-original-url>
+  <input type="hidden"
+         name="properties[_pet_1_session_key]"
+         value=""
+         form="{{ product_form_id }}"
+         data-gemini-form-session-key>
+  <input type="hidden"
+         name="properties[_pet_1_selected_effect]"
+         value=""
+         form="{{ product_form_id }}"
+         data-gemini-form-selected-effect>
+  <input type="hidden"
+         name="properties[_pet_1_artist_notes]"
+         value=""
+         form="{{ product_form_id }}"
+         data-gemini-form-artist-notes>
+  <input type="hidden"
+         name="properties[_processing_status]"
+         value=""
+         form="{{ product_form_id }}"
+         data-gemini-form-processing-status>
+</div>
+
+<script src="{{ 'gemini-api-client.js' | asset_url }}" defer></script>
+<script src="{{ 'gemini-processor-inline.js' | asset_url }}" defer></script>

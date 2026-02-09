@@ -10,9 +10,11 @@ from datetime import datetime, timedelta
 from google.cloud import storage, secretmanager
 from google.oauth2 import service_account
 from src.config import settings
+import hashlib
 from src.models.schemas import (
     GenerateRequest, GenerateResponse,
     BatchGenerateRequest, BatchGenerateResponse,
+    CustomGenerateRequest,
     QuotaStatus, StyleResult, ArtisticStyle,
     SignedUrlRequest, SignedUrlResponse,
     ConfirmUploadRequest, ConfirmUploadResponse,
@@ -74,7 +76,12 @@ async def health_check():
     return {
         "status": "healthy",
         "model": settings.gemini_model,
-        "styles": ["ink_wash", "pen_and_marker"],
+        "custom_model": settings.gemini_custom_model,
+        "styles": ["ink_wash", "pen_and_marker", "custom"],
+        "rate_limits": {
+            "named": settings.rate_limit_daily,
+            "custom": settings.rate_limit_custom_daily
+        },
         "timestamp": time.time()
     }
 
@@ -100,9 +107,10 @@ async def model_info():
 async def check_quota(
     request: Request,
     customer_id: str = None,
-    session_id: str = None
+    session_id: str = None,
+    quota_type: str = "named"
 ):
-    """Check remaining quota without consuming"""
+    """Check remaining quota without consuming. quota_type: 'named' (10/day) or 'custom' (3/day)"""
     client_ip = request.client.host
 
     identifiers = {
@@ -111,7 +119,7 @@ async def check_quota(
         "ip_address": client_ip
     }
 
-    quota = await rate_limiter.check_rate_limit(**identifiers)
+    quota = await rate_limiter.check_rate_limit(**identifiers, quota_type=quota_type)
     return quota
 
 
@@ -137,8 +145,8 @@ async def generate_artistic_style(request: Request, req: GenerateRequest):
     }
 
     try:
-        # 1. Check rate limit
-        quota_before = await rate_limiter.check_rate_limit(**identifiers)
+        # 1. Check rate limit (named styles: 10/day)
+        quota_before = await rate_limiter.check_rate_limit(**identifiers, quota_type="named")
         if not quota_before.allowed:
             raise HTTPException(
                 status_code=429,
@@ -191,10 +199,11 @@ async def generate_artistic_style(request: Request, req: GenerateRequest):
             session_id=req.session_id
         )
 
-        # 6. Consume quota
+        # 6. Consume quota (named pool)
         quota_after = await rate_limiter.consume_quota(
             **identifiers,
-            style=req.style.value
+            style=req.style.value,
+            quota_type="named"
         )
 
         return GenerateResponse(
@@ -216,6 +225,116 @@ async def generate_artistic_style(request: Request, req: GenerateRequest):
         raise HTTPException(status_code=500, detail=str(e))
 
 
+@app.post("/api/v1/generate-custom", response_model=GenerateResponse)
+async def generate_custom_style(request: Request, req: CustomGenerateRequest):
+    """
+    Generate image from a custom prompt (no preset style).
+
+    Used by the inline Gemini processor on product pages.
+    Same rate limiting and caching as named styles.
+    Returns 400 (not 500) on safety blocks.
+    """
+    client_ip = request.client.host
+    identifiers = {
+        "customer_id": req.customer_id,
+        "session_id": req.session_id,
+        "ip_address": client_ip
+    }
+
+    try:
+        # 1. Check rate limit (custom prompts: 3/day — separate pool)
+        quota_before = await rate_limiter.check_rate_limit(**identifiers, quota_type="custom")
+        if not quota_before.allowed:
+            raise HTTPException(
+                status_code=429,
+                detail=f"Rate limit exceeded. Resets at {quota_before.reset_time}"
+            )
+
+        # 2. Store original
+        original_url, original_hash = await storage_manager.store_original_image(
+            image_data=req.image_data,
+            customer_id=req.customer_id,
+            session_id=req.session_id
+        )
+
+        # 3. Hash prompt for cache key
+        prompt_hash = hashlib.sha256(req.prompt.encode('utf-8')).hexdigest()
+
+        # 4. Check cache
+        cached_url = await storage_manager.get_cached_generation(
+            image_hash=original_hash,
+            style="custom",
+            customer_id=req.customer_id,
+            session_id=req.session_id,
+            prompt_hash=prompt_hash
+        )
+
+        if cached_url:
+            logger.info(f"Cache hit: custom prompt {prompt_hash[:16]}")
+            return GenerateResponse(
+                success=True,
+                image_url=cached_url,
+                original_url=original_url,
+                style="custom",
+                cache_hit=True,
+                quota_remaining=quota_before.remaining,
+                quota_limit=quota_before.limit,
+                processing_time_ms=0,
+                warning_level=quota_before.warning_level
+            )
+
+        # 5. Generate with Gemini using custom prompt
+        generated_image, processing_time = await gemini_client.generate_from_custom_prompt(
+            image_data=req.image_data,
+            prompt=req.prompt
+        )
+
+        # 6. Store generated
+        generated_url = await storage_manager.store_generated_image(
+            image_data=generated_image,
+            original_hash=original_hash,
+            style="custom",
+            customer_id=req.customer_id,
+            session_id=req.session_id,
+            prompt_hash=prompt_hash,
+            prompt_text=req.prompt
+        )
+
+        # 7. Consume quota (custom pool)
+        quota_after = await rate_limiter.consume_quota(
+            **identifiers,
+            style="custom",
+            quota_type="custom"
+        )
+
+        return GenerateResponse(
+            success=True,
+            image_url=generated_url,
+            original_url=original_url,
+            style="custom",
+            cache_hit=False,
+            quota_remaining=quota_after.remaining,
+            quota_limit=quota_after.limit,
+            processing_time_ms=int(processing_time * 1000),
+            warning_level=quota_after.warning_level
+        )
+
+    except HTTPException:
+        raise
+    except ValueError as e:
+        error_msg = str(e)
+        if "safety_blocked" in error_msg:
+            raise HTTPException(
+                status_code=400,
+                detail="Your prompt was flagged by content safety filters. Please try a different description."
+            )
+        logger.error(f"Error generating custom style: {e}")
+        raise HTTPException(status_code=500, detail=error_msg)
+    except Exception as e:
+        logger.error(f"Error generating custom style: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
 @app.post("/api/v1/batch-generate", response_model=BatchGenerateResponse)
 async def batch_generate_styles(request: Request, req: BatchGenerateRequest):
     """
@@ -231,8 +350,8 @@ async def batch_generate_styles(request: Request, req: BatchGenerateRequest):
     }
 
     try:
-        # Check rate limit (need at least 2 remaining)
-        quota_before = await rate_limiter.check_rate_limit(**identifiers)
+        # Check rate limit (need at least 2 remaining, named pool)
+        quota_before = await rate_limiter.check_rate_limit(**identifiers, quota_type="named")
         if not quota_before.allowed or quota_before.remaining < 2:
             raise HTTPException(
                 status_code=429,
@@ -280,8 +399,8 @@ async def batch_generate_styles(request: Request, req: BatchGenerateRequest):
                 session_id=req.session_id
             )
 
-            # Consume quota
-            await rate_limiter.consume_quota(**identifiers, style=style.value)
+            # Consume quota (named pool)
+            await rate_limiter.consume_quota(**identifiers, style=style.value, quota_type="named")
 
             return StyleResult(
                 style=style.value,
@@ -313,8 +432,8 @@ async def batch_generate_styles(request: Request, req: BatchGenerateRequest):
 
         total_time = time.time() - start_total
 
-        # Final quota check
-        quota_after = await rate_limiter.check_rate_limit(**identifiers)
+        # Final quota check (named pool)
+        quota_after = await rate_limiter.check_rate_limit(**identifiers, quota_type="named")
 
         return BatchGenerateResponse(
             success=True,
@@ -346,21 +465,10 @@ async def generate_signed_upload_url(request: Request, req: SignedUrlRequest):
         - public_url: Final public URL after upload
         - upload_id: Unique identifier for this upload
     """
-    client_ip = request.client.host
-    identifiers = {
-        "customer_id": req.customer_id,
-        "session_id": req.session_id,
-        "ip_address": client_ip
-    }
-
     try:
-        # Rate limiting (prevent abuse) - 100 uploads per day per IP/customer
-        quota = await rate_limiter.check_rate_limit(**identifiers)
-        if quota.remaining < 1:
-            raise HTTPException(
-                status_code=429,
-                detail=f"Upload rate limit exceeded. Resets at {quota.reset_time}"
-            )
+        # No generation rate limit check here — uploads must work even when
+        # generation quota is exhausted (upload-only fallback for orders).
+        # Abuse prevention: signed URLs expire in 15 minutes + file size limits.
 
         # Generate unique path
         upload_id = str(uuid.uuid4())
