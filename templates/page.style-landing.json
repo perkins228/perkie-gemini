@@ -1,10 +1,12 @@
 {
   "name": "Style Landing Page",
   "sections": {
-    "style_landing": {
+    "main": {
       "type": "style-landing",
       "settings": {}
     }
   },
-  "order": ["style_landing"]
+  "order": [
+    "main"
+  ]
 }
