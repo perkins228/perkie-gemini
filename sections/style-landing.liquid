@@ -47,16 +47,14 @@
       <div class="style-landing__hero-media">
         {% if section.settings.hero_image != blank %}
           {%- assign hero_ratio = section.settings.hero_image_ratio -%}
-          {%- assign hero_class = 'style-landing__hero-img' -%}
-          {%- if hero_ratio != 'natural' -%}
-            {%- assign hero_class = hero_class | append: ' style-landing__hero-img--' | append: hero_ratio -%}
-          {%- endif -%}
-          {{ section.settings.hero_image | image_url: width: 800 | image_tag:
-            alt: section.settings.hero_image_alt,
-            loading: 'eager',
-            widths: '400, 600, 800',
-            class: hero_class
-          }}
+          <div class="style-landing__hero-media-inner{% if hero_ratio != 'natural' %} style-landing__hero-media-inner--{{ hero_ratio }}{% endif %}">
+            {{ section.settings.hero_image | image_url: width: 800 | image_tag:
+              alt: section.settings.hero_image_alt,
+              loading: 'eager',
+              widths: '400, 600, 800',
+              class: 'style-landing__hero-img'
+            }}
+          </div>
           {% if section.settings.show_before_after_badge %}
             <span class="style-landing__badge">Before → After</span>
           {% endif %}
@@ -127,20 +125,18 @@
           <p class="style-landing__section-subtitle">{{ section.settings.gallery_subtitle }}</p>
         {% endif %}
         {%- assign gallery_ratio = section.settings.gallery_image_ratio -%}
-        {%- assign gallery_img_class = 'style-landing__gallery-img' -%}
-        {%- if gallery_ratio != 'natural' -%}
-          {%- assign gallery_img_class = gallery_img_class | append: ' style-landing__gallery-img--' | append: gallery_ratio -%}
-        {%- endif -%}
         <div class="style-landing__gallery-grid style-landing__gallery-grid--{{ gallery_blocks.size }}">
           {% for block in gallery_blocks %}
             <div class="style-landing__gallery-item" {{ block.shopify_attributes }}>
               {% if block.settings.image != blank %}
-                {{ block.settings.image | image_url: width: 600 | image_tag:
-                  alt: block.settings.image_alt,
-                  loading: 'lazy',
-                  widths: '300, 450, 600',
-                  class: gallery_img_class
-                }}
+                <div class="style-landing__gallery-media{% if gallery_ratio != 'natural' %} style-landing__gallery-media--{{ gallery_ratio }}{% endif %}">
+                  {{ block.settings.image | image_url: width: 600 | image_tag:
+                    alt: block.settings.image_alt,
+                    loading: 'lazy',
+                    widths: '300, 450, 600',
+                    class: 'style-landing__gallery-img'
+                  }}
+                </div>
               {% else %}
                 <div class="style-landing__placeholder style-landing__placeholder--gallery{% if gallery_ratio != 'natural' %} style-landing__placeholder--{{ gallery_ratio }}{% endif %}">
                   {{ 'image' | placeholder_svg_tag }}
@@ -212,10 +208,6 @@
           <p class="style-landing__section-subtitle">{{ section.settings.products_subtitle }}</p>
         {% endif %}
         {%- assign product_ratio = section.settings.products_image_ratio -%}
-        {%- assign product_img_class = 'style-landing__product-img' -%}
-        {%- if product_ratio != 'natural' -%}
-          {%- assign product_img_class = product_img_class | append: ' style-landing__product-img--' | append: product_ratio -%}
-        {%- endif -%}
         <div class="style-landing__products-carousel-wrapper">
           <button type="button" class="style-landing__carousel-btn style-landing__carousel-btn--prev" aria-label="Previous products" data-carousel-prev>‹</button>
           <div class="style-landing__products-carousel" data-products-carousel>
@@ -223,12 +215,14 @@
               <div class="style-landing__product-card">
                 <a href="{{ product.url }}" class="style-landing__product-link">
                   {% if product.featured_image != blank %}
-                    {{ product.featured_image | image_url: width: 400 | image_tag:
-                      alt: product.title,
-                      loading: 'lazy',
-                      widths: '200, 300, 400',
-                      class: product_img_class
-                    }}
+                    <div class="style-landing__product-media{% if product_ratio != 'natural' %} style-landing__product-media--{{ product_ratio }}{% endif %}">
+                      {{ product.featured_image | image_url: width: 400 | image_tag:
+                        alt: product.title,
+                        loading: 'lazy',
+                        widths: '200, 300, 400',
+                        class: 'style-landing__product-img'
+                      }}
+                    </div>
                   {% endif %}
                   <h3 class="style-landing__product-title">{{ product.title }}</h3>
                   <p class="style-landing__product-price">{{ product.price | money }}</p>
