@@ -211,23 +211,32 @@
         {% if section.settings.products_subtitle != blank %}
           <p class="style-landing__section-subtitle">{{ section.settings.products_subtitle }}</p>
         {% endif %}
-        <div class="style-landing__products-grid">
-          {% for product in section.settings.products_collection.products limit: section.settings.products_limit %}
-            <div class="style-landing__product-card">
-              <a href="{{ product.url }}" class="style-landing__product-link">
-                {% if product.featured_image != blank %}
-                  {{ product.featured_image | image_url: width: 400 | image_tag:
-                    alt: product.title,
-                    loading: 'lazy',
-                    widths: '200, 300, 400',
-                    class: 'style-landing__product-img'
-                  }}
-                {% endif %}
-                <h3 class="style-landing__product-title">{{ product.title }}</h3>
-                <p class="style-landing__product-price">{{ product.price | money }}</p>
-              </a>
-            </div>
-          {% endfor %}
+        {%- assign product_ratio = section.settings.products_image_ratio -%}
+        {%- assign product_img_class = 'style-landing__product-img' -%}
+        {%- if product_ratio != 'natural' -%}
+          {%- assign product_img_class = product_img_class | append: ' style-landing__product-img--' | append: product_ratio -%}
+        {%- endif -%}
+        <div class="style-landing__products-carousel-wrapper">
+          <button type="button" class="style-landing__carousel-btn style-landing__carousel-btn--prev" aria-label="Previous products" data-carousel-prev>‹</button>
+          <div class="style-landing__products-carousel" data-products-carousel>
+            {% for product in section.settings.products_collection.products limit: section.settings.products_limit %}
+              <div class="style-landing__product-card">
+                <a href="{{ product.url }}" class="style-landing__product-link">
+                  {% if product.featured_image != blank %}
+                    {{ product.featured_image | image_url: width: 400 | image_tag:
+                      alt: product.title,
+                      loading: 'lazy',
+                      widths: '200, 300, 400',
+                      class: product_img_class
+                    }}
+                  {% endif %}
+                  <h3 class="style-landing__product-title">{{ product.title }}</h3>
+                  <p class="style-landing__product-price">{{ product.price | money }}</p>
+                </a>
+              </div>
+            {% endfor %}
+          </div>
+          <button type="button" class="style-landing__carousel-btn style-landing__carousel-btn--next" aria-label="Next products" data-carousel-next>›</button>
         </div>
       </div>
     </section>
@@ -314,6 +323,43 @@
   </section>
 
 </div>
+
+<script>
+  (function() {
+    var wrappers = document.querySelectorAll('.style-landing__products-carousel-wrapper');
+    for (var i = 0; i < wrappers.length; i++) {
+      (function(wrapper) {
+        var carousel = wrapper.querySelector('[data-products-carousel]');
+        var prevBtn = wrapper.querySelector('[data-carousel-prev]');
+        var nextBtn = wrapper.querySelector('[data-carousel-next]');
+        if (!carousel) return;
+
+        var scrollAmount = function() {
+          var card = carousel.querySelector('.style-landing__product-card');
+          return card ? card.offsetWidth + 20 : 220;
+        };
+
+        var updateButtons = function() {
+          var atStart = carousel.scrollLeft <= 4;
+          var atEnd = carousel.scrollLeft + carousel.offsetWidth >= carousel.scrollWidth - 4;
+          prevBtn.style.display = atStart ? 'none' : '';
+          nextBtn.style.display = atEnd ? 'none' : '';
+        };
+
+        prevBtn.addEventListener('click', function() {
+          carousel.scrollBy({ left: -scrollAmount(), behavior: 'smooth' });
+        });
+        nextBtn.addEventListener('click', function() {
+          carousel.scrollBy({ left: scrollAmount(), behavior: 'smooth' });
+        });
+
+        carousel.addEventListener('scroll', updateButtons);
+        window.addEventListener('resize', updateButtons);
+        updateButtons();
+      })(wrappers[i]);
+    }
+  })();
+</script>
 
 {% schema %}
 {
@@ -515,6 +561,18 @@
       "id": "products_subtitle",
       "label": "Subtitle",
       "default": "Every product features your pet's custom portrait in this style"
+    },
+    {
+      "type": "select",
+      "id": "products_image_ratio",
+      "label": "Product image ratio",
+      "default": "square",
+      "options": [
+        { "value": "natural", "label": "Natural" },
+        { "value": "square", "label": "Square (1:1)" },
+        { "value": "portrait", "label": "Portrait (3:4)" },
+        { "value": "landscape", "label": "Landscape (4:3)" }
+      ]
     },
     {
       "type": "range",

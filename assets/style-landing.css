@@ -422,20 +422,66 @@
   font-style: italic;
 }
 
-/* ===== PRODUCTS ===== */
+/* ===== PRODUCTS CAROUSEL ===== */
 .style-landing__products {
   padding: 60px 0;
 }
 
-.style-landing__products-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 24px;
+.style-landing__products-carousel-wrapper {
+  position: relative;
   margin-top: 36px;
 }
 
+.style-landing__products-carousel {
+  display: flex;
+  gap: 20px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  padding: 4px 0 12px;
+}
+
+.style-landing__products-carousel::-webkit-scrollbar {
+  display: none;
+}
+
 .style-landing__product-card {
+  flex: 0 0 200px;
+  scroll-snap-align: start;
   text-align: center;
+}
+
+.style-landing__carousel-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-70%);
+  z-index: 2;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1px solid #ddd;
+  background: #fff;
+  box-shadow: var(--sl-shadow);
+  font-size: 22px;
+  line-height: 1;
+  color: #333;
+  cursor: pointer;
+  transition: box-shadow var(--sl-transition), background var(--sl-transition);
+}
+
+.style-landing__carousel-btn:hover {
+  box-shadow: var(--sl-shadow-hover);
+  background: #f9f9f9;
+}
+
+.style-landing__carousel-btn--prev {
+  left: -16px;
+}
+
+.style-landing__carousel-btn--next {
+  right: -16px;
 }
 
 .style-landing__product-link {
@@ -446,11 +492,15 @@
 .style-landing__product-img {
   border-radius: var(--sl-radius-sm);
   width: 100%;
-  aspect-ratio: 1;
   object-fit: cover;
   margin-bottom: 12px;
   transition: transform var(--sl-transition);
 }
+
+/* Product image ratio variants */
+.style-landing__product-img--square { aspect-ratio: 1 / 1; }
+.style-landing__product-img--portrait { aspect-ratio: 3 / 4; }
+.style-landing__product-img--landscape { aspect-ratio: 4 / 3; }
 
 .style-landing__product-card:hover .style-landing__product-img {
   transform: scale(1.03);
@@ -637,9 +687,12 @@
     grid-template-columns: 1fr;
   }
 
-  .style-landing__products-grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 16px;
+  .style-landing__product-card {
+    flex: 0 0 160px;
+  }
+
+  .style-landing__carousel-btn {
+    display: none;
   }
 
   .style-landing__final-cta {
