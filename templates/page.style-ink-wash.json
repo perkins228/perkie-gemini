@@ -1,0 +1,122 @@
+{
+  "name": "Style — Ink Wash",
+  "sections": {
+    "style-landing": {
+      "type": "style-landing",
+      "settings": {
+        "accent_color": "#4A6D8C",
+        "eyebrow_text": "Perkie Prints Art Style",
+        "heading": "",
+        "subtitle": "Inspired by traditional East Asian brush painting. Flowing ink captures your pet with elegant simplicity. See it free before you buy.",
+        "hero_image": "",
+        "hero_image_alt": "Custom ink wash pet portrait from photo in sumi-e style",
+        "show_before_after_badge": true,
+        "cta_text": "See Your Pet in Ink Wash — Free",
+        "cta_url": "/pages/custom-image-processing",
+        "secondary_cta_text": "See all styles",
+        "secondary_cta_url": "",
+        "preview_banner_heading": "Free Instant Preview",
+        "preview_banner_text": "Upload your photo and see this style applied to your pet — no cost, no commitment.",
+        "audience_heading": "Who It's For",
+        "gallery_heading": "See It in Action",
+        "gallery_subtitle": "Real customer photos transformed into elegant ink wash portraits",
+        "reasons_heading": "Why Customers Love This Style",
+        "lifestyle_image": "",
+        "lifestyle_image_alt": "Ink wash pet portrait displayed in a serene, minimalist room",
+        "lifestyle_caption": "",
+        "products_collection": "",
+        "products_heading": "Available Products",
+        "products_subtitle": "Every product features your pet's custom ink wash portrait",
+        "products_limit": 6,
+        "compare_heading": "Not sure this is your style?",
+        "compare_text": "Upload one photo and see your pet in every style — completely free. Compare them side by side and choose the one that feels right.",
+        "compare_image": "",
+        "compare_image_alt": "Same pet shown in four different Perkie Prints art styles",
+        "faq_heading": "Frequently Asked Questions",
+        "final_cta_heading": "Ready to See Your Pet in Ink Wash?",
+        "final_cta_text": "Upload your favorite photo and preview this style instantly — completely free.",
+        "trust_text": "No account needed · Takes 30 seconds · 100% free"
+      },
+      "blocks": {
+        "audience-1": {
+          "type": "audience_card",
+          "settings": {
+            "icon": "🎋",
+            "card_title": "Lovers of East Asian art",
+            "card_description": "Inspired by sumi-e and traditional brush painting — a style with centuries of artistic heritage."
+          }
+        },
+        "audience-2": {
+          "type": "audience_card",
+          "settings": {
+            "icon": "✨",
+            "card_title": "Minimalists & zen seekers",
+            "card_description": "Flowing ink, negative space, and quiet elegance. Perfect for calm, uncluttered spaces."
+          }
+        },
+        "audience-3": {
+          "type": "audience_card",
+          "settings": {
+            "icon": "🎁",
+            "card_title": "Unique gift seekers",
+            "card_description": "A truly one-of-a-kind gift that stands apart from anything they've seen before."
+          }
+        },
+        "reason-1": {
+          "type": "reason",
+          "settings": {
+            "reason_icon": "✓",
+            "reason_title": "Free instant preview",
+            "reason_description": "See exactly what your portrait will look like before you spend a dollar."
+          }
+        },
+        "reason-2": {
+          "type": "reason",
+          "settings": {
+            "reason_icon": "✓",
+            "reason_title": "Artistic heritage",
+            "reason_description": "Inspired by centuries-old brush painting traditions — elevated, not generic."
+          }
+        },
+        "reason-3": {
+          "type": "reason",
+          "settings": {
+            "reason_icon": "✓",
+            "reason_title": "20+ products available",
+            "reason_description": "Put your custom portrait on frames, mugs, apparel, phone cases, and more."
+          }
+        },
+        "faq-1": {
+          "type": "faq",
+          "settings": {
+            "question": "How does the free preview work?",
+            "answer": "<p>Upload any photo of your pet and you'll instantly see it transformed into an elegant ink wash portrait — completely free, no account required. If you love it, you can order it on any of our 20+ products.</p>"
+          }
+        },
+        "faq-2": {
+          "type": "faq",
+          "settings": {
+            "question": "What is ink wash style?",
+            "answer": "<p>Ink wash (also called sumi-e) is a traditional East Asian brush painting technique that uses flowing ink and water to create soft, expressive images. It emphasizes simplicity, movement, and the beauty of negative space.</p>"
+          }
+        },
+        "faq-3": {
+          "type": "faq",
+          "settings": {
+            "question": "What kind of photo works best?",
+            "answer": "<p>Any clear photo where your pet's face is visible works well. Phone photos are perfect. The ink wash style beautifully captures your pet's expression and posture.</p>"
+          }
+        },
+        "faq-4": {
+          "type": "faq",
+          "settings": {
+            "question": "Can I see my pet in other styles too?",
+            "answer": "<p>Absolutely! When you upload your photo, you'll see your pet in all available styles side by side. You can compare and choose the one that speaks to you — or order more than one.</p>"
+          }
+        }
+      },
+      "block_order": ["audience-1", "audience-2", "audience-3", "reason-1", "reason-2", "reason-3", "faq-1", "faq-2", "faq-3", "faq-4"]
+    }
+  },
+  "order": ["style-landing"]
+}

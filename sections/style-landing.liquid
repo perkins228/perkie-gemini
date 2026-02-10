@@ -1,33 +1,41 @@
 {% comment %}
-  PERKIE PRINTS — Style Landing Page Section
-  ============================================
-  Reusable section for individual art style pages (B&W, Color, Ink Wash, Marker, + future styles).
-  
+  PERKIE PRINTS — Style Landing Page Section (Hybrid)
+  =====================================================
+  Page body copy lives in the Shopify page editor (rich text).
+  Structured visual components live here as section settings + blocks.
+
   SETUP:
   1. Copy this file to: sections/style-landing.liquid
-  2. Create template: templates/page.style-landing.json (see companion file)
-  3. In Shopify Admin → Pages → Create page for each style
-  4. Assign the "style-landing" template to each page
-  5. Customize via Theme Editor — all content is editable in the sidebar
+  2. Add style-landing.css to: assets/style-landing.css
+  3. Create one JSON template per style in templates/ (see companion files)
+  4. Create Pages in Shopify Admin, assign matching template, write copy in page editor
+  5. Customize visual components (hero, gallery, FAQ, etc.) via Theme Editor
 
-  Each style page gets its own Page in Shopify with this shared template.
-  Swap copy, images, and colors per style — no code changes needed for new styles.
+  CONTENT FLOW:
+  Hero → Preview Banner → {{ page.content }} → Who It's For → Gallery →
+  Why They Love It → Lifestyle → Products → Comparison → FAQ → Final CTA
 {% endcomment %}
 
 {{ 'style-landing.css' | asset_url | stylesheet_tag }}
 
 <div class="style-landing" style="--style-accent: {{ section.settings.accent_color }}; --style-accent-light: {{ section.settings.accent_color }}1a;">
 
-  {%- comment -%} ===== HERO SECTION ===== {%- endcomment -%}
+  {%- comment -%} ===== HERO ===== {%- endcomment -%}
   <section class="style-landing__hero">
     <div class="page-width style-landing__hero-inner">
       <div class="style-landing__hero-content">
-        <p class="style-landing__eyebrow">{{ section.settings.eyebrow_text }}</p>
-        <h1 class="style-landing__title">{{ section.settings.heading }}</h1>
-        <div class="style-landing__subtitle rte">{{ section.settings.subtitle }}</div>
+        {% if section.settings.eyebrow_text != blank %}
+          <p class="style-landing__eyebrow">{{ section.settings.eyebrow_text }}</p>
+        {% endif %}
+        <h1 class="style-landing__title">
+          {{ section.settings.heading | default: page.title }}
+        </h1>
+        {% if section.settings.subtitle != blank %}
+          <p class="style-landing__subtitle">{{ section.settings.subtitle }}</p>
+        {% endif %}
         <div class="style-landing__hero-ctas">
-          <a href="{{ section.settings.cta_url }}" class="style-landing__cta-primary button button--primary">
-            {{ section.settings.cta_text }}
+          <a href="{{ section.settings.cta_url | default: '/pages/custom-image-processing' }}" class="style-landing__cta-primary button button--primary">
+            {{ section.settings.cta_text | default: 'See Your Pet in This Style — Free' }}
           </a>
           {% if section.settings.secondary_cta_text != blank %}
             <a href="{{ section.settings.secondary_cta_url }}" class="style-landing__cta-secondary">
@@ -36,7 +44,7 @@
           {% endif %}
         </div>
       </div>
-      <div class="style-landing__hero-image">
+      <div class="style-landing__hero-media">
         {% if section.settings.hero_image != blank %}
           {{ section.settings.hero_image | image_url: width: 800 | image_tag:
             alt: section.settings.hero_image_alt,
@@ -44,13 +52,13 @@
             widths: '400, 600, 800',
             class: 'style-landing__hero-img'
           }}
+          {% if section.settings.show_before_after_badge %}
+            <span class="style-landing__badge">Before → After</span>
+          {% endif %}
         {% else %}
           <div class="style-landing__placeholder">
             {{ 'image' | placeholder_svg_tag }}
           </div>
-        {% endif %}
-        {% if section.settings.show_before_after_badge %}
-          <span class="style-landing__badge">Before → After</span>
         {% endif %}
       </div>
     </div>
@@ -60,50 +68,37 @@
   <section class="style-landing__preview-banner">
     <div class="page-width">
       <div class="style-landing__preview-banner-inner">
-        <div class="style-landing__preview-icon">
-          {% render 'icon-eye' %}
-          <span>✨</span>
-        </div>
+        <div class="style-landing__preview-icon">✨</div>
         <div class="style-landing__preview-text">
           <strong>{{ section.settings.preview_banner_heading | default: 'Free Instant Preview' }}</strong>
           <span>{{ section.settings.preview_banner_text | default: 'Upload your photo and see this style applied to your pet — no cost, no commitment.' }}</span>
         </div>
-        <a href="{{ section.settings.cta_url }}" class="button button--secondary style-landing__preview-btn">
+        <a href="{{ section.settings.cta_url | default: '/pages/custom-image-processing' }}" class="button button--secondary style-landing__preview-btn">
           Try It Free
         </a>
       </div>
     </div>
   </section>
 
-  {%- comment -%} ===== ABOUT THE STYLE ===== {%- endcomment -%}
-  <section class="style-landing__about">
-    <div class="page-width">
-      <div class="style-landing__about-grid">
-        <div class="style-landing__about-content">
-          <h2>{{ section.settings.about_heading }}</h2>
-          <div class="style-landing__about-body rte">{{ section.settings.about_body }}</div>
-        </div>
-        <div class="style-landing__about-image">
-          {% if section.settings.detail_image != blank %}
-            {{ section.settings.detail_image | image_url: width: 700 | image_tag:
-              alt: section.settings.detail_image_alt,
-              loading: 'lazy',
-              widths: '350, 500, 700',
-              class: 'style-landing__detail-img'
-            }}
-          {% endif %}
+  {%- comment -%} ===== PAGE BODY CONTENT (from Shopify page editor) ===== {%- endcomment -%}
+  {% if page.content != blank %}
+    <section class="style-landing__body">
+      <div class="page-width">
+        <div class="style-landing__body-content rte">
+          {{ page.content }}
         </div>
       </div>
-    </div>
-  </section>
+    </section>
+  {% endif %}
 
   {%- comment -%} ===== WHO IT'S FOR ===== {%- endcomment -%}
-  <section class="style-landing__audience">
-    <div class="page-width">
-      <h2 class="style-landing__section-heading">{{ section.settings.audience_heading | default: "Who It's For" }}</h2>
-      <div class="style-landing__audience-grid">
-        {% for block in section.blocks %}
-          {% if block.type == 'audience_card' %}
+  {% assign audience_blocks = section.blocks | where: 'type', 'audience_card' %}
+  {% if audience_blocks.size > 0 %}
+    <section class="style-landing__audience">
+      <div class="page-width">
+        <h2 class="style-landing__section-heading">{{ section.settings.audience_heading | default: "Who It's For" }}</h2>
+        <div class="style-landing__audience-grid">
+          {% for block in audience_blocks %}
             <div class="style-landing__audience-card" {{ block.shopify_attributes }}>
               {% if block.settings.icon != blank %}
                 <span class="style-landing__audience-icon">{{ block.settings.icon }}</span>
@@ -111,20 +106,23 @@
               <h3>{{ block.settings.card_title }}</h3>
               <p>{{ block.settings.card_description }}</p>
             </div>
-          {% endif %}
-        {% endfor %}
+          {% endfor %}
+        </div>
       </div>
-    </div>
-  </section>
+    </section>
+  {% endif %}
 
-  {%- comment -%} ===== GALLERY / EXAMPLES ===== {%- endcomment -%}
-  <section class="style-landing__gallery">
-    <div class="page-width">
-      <h2 class="style-landing__section-heading">{{ section.settings.gallery_heading | default: 'See It in Action' }}</h2>
-      <p class="style-landing__section-subtitle">{{ section.settings.gallery_subtitle }}</p>
-      <div class="style-landing__gallery-grid">
-        {% for block in section.blocks %}
-          {% if block.type == 'gallery_image' %}
+  {%- comment -%} ===== GALLERY ===== {%- endcomment -%}
+  {% assign gallery_blocks = section.blocks | where: 'type', 'gallery_image' %}
+  {% if gallery_blocks.size > 0 %}
+    <section class="style-landing__gallery">
+      <div class="page-width">
+        <h2 class="style-landing__section-heading">{{ section.settings.gallery_heading | default: 'See It in Action' }}</h2>
+        {% if section.settings.gallery_subtitle != blank %}
+          <p class="style-landing__section-subtitle">{{ section.settings.gallery_subtitle }}</p>
+        {% endif %}
+        <div class="style-landing__gallery-grid style-landing__gallery-grid--{{ gallery_blocks.size }}">
+          {% for block in gallery_blocks %}
             <div class="style-landing__gallery-item" {{ block.shopify_attributes }}>
               {% if block.settings.image != blank %}
                 {{ block.settings.image | image_url: width: 600 | image_tag:
@@ -142,24 +140,25 @@
                 <p class="style-landing__gallery-caption">{{ block.settings.caption }}</p>
               {% endif %}
             </div>
-          {% endif %}
-        {% endfor %}
+          {% endfor %}
+        </div>
+        <div class="style-landing__gallery-cta">
+          <a href="{{ section.settings.cta_url | default: '/pages/custom-image-processing' }}" class="button button--primary">
+            {{ section.settings.cta_text | default: 'See Your Pet in This Style — Free' }}
+          </a>
+        </div>
       </div>
-      <div class="style-landing__gallery-cta">
-        <a href="{{ section.settings.cta_url }}" class="button button--primary">
-          {{ section.settings.cta_text }}
-        </a>
-      </div>
-    </div>
-  </section>
+    </section>
+  {% endif %}
 
   {%- comment -%} ===== WHY CUSTOMERS LOVE IT ===== {%- endcomment -%}
-  <section class="style-landing__reasons">
-    <div class="page-width">
-      <h2 class="style-landing__section-heading">{{ section.settings.reasons_heading | default: 'Why Customers Love This Style' }}</h2>
-      <div class="style-landing__reasons-grid">
-        {% for block in section.blocks %}
-          {% if block.type == 'reason' %}
+  {% assign reason_blocks = section.blocks | where: 'type', 'reason' %}
+  {% if reason_blocks.size > 0 %}
+    <section class="style-landing__reasons">
+      <div class="page-width">
+        <h2 class="style-landing__section-heading">{{ section.settings.reasons_heading | default: 'Why Customers Love This Style' }}</h2>
+        <div class="style-landing__reasons-grid">
+          {% for block in reason_blocks %}
             <div class="style-landing__reason" {{ block.shopify_attributes }}>
               <span class="style-landing__reason-icon">{{ block.settings.reason_icon | default: '✓' }}</span>
               <div>
@@ -169,13 +168,13 @@
                 {% endif %}
               </div>
             </div>
-          {% endif %}
-        {% endfor %}
+          {% endfor %}
+        </div>
       </div>
-    </div>
-  </section>
+    </section>
+  {% endif %}
 
-  {%- comment -%} ===== LIFESTYLE IMAGE (full-width) ===== {%- endcomment -%}
+  {%- comment -%} ===== LIFESTYLE IMAGE ===== {%- endcomment -%}
   {% if section.settings.lifestyle_image != blank %}
     <section class="style-landing__lifestyle">
       <div class="page-width">
@@ -199,7 +198,9 @@
     <section class="style-landing__products">
       <div class="page-width">
         <h2 class="style-landing__section-heading">{{ section.settings.products_heading | default: 'Available Products' }}</h2>
-        <p class="style-landing__section-subtitle">{{ section.settings.products_subtitle }}</p>
+        {% if section.settings.products_subtitle != blank %}
+          <p class="style-landing__section-subtitle">{{ section.settings.products_subtitle }}</p>
+        {% endif %}
         <div class="style-landing__products-grid">
           {% for product in section.settings.products_collection.products limit: section.settings.products_limit %}
             <div class="style-landing__product-card">
@@ -229,7 +230,7 @@
         <div class="style-landing__compare-content">
           <h2>{{ section.settings.compare_heading | default: 'Not sure this is your style?' }}</h2>
           <p>{{ section.settings.compare_text | default: 'Upload one photo and see your pet in every style — completely free. Compare them side by side and choose the one that feels right.' }}</p>
-          <a href="{{ section.settings.cta_url }}" class="button button--primary">
+          <a href="{{ section.settings.cta_url | default: '/pages/custom-image-processing' }}" class="button button--primary">
             See All Styles Free
           </a>
         </div>
@@ -246,7 +247,7 @@
     </div>
   </section>
 
-  {%- comment -%} ===== FAQ SECTION (with Schema Markup) ===== {%- endcomment -%}
+  {%- comment -%} ===== FAQ (with Schema Markup) ===== {%- endcomment -%}
   {% assign faq_blocks = section.blocks | where: 'type', 'faq' %}
   {% if faq_blocks.size > 0 %}
     <section class="style-landing__faq">
@@ -268,7 +269,6 @@
       </div>
     </section>
 
-    {%- comment -%} FAQ Schema Markup for SEO {%- endcomment -%}
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
@@ -295,8 +295,8 @@
       <div class="style-landing__final-cta-inner">
         <h2>{{ section.settings.final_cta_heading | default: 'Ready to See Your Pet as Art?' }}</h2>
         <p>{{ section.settings.final_cta_text | default: 'Upload your favorite photo and preview this style instantly — completely free.' }}</p>
-        <a href="{{ section.settings.cta_url }}" class="button button--primary style-landing__cta-large">
-          {{ section.settings.cta_text }}
+        <a href="{{ section.settings.cta_url | default: '/pages/custom-image-processing' }}" class="button button--primary style-landing__cta-large">
+          {{ section.settings.cta_text | default: 'See Your Pet in This Style — Free' }}
         </a>
         <p class="style-landing__trust-line">{{ section.settings.trust_text | default: 'No account needed · Takes 30 seconds · 100% free' }}</p>
       </div>
@@ -313,14 +313,14 @@
   "settings": [
     {
       "type": "header",
-      "content": "🎨 Style Settings"
+      "content": "🎨 Style Accent Color"
     },
     {
       "type": "color",
       "id": "accent_color",
       "label": "Accent color",
       "default": "#E8615A",
-      "info": "Used for highlights, badges, and hover states. Choose a color that represents this art style."
+      "info": "Tints the entire page — badges, icons, buttons, hover states. Set a different color per style."
     },
     {
       "type": "header",
@@ -331,53 +331,53 @@
       "id": "eyebrow_text",
       "label": "Eyebrow text",
       "default": "Perkie Prints Art Style",
-      "info": "Small text above the main heading"
+      "info": "Small text above the H1. E.g., 'Perkie Prints Art Style' or 'Our Signature Style'"
     },
     {
       "type": "text",
       "id": "heading",
-      "label": "Page heading (H1)",
-      "default": "Custom Black & White Pet Portrait From Your Photo"
+      "label": "H1 heading",
+      "info": "Leave blank to use the page title from the page editor"
     },
     {
-      "type": "richtext",
+      "type": "text",
       "id": "subtitle",
-      "label": "Subtitle / intro text",
-      "default": "<p>Transform your favorite photo into a stunning work of art. See the result before you buy — completely free.</p>"
+      "label": "Subtitle",
+      "default": "Transform your favorite photo into a stunning work of art. See the result before you buy — completely free."
     },
     {
       "type": "image_picker",
       "id": "hero_image",
       "label": "Hero image",
-      "info": "Before/after transformation or hero portrait. Recommended: 800x600px."
+      "info": "Before/after transformation or hero portrait. Recommended: 800×600px."
     },
     {
       "type": "text",
       "id": "hero_image_alt",
       "label": "Hero image alt text",
-      "info": "Describe the image for SEO. E.g., 'Custom black and white dog portrait from photo'"
+      "info": "SEO alt text. E.g., 'Custom black and white dog portrait from photo'"
     },
     {
       "type": "checkbox",
       "id": "show_before_after_badge",
-      "label": "Show 'Before → After' badge on hero image",
+      "label": "Show 'Before → After' badge",
       "default": true
     },
     {
       "type": "header",
-      "content": "Call to Action"
+      "content": "CTA Buttons (used across the page)"
     },
     {
       "type": "text",
       "id": "cta_text",
-      "label": "Primary CTA button text",
+      "label": "Primary CTA text",
       "default": "See Your Pet in This Style — Free"
     },
     {
       "type": "url",
       "id": "cta_url",
       "label": "Primary CTA link",
-      "info": "Should link to the free preview page"
+      "default": "/pages/custom-image-processing"
     },
     {
       "type": "text",
@@ -403,35 +403,8 @@
     {
       "type": "text",
       "id": "preview_banner_text",
-      "label": "Banner text",
+      "label": "Banner description",
       "default": "Upload your photo and see this style applied to your pet — no cost, no commitment."
-    },
-    {
-      "type": "header",
-      "content": "About the Style"
-    },
-    {
-      "type": "text",
-      "id": "about_heading",
-      "label": "About section heading",
-      "default": "About This Style"
-    },
-    {
-      "type": "richtext",
-      "id": "about_body",
-      "label": "About section body",
-      "default": "<p>Describe the artistic approach, what makes this style unique, and the emotional quality it brings to pet portraits.</p>"
-    },
-    {
-      "type": "image_picker",
-      "id": "detail_image",
-      "label": "Detail / close-up image",
-      "info": "Close-up showing the style's artistic characteristics. Recommended: 700x700px."
-    },
-    {
-      "type": "text",
-      "id": "detail_image_alt",
-      "label": "Detail image alt text"
     },
     {
       "type": "header",
@@ -476,8 +449,8 @@
     {
       "type": "image_picker",
       "id": "lifestyle_image",
-      "label": "Full-width lifestyle image",
-      "info": "Portrait displayed in a real home setting. Recommended: 1200x600px."
+      "label": "Lifestyle image",
+      "info": "Portrait displayed in a real home. Recommended: 1200×600px."
     },
     {
       "type": "text",
@@ -487,28 +460,27 @@
     {
       "type": "text",
       "id": "lifestyle_caption",
-      "label": "Lifestyle image caption (optional)"
+      "label": "Caption (optional)"
     },
     {
       "type": "header",
-      "content": "Available Products"
+      "content": "Products"
     },
     {
       "type": "collection",
       "id": "products_collection",
-      "label": "Products collection",
-      "info": "Select a collection to show products available in this style"
+      "label": "Products collection"
     },
     {
       "type": "text",
       "id": "products_heading",
-      "label": "Products heading",
+      "label": "Section heading",
       "default": "Available Products"
     },
     {
       "type": "text",
       "id": "products_subtitle",
-      "label": "Products subtitle",
+      "label": "Subtitle",
       "default": "Every product features your pet's custom portrait in this style"
     },
     {
@@ -522,25 +494,25 @@
     },
     {
       "type": "header",
-      "content": "Style Comparison Callout"
+      "content": "Style Comparison"
     },
     {
       "type": "text",
       "id": "compare_heading",
-      "label": "Comparison heading",
+      "label": "Heading",
       "default": "Not sure this is your style?"
     },
     {
       "type": "text",
       "id": "compare_text",
-      "label": "Comparison text",
+      "label": "Body text",
       "default": "Upload one photo and see your pet in every style — completely free. Compare them side by side and choose the one that feels right."
     },
     {
       "type": "image_picker",
       "id": "compare_image",
       "label": "Comparison image",
-      "info": "Show same pet in multiple styles side by side"
+      "info": "Same pet shown in multiple styles"
     },
     {
       "type": "text",
@@ -549,7 +521,7 @@
     },
     {
       "type": "header",
-      "content": "FAQ Section"
+      "content": "FAQ"
     },
     {
       "type": "text",
@@ -564,19 +536,19 @@
     {
       "type": "text",
       "id": "final_cta_heading",
-      "label": "Final CTA heading",
+      "label": "Heading",
       "default": "Ready to See Your Pet as Art?"
     },
     {
       "type": "text",
       "id": "final_cta_text",
-      "label": "Final CTA body text",
+      "label": "Body text",
       "default": "Upload your favorite photo and preview this style instantly — completely free."
     },
     {
       "type": "text",
       "id": "trust_text",
-      "label": "Trust line below CTA",
+      "label": "Trust line",
       "default": "No account needed · Takes 30 seconds · 100% free"
     }
   ],
@@ -595,13 +567,13 @@
         {
           "type": "text",
           "id": "card_title",
-          "label": "Card title",
+          "label": "Title",
           "default": "Minimalist pet lovers"
         },
         {
           "type": "text",
           "id": "card_description",
-          "label": "Card description",
+          "label": "Description",
           "default": "If you love clean, elegant aesthetics — this style was made for you."
         }
       ]
@@ -619,8 +591,7 @@
         {
           "type": "text",
           "id": "image_alt",
-          "label": "Alt text",
-          "info": "Describe the image for SEO"
+          "label": "Alt text"
         },
         {
           "type": "text",
@@ -677,72 +648,39 @@
       "blocks": [
         {
           "type": "audience_card",
-          "settings": {
-            "icon": "🖤",
-            "card_title": "Minimalist pet lovers",
-            "card_description": "Clean lines, dramatic contrast, and a timeless aesthetic that fits any decor."
-          }
+          "settings": { "icon": "🖤", "card_title": "Minimalist pet lovers", "card_description": "Clean lines, dramatic contrast, and a timeless aesthetic that fits any decor." }
         },
         {
           "type": "audience_card",
-          "settings": {
-            "icon": "🎁",
-            "card_title": "Gift givers",
-            "card_description": "A meaningful, personalized gift that shows you really get the pet lover in your life."
-          }
+          "settings": { "icon": "🎁", "card_title": "Gift givers", "card_description": "A meaningful, personalized gift that shows you really get the pet lover in your life." }
         },
         {
           "type": "audience_card",
-          "settings": {
-            "icon": "🕊️",
-            "card_title": "Memorial & remembrance",
-            "card_description": "A beautiful way to honor a pet who's crossed the rainbow bridge."
-          }
+          "settings": { "icon": "🕊️", "card_title": "Memorial & remembrance", "card_description": "A beautiful way to honor a pet who's crossed the rainbow bridge." }
         },
         {
           "type": "reason",
-          "settings": {
-            "reason_icon": "✓",
-            "reason_title": "Free instant preview",
-            "reason_description": "See exactly what your portrait will look like before you spend a dollar."
-          }
+          "settings": { "reason_icon": "✓", "reason_title": "Free instant preview", "reason_description": "See exactly what your portrait will look like before you spend a dollar." }
         },
         {
           "type": "reason",
-          "settings": {
-            "reason_icon": "✓",
-            "reason_title": "Works with any photo",
-            "reason_description": "Phone photos, professional shots — our artists make them all look incredible."
-          }
+          "settings": { "reason_icon": "✓", "reason_title": "Works with any photo", "reason_description": "Phone photos, professional shots — our artists make them all look incredible." }
         },
         {
           "type": "reason",
-          "settings": {
-            "reason_icon": "✓",
-            "reason_title": "20+ products available",
-            "reason_description": "Put your custom portrait on frames, mugs, apparel, phone cases, and more."
-          }
+          "settings": { "reason_icon": "✓", "reason_title": "20+ products available", "reason_description": "Put your custom portrait on frames, mugs, apparel, phone cases, and more." }
         },
         {
           "type": "faq",
-          "settings": {
-            "question": "How does the free preview work?",
-            "answer": "<p>Upload any photo of your pet and you'll instantly see it transformed into this art style — completely free, no account required. If you love it, you can order it on any of our 20+ products.</p>"
-          }
+          "settings": { "question": "How does the free preview work?", "answer": "<p>Upload any photo of your pet and you'll instantly see it transformed into this art style — completely free, no account required. If you love it, you can order it on any of our 20+ products.</p>" }
         },
         {
           "type": "faq",
-          "settings": {
-            "question": "What kind of photo works best?",
-            "answer": "<p>Any clear photo where your pet's face is visible works well. Phone photos are perfect — you don't need a professional photographer. The clearer the photo, the more detail we can capture in your portrait.</p>"
-          }
+          "settings": { "question": "What kind of photo works best?", "answer": "<p>Any clear photo where your pet's face is visible works well. Phone photos are perfect. The clearer the photo, the more detail we can capture.</p>" }
         },
         {
           "type": "faq",
-          "settings": {
-            "question": "How long does it take to receive my order?",
-            "answer": "<p>Most orders ship within 3–5 business days. You'll receive a digital preview before your order ships so you can make sure everything is perfect.</p>"
-          }
+          "settings": { "question": "How long does it take to receive my order?", "answer": "<p>Most orders ship within 3–5 business days. You'll receive a digital preview before your order ships so you can make sure everything is perfect.</p>" }
         }
       ]
     }
