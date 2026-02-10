@@ -46,11 +46,16 @@
       </div>
       <div class="style-landing__hero-media">
         {% if section.settings.hero_image != blank %}
+          {%- assign hero_ratio = section.settings.hero_image_ratio -%}
+          {%- assign hero_class = 'style-landing__hero-img' -%}
+          {%- if hero_ratio != 'natural' -%}
+            {%- assign hero_class = hero_class | append: ' style-landing__hero-img--' | append: hero_ratio -%}
+          {%- endif -%}
           {{ section.settings.hero_image | image_url: width: 800 | image_tag:
             alt: section.settings.hero_image_alt,
             loading: 'eager',
             widths: '400, 600, 800',
-            class: 'style-landing__hero-img'
+            class: hero_class
           }}
           {% if section.settings.show_before_after_badge %}
             <span class="style-landing__badge">Before → After</span>
@@ -121,6 +126,11 @@
         {% if section.settings.gallery_subtitle != blank %}
           <p class="style-landing__section-subtitle">{{ section.settings.gallery_subtitle }}</p>
         {% endif %}
+        {%- assign gallery_ratio = section.settings.gallery_image_ratio -%}
+        {%- assign gallery_img_class = 'style-landing__gallery-img' -%}
+        {%- if gallery_ratio != 'natural' -%}
+          {%- assign gallery_img_class = gallery_img_class | append: ' style-landing__gallery-img--' | append: gallery_ratio -%}
+        {%- endif -%}
         <div class="style-landing__gallery-grid style-landing__gallery-grid--{{ gallery_blocks.size }}">
           {% for block in gallery_blocks %}
             <div class="style-landing__gallery-item" {{ block.shopify_attributes }}>
@@ -129,10 +139,10 @@
                   alt: block.settings.image_alt,
                   loading: 'lazy',
                   widths: '300, 450, 600',
-                  class: 'style-landing__gallery-img'
+                  class: gallery_img_class
                 }}
               {% else %}
-                <div class="style-landing__placeholder style-landing__placeholder--gallery">
+                <div class="style-landing__placeholder style-landing__placeholder--gallery{% if gallery_ratio != 'natural' %} style-landing__placeholder--{{ gallery_ratio }}{% endif %}">
                   {{ 'image' | placeholder_svg_tag }}
                 </div>
               {% endif %}
@@ -352,6 +362,18 @@
       "info": "Before/after transformation or hero portrait. Recommended: 800×600px."
     },
     {
+      "type": "select",
+      "id": "hero_image_ratio",
+      "label": "Hero image ratio",
+      "default": "natural",
+      "options": [
+        { "value": "natural", "label": "Natural" },
+        { "value": "square", "label": "Square (1:1)" },
+        { "value": "portrait", "label": "Portrait (3:4)" },
+        { "value": "landscape", "label": "Landscape (4:3)" }
+      ]
+    },
+    {
       "type": "text",
       "id": "hero_image_alt",
       "label": "Hero image alt text",
@@ -430,6 +452,18 @@
       "id": "gallery_subtitle",
       "label": "Gallery subtitle",
       "default": "Real customer photos transformed into this style"
+    },
+    {
+      "type": "select",
+      "id": "gallery_image_ratio",
+      "label": "Gallery image ratio",
+      "default": "square",
+      "options": [
+        { "value": "natural", "label": "Natural" },
+        { "value": "square", "label": "Square (1:1)" },
+        { "value": "portrait", "label": "Portrait (2:3)" },
+        { "value": "landscape", "label": "Landscape (3:2)" }
+      ]
     },
     {
       "type": "header",

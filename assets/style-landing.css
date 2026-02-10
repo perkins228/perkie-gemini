@@ -92,7 +92,13 @@
   box-shadow: var(--sl-shadow);
   width: 100%;
   height: auto;
+  object-fit: cover;
 }
+
+/* Hero image ratio variants */
+.style-landing__hero-img--square { aspect-ratio: 1 / 1; }
+.style-landing__hero-img--portrait { aspect-ratio: 3 / 4; }
+.style-landing__hero-img--landscape { aspect-ratio: 4 / 3; }
 
 .style-landing__badge {
   position: absolute;
@@ -316,10 +322,14 @@
 .style-landing__gallery-img {
   border-radius: var(--sl-radius-sm);
   width: 100%;
-  aspect-ratio: 1;
   object-fit: cover;
   transition: transform var(--sl-transition);
 }
+
+/* Gallery image ratio variants (default: square) */
+.style-landing__gallery-img--square { aspect-ratio: 1 / 1; }
+.style-landing__gallery-img--portrait { aspect-ratio: 2 / 3; }
+.style-landing__gallery-img--landscape { aspect-ratio: 3 / 2; }
 
 .style-landing__gallery-item:hover .style-landing__gallery-img {
   transform: scale(1.02);
@@ -339,6 +349,11 @@
 .style-landing__placeholder--gallery {
   aspect-ratio: 1;
 }
+
+/* Placeholder ratio variants */
+.style-landing__placeholder--square { aspect-ratio: 1 / 1; }
+.style-landing__placeholder--portrait { aspect-ratio: 2 / 3; }
+.style-landing__placeholder--landscape { aspect-ratio: 3 / 2; }
 
 /* ===== WHY CUSTOMERS LOVE IT ===== */
 .style-landing__reasons {
