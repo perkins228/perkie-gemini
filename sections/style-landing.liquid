@@ -100,7 +100,7 @@
   {%- comment -%} ===== WHO IT'S FOR ===== {%- endcomment -%}
   <section class="style-landing__audience">
     <div class="page-width">
-      <h2 class="style-landing__section-heading">{{ section.settings.audience_heading | default: 'Who It's For' }}</h2>
+      <h2 class="style-landing__section-heading">{{ section.settings.audience_heading | default: "Who It's For" }}</h2>
       <div class="style-landing__audience-grid">
         {% for block in section.blocks %}
           {% if block.type == 'audience_card' %}
