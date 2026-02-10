@@ -1,42 +1,16 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
 {
-  "name": "Style — Black & White",
   "sections": {
     "style-landing": {
       "type": "style-landing",
-      "settings": {
-        "accent_color": "#333333",
-        "eyebrow_text": "Our Signature Style",
-        "heading": "",
-        "subtitle": "Transform your favorite photo into a striking black and white portrait. See the result before you buy — completely free.",
-        "hero_image": "",
-        "hero_image_alt": "Custom black and white pet portrait from photo",
-        "show_before_after_badge": true,
-        "cta_text": "See Your Pet in Black & White — Free",
-        "cta_url": "/pages/custom-image-processing",
-        "secondary_cta_text": "See all styles",
-        "secondary_cta_url": "",
-        "preview_banner_heading": "Free Instant Preview",
-        "preview_banner_text": "Upload your photo and see this style applied to your pet — no cost, no commitment.",
-        "audience_heading": "Who It's For",
-        "gallery_heading": "See It in Action",
-        "gallery_subtitle": "Real customer photos transformed into our signature black and white style",
-        "reasons_heading": "Why Customers Love This Style",
-        "lifestyle_image": "",
-        "lifestyle_image_alt": "Black and white pet portrait displayed in a modern living room",
-        "lifestyle_caption": "",
-        "products_collection": "",
-        "products_heading": "Available Products",
-        "products_subtitle": "Every product features your pet's custom black and white portrait",
-        "products_limit": 6,
-        "compare_heading": "Not sure this is your style?",
-        "compare_text": "Upload one photo and see your pet in every style — completely free. Compare them side by side and choose the one that feels right.",
-        "compare_image": "",
-        "compare_image_alt": "Same pet shown in four different Perkie Prints art styles",
-        "faq_heading": "Frequently Asked Questions",
-        "final_cta_heading": "Ready to See Your Pet in Black & White?",
-        "final_cta_text": "Upload your favorite photo and preview this style instantly — completely free.",
-        "trust_text": "No account needed · Takes 30 seconds · 100% free"
-      },
       "blocks": {
         "audience-1": {
           "type": "audience_card",
@@ -126,7 +100,38 @@
         "faq-2",
         "faq-3",
         "faq-4"
-      ]
+      ],
+      "settings": {
+        "accent_color": "#333333",
+        "eyebrow_text": "Our Signature Style",
+        "heading": "",
+        "subtitle": "Transform your favorite photo into a striking black and white portrait. See the result before you buy — completely free.",
+        "hero_image_alt": "Custom black and white pet portrait from photo",
+        "show_before_after_badge": true,
+        "cta_text": "See Your Pet in Black & White — Free",
+        "cta_url": "/pages/custom-image-processing",
+        "secondary_cta_text": "",
+        "secondary_cta_url": "",
+        "preview_banner_heading": "Free Instant Preview",
+        "preview_banner_text": "Upload your photo and see this style applied to your pet — no cost, no commitment.",
+        "audience_heading": "Who It's For",
+        "gallery_heading": "See It in Action",
+        "gallery_subtitle": "Real customer photos transformed into our signature black and white style",
+        "reasons_heading": "Why Customers Love This Style",
+        "lifestyle_image_alt": "Black and white pet portrait displayed in a modern living room",
+        "lifestyle_caption": "",
+        "products_collection": "personalized-pet-products-gifts",
+        "products_heading": "Available Products",
+        "products_subtitle": "Every product features your pet's custom black and white portrait",
+        "products_limit": 5,
+        "compare_heading": "Not sure this is your style?",
+        "compare_text": "Upload one photo and see your pet in every style — completely free. Compare them side by side and choose the one that feels right.",
+        "compare_image_alt": "Same pet shown in four different Perkie Prints art styles",
+        "faq_heading": "Frequently Asked Questions",
+        "final_cta_heading": "Ready to See Your Pet in Black & White?",
+        "final_cta_text": "Upload your favorite photo and preview this style instantly — completely free.",
+        "trust_text": "No account needed · Takes less thatn 60 seconds · 100% free"
+      }
     }
   },
   "order": [
