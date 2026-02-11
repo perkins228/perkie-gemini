@@ -25,7 +25,7 @@
           "settings": {
             "icon": "😎",
             "card_title": "Pet parents with personality",
-            "card_description": "This style doesn't whisper — it pops. Perfect for fun-loving pet owners who want something different."
+            "card_description": "This style doesn't whisper. It pops. Perfect for fun-loving pet owners who want something different."
           }
         },
         "audience-3": {
@@ -58,6 +58,13 @@
             "reason_icon": "✓",
             "reason_title": "20+ products available",
             "reason_description": "Put your custom portrait on frames, mugs, apparel, phone cases, and more."
+          }
+        },
+        "faq_VLFDUC": {
+          "type": "faq",
+          "settings": {
+            "question": "Does this look like a cartoon?",
+            "answer": "<p>Not exactly. The marker style has an illustrated, hand-drawn quality, but it's not cartoonish. It captures your pet's real features and expression with bold artistic flair. Think professional illustration, not caricature.</p>"
           }
         },
         "faq-1": {
@@ -96,6 +103,7 @@
         "reason-1",
         "reason-2",
         "reason-3",
+        "faq_VLFDUC",
         "faq-1",
         "faq-2",
         "faq-3",
@@ -124,7 +132,8 @@
         "gallery_subtitle": "Real customer photos transformed into bold marker-style portraits",
         "gallery_image_ratio": "square",
         "reasons_heading": "Why Customers Love This Style",
-        "lifestyle_image_alt": "Marker style pet portrait displayed in a fun, colorful room",
+        "lifestyle_image": "shopify://shop_images/sweatshirt_ugc_a97b219d-ad66-4c1b-9594-e7ded9fcc696.png",
+        "lifestyle_image_alt": "Marker style pet portrait displayed on a sweatshirt",
         "lifestyle_caption": "",
         "products_collection": "personalized-pet-products-gifts",
         "products_heading": "Available Products",
@@ -132,12 +141,13 @@
         "products_image_ratio": "square",
         "products_limit": 10,
         "compare_heading": "Not sure this is your style?",
-        "compare_text": "Upload one photo and see your pet in every style — completely free. Compare them side by side and choose the one that feels right.",
+        "compare_text": "Upload one photo and see your pet in every style, completely free. Compare them side by side and choose the one that feels right.",
+        "compare_image": "shopify://shop_images/styles_16x9_9ff62d9f-213a-4974-b295-aa82b0f03f50.png",
         "compare_image_alt": "Same pet shown in four different Perkie Prints art styles",
         "faq_heading": "Frequently Asked Questions",
         "final_cta_heading": "Ready to See Your Pet in Marker Style?",
-        "final_cta_text": "Upload your favorite photo and preview this style instantly — completely free.",
-        "trust_text": "No account needed · Takes 30 seconds · 100% free"
+        "final_cta_text": "Upload your favorite photo and preview this style instantly. Completely free.",
+        "trust_text": "No account needed · Takes less than 60 seconds · 100% free"
       }
     }
   },
