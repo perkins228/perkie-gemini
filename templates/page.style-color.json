@@ -120,7 +120,7 @@
         "hero_image": "shopify://shop_images/colorbeforeafter.png",
         "hero_image_ratio": "natural",
         "hero_image_alt": "Custom color pet portrait from photo",
-        "show_before_after_badge": true,
+        "show_before_after_badge": false,
         "cta_text": "See Your Pet in Color for Free",
         "cta_url": "/pages/custom-image-processing",
         "secondary_cta_text": "Prefer a classic look? See our Black & White style",
