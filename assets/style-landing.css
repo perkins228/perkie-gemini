@@ -58,10 +58,7 @@
   background: var(--style-accent) !important;
   color: #fff !important;
   border: none !important;
-  padding: 14px 28px !important;
-  font-size: 15px !important;
   font-weight: 600 !important;
-  border-radius: var(--sl-radius-sm) !important;
   text-decoration: none !important;
   transition: transform var(--sl-transition), box-shadow var(--sl-transition) !important;
 }
@@ -641,8 +638,8 @@
 }
 
 .style-landing__cta-large {
-  padding: 16px 36px !important;
-  font-size: 17px !important;
+  padding-top: 1.8rem;
+  padding-bottom: 1.8rem;
 }
 
 .style-landing__trust-line {
