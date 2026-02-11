@@ -141,14 +141,14 @@
         "heading_NyQ7xN": {
           "type": "heading",
           "settings": {
-            "heading": "Free Mug With $75+ Purchase",
-            "heading_size": "h1"
+            "heading": "<strong>FREE $25 Gift Card</strong> when you purchase a Custom Perkie Print Digital Download!",
+            "heading_size": "h2"
           }
         },
         "text_XVLpMR": {
           "type": "text",
           "settings": {
-            "text": "<p>Choose from two limited edition Valentine's Day designs. </p><p>Just add to cart and discount will auto apply. </p>",
+            "text": "<p>The perfect & most thoughtful last minute gift! </p>",
             "text_style": "body"
           }
         },
@@ -156,7 +156,7 @@
           "type": "button",
           "settings": {
             "button_label": "Customize Now",
-            "button_link": "shopify://products/limited-addition-valentines-coffee-mug",
+            "button_link": "shopify://products/valentines-bundle",
             "button_style_secondary": false
           }
         }
@@ -167,10 +167,9 @@
         "text_XVLpMR",
         "button_ngx6H3"
       ],
-      "disabled": true,
       "name": "t:sections.image-with-text.presets.name",
       "settings": {
-        "image": "shopify://shop_images/Valentines_25_Banner_square_copy.jpg",
+        "image": "shopify://shop_images/ruevdaydigionphone.jpg",
         "height": "adapt",
         "desktop_image_width": "small",
         "layout": "image_first",
