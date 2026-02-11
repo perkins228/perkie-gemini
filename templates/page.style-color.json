@@ -108,11 +108,12 @@
         "accent_color": "#e8615a",
         "eyebrow_text": "Perkie Prints Art Style",
         "heading": "",
-        "subtitle": "Your pet's personality, captured in vivid, true-to-life color. See the result before you buy — completely free.",
+        "subtitle": "Your pet's personality, captured in vivid, true-to-life color. See the result before you buy, completely free.",
+        "hero_image": "shopify://shop_images/colorbeforeafter.png",
         "hero_image_ratio": "natural",
         "hero_image_alt": "Custom color pet portrait from photo",
         "show_before_after_badge": true,
-        "cta_text": "See Your Pet in Color — Free",
+        "cta_text": "See Your Pet in Color for Free",
         "cta_url": "/pages/custom-image-processing",
         "secondary_cta_text": "Prefer a classic look? See our Black & White style",
         "secondary_cta_url": "shopify://pages/black-and-white-pet-portrait",
@@ -135,8 +136,8 @@
         "compare_image_alt": "Same pet shown in four different Perkie Prints art styles",
         "faq_heading": "Frequently Asked Questions",
         "final_cta_heading": "Ready to See Your Pet in Color?",
-        "final_cta_text": "Upload your favorite photo and preview this style instantly — completely free.",
-        "trust_text": "No account needed · Takes 30 seconds · 100% free"
+        "final_cta_text": "Upload your favorite photo and preview this style instantly. Completely free.",
+        "trust_text": "No account needed · Takes less than 60 seconds · 100% free"
       }
     }
   },
