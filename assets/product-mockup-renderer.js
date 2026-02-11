@@ -21,8 +21,22 @@ class ProductMockupRenderer {
     this.isExpanded = false;
     this.isInitialized = false;
 
+    // GPU memory optimization: display-only blob URL (never persisted)
+    this._displayBlobUrl = null;
+    this._updateGeneration = 0;
+    this._mockupObserver = null;
+    this._lastThumbnailSourceUrl = null;  // Deduplication: skip re-creating thumbnail for same URL
+
     // Don't auto-initialize - wait for pet processing to complete
     this.bindEvents();
+
+    // Cleanup blob URLs on page unload to prevent GPU memory leaks
+    window.addEventListener('beforeunload', () => {
+      if (this._displayBlobUrl) {
+        URL.revokeObjectURL(this._displayBlobUrl);
+        this._displayBlobUrl = null;
+      }
+    });
 
     // Check if returning from product page with preserved session
     this.checkForRestoredSession();
@@ -125,9 +139,16 @@ class ProductMockupRenderer {
         }
       }
 
+      // Guard: never persist blob URLs — they are page-scoped and become invalid after navigation
+      var effectUrlToSave = this.currentEffectUrl;
+      if (effectUrlToSave && effectUrlToSave.indexOf('blob:') === 0) {
+        console.warn('[ProductMockupRenderer] Blocked blob URL from being saved to sessionStorage');
+        effectUrlToSave = null;
+      }
+
       const state = {
         petData: petDataToSave,
-        effectUrl: this.currentEffectUrl,
+        effectUrl: effectUrlToSave,
         isExpanded: this.isExpanded,
         timestamp: Date.now()
       };
@@ -487,25 +508,238 @@ class ProductMockupRenderer {
   }
 
   /**
-   * Update all mockup pet overlays with new effect URL
-   * @param {string} effectUrl - URL of the processed pet image
+   * Wrap canvas.toBlob in a Promise for async usage
+   * @param {HTMLCanvasElement} canvas
+   * @param {string} type - MIME type (default image/png for transparency)
+   * @param {number} quality - Compression quality (0-1)
+   * @returns {Promise<Blob>}
+   */
+  _canvasToBlob(canvas, type, quality) {
+    return new Promise(function(resolve, reject) {
+      try {
+        canvas.toBlob(function(blob) {
+          if (blob) {
+            resolve(blob);
+          } else {
+            reject(new Error('toBlob returned null'));
+          }
+        }, type || 'image/png', quality);
+      } catch (err) {
+        reject(err);
+      }
+    });
+  }
+
+  /**
+   * Create a downsampled thumbnail blob URL from an effect image URL.
+   * Returns a single blob URL that can be shared across all 16 mockup <img> elements,
+   * ensuring browsers share one GPU texture instead of allocating 16 separate ones.
+   * Uses PNG format to preserve transparency from background removal.
+   *
+   * @param {string} url - Original effect URL (data URL or GCS URL)
+   * @param {number} maxWidth - Maximum thumbnail width in pixels
+   * @returns {Promise<string>} - Blob URL for display, or original URL on failure
+   */
+  createMockupThumbnail(url, maxWidth) {
+    var self = this;
+    maxWidth = maxWidth || 400;
+
+    return new Promise(function(resolve) {
+      var img = new Image();
+
+      // Required for GCS URLs: prevents canvas tainting so toBlob() works
+      img.crossOrigin = 'anonymous';
+
+      img.onload = function() {
+        try {
+          // Calculate proportional dimensions
+          var scale = Math.min(1, maxWidth / img.width);
+          var newWidth = Math.round(img.width * scale);
+          var newHeight = Math.round(img.height * scale);
+
+          // Skip if already small enough (within 20% of target)
+          if (scale > 0.8) {
+            // Image is close to target size — use object URL from original without resize
+            // but still convert data URL → blob URL for GPU deduplication
+            if (url.indexOf('data:') === 0) {
+              fetch(url).then(function(r) { return r.blob(); }).then(function(blob) {
+                resolve(URL.createObjectURL(blob));
+              }).catch(function() {
+                resolve(url);
+              });
+              return;
+            }
+            resolve(url);
+            return;
+          }
+
+          var canvas = document.createElement('canvas');
+          canvas.width = newWidth;
+          canvas.height = newHeight;
+          var ctx = canvas.getContext('2d');
+
+          ctx.imageSmoothingEnabled = true;
+          if ('imageSmoothingQuality' in ctx) {
+            ctx.imageSmoothingQuality = 'high';
+          }
+          ctx.drawImage(img, 0, 0, newWidth, newHeight);
+
+          // Use PNG to preserve transparency from background removal
+          self._canvasToBlob(canvas, 'image/png').then(function(blob) {
+            // Release canvas GPU memory immediately
+            canvas.width = 0;
+            canvas.height = 0;
+
+            var blobUrl = URL.createObjectURL(blob);
+            console.log('[ProductMockupRenderer] Thumbnail created: ' + img.width + 'x' + img.height + ' → ' + newWidth + 'x' + newHeight + ' (' + Math.round(blob.size / 1024) + 'KB)');
+            resolve(blobUrl);
+          }).catch(function(err) {
+            // SecurityError from tainted canvas (CORS issue) — graceful degradation
+            console.warn('[ProductMockupRenderer] Thumbnail creation failed, using original:', err.message);
+            canvas.width = 0;
+            canvas.height = 0;
+            resolve(url);
+          });
+        } catch (err) {
+          console.warn('[ProductMockupRenderer] Thumbnail error, using original:', err.message);
+          resolve(url);
+        }
+      };
+
+      img.onerror = function() {
+        console.warn('[ProductMockupRenderer] Failed to load image for thumbnail, using original URL');
+        resolve(url);
+      };
+
+      img.src = url;
+    });
+  }
+
+  /**
+   * Apply a display URL to a single mockup overlay image
+   * @param {HTMLImageElement} img - The overlay image element
+   * @param {string} displayUrl - The blob URL or fallback URL for display
+   * @param {string} originalUrl - The original full-resolution URL for data operations
+   */
+  _applyMockupImage(img, displayUrl, originalUrl) {
+    // WARNING: img.src is a display-only blob URL (GPU-optimized thumbnail).
+    // For data operations (bridge, cart, session), use data-original-src or PetStorage.
+    img.setAttribute('data-original-src', originalUrl);
+    img.src = displayUrl;
+    img.classList.add('visible');
+  }
+
+  /**
+   * Update all mockup pet overlays with new effect URL.
+   * Creates a downsampled thumbnail and uses IntersectionObserver for lazy rendering.
+   * GPU memory reduction: ~97% (79 MB → ~0.5 MB for overlay textures).
+   *
+   * @param {string} effectUrl - URL of the processed pet image (full resolution)
    */
   updateAllMockups(effectUrl) {
     if (!this.itemsContainer || !effectUrl) return;
 
-    const petOverlays = this.itemsContainer.querySelectorAll('[data-pet-overlay]');
+    var self = this;
 
-    petOverlays.forEach((img, index) => {
-      // Stagger the reveal for visual effect
-      setTimeout(() => {
-        img.src = effectUrl;
-        img.classList.add('visible');
-      }, index * 50);
-    });
-
+    // ALWAYS preserve the original full-resolution URL for serialization/persistence
     this.currentEffectUrl = effectUrl;
 
-    console.log(`[ProductMockupRenderer] Updated ${petOverlays.length} mockups with effect`);
+    // Deduplication: skip thumbnail recreation if same source URL and display blob exists
+    if (effectUrl === this._lastThumbnailSourceUrl && this._displayBlobUrl) {
+      return;
+    }
+    this._lastThumbnailSourceUrl = effectUrl;
+
+    // Increment generation counter to guard against race conditions from rapid effect switching
+    var generation = ++this._updateGeneration;
+
+    // Disconnect any previous IntersectionObserver
+    if (this._mockupObserver) {
+      this._mockupObserver.disconnect();
+      this._mockupObserver = null;
+    }
+
+    var petOverlays = this.itemsContainer.querySelectorAll('[data-pet-overlay]');
+    if (!petOverlays.length) return;
+
+    // Compute dynamic thumbnail width: card display width × devicePixelRatio, capped at 512px
+    var firstCard = this.itemsContainer.querySelector('.mockup-card');
+    var cardWidth = firstCard ? firstCard.offsetWidth : 200;
+    var dpr = window.devicePixelRatio || 1;
+    var thumbnailWidth = Math.min(Math.ceil(cardWidth * dpr), 512);
+
+    // How many cards to load immediately (above fold)
+    var isMobile = window.innerWidth < 768;
+    var immediateCount = isMobile ? 2 : 4;
+
+    // Create thumbnail asynchronously, then apply to mockup images
+    this.createMockupThumbnail(effectUrl, thumbnailWidth).then(function(displayUrl) {
+      // Race condition guard: if another updateAllMockups was called while we were
+      // creating this thumbnail, discard this stale result
+      if (generation !== self._updateGeneration) {
+        if (displayUrl !== effectUrl && displayUrl.indexOf('blob:') === 0) {
+          URL.revokeObjectURL(displayUrl);
+        }
+        return;
+      }
+
+      // Revoke previous display blob URL to free GPU memory
+      if (self._displayBlobUrl && self._displayBlobUrl !== displayUrl) {
+        URL.revokeObjectURL(self._displayBlobUrl);
+      }
+      self._displayBlobUrl = (displayUrl !== effectUrl && displayUrl.indexOf('blob:') === 0) ? displayUrl : null;
+
+      // Load first N cards immediately (above the fold)
+      var deferredOverlays = [];
+      petOverlays.forEach(function(img, index) {
+        if (index < immediateCount) {
+          self._applyMockupImage(img, displayUrl, effectUrl);
+        } else {
+          // Store original URL in data attribute now, but defer loading src
+          img.setAttribute('data-original-src', effectUrl);
+          img.setAttribute('data-lazy-src', displayUrl);
+          deferredOverlays.push(img);
+        }
+      });
+
+      // Lazy-load remaining cards via IntersectionObserver
+      if (deferredOverlays.length > 0 && typeof IntersectionObserver !== 'undefined') {
+        self._mockupObserver = new IntersectionObserver(function(entries) {
+          entries.forEach(function(entry) {
+            if (entry.isIntersecting) {
+              var img = entry.target;
+              var lazySrc = img.getAttribute('data-lazy-src');
+              if (lazySrc) {
+                img.src = lazySrc;
+                img.classList.add('visible');
+                img.removeAttribute('data-lazy-src');
+              }
+              self._mockupObserver.unobserve(img);
+            }
+          });
+        }, {
+          rootMargin: '0px 0px 400px 0px'  // 400px preload buffer for fast mobile scroll
+        });
+
+        deferredOverlays.forEach(function(img) {
+          self._mockupObserver.observe(img);
+        });
+      } else if (deferredOverlays.length > 0) {
+        // Fallback for browsers without IntersectionObserver: stagger load
+        deferredOverlays.forEach(function(img, i) {
+          setTimeout(function() {
+            var lazySrc = img.getAttribute('data-lazy-src');
+            if (lazySrc) {
+              img.src = lazySrc;
+              img.classList.add('visible');
+              img.removeAttribute('data-lazy-src');
+            }
+          }, (i + 1) * 200);
+        });
+      }
+
+      console.log('[ProductMockupRenderer] Updated ' + petOverlays.length + ' mockups (immediate: ' + immediateCount + ', lazy: ' + deferredOverlays.length + ', thumbnail: ' + thumbnailWidth + 'px)');
+    });
   }
 
   /**

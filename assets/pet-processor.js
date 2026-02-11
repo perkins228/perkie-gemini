@@ -2259,6 +2259,9 @@ class PetProcessor {
           ctx.drawImage(img, 0, 0);
 
           canvas.toBlob((blob) => {
+            // Release canvas GPU memory after blob is created
+            canvas.width = 0;
+            canvas.height = 0;
             resolve(new File([blob], file.name, { type: 'image/jpeg' }));
           }, 'image/jpeg', 0.9);
         };
@@ -2315,6 +2318,9 @@ class PetProcessor {
           const newSize = blob.size;
           const savings = Math.round((1 - newSize / originalSize) * 100);
           console.log(`📐 Resized for upload: ${img.width}x${img.height} → ${newWidth}x${newHeight} (${savings}% smaller)`);
+          // Release canvas GPU memory after blob is created
+          canvas.width = 0;
+          canvas.height = 0;
           resolve(new File([blob], file.name, { type: 'image/jpeg' }));
         }, 'image/jpeg', 0.90);
       };

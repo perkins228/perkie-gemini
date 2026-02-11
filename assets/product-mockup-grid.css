@@ -232,6 +232,7 @@
   overflow: hidden;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
+  contain: layout paint;  /* Prevents GPU recomposite cascade during lazy image loading */
 }
 
 .mockup-card:hover {
@@ -326,6 +327,7 @@
   width: var(--pet-width, 60%);
   height: var(--pet-height, 60%);
   object-fit: contain;
+  aspect-ratio: 3 / 4;  /* Reserve space before image loads — prevents CLS during lazy load */
   transform: rotate(var(--pet-rotation, 0deg));
   pointer-events: none;
   transition: opacity 0.3s ease;
