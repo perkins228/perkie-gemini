@@ -15,7 +15,7 @@
         "audience-1": {
           "type": "audience_card",
           "settings": {
-            "icon": "🖤",
+            "icon": "<center>🖤</center>",
             "card_title": "Minimalist pet lovers",
             "card_description": "Clean lines, dramatic contrast, and a timeless aesthetic that fits any decor."
           }
@@ -23,7 +23,7 @@
         "audience-2": {
           "type": "audience_card",
           "settings": {
-            "icon": "🎁",
+            "icon": "<center>🎁</center>",
             "card_title": "Gift givers",
             "card_description": "A meaningful, personalized gift that shows you really get the pet lover in your life."
           }
@@ -31,7 +31,7 @@
         "audience-3": {
           "type": "audience_card",
           "settings": {
-            "icon": "🕊️",
+            "icon": "<center>🕊️</center>",
             "card_title": "Memorial & remembrance",
             "card_description": "A beautiful way to honor a pet who's crossed the rainbow bridge."
           }
@@ -49,7 +49,7 @@
           "settings": {
             "reason_icon": "✓",
             "reason_title": "Works with any photo",
-            "reason_description": "Phone photos, professional shots — our artists make them all look incredible."
+            "reason_description": "Phone photos, professional shots. Our artistsmake them all look incredible."
           }
         },
         "reason-3": {
@@ -64,14 +64,28 @@
           "type": "faq",
           "settings": {
             "question": "How does the free preview work?",
-            "answer": "<p>Upload any photo of your pet and you'll instantly see it transformed into our professional black and white style — completely free, no account required. If you love it, you can order it on any of our 20+ products.</p>"
+            "answer": "<p>Upload any photo of your pet and you'll instantly see it transformed into our professional black and white style, completely free, no account required. If you love it, you can order it on any of our 20+ products.</p>"
+          }
+        },
+        "faq_cmiLWn": {
+          "type": "faq",
+          "settings": {
+            "question": "Is the preview really free?",
+            "answer": "<p>Yes, 100% free. Upload your photo and see your pet in all available styles instantly. No account required, no credit card, no strings attached.</p>"
           }
         },
         "faq-2": {
           "type": "faq",
           "settings": {
             "question": "What kind of photo works best?",
-            "answer": "<p>Any clear photo where your pet's face is visible works well. Phone photos are perfect — the clearer the photo, the more detail we can capture in the black and white transformation.</p>"
+            "answer": "<p>Any clear photo where your pet's face is visible. Phone photos work great. The higher the resolution, the more detail we can bring out in your portrait.</p>"
+          }
+        },
+        "faq_iheWpa": {
+          "type": "faq",
+          "settings": {
+            "question": "Can I get revisions?",
+            "answer": "<p>Absolutely. Every order includes unlimited<br/>revisions. Our artists will work with you until your portrait is exactly right.</p>"
           }
         },
         "faq-3": {
@@ -85,7 +99,7 @@
           "type": "faq",
           "settings": {
             "question": "Can I see my pet in other styles too?",
-            "answer": "<p>Absolutely! When you upload your photo, you'll see your pet in all available styles side by side. You can compare and choose the one that speaks to you — or order more than one.</p>"
+            "answer": "<p>Absolutely! When you upload your photo, you'll see your pet in all available styles side by side. You can compare and choose the one that speaks to you, or order more than one.</p>"
           }
         }
       },
@@ -97,7 +111,9 @@
         "reason-2",
         "reason-3",
         "faq-1",
+        "faq_cmiLWn",
         "faq-2",
+        "faq_iheWpa",
         "faq-3",
         "faq-4"
       ],
@@ -121,20 +137,22 @@
         "gallery_subtitle": "Real customer photos transformed into our signature black and white style",
         "gallery_image_ratio": "square",
         "reasons_heading": "Why Customers Love This Style",
+        "lifestyle_image": "shopify://shop_images/black_frame_ugc_7cce49ba-f984-4e5d-92b4-a31a537ad6de.png",
         "lifestyle_image_alt": "Black and white pet portrait displayed in a modern living room",
         "lifestyle_caption": "",
         "products_collection": "personalized-pet-products-gifts",
         "products_heading": "Featured Products",
         "products_subtitle": "Every product features your pet's custom black and white portrait",
         "products_image_ratio": "square",
-        "products_limit": 11,
+        "products_limit": 10,
         "compare_heading": "Not sure this is your style?",
         "compare_text": "Upload one photo and see your pet in every style — completely free. Compare them side by side and choose the one that feels right.",
+        "compare_image": "shopify://shop_images/Dogs_Slide10.jpg",
         "compare_image_alt": "Same pet shown in four different Perkie Prints art styles",
         "faq_heading": "Frequently Asked Questions",
         "final_cta_heading": "Ready to See Your Pet in Black & White?",
-        "final_cta_text": "Upload your favorite photo and preview this style instantly — completely free.",
-        "trust_text": "No account needed · Takes less thatn 60 seconds · 100% free"
+        "final_cta_text": "Upload your favorite photo and preview this style instantly, completely free.",
+        "trust_text": "No account needed · Takes less than 60 seconds · 100% free"
       }
     }
   },
