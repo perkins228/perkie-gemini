@@ -17,7 +17,7 @@
           "settings": {
             "icon": "🎋",
             "card_title": "Lovers of East Asian art",
-            "card_description": "Inspired by sumi-e and traditional brush painting — a style with centuries of artistic heritage."
+            "card_description": "Inspired by sumi-e and traditional brush painting, a style with centuries of artistic heritage."
           }
         },
         "audience-2": {
@@ -109,6 +109,7 @@
         "eyebrow_text": "Perkie Prints Art Style",
         "heading": "",
         "subtitle": "Inspired by traditional East Asian brush painting. Ink wash captures your pet with elegant simplicity. See it free before you buy.",
+        "hero_image": "shopify://shop_images/inkwash.png",
         "hero_image_ratio": "natural",
         "hero_image_alt": "Custom ink wash pet portrait from photo in sumi-e style",
         "show_before_after_badge": true,
@@ -123,7 +124,8 @@
         "gallery_subtitle": "Real customer photos transformed into elegant ink wash portraits",
         "gallery_image_ratio": "square",
         "reasons_heading": "Why Customers Love This Style",
-        "lifestyle_image_alt": "Ink wash pet portrait displayed in a serene, minimalist room",
+        "lifestyle_image": "shopify://shop_images/inkwash_lifestyle.png",
+        "lifestyle_image_alt": "Ink wash pet portrait displayed in on a coffee mug",
         "lifestyle_caption": "",
         "products_collection": "personalized-pet-products-gifts",
         "products_heading": "Available Products",
