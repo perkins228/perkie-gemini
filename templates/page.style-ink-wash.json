@@ -60,13 +60,6 @@
             "reason_description": "Put your custom portrait on frames, mugs, apparel, phone cases, and more."
           }
         },
-        "faq-1": {
-          "type": "faq",
-          "settings": {
-            "question": "How does the free preview work?",
-            "answer": "<p>Upload any photo of your pet and you'll instantly see it transformed into an elegant ink wash portrait — completely free, no account required. If you love it, you can order it on any of our 20+ products.</p>"
-          }
-        },
         "faq-2": {
           "type": "faq",
           "settings": {
@@ -74,11 +67,25 @@
             "answer": "<p>Ink wash (also called sumi-e) is a traditional East Asian brush painting technique that uses flowing ink and water to create soft, expressive images. It emphasizes simplicity, movement, and the beauty of negative space.</p>"
           }
         },
+        "faq_rDeTk3": {
+          "type": "faq",
+          "settings": {
+            "question": "Will my pet be recognizable?",
+            "answer": "<p>Absolutely. The ink wash style captures your pet's features and expression clearly. It's not abstract. The artistic interpretation comes from the brushstroke texture and tonal gradients, not from obscuring your pet's likeness.</p>"
+          }
+        },
+        "faq-1": {
+          "type": "faq",
+          "settings": {
+            "question": "How does the free preview work?",
+            "answer": "<p>Upload any photo of your pet and you'll instantly see it transformed into an elegant ink wash portrait — completely free, no account required. If you love it, you can order it on any of our 20+ products.</p>"
+          }
+        },
         "faq-3": {
           "type": "faq",
           "settings": {
-            "question": "What kind of photo works best?",
-            "answer": "<p>Any clear photo where your pet's face is visible works well. Phone photos are perfect. The ink wash style beautifully captures your pet's expression and posture.</p>"
+            "question": "Is this a good gift for someone who loves art?",
+            "answer": "<p>One of the best. The ink wash style appeals to people who value unique, handcrafted aesthetics. It's a custom pet portrait that doubles as a genuine piece of decorative art.</p>"
           }
         },
         "faq-4": {
@@ -96,8 +103,9 @@
         "reason-1",
         "reason-2",
         "reason-3",
-        "faq-1",
         "faq-2",
+        "faq_rDeTk3",
+        "faq-1",
         "faq-3",
         "faq-4"
       ],
