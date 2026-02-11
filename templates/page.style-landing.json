@@ -11,6 +11,90 @@
   "sections": {
     "main": {
       "type": "style-landing",
+      "blocks": {
+        "faq_FTHr9H": {
+          "type": "faq",
+          "settings": {
+            "question": "Is the preview really free?",
+            "answer": "<p>Yes, 100% free. Upload your photo and see your pet in all available styles instantly. No account required, no credit card, no obligation.</p>"
+          }
+        },
+        "faq_t7UtUc": {
+          "type": "faq",
+          "settings": {
+            "question": "What kind of photo should I use?",
+            "answer": "<p>Any clear photo where your pet's face is visible. Phone photos work great. The higher the resolution, the more detail our artists can bring out. Photos with good lighting and a simple background tend to produce the best results.</p>"
+          }
+        },
+        "faq_Qant7A": {
+          "type": "faq",
+          "settings": {
+            "question": "How is this different from a photo filter?",
+            "answer": "<p>Filters apply the same generic effect to every photo. Our artists professionally enhance each portrait individually, adjusting lighting, contrast, sharpness, and detail for a studio-quality result tailored to your specific photo.</p>"
+          }
+        },
+        "faq_Ei97mt": {
+          "type": "faq",
+          "settings": {
+            "question": "How many styles can I preview?",
+            "answer": "<p>All of them. When you upload your photo, you'll see it rendered in every available style side by side. Compare them all and choose your favorite, or order more than one.</p>"
+          }
+        },
+        "faq_HjUXLP": {
+          "type": "faq",
+          "settings": {
+            "question": "Can I order the same portrait in multiple styles?",
+            "answer": "<p>Absolutely. A lot of customers order two or three styles once they see how different each one looks. Some even order the full set.</p>"
+          }
+        },
+        "faq_67hjgK": {
+          "type": "faq",
+          "settings": {
+            "question": "How long does it take to receive my order?",
+            "answer": "<p>You'll receive a digital proof within a few business days. Once you approve it, your product ships within standard timeframes. Rush options may be available for time-sensitive orders.</p>"
+          }
+        },
+        "faq_A4Ndk7": {
+          "type": "faq",
+          "settings": {
+            "question": "Can I use this for a pet who has passed away?",
+            "answer": "<p>Yes. Many of our customers order memorial portraits to honor pets they've lost. Upload any photo you have of them. Even older or lower-resolution photos can be enhanced into a beautiful tribute.</p>"
+          }
+        },
+        "faq_GG6bPX": {
+          "type": "faq",
+          "settings": {
+            "question": "Do you offer revisions?",
+            "answer": "<p>Every order includes unlimited revisions at no extra charge. Our artists will work with you until your portrait is exactly the way you want it.</p>"
+          }
+        },
+        "faq_Lz7iHM": {
+          "type": "faq",
+          "settings": {
+            "question": "What products can I put my portrait on?",
+            "answer": "<p>Over 20 products including framed prints, canvas wraps, mugs, tumblers, tote bags, phone cases, hoodies, t-shirts, throw pillows, blankets, and more. Every product uses the same high-quality portrait.</p>"
+          }
+        },
+        "faq_TxUqFg": {
+          "type": "faq",
+          "settings": {
+            "question": "How does Perkie Prints compare to other pet portrait companies?",
+            "answer": "<p>Most competitors offer one art style and no preview. We offer multiple distinct styles with a free instant preview of all of them before you buy. Our prices are competitive, every order includes unlimited revisions, and we have over 20 product options.</p>"
+          }
+        }
+      },
+      "block_order": [
+        "faq_FTHr9H",
+        "faq_t7UtUc",
+        "faq_Qant7A",
+        "faq_Ei97mt",
+        "faq_HjUXLP",
+        "faq_67hjgK",
+        "faq_A4Ndk7",
+        "faq_GG6bPX",
+        "faq_Lz7iHM",
+        "faq_TxUqFg"
+      ],
       "settings": {
         "accent_color": "#e8615a",
         "eyebrow_text": "Perkie Prints Art Style",
