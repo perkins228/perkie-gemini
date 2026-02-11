@@ -15,7 +15,7 @@
         "audience-1": {
           "type": "audience_card",
           "settings": {
-            "icon": "<center>🖤</center>",
+            "icon": "🖤",
             "card_title": "Minimalist pet lovers",
             "card_description": "Clean lines, dramatic contrast, and a timeless aesthetic that fits any decor."
           }
@@ -23,7 +23,7 @@
         "audience-2": {
           "type": "audience_card",
           "settings": {
-            "icon": "<center>🎁</center>",
+            "icon": "🎁",
             "card_title": "Gift givers",
             "card_description": "A meaningful, personalized gift that shows you really get the pet lover in your life."
           }
@@ -31,7 +31,7 @@
         "audience-3": {
           "type": "audience_card",
           "settings": {
-            "icon": "<center>🕊️</center>",
+            "icon": "🕊️",
             "card_title": "Memorial & remembrance",
             "card_description": "A beautiful way to honor a pet who's crossed the rainbow bridge."
           }
@@ -137,7 +137,7 @@
         "gallery_subtitle": "Real customer photos transformed into our signature black and white style",
         "gallery_image_ratio": "square",
         "reasons_heading": "Why Customers Love This Style",
-        "lifestyle_image": "shopify://shop_images/black_frame_ugc_7cce49ba-f984-4e5d-92b4-a31a537ad6de.png",
+        "lifestyle_image": "shopify://shop_images/pug_ugc.jpg",
         "lifestyle_image_alt": "Black and white pet portrait displayed in a modern living room",
         "lifestyle_caption": "",
         "products_collection": "personalized-pet-products-gifts",
