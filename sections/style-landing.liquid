@@ -372,9 +372,10 @@
 
               var dots = dotsContainer.querySelectorAll('.style-landing__carousel-dot');
               carousel.addEventListener('scroll', function() {
-                var currentVisibleW = carousel.offsetWidth;
-                var activeIdx = Math.round(carousel.scrollLeft / currentVisibleW);
-                activeIdx = Math.min(activeIdx, dots.length - 1);
+                var maxScroll = carousel.scrollWidth - carousel.offsetWidth;
+                var scrollFraction = maxScroll > 0 ? carousel.scrollLeft / maxScroll : 0;
+                var activeIdx = Math.round(scrollFraction * (dots.length - 1));
+                activeIdx = Math.max(0, Math.min(activeIdx, dots.length - 1));
                 for (var j = 0; j < dots.length; j++) {
                   if (j === activeIdx) {
                     dots[j].classList.add('style-landing__carousel-dot--active');
