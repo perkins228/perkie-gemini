@@ -84,15 +84,15 @@
         "faq-1": {
           "type": "faq",
           "settings": {
-            "question": "How does the free preview work?",
-            "answer": "<p>Upload any photo of your pet and you'll instantly see it transformed into a bold marker-style portrait — completely free, no account required. If you love it, you can order it on any of our 20+ products.</p>"
+            "question": "Is the preview free?",
+            "answer": "<p>Completely free. Upload your photo, see every style, no account or credit card needed.</p>"
           }
         },
         "faq-3": {
           "type": "faq",
           "settings": {
             "question": "How long does it take to receive my order?",
-            "answer": "<p>Most orders ship within 3–5 business days. You'll receive a digital preview before your order ships so you can make sure everything is perfect.</p>"
+            "answer": "<p>You'll get a digital proof within a few business days. Once approved, most orders ship within 3–5 business days.</p>"
           }
         }
       },
