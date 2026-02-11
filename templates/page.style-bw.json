@@ -36,6 +36,38 @@
             "card_description": "A beautiful way to honor a pet who's crossed the rainbow bridge."
           }
         },
+        "gallery_image_NMArfT": {
+          "type": "gallery_image",
+          "settings": {
+            "image": "shopify://shop_images/BlackFrame_Dog_Review_UGC_HeatherA.august21.png",
+            "image_alt": "",
+            "caption": ""
+          }
+        },
+        "gallery_image_pK3GzB": {
+          "type": "gallery_image",
+          "settings": {
+            "image": "shopify://shop_images/CroppedPocketTee_Dog_FemaleModel_Sheispettingdogwithsmile_Lifestyle.webp",
+            "image_alt": "",
+            "caption": ""
+          }
+        },
+        "gallery_image_zDLBe6": {
+          "type": "gallery_image",
+          "settings": {
+            "image": "shopify://shop_images/Ceramic_Mug_Dog_IG_UGC__loki.wolfpup.jpg",
+            "image_alt": "",
+            "caption": ""
+          }
+        },
+        "gallery_image_37iCPC": {
+          "type": "gallery_image",
+          "settings": {
+            "image": "shopify://shop_images/Pillow_Dog_dogonbedwithpillow_Lifestyle_unbleached.jpg",
+            "image_alt": "",
+            "caption": ""
+          }
+        },
         "reason-1": {
           "type": "reason",
           "settings": {
@@ -107,6 +139,10 @@
         "audience-1",
         "audience-2",
         "audience-3",
+        "gallery_image_NMArfT",
+        "gallery_image_pK3GzB",
+        "gallery_image_zDLBe6",
+        "gallery_image_37iCPC",
         "reason-1",
         "reason-2",
         "reason-3",
