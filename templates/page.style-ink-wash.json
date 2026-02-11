@@ -78,7 +78,7 @@
           "type": "faq",
           "settings": {
             "question": "How does the free preview work?",
-            "answer": "<p>Upload any photo of your pet and you'll instantly see it transformed into an elegant ink wash portrait — completely free, no account required. If you love it, you can order it on any of our 20+ products.</p>"
+            "answer": "<p>Upload any photo of your pet and you'll instantly see it transformed into an elegant ink wash portrait, completely free, no account required. If you love it, you can order it on any of our 20+ products.</p>"
           }
         },
         "faq-3": {
@@ -92,7 +92,7 @@
           "type": "faq",
           "settings": {
             "question": "Can I see my pet in other styles too?",
-            "answer": "<p>Absolutely! When you upload your photo, you'll see your pet in all available styles side by side. You can compare and choose the one that speaks to you — or order more than one.</p>"
+            "answer": "<p>Yes! You'll see your pet in every style side by side. Compare and choose, or order more than one.</p>"
           }
         }
       },
