@@ -117,6 +117,9 @@
         "faq-3",
         "faq-4"
       ],
+      "custom_css": [
+        ".style-landing__audience-icon {display: flex; justify-content: center; align-items: center; margin: 0 auto;}"
+      ],
       "settings": {
         "accent_color": "#333333",
         "eyebrow_text": "Our Signature Style",
