@@ -21,6 +21,13 @@
             "menu": "footer-discover"
           }
         },
+        "link_list_C34cVq": {
+          "type": "link_list",
+          "settings": {
+            "heading": "Image Styles",
+            "menu": "footer-styles"
+          }
+        },
         "link_list_iYhdfP": {
           "type": "link_list",
           "settings": {
@@ -38,6 +45,7 @@
       },
       "block_order": [
         "link_list_LThJr8",
+        "link_list_C34cVq",
         "link_list_iYhdfP",
         "link_list_wTdWfc"
       ],
@@ -51,8 +59,8 @@
         "enable_language_selector": false,
         "payment_enable": false,
         "show_policy": true,
-        "margin_top": 0,
-        "padding_top": 4,
+        "margin_top": 4,
+        "padding_top": 16,
         "padding_bottom": 16
       }
     }
