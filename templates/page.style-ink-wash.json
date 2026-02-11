@@ -131,12 +131,13 @@
         "products_image_ratio": "square",
         "products_limit": 10,
         "compare_heading": "Not sure this is your style?",
-        "compare_text": "Upload one photo and see your pet in every style — completely free. Compare them side by side and choose the one that feels right.",
+        "compare_text": "Upload one photo and see your pet in every style, completely free. Compare them side by side and choose the one that feels right.",
+        "compare_image": "shopify://shop_images/styles_16x9_9ff62d9f-213a-4974-b295-aa82b0f03f50.png",
         "compare_image_alt": "Same pet shown in four different Perkie Prints art styles",
         "faq_heading": "Frequently Asked Questions",
         "final_cta_heading": "Ready to See Your Pet in Ink Wash?",
-        "final_cta_text": "Upload your favorite photo and preview this style instantly — completely free.",
-        "trust_text": "No account needed · Takes 30 seconds · 100% free"
+        "final_cta_text": "Upload your favorite photo and preview this style instantly. Completely free.",
+        "trust_text": "No account needed · Takes less than 60 seconds · 100% free"
       }
     }
   },
