@@ -101,6 +101,9 @@
         "faq-3",
         "faq-4"
       ],
+      "custom_css": [
+        ".style-landing__audience-icon {display: flex; justify-content: center; align-items: center; margin: 0 auto;}"
+      ],
       "settings": {
         "accent_color": "#2aaa8a",
         "eyebrow_text": "Perkie Prints Art Style",
