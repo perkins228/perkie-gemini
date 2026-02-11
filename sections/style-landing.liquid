@@ -231,6 +231,7 @@
             {% endfor %}
           </div>
           <button type="button" class="style-landing__carousel-btn style-landing__carousel-btn--next" aria-label="Next products" data-carousel-next>›</button>
+          <div class="style-landing__carousel-dots" data-carousel-dots aria-hidden="true"></div>
         </div>
       </div>
     </section>
@@ -328,9 +329,10 @@
         var nextBtn = wrapper.querySelector('[data-carousel-next]');
         if (!carousel) return;
 
+        var gap = 20;
         var scrollAmount = function() {
           var card = carousel.querySelector('.style-landing__product-card');
-          return card ? card.offsetWidth + 20 : 220;
+          return card ? card.offsetWidth + gap : 220;
         };
 
         var updateButtons = function() {
@@ -350,6 +352,40 @@
         carousel.addEventListener('scroll', updateButtons);
         window.addEventListener('resize', updateButtons);
         updateButtons();
+
+        // Mobile scroll dots
+        var dotsContainer = wrapper.querySelector('[data-carousel-dots]');
+        if (dotsContainer) {
+          var cards = carousel.querySelectorAll('.style-landing__product-card');
+          if (cards.length > 0) {
+            var visibleW = carousel.offsetWidth;
+            var totalGroups = Math.max(1, Math.ceil((carousel.scrollWidth - visibleW) / visibleW) + 1);
+
+            if (totalGroups <= 1) {
+              dotsContainer.style.display = 'none';
+            } else {
+              for (var d = 0; d < totalGroups; d++) {
+                var dot = document.createElement('span');
+                dot.className = 'style-landing__carousel-dot' + (d === 0 ? ' style-landing__carousel-dot--active' : '');
+                dotsContainer.appendChild(dot);
+              }
+
+              var dots = dotsContainer.querySelectorAll('.style-landing__carousel-dot');
+              carousel.addEventListener('scroll', function() {
+                var currentVisibleW = carousel.offsetWidth;
+                var activeIdx = Math.round(carousel.scrollLeft / currentVisibleW);
+                activeIdx = Math.min(activeIdx, dots.length - 1);
+                for (var j = 0; j < dots.length; j++) {
+                  if (j === activeIdx) {
+                    dots[j].classList.add('style-landing__carousel-dot--active');
+                  } else {
+                    dots[j].classList.remove('style-landing__carousel-dot--active');
+                  }
+                }
+              });
+            }
+          }
+        }
       })(wrappers[i]);
     }
   })();
