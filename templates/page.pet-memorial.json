@@ -12,11 +12,11 @@
     "main": {
       "type": "main-page",
       "custom_css": [
-        ".button {text-align: center;}"
+        ".button {background-color: #FF5964 !important; /* The background color */ color: #ffffff !important; /* The text color */ border: none; /* Optional: removes border */}"
       ],
       "settings": {
-        "padding_top": 28,
-        "padding_bottom": 28
+        "padding_top": 16,
+        "padding_bottom": 16
       }
     },
     "collapsible_content_eamrTV": {
