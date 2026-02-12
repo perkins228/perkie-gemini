@@ -18,7 +18,7 @@
             "img_mobile": "shopify://shop_images/sammy_memorial_mobile_8f65e6e4-90b1-4b62-9ba1-d2531bb59f12.png",
             "img_desktop": "shopify://shop_images/sammy_memorial_32cd427a-8973-4201-94ec-012f57b717e4.png",
             "overlay_color": "#121212",
-            "overlay_opacity": 20,
+            "overlay_opacity": 30,
             "overlay_blur": 0,
             "caption_position_mobile": "bottom",
             "caption_text_align_mobile": "text-center",
@@ -48,7 +48,7 @@
       ],
       "name": "KS - Fancy slideshow",
       "settings": {
-        "color_scheme": "scheme-4",
+        "color_scheme": "scheme-745b4d7d-e620-4384-97e7-bfb8ecf6d6cc",
         "slider_navigation": false,
         "slider_pagination": "bullets",
         "slider_effect": "slide",
