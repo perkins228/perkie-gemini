@@ -252,7 +252,7 @@
         "heading": "Frequently Asked Questions",
         "heading_size": "h2",
         "heading_alignment": "left",
-        "layout": "section",
+        "layout": "row",
         "container_color_scheme": "scheme-f318d737-2be2-4346-8605-b2fbd6208608",
         "color_scheme": "scheme-f318d737-2be2-4346-8605-b2fbd6208608",
         "open_first_collapsible_row": false,
