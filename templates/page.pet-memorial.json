@@ -44,7 +44,8 @@
         "slide_hKxe9F"
       ],
       "custom_css": [
-        "{max-width: 1366px; /* Or your preferred container size */ margin: 0 auto; /* Centers the content */}"
+        "{max-width: 1366px; margin: 0 auto;}",
+        "/* Hide the Title and Description in the slider */.banner__content,.slideshow__text,.card__content .caption-with-letter-spacing,.banner__heading,.banner__text,.h1,p,.button {display: none !important;}"
       ],
       "name": "KS - Fancy slideshow",
       "settings": {
