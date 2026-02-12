@@ -9,111 +9,57 @@
  */
 {
   "sections": {
-    "image_banner_ejF4mR": {
+    "image_banner_amHTQR": {
       "type": "image-banner",
       "blocks": {
-        "heading_9Lmzet": {
+        "heading_bKpX9L": {
           "type": "heading",
           "settings": {
-            "heading": "A Lasting Way to Remember Them",
+            "heading": "Image banner",
             "heading_size": "h1"
           }
         },
-        "text_VkJMQr": {
+        "text_PaGkar": {
           "type": "text",
           "settings": {
-            "text": "Custom pet memorial portraits from your favorite photo",
+            "text": "Give customers details about the banner image(s) or content on the template.",
             "text_style": "body"
           }
         },
-        "buttons_njpT74": {
+        "buttons_9w6cRK": {
           "type": "buttons",
           "settings": {
-            "button_label_1": "Create Your Memorial Portrait",
-            "button_link_1": "shopify://pages/custom-image-processing",
+            "button_label_1": "Button label",
+            "button_link_1": "",
             "button_style_secondary_1": false,
-            "button_label_2": "",
+            "button_label_2": "Button label",
             "button_link_2": "",
             "button_style_secondary_2": false
           }
         }
       },
       "block_order": [
-        "heading_9Lmzet",
-        "text_VkJMQr",
-        "buttons_njpT74"
+        "heading_bKpX9L",
+        "text_PaGkar",
+        "buttons_9w6cRK"
+      ],
+      "custom_css": [
+        "{max-width: 1500px; /* Or your preferred container size */ margin: 0 auto; /* Centers the content */ padding: 0 1.5rem; /* Keeps padding on mobile */}"
       ],
       "name": "t:sections.image-banner.presets.name",
       "settings": {
-        "image": "shopify://shop_images/sammy_memorial.png",
+        "image": "shopify://shop_images/IMG_6610.jpg",
+        "image_2": "shopify://shop_images/Corey_-_sam-_3x4_d071c80c-9ba4-4455-b054-e9277eb52e02.png",
         "image_overlay_opacity": 0,
-        "image_height": "adapt",
+        "image_height": "medium",
         "image_behavior": "none",
-        "desktop_content_position": "middle-right",
+        "desktop_content_position": "middle-center",
         "desktop_content_alignment": "center",
         "show_text_box": false,
         "color_scheme": "scheme-f318d737-2be2-4346-8605-b2fbd6208608",
-        "stack_images_on_mobile": true,
+        "stack_images_on_mobile": false,
         "mobile_content_alignment": "center",
         "show_text_below": true
-      }
-    },
-    "image_with_text_AgFKFg": {
-      "type": "image-with-text",
-      "blocks": {
-        "caption_pwkRWF": {
-          "type": "caption",
-          "settings": {
-            "caption": "",
-            "text_style": "caption-with-letter-spacing",
-            "text_size": "medium"
-          }
-        },
-        "heading_YDk4HH": {
-          "type": "heading",
-          "settings": {
-            "heading": "A Lasting Way to Remember Them",
-            "heading_size": "h1"
-          }
-        },
-        "text_PmkYTx": {
-          "type": "text",
-          "settings": {
-            "text": "<p>Custom pet  memorial portraits from your favorite photo   </p>",
-            "text_style": "subtitle"
-          }
-        },
-        "button_TWGgWN": {
-          "type": "button",
-          "settings": {
-            "button_label": "Create Your Memorial Portrait",
-            "button_link": "shopify://pages/custom-image-processing",
-            "button_style_secondary": false
-          }
-        }
-      },
-      "block_order": [
-        "caption_pwkRWF",
-        "heading_YDk4HH",
-        "text_PmkYTx",
-        "button_TWGgWN"
-      ],
-      "custom_css": [],
-      "name": "t:sections.image-with-text.presets.name",
-      "settings": {
-        "image": "shopify://shop_images/sammy_memorial.png",
-        "height": "adapt",
-        "desktop_image_width": "medium",
-        "layout": "image_first",
-        "image_behavior": "none",
-        "content_layout": "no-overlap",
-        "desktop_content_position": "middle",
-        "desktop_content_alignment": "left",
-        "mobile_content_alignment": "left",
-        "section_color_scheme": "scheme-f318d737-2be2-4346-8605-b2fbd6208608",
-        "color_scheme": "scheme-f318d737-2be2-4346-8605-b2fbd6208608",
-        "padding_top": 4,
-        "padding_bottom": 4
       }
     },
     "main": {
@@ -270,8 +216,7 @@
     }
   },
   "order": [
-    "image_banner_ejF4mR",
-    "image_with_text_AgFKFg",
+    "image_banner_amHTQR",
     "main",
     "collapsible_content_eamrTV"
   ]
