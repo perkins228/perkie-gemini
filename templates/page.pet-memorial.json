@@ -25,36 +25,108 @@
         "collapsible_row_tbMGL7": {
           "type": "collapsible_row",
           "settings": {
-            "heading": "Collapsible row",
+            "heading": "Q: How do I create a pet memorial portrait?",
             "icon": "none",
-            "row_content": "",
+            "row_content": "<p>Upload a photo of your pet to the Perkie Prints free preview tool, and you'll see it transformed into multiple art styles instantly. Choose the style that feels right, pick your product (framed print, canvas, unframed print, or digital file), and place your order. No account or email required to preview. We handle everything from there.</p>",
             "page": ""
           }
         },
         "collapsible_row_mQDqDM": {
           "type": "collapsible_row",
           "settings": {
-            "heading": "Collapsible row",
-            "icon": "check_mark",
-            "row_content": "",
+            "heading": "Q: What kind of photos work for memorial portraits?",
+            "icon": "none",
+            "row_content": "<p>Almost any photo works for a pet memorial portrait, including phone photos, old scans, screenshots from videos, and even slightly blurry images. The most important thing is a clear view of your pet's face. Our process is built to bring out the best in whatever photo you have. If you're unsure, try the free preview and see how it looks before ordering.</p>",
             "page": ""
           }
         },
         "collapsible_row_XTRMrj": {
           "type": "collapsible_row",
           "settings": {
-            "heading": "Collapsible row",
-            "icon": "check_mark",
-            "row_content": "",
+            "heading": "Q: Can I see the portrait before I buy it?",
+            "icon": "none",
+            "row_content": "<p>Yes. Perkie Prints offers a free instant preview that lets you see your pet in multiple art styles before you spend anything. No account needed, no email required. Just upload your photo and see the result. If you like what you see, choose your product and place your order.</p>",
             "page": ""
           }
         },
         "collapsible_row_aGrhjM": {
           "type": "collapsible_row",
           "settings": {
-            "heading": "Collapsible row",
-            "icon": "check_mark",
-            "row_content": "",
+            "heading": "Q: What art styles do you offer for memorial portraits?",
+            "icon": "none",
+            "row_content": "<p>Perkie Prints currently offers four art styles: Black and White (the signature style and most popular for memorials), Color, Ink Wash (inspired by traditional East Asian brush painting), and Marker (bold, vibrant, pop-art style). You can preview your pet in all four styles for free before choosing.</p>",
+            "page": ""
+          }
+        },
+        "collapsible_row_6WB7ej": {
+          "type": "collapsible_row",
+          "settings": {
+            "heading": "Q: How long does it take to receive my memorial portrait?",
+            "icon": "none",
+            "row_content": "<p>Perkie Prints processing typically takes 3 to 5 business days, and shipping time depends on your location. If you need your memorial portrait by a specific date, such as an anniversary or birthday, mention it in the order notes and the team will do their best to accommodate your timeline.</p>",
+            "page": ""
+          }
+        },
+        "collapsible_row_3m7hat": {
+          "type": "collapsible_row",
+          "settings": {
+            "heading": "Q: Is a pet memorial portrait a good gift for someone who lost a pet?",
+            "icon": "none",
+            "row_content": "<p>A custom pet memorial portrait is one of the most meaningful gifts you can give someone who lost a pet. All you need is a photo, which you can find on their social media or get from a family member. Upload it, choose a style, and Perkie Prints will create a custom portrait that arrives ready to display. Many of our customers order memorial portraits specifically as gifts for grieving friends and family.</p>",
+            "page": ""
+          }
+        },
+        "collapsible_row_FVKMaw": {
+          "type": "collapsible_row",
+          "settings": {
+            "heading": "Q: Can I order a portrait of a pet who passed away years ago?",
+            "icon": "none",
+            "row_content": "<p>Yes, there is no time limit on creating a pet memorial portrait. Whether your pet passed away last week or a decade ago, any photo you have will work. Some of our most meaningful portraits come from old photos that customers have been holding onto for years. Upload it to the free preview and see how it looks.</p>",
+            "page": ""
+          }
+        },
+        "collapsible_row_X6RETJ": {
+          "type": "collapsible_row",
+          "settings": {
+            "heading": "Q: What products can I put my memorial portrait on?",
+            "icon": "none",
+            "row_content": "<p>Perkie Prints offers framed prints (black, white, or natural wood frames), stretched canvas, custom apparel, unframed archival prints, and high-resolution digital files. For memorial portraits, framed prints and canvas are the most popular because they're ready to display immediately. You can preview your portrait in any style for free before choosing a product.</p>",
+            "page": ""
+          }
+        },
+        "collapsible_row_wDeqF6": {
+          "type": "collapsible_row",
+          "settings": {
+            "heading": "Q: Do you offer pet memorial portraits for cats?",
+            "icon": "none",
+            "row_content": "<p>Yes. Perkie Prints creates memorial portraits for dogs, cats, and other pets. The process is the same regardless of pet type: upload a photo, preview your pet in all four art styles for free, and choose your favorite. Cat portraits are among our most popular memorial orders.</p>",
+            "page": ""
+          }
+        },
+        "collapsible_row_xQwWRf": {
+          "type": "collapsible_row",
+          "settings": {
+            "heading": "Q: What if I'm not happy with how my portrait looks?",
+            "icon": "none",
+            "row_content": "<p>Perkie Prints offers a free instant preview so you can see your portrait before spending anything. If the preview doesn't look right, try a different photo or a different style. You can also reach out to our team for help. We want every portrait to feel like the pet you remember.</p>",
+            "page": ""
+          }
+        },
+        "collapsible_row_hhJJmr": {
+          "type": "collapsible_row",
+          "settings": {
+            "heading": "Q: Can I order a memorial portrait as a gift if I don't have a photo?",
+            "icon": "none",
+            "row_content": "<p>Yes. You can usually find a photo of the pet on their owner's Instagram or Facebook, or ask a mutual friend or family member. Screenshots from social media work perfectly for creating a portrait. If you can't find a photo at all, a Perkie Prints gift card lets the recipient create their own memorial portrait when they're ready.</p>",
+            "page": ""
+          }
+        },
+        "collapsible_row_VjCLdw": {
+          "type": "collapsible_row",
+          "settings": {
+            "heading": "Q: Do you offer gift cards for pet memorial portraits?",
+            "icon": "none",
+            "row_content": "<p>Yes, Perkie Prints offers gift cards that let the recipient choose their own photo, art style, and product on their own timeline. It's a thoughtful option when you want to give something meaningful but want them to have the full experience of creating the portrait themselves. No expiration, no pressure.</p>",
             "page": ""
           }
         }
@@ -63,7 +135,15 @@
         "collapsible_row_tbMGL7",
         "collapsible_row_mQDqDM",
         "collapsible_row_XTRMrj",
-        "collapsible_row_aGrhjM"
+        "collapsible_row_aGrhjM",
+        "collapsible_row_6WB7ej",
+        "collapsible_row_3m7hat",
+        "collapsible_row_FVKMaw",
+        "collapsible_row_X6RETJ",
+        "collapsible_row_wDeqF6",
+        "collapsible_row_xQwWRf",
+        "collapsible_row_hhJJmr",
+        "collapsible_row_VjCLdw"
       ],
       "name": "t:sections.collapsible_content.presets.name",
       "settings": {
@@ -71,14 +151,14 @@
         "heading": "Frequently Asked Questions",
         "heading_size": "h2",
         "heading_alignment": "left",
-        "layout": "none",
+        "layout": "section",
         "container_color_scheme": "scheme-f318d737-2be2-4346-8605-b2fbd6208608",
         "color_scheme": "scheme-f318d737-2be2-4346-8605-b2fbd6208608",
         "open_first_collapsible_row": false,
         "image_ratio": "adapt",
         "desktop_layout": "image_second",
-        "padding_top": 20,
-        "padding_bottom": 36
+        "padding_top": 0,
+        "padding_bottom": 0
       }
     }
   },
