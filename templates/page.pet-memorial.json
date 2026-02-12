@@ -63,6 +63,49 @@
         "pb": 0
       }
     },
+    "rich_text_cbP9fk": {
+      "type": "rich-text",
+      "blocks": {
+        "heading_jEQL8V": {
+          "type": "heading",
+          "settings": {
+            "heading": "A Lasting Way to Remember Them",
+            "heading_size": "h1"
+          }
+        },
+        "text_bJk4Dx": {
+          "type": "text",
+          "settings": {
+            "text": "<p>Custom pet memorial portraits from your favorite photo</p>"
+          }
+        },
+        "button_rXXXdw": {
+          "type": "button",
+          "settings": {
+            "button_label": "Create Your Memorial Portrait",
+            "button_link": "shopify://pages/custom-image-processing",
+            "button_style_secondary": false,
+            "button_label_2": "",
+            "button_link_2": "",
+            "button_style_secondary_2": false
+          }
+        }
+      },
+      "block_order": [
+        "heading_jEQL8V",
+        "text_bJk4Dx",
+        "button_rXXXdw"
+      ],
+      "name": "t:sections.rich-text.presets.name",
+      "settings": {
+        "desktop_content_position": "center",
+        "content_alignment": "center",
+        "color_scheme": "scheme-f318d737-2be2-4346-8605-b2fbd6208608",
+        "full_width": false,
+        "padding_top": 0,
+        "padding_bottom": 0
+      }
+    },
     "main": {
       "type": "main-page",
       "custom_css": [
@@ -218,6 +261,7 @@
   },
   "order": [
     "ks_fancy_slideshow_tgJca6",
+    "rich_text_cbP9fk",
     "main",
     "collapsible_content_eamrTV"
   ]
