@@ -20,7 +20,7 @@
             "overlay_color": "#121212",
             "overlay_opacity": 20,
             "overlay_blur": 0,
-            "caption_position_mobile": "center",
+            "caption_position_mobile": "bottom",
             "caption_text_align_mobile": "text-center",
             "caption_position_desktop": "bottom",
             "caption_text_align_desktop": "text-desktop-center",
