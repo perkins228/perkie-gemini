@@ -44,8 +44,7 @@
         "slide_hKxe9F"
       ],
       "custom_css": [
-        "{max-width: 1366px; margin: 0 auto;}",
-        " /* Specific fix for the content block on mobile */@media screen and (max-width: 749px) {.ks-section-content-block {display: none !important; }}"
+        "{max-width: 1366px; margin: 0 auto;}"
       ],
       "name": "KS - Fancy slideshow",
       "settings": {
