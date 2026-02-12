@@ -113,7 +113,8 @@
     "main": {
       "type": "main-page",
       "custom_css": [
-        ".button {background-color: #ff5964 !important; /* The background color */ color: #ffffff !important; /* The text color */ border: none; /* Optional: removes border */}"
+        ".button {background-color: #ff5964 !important; /* The background color */ color: #ffffff !important; /* The text color */ border: none; /* Optional: removes border */}",
+        "h1 {text-align: center;}"
       ],
       "settings": {
         "padding_top": 4,
