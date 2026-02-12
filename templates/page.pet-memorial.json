@@ -44,7 +44,8 @@
         "slide_hKxe9F"
       ],
       "custom_css": [
-        "{max-width: 1366px; margin: 0 auto;}"
+        "{max-width: 1366px; margin: 0 auto;}",
+        "@media (max-width: 768px) {.h1, p, .button {display: none; }}"
       ],
       "name": "KS - Fancy slideshow",
       "settings": {
