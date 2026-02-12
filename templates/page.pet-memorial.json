@@ -9,6 +9,57 @@
  */
 {
   "sections": {
+    "image_with_text_AgFKFg": {
+      "type": "image-with-text",
+      "blocks": {
+        "heading_YDk4HH": {
+          "type": "heading",
+          "settings": {
+            "heading": "Image with text",
+            "heading_size": "h1"
+          }
+        },
+        "text_PmkYTx": {
+          "type": "text",
+          "settings": {
+            "text": "<p>Pair text with an image to focus on your chosen product, collection, or blog post. Add details on availability, style, or even provide a review.</p>",
+            "text_style": "body"
+          }
+        },
+        "button_TWGgWN": {
+          "type": "button",
+          "settings": {
+            "button_label": "Button label",
+            "button_link": "",
+            "button_style_secondary": false
+          }
+        }
+      },
+      "block_order": [
+        "heading_YDk4HH",
+        "text_PmkYTx",
+        "button_TWGgWN"
+      ],
+      "custom_css": [
+        ".button {background-color: #ff5964 !important; /* The background color */ color: #ffffff !important; /* The text color */ border: none; /* Optional: removes border */}"
+      ],
+      "name": "t:sections.image-with-text.presets.name",
+      "settings": {
+        "image": "shopify://shop_images/sammy_memorial.png",
+        "height": "adapt",
+        "desktop_image_width": "medium",
+        "layout": "image_first",
+        "image_behavior": "none",
+        "content_layout": "no-overlap",
+        "desktop_content_position": "top",
+        "desktop_content_alignment": "left",
+        "mobile_content_alignment": "left",
+        "section_color_scheme": "scheme-f87c2828-f6f5-4ee4-81f9-351a7b6ea793",
+        "color_scheme": "scheme-f318d737-2be2-4346-8605-b2fbd6208608",
+        "padding_top": 36,
+        "padding_bottom": 36
+      }
+    },
     "main": {
       "type": "main-page",
       "custom_css": [
@@ -163,6 +214,7 @@
     }
   },
   "order": [
+    "image_with_text_AgFKFg",
     "main",
     "collapsible_content_eamrTV"
   ]
