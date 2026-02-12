@@ -45,7 +45,7 @@
       ],
       "custom_css": [
         "{max-width: 1366px; margin: 0 auto; }",
-        "/* Hide text on mobile only */@media screen and (max-width: 749px) {.banner__content, .slideshow__text, .banner__heading, .banner__text, . {display: none !important; }}"
+        "/* Specific fix for the content block on mobile */@media screen and (max-width: 749px) {.ks-section-content-block {display: none !important; }}"
       ],
       "name": "KS - Fancy slideshow",
       "settings": {
