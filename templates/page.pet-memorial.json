@@ -124,6 +124,36 @@
     "ks_testimonials_UXPTU8": {
       "type": "ks-testimonials",
       "blocks": {
+        "slide_QWtyra": {
+          "type": "slide",
+          "settings": {
+            "title": "Testimonial Title",
+            "description": "<p>\"Shopping at [Store Name] has been an absolute delight! The carefully curated selection of products is a testament to the store's commitment to quality. From trendy fashion pieces to unique home decor items, every product exudes style and craftsmanship.\"</p>",
+            "author": "Author's Name",
+            "author_subtitle": "Verified Customer",
+            "product": ""
+          }
+        },
+        "slide_LgTVBG": {
+          "type": "slide",
+          "settings": {
+            "title": "Testimonial Title",
+            "description": "<p>\"Shopping at [Store Name] has been an absolute delight! The carefully curated selection of products is a testament to the store's commitment to quality. From trendy fashion pieces to unique home decor items, every product exudes style and craftsmanship.\"</p>",
+            "author": "Author's Name",
+            "author_subtitle": "Verified Customer",
+            "product": ""
+          }
+        },
+        "slide_BrBCgA": {
+          "type": "slide",
+          "settings": {
+            "title": "Testimonial Title",
+            "description": "<p>\"Shopping at [Store Name] has been an absolute delight! The carefully curated selection of products is a testament to the store's commitment to quality. From trendy fashion pieces to unique home decor items, every product exudes style and craftsmanship.\"</p>",
+            "author": "Author's Name",
+            "author_subtitle": "Verified Customer",
+            "product": ""
+          }
+        },
         "slide_HKjkFj": {
           "type": "slide",
           "settings": {
@@ -166,6 +196,9 @@
         }
       },
       "block_order": [
+        "slide_QWtyra",
+        "slide_LgTVBG",
+        "slide_BrBCgA",
         "slide_HKjkFj",
         "slide_C4Cr6p",
         "slide_hyABqe",
@@ -180,7 +213,7 @@
         "title": "What Customers Are Saying",
         "heading_size": "h1",
         "testimonial_show_stars": true,
-        "stars_color_scheme": "#121212",
+        "stars_color_scheme": "#ff5964",
         "testimonial_title_font_size": "fs-md",
         "testimonial_description_font_size": "fs-sm",
         "testimonial_product_show_price": false,
