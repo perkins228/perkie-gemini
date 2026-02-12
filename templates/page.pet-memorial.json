@@ -44,7 +44,7 @@
         "slide_hKxe9F"
       ],
       "custom_css": [
-        "{max-width: 1200px; /* Or your preferred container size */ margin: 0 auto; /* Centers the content */}"
+        "{max-width: 1400px; /* Or your preferred container size */ margin: 0 auto; /* Centers the content */}"
       ],
       "name": "KS - Fancy slideshow",
       "settings": {
