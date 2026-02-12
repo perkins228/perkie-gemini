@@ -9,6 +9,55 @@
  */
 {
   "sections": {
+    "image_banner_ejF4mR": {
+      "type": "image-banner",
+      "blocks": {
+        "heading_9Lmzet": {
+          "type": "heading",
+          "settings": {
+            "heading": "A Lasting Way to Remember Them",
+            "heading_size": "h1"
+          }
+        },
+        "text_VkJMQr": {
+          "type": "text",
+          "settings": {
+            "text": "Custom pet memorial portraits from your favorite photo",
+            "text_style": "body"
+          }
+        },
+        "buttons_njpT74": {
+          "type": "buttons",
+          "settings": {
+            "button_label_1": "Create Your Memorial Portrait",
+            "button_link_1": "shopify://pages/custom-image-processing",
+            "button_style_secondary_1": false,
+            "button_label_2": "",
+            "button_link_2": "",
+            "button_style_secondary_2": false
+          }
+        }
+      },
+      "block_order": [
+        "heading_9Lmzet",
+        "text_VkJMQr",
+        "buttons_njpT74"
+      ],
+      "name": "t:sections.image-banner.presets.name",
+      "settings": {
+        "image": "shopify://shop_images/sammy_memorial.png",
+        "image_overlay_opacity": 0,
+        "image_height": "adapt",
+        "image_behavior": "none",
+        "desktop_content_position": "middle-right",
+        "desktop_content_alignment": "center",
+        "show_text_box": false,
+        "color_scheme": "scheme-f318d737-2be2-4346-8605-b2fbd6208608",
+        "stack_images_on_mobile": true,
+        "mobile_content_alignment": "center",
+        "show_text_below": true
+      }
+    },
     "image_with_text_AgFKFg": {
       "type": "image-with-text",
       "blocks": {
@@ -221,6 +270,7 @@
     }
   },
   "order": [
+    "image_banner_ejF4mR",
     "image_with_text_AgFKFg",
     "main",
     "collapsible_content_eamrTV"
