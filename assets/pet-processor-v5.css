@@ -1275,14 +1275,9 @@
   }
 }
 
-/* Layout containment for performance */
-@supports (contain: layout) {
-  @media (min-width: 1024px) and (hover: hover) {
-    .processor-columns {
-      contain: layout;
-    }
-  }
-}
+/* Layout containment removed — contain:layout on a flex parent with a sticky child
+   causes cross-browser layout miscalculation (Chrome + Safari both affected).
+   See: customer layout bug investigation 2026-02-13 */
 
 /* Graceful degradation for older browsers (side-by-side: controls left, preview right) */
 @supports not (display: flex) {
@@ -1479,7 +1474,10 @@
 .style-card.effect-btn--loading .style-card__image-wrapper::after {
   content: '';
   position: absolute;
-  inset: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
   background: rgba(0, 0, 0, 0.4);
   border-radius: 6px;
   z-index: 1;

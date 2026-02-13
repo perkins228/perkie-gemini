@@ -2577,66 +2577,78 @@ class PetProcessor {
   }
   
   showResult(result) {
-    // NEW: Use requestAnimationFrame to ensure non-blocking UI update
+    // Use requestAnimationFrame to ensure non-blocking UI update
     requestAnimationFrame(() => {
-      this.hideAllViews();
+      try {
+        this.hideAllViews();
 
-      // Add class to enable side-by-side layout on desktop
-      const container = this.container.querySelector('.pet-processor-container');
-      if (container) container.classList.add('has-result');
+        // Add class to enable side-by-side layout on desktop
+        const container = this.container.querySelector('.pet-processor-container');
+        if (container) container.classList.add('has-result');
 
-      // Show result elements in left column
-      const leftResultElements = this.container.querySelectorAll('.processor-controls .effect-grid-wrapper, .processor-controls .action-buttons');
-      leftResultElements.forEach(el => el.hidden = false);
+        // Show result elements in left column
+        const leftResultElements = this.container.querySelectorAll('.processor-controls .effect-grid-wrapper');
+        leftResultElements.forEach(el => el.hidden = false);
 
-      // Show inline section header for desktop side-by-side layout
-      const inlineSectionHeader = this.container.querySelector('.inline-section-header');
-      if (inlineSectionHeader) {
-        inlineSectionHeader.hidden = false;
-        // Copy heading text from original section header
-        const section = this.container.closest('.ks-pet-processor-section');
-        if (section) {
-          const originalHeading = section.querySelector('.section-heading');
-          const originalSubheading = section.querySelector('.section-subheading');
-          const inlineHeading = inlineSectionHeader.querySelector('.inline-section-heading');
-          const inlineSubheading = inlineSectionHeader.querySelector('.inline-section-subheading');
-          if (originalHeading && inlineHeading) {
-            inlineHeading.textContent = originalHeading.textContent;
-          }
-          if (originalSubheading && inlineSubheading) {
-            inlineSubheading.textContent = originalSubheading.textContent;
+        // Show inline section header for desktop side-by-side layout
+        const inlineSectionHeader = this.container.querySelector('.inline-section-header');
+        if (inlineSectionHeader) {
+          inlineSectionHeader.hidden = false;
+          // Copy heading text from original section header
+          const section = this.container.closest('.ks-pet-processor-section');
+          if (section) {
+            const originalHeading = section.querySelector('.section-heading');
+            const originalSubheading = section.querySelector('.section-subheading');
+            const inlineHeading = inlineSectionHeader.querySelector('.inline-section-heading');
+            const inlineSubheading = inlineSectionHeader.querySelector('.inline-section-subheading');
+            if (originalHeading && inlineHeading) {
+              inlineHeading.textContent = originalHeading.textContent;
+            }
+            if (originalSubheading && inlineSubheading) {
+              inlineSubheading.textContent = originalSubheading.textContent;
+            }
           }
         }
-      }
 
-      // Show result view in right column
-      const rightResultView = this.container.querySelector('.processor-preview .result-view');
-      if (rightResultView) rightResultView.hidden = false;
+        // Show result view in right column
+        const rightResultView = this.container.querySelector('.processor-preview .result-view');
+        if (rightResultView) rightResultView.hidden = false;
 
-      // Hide preview placeholder
-      const placeholder = this.container.querySelector('.preview-placeholder');
-      if (placeholder) placeholder.style.display = 'none';
+        // Hide preview placeholder
+        const placeholder = this.container.querySelector('.preview-placeholder');
+        if (placeholder) placeholder.style.display = 'none';
 
-      this.isProcessing = false;
+        this.isProcessing = false;
 
-      // Set initial image (prefer GCS URL, fallback to dataUrl)
-      const img = this.container.querySelector('.pet-image');
-      if (img && result.effects.enhancedblackwhite) {
-        const imageUrl = result.effects.enhancedblackwhite.gcsUrl || result.effects.enhancedblackwhite.dataUrl;
-        if (imageUrl) {
-          img.src = imageUrl;
+        // Set initial image (prefer GCS URL, fallback to dataUrl)
+        const img = this.container.querySelector('.pet-image');
+        if (img && result.effects.enhancedblackwhite) {
+          const imageUrl = result.effects.enhancedblackwhite.gcsUrl || result.effects.enhancedblackwhite.dataUrl;
+          if (imageUrl) {
+            img.src = imageUrl;
+          }
         }
+
+        // Update style card preview images with actual processed images
+        this.updateStyleCardPreviews(result);
+
+        // Show scroll hint for product discovery (desktop only)
+        const scrollHint = this.container.querySelector('[data-scroll-hint]');
+        if (scrollHint) scrollHint.classList.add('visible');
+
+        // Dispatch event for product mockup grid to display
+        this.dispatchProcessingComplete(result);
+      } catch (err) {
+        console.error('[PetProcessor] showResult error:', err);
+        // Recovery: ensure critical UI elements are visible
+        var effectGrid = this.container.querySelector('.effect-grid-wrapper');
+        if (effectGrid) effectGrid.hidden = false;
+        var resultView = this.container.querySelector('.processor-preview .result-view');
+        if (resultView) resultView.hidden = false;
+        var recoverContainer = this.container.querySelector('.pet-processor-container');
+        if (recoverContainer) recoverContainer.classList.add('has-result');
+        this.isProcessing = false;
       }
-
-      // Update style card preview images with actual processed images
-      this.updateStyleCardPreviews(result);
-
-      // Show scroll hint for product discovery (desktop only)
-      const scrollHint = this.container.querySelector('[data-scroll-hint]');
-      if (scrollHint) scrollHint.classList.add('visible');
-
-      // Dispatch event for product mockup grid to display
-      this.dispatchProcessingComplete(result);
     });
   }
 
@@ -2749,7 +2761,7 @@ class PetProcessor {
   
   hideAllViews() {
     // Hide all views in left column
-    const leftViews = this.container.querySelectorAll('.upload-zone, .processing-view, .error-view, .effect-grid-wrapper, .action-buttons');
+    const leftViews = this.container.querySelectorAll('.upload-zone, .processing-view, .error-view, .effect-grid-wrapper');
     leftViews.forEach(view => view.hidden = true);
     
     // Hide result view in right column
