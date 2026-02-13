@@ -488,6 +488,22 @@
   margin: 1.75rem 0;
 }
 
+.ks-testimonials-review-img {
+  margin-top: 1rem;
+  overflow: hidden;
+  border-radius: var(--border-radius);
+  border: 1px solid rgba(var(--color-foreground), 0.1);
+}
+
+.ks-testimonials-review-img img {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: inherit;
+  object-fit: cover;
+  object-position: center;
+}
+
 .ks-testimonials-card-footer {
   display: inline-flex;
   align-items: center;

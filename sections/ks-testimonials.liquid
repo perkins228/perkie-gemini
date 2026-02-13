@@ -90,6 +90,16 @@
                         {{ block.settings.description }}
                       </div>
                     {% endunless %}
+                    {% unless block.settings.review_img == blank %}
+                      <div class="ks-testimonials-review-img" style="max-height: {{ section.settings.review_img_max_height }}px;">
+                        <img
+                          src="{{ block.settings.review_img | image_url: width: 800 }}"
+                          alt="{{ block.settings.review_img.alt | default: block.settings.author | append: ' review photo' | escape }}"
+                          width="{{ block.settings.review_img.width }}"
+                          height="{{ block.settings.review_img.height }}"
+                          loading="lazy">
+                      </div>
+                    {% endunless %}
                     {% if block.settings.img != blank or block.settings.author != blank %}
                       <div 
                         class="ks-testimonials-card-footer"
@@ -267,6 +277,17 @@
       ]
     },
     {
+      "type": "range",
+      "id": "review_img_max_height",
+      "label": "Review photo max height",
+      "default": 200,
+      "min": 100,
+      "max": 400,
+      "step": 10,
+      "unit": "px",
+      "info": "Controls the maximum display height of customer review photos"
+    },
+    {
       "type": "checkbox",
       "id": "testimonial_product_show_price",
       "label": "Show product price",
@@ -389,8 +410,14 @@
         },
         {
           "type": "image_picker",
+          "id": "review_img",
+          "label": "Review photo",
+          "info": "Customer photo of their purchase (optional)"
+        },
+        {
+          "type": "image_picker",
           "id": "img",
-          "label": "Image"
+          "label": "Author avatar"
         },
         {
           "type": "text",
