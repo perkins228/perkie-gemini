@@ -498,8 +498,7 @@
 .ks-testimonials-review-img img {
   display: block;
   width: 100%;
-  height: auto;
-  max-height: inherit;
+  height: 100%;
   object-fit: cover;
   object-position: center;
 }

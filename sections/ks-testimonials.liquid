@@ -91,7 +91,7 @@
                       </div>
                     {% endunless %}
                     {% unless block.settings.review_img == blank %}
-                      <div class="ks-testimonials-review-img" style="max-height: {{ section.settings.review_img_max_height }}px;">
+                      <div class="ks-testimonials-review-img" style="aspect-ratio: {{ section.settings.review_img_ratio }};">
                         <img
                           src="{{ block.settings.review_img | image_url: width: 800 }}"
                           alt="{{ block.settings.review_img.alt | default: block.settings.author | append: ' review photo' | escape }}"
@@ -277,15 +277,18 @@
       ]
     },
     {
-      "type": "range",
-      "id": "review_img_max_height",
-      "label": "Review photo max height",
-      "default": 200,
-      "min": 100,
-      "max": 400,
-      "step": 10,
-      "unit": "px",
-      "info": "Controls the maximum display height of customer review photos"
+      "type": "select",
+      "id": "review_img_ratio",
+      "label": "Review photo aspect ratio",
+      "default": "4/3",
+      "options": [
+        { "value": "1/1", "label": "Square (1:1)" },
+        { "value": "4/3", "label": "Landscape (4:3)" },
+        { "value": "16/9", "label": "Wide (16:9)" },
+        { "value": "3/4", "label": "Portrait (3:4)" },
+        { "value": "auto", "label": "Original" }
+      ],
+      "info": "Controls the shape of customer review photos. 'Original' uses the image's natural ratio."
     },
     {
       "type": "checkbox",
