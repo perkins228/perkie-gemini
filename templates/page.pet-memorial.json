@@ -124,23 +124,13 @@
     "ks_testimonials_UXPTU8": {
       "type": "ks-testimonials",
       "blocks": {
-        "slide_QWtyra": {
+        "slide_QtCjG4": {
           "type": "slide",
           "settings": {
-            "title": "Grateful 1st time Customer",
-            "description": "<p>Exceptional customer service since submitting a picture of my beloved Winston, to memorialize this important family member for ever. I was beyond impressed when I opened the carefully packaged box- the quality and details captured his sweet, soulful eyes and loving personality. Thank you!!\"</p>",
-            "review_img": "shopify://shop_images/memorial_review_1.jpg",
-            "author": "Maureen R.",
-            "author_subtitle": "Verified Customer",
-            "product": ""
-          }
-        },
-        "slide_LgTVBG": {
-          "type": "slide",
-          "settings": {
-            "title": "Testimonial Title",
-            "description": "<p>\"Shopping at [Store Name] has been an absolute delight! The carefully curated selection of products is a testament to the store's commitment to quality. From trendy fashion pieces to unique home decor items, every product exudes style and craftsmanship.\"</p>",
-            "author": "Author's Name",
+            "title": "No Words",
+            "description": "<p>\"I have no words to describe how professional, accommodating and kind is the team of Perkie Prints! They went above and beyond their service! I have now a beautiful memory of my beloved passed dogs and I shared the digital version with my whole family so we can all share this beautiful memory and artwork! Best gift for whoever has a beloved animal that wants to remember forever! Thank you Perkie Prints, I will recommend you to anyone I know :)\"</p>",
+            "review_img": "shopify://shop_images/memorial_review_8.jpg",
+            "author": "Eleonora F.",
             "author_subtitle": "Verified Customer",
             "product": ""
           }
@@ -148,9 +138,21 @@
         "slide_BrBCgA": {
           "type": "slide",
           "settings": {
-            "title": "Testimonial Title",
-            "description": "<p>\"Shopping at [Store Name] has been an absolute delight! The carefully curated selection of products is a testament to the store's commitment to quality. From trendy fashion pieces to unique home decor items, every product exudes style and craftsmanship.\"</p>",
-            "author": "Author's Name",
+            "title": "Love it!",
+            "description": "<p>\"I will absolutely treasure this shirt as a memory of my furbaby. Great communication and outstanding correspondence from the company. I will be back to shop with them again. Highly rated!!!\"</p>",
+            "review_img": "shopify://shop_images/memorial_review_3.jpg",
+            "author": "Jessica S.",
+            "author_subtitle": "Verified Customer",
+            "product": ""
+          }
+        },
+        "slide_QWtyra": {
+          "type": "slide",
+          "settings": {
+            "title": "Grateful 1st time Customer",
+            "description": "<p>\"Exceptional customer service since submitting a picture of my beloved Winston, to memorialize this important family member for ever. I was beyond impressed when I opened the carefully packaged box- the quality and details captured his sweet, soulful eyes and loving personality. Thank you!!\"</p>",
+            "review_img": "shopify://shop_images/memorial_review_1.jpg",
+            "author": "Maureen R.",
             "author_subtitle": "Verified Customer",
             "product": ""
           }
@@ -158,29 +160,10 @@
         "slide_HKjkFj": {
           "type": "slide",
           "settings": {
-            "title": "Testimonial Title",
-            "description": "<p>\"Shopping at [Store Name] has been an absolute delight! The carefully curated selection of products is a testament to the store's commitment to quality. From trendy fashion pieces to unique home decor items, every product exudes style and craftsmanship.\"</p>",
-            "author": "Author's Name",
-            "author_subtitle": "Verified Customer",
-            "product": ""
-          }
-        },
-        "slide_C4Cr6p": {
-          "type": "slide",
-          "settings": {
-            "title": "Testimonial Title",
-            "description": "<p>\"Shopping at [Store Name] has been an absolute delight! The carefully curated selection of products is a testament to the store's commitment to quality. From trendy fashion pieces to unique home decor items, every product exudes style and craftsmanship.\"</p>",
-            "author": "Author's Name",
-            "author_subtitle": "Verified Customer",
-            "product": ""
-          }
-        },
-        "slide_hyABqe": {
-          "type": "slide",
-          "settings": {
-            "title": "Testimonial Title",
-            "description": "<p>\"Shopping at [Store Name] has been an absolute delight! The carefully curated selection of products is a testament to the store's commitment to quality. From trendy fashion pieces to unique home decor items, every product exudes style and craftsmanship.\"</p>",
-            "author": "Author's Name",
+            "title": "Thank you",
+            "description": "<p>\"It is PERFECT! I couldn't have asked for a better memorial for my boyfriend's family's best friend, Jack. Thank you for creating such a beautiful print!\"</p>",
+            "review_img": "shopify://shop_images/memorial_review_4.jpg",
+            "author": "Jen L.",
             "author_subtitle": "Verified Customer",
             "product": ""
           }
@@ -188,22 +171,57 @@
         "slide_VXMVMP": {
           "type": "slide",
           "settings": {
-            "title": "Testimonial Title",
-            "description": "<p>\"Shopping at [Store Name] has been an absolute delight! The carefully curated selection of products is a testament to the store's commitment to quality. From trendy fashion pieces to unique home decor items, every product exudes style and craftsmanship.\"</p>",
-            "author": "Author's Name",
+            "title": "Beyond Expectations!",
+            "description": "<p>\"Above & beyond my expectations. I bought it in memory of our sweet boxer Macy. Now I have a beautiful memory of her. Thank you!\"</p>",
+            "review_img": "shopify://shop_images/memorial_review_7.jpg",
+            "author": "Amy W.",
+            "author_subtitle": "Verified Customer",
+            "product": ""
+          }
+        },
+        "slide_LgTVBG": {
+          "type": "slide",
+          "settings": {
+            "title": "Stunning",
+            "description": "<p>\"I'm totally in love with this!  bigger than i was expecting but that's more than okay! it's a beautiful image of my girl that evokes wonderful memories of her...and for that, i thank you!\"</p>",
+            "review_img": "shopify://shop_images/memorial_review_2.jpg",
+            "author": "Sharon W.",
+            "author_subtitle": "Verified Customer",
+            "product": ""
+          }
+        },
+        "slide_C4Cr6p": {
+          "type": "slide",
+          "settings": {
+            "title": "Thank you Perkie Prints!",
+            "description": "<p>\"I lost my dog about a month ago to a horrible disease and wanted to get something to cherish her memory. Perkie Prints captured my sweet girl in an ornament so beautifully. They were so helpful and meticulous about getting the picture perfect. The joy I had opening this ornament was unbelievable, it brought me to tears. Thank you Perkie Prints!! 10/10 would buy from them again!!\"</p>",
+            "review_img": "shopify://shop_images/memorial_review_5.jpg",
+            "author": "Samara F.",
+            "author_subtitle": "Verified Customer",
+            "product": ""
+          }
+        },
+        "slide_hyABqe": {
+          "type": "slide",
+          "settings": {
+            "title": "Perfect memorial",
+            "description": "<p>\"Perfect way to memorialize my fur baby.\"</p>",
+            "review_img": "shopify://shop_images/memorial_review_6.jpg",
+            "author": "Sarah H.",
             "author_subtitle": "Verified Customer",
             "product": ""
           }
         }
       },
       "block_order": [
-        "slide_QWtyra",
-        "slide_LgTVBG",
+        "slide_QtCjG4",
         "slide_BrBCgA",
+        "slide_QWtyra",
         "slide_HKjkFj",
+        "slide_VXMVMP",
+        "slide_LgTVBG",
         "slide_C4Cr6p",
-        "slide_hyABqe",
-        "slide_VXMVMP"
+        "slide_hyABqe"
       ],
       "custom_css": [
         "h2 {text-align: center;}"
@@ -217,7 +235,7 @@
         "stars_color_scheme": "#ff5964",
         "testimonial_title_font_size": "fs-md",
         "testimonial_description_font_size": "fs-xs",
-        "review_img_max_height": 230,
+        "review_img_ratio": "1/1",
         "testimonial_product_show_price": false,
         "testimonial_product_img_size": 60,
         "card_color_scheme": "scheme-f87c2828-f6f5-4ee4-81f9-351a7b6ea793",
