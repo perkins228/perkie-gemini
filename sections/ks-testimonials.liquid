@@ -1,3 +1,6 @@
+{{ 'component-slider.css' | asset_url | stylesheet_tag }}
+{{ 'component-card.css' | asset_url | stylesheet_tag }}
+
 {%- style -%}
   #ks-testimonials-{{ section.id }} {
     padding-top: {{ section.settings.pt | times: 0.75 | round: 0 }}px;
