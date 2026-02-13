@@ -127,9 +127,10 @@
         "slide_QWtyra": {
           "type": "slide",
           "settings": {
-            "title": "Testimonial Title",
-            "description": "<p>\"Shopping at [Store Name] has been an absolute delight! The carefully curated selection of products is a testament to the store's commitment to quality. From trendy fashion pieces to unique home decor items, every product exudes style and craftsmanship.\"</p>",
-            "author": "Author's Name",
+            "title": "Grateful 1st time Customer",
+            "description": "<p>Exceptional customer service since submitting a picture of my beloved Winston, to memorialize this important family member for ever. I was beyond impressed when I opened the carefully packaged box- the quality and details captured his sweet, soulful eyes and loving personality. Thank you!!\"</p>",
+            "img": "shopify://shop_images/memorial_review_1.jpg",
+            "author": "Maureen R.",
             "author_subtitle": "Verified Customer",
             "product": ""
           }
@@ -215,11 +216,11 @@
         "testimonial_show_stars": true,
         "stars_color_scheme": "#ff5964",
         "testimonial_title_font_size": "fs-md",
-        "testimonial_description_font_size": "fs-sm",
+        "testimonial_description_font_size": "fs-xs",
         "testimonial_product_show_price": false,
         "testimonial_product_img_size": 60,
         "card_color_scheme": "scheme-f87c2828-f6f5-4ee4-81f9-351a7b6ea793",
-        "card_text_alignment": "center",
+        "card_text_alignment": "left",
         "card_border_thickness": 0,
         "card_border_opacity": 0,
         "card_corner_radius": 0,
