@@ -38,7 +38,7 @@
         "text_cta1": {
           "type": "text",
           "settings": {
-            "text": "<p>No account needed. Takes 30 seconds. 100% free.</p>"
+            "text": "<p>No account needed. Takes less than 60 seconds. 100% free.</p>"
           }
         },
         "button_cta1": {
@@ -63,7 +63,7 @@
         "content_alignment": "center",
         "color_scheme": "scheme-f318d737-2be2-4346-8605-b2fbd6208608",
         "full_width": true,
-        "padding_top": 12,
+        "padding_top": 24,
         "padding_bottom": 24
       }
     },
@@ -144,10 +144,10 @@
       "settings": {
         "desktop_content_position": "center",
         "content_alignment": "left",
-        "color_scheme": "scheme-1",
+        "color_scheme": "scheme-f318d737-2be2-4346-8605-b2fbd6208608",
         "full_width": false,
-        "padding_top": 40,
-        "padding_bottom": 40
+        "padding_top": 12,
+        "padding_bottom": 12
       }
     },
     "final_cta": {
@@ -195,8 +195,8 @@
         "content_alignment": "center",
         "color_scheme": "scheme-f318d737-2be2-4346-8605-b2fbd6208608",
         "full_width": true,
-        "padding_top": 8,
-        "padding_bottom": 8
+        "padding_top": 20,
+        "padding_bottom": 20
       }
     },
     "faq": {
