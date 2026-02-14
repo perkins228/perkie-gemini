@@ -1551,4 +1551,28 @@
   outline-offset: 2px;
 }
 
+/* ==========================================================================
+   TEMPORARY DIAGNOSTIC — Safari layout debugging (v3.0)
+   Remove after confirming fix is received by customer.
+   If you can see colored borders, CSS v3.0 is active.
+   RED = .processor-columns (grid container)
+   BLUE = .processor-controls (left column)
+   GREEN = .processor-preview (right column / sticky)
+   ORANGE DASHED = .has-result wrapper
+   ========================================================================== */
+@media (min-width: 1024px) and (hover: hover) {
+  .pet-processor-container.has-result .processor-columns {
+    outline: 3px solid red !important;
+  }
+  .pet-processor-container.has-result .processor-controls {
+    outline: 3px solid blue !important;
+  }
+  .pet-processor-container.has-result .processor-preview {
+    outline: 3px solid green !important;
+  }
+  .pet-processor-container.has-result {
+    outline: 3px dashed orange !important;
+  }
+}
+
 
