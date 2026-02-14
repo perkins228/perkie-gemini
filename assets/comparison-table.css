@@ -1,0 +1,213 @@
+/* ==========================================================================
+   Comparison Table — responsive styles for competitor comparison page
+   Desktop: semantic HTML table | Mobile: stacked feature cards
+   ========================================================================== */
+
+/* ---------- Wrapper ---------- */
+.comparison-table-wrapper {
+  max-width: var(--page-width, 1200px);
+  margin: 0 auto;
+  padding: 0 1.5rem;
+}
+
+@media screen and (min-width: 750px) {
+  .comparison-table-wrapper {
+    padding: 0 5rem;
+  }
+}
+
+.comparison-table-wrapper .section-heading {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+/* ---------- Desktop Table (750px+) ---------- */
+.comparison-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 1.4rem;
+  line-height: 1.5;
+}
+
+.comparison-table caption {
+  font-size: 1.6rem;
+  font-weight: 600;
+  text-align: center;
+  padding-bottom: 1.5rem;
+  caption-side: top;
+}
+
+.comparison-table thead th {
+  padding: 1.2em 1em;
+  text-align: center;
+  font-weight: 700;
+  font-size: 1.5rem;
+  border-bottom: 0.2rem solid rgba(var(--color-foreground), 0.2);
+  vertical-align: bottom;
+}
+
+.comparison-table thead th:first-child {
+  text-align: left;
+}
+
+.comparison-table tbody th {
+  padding: 1em;
+  text-align: left;
+  font-weight: 600;
+  vertical-align: top;
+  border-bottom: 0.1rem solid rgba(var(--color-foreground), 0.1);
+}
+
+.comparison-table tbody td {
+  padding: 1em;
+  vertical-align: top;
+  border-bottom: 0.1rem solid rgba(var(--color-foreground), 0.1);
+}
+
+/* Striped rows */
+.comparison-table tbody tr:nth-of-type(odd) th,
+.comparison-table tbody tr:nth-of-type(odd) td {
+  background-color: rgba(var(--color-foreground), 0.03);
+}
+
+/* Perkie Prints column highlight */
+.comparison-table .col-perkie {
+  background-color: rgba(var(--color-foreground), 0.04);
+}
+
+.comparison-table thead .col-perkie {
+  background-color: rgba(var(--color-foreground), 0.06);
+}
+
+/* Override striped + perkie to combine both tints */
+.comparison-table tbody tr:nth-of-type(odd) .col-perkie {
+  background-color: rgba(var(--color-foreground), 0.07);
+}
+
+/* ---------- Icon styles ---------- */
+.comparison-icon {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4em;
+  margin-bottom: 0.3em;
+}
+
+.comparison-icon svg {
+  width: 1.6rem;
+  height: 1.6rem;
+  flex-shrink: 0;
+}
+
+.icon-check svg {
+  color: #15803d;
+}
+
+.icon-x svg {
+  color: #b91c1c;
+}
+
+.icon-partial svg {
+  color: #d97706;
+}
+
+/* ---------- Updated date ---------- */
+.comparison-updated {
+  text-align: center;
+  font-size: 1.2rem;
+  color: rgba(var(--color-foreground), 0.55);
+  margin-top: 1.5rem;
+}
+
+/* ---------- Company label (mobile) ---------- */
+.company-label {
+  display: none;
+}
+
+/* ==========================================================================
+   Mobile: Stacked feature cards (< 750px)
+   ========================================================================== */
+@media screen and (max-width: 749px) {
+  .comparison-table,
+  .comparison-table thead,
+  .comparison-table tbody,
+  .comparison-table tr,
+  .comparison-table th,
+  .comparison-table td {
+    display: block;
+  }
+
+  .comparison-table caption {
+    font-size: 1.4rem;
+    padding-bottom: 1rem;
+  }
+
+  /* Hide the header row on mobile */
+  .comparison-table thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  /* Each table row becomes a card */
+  .comparison-table tbody tr {
+    display: block;
+    border: 1px solid rgba(var(--color-foreground), 0.12);
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+    padding: 0;
+    background: rgb(var(--color-background));
+    overflow: hidden;
+  }
+
+  /* Reset striped backgrounds on mobile */
+  .comparison-table tbody tr:nth-of-type(odd) th,
+  .comparison-table tbody tr:nth-of-type(odd) td {
+    background-color: transparent;
+  }
+
+  /* Feature name as card header */
+  .comparison-table tbody th {
+    display: block;
+    padding: 1rem 1.2rem 0.8rem;
+    font-size: 1.4rem;
+    font-weight: 700;
+    border-bottom: 1px solid rgba(var(--color-foreground), 0.08);
+    background-color: rgba(var(--color-foreground), 0.03);
+  }
+
+  /* Each cell stacks vertically */
+  .comparison-table tbody td {
+    display: block;
+    padding: 0.8rem 1.2rem;
+    border-bottom: 1px solid rgba(var(--color-foreground), 0.05);
+    font-size: 1.3rem;
+  }
+
+  .comparison-table tbody td:last-child {
+    border-bottom: none;
+  }
+
+  /* Show company labels on mobile */
+  .company-label {
+    display: block;
+    font-weight: 600;
+    font-size: 1.2rem;
+    margin-bottom: 0.3em;
+    color: rgba(var(--color-foreground), 0.7);
+  }
+
+  /* Perkie column highlight on mobile */
+  .comparison-table .col-perkie {
+    background-color: rgba(var(--color-foreground), 0.03);
+  }
+
+  .comparison-table tbody tr:nth-of-type(odd) .col-perkie {
+    background-color: rgba(var(--color-foreground), 0.03);
+  }
+}
