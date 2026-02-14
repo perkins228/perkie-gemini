@@ -137,6 +137,8 @@
   }
 
   .comparison-table caption {
+    display: block; /* Override table-caption inside display:block parent */
+    width: 100%;
     font-size: 1.4rem;
     padding-bottom: 1rem;
   }

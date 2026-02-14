@@ -1003,38 +1003,34 @@
     display: none;
   }
   
-  /* RESULT STATE: Two-column flex layout only when has-result class is present */
+  /* RESULT STATE: Two-column grid layout when has-result class is present.
+     CSS Grid (not Flexbox) is required because Safari inflates flex container
+     height when a flex child has position:sticky + max-height. Grid's
+     align-items:start correctly sizes rows from content, not max-height. */
   .pet-processor-container.has-result .processor-columns {
-    display: flex;
+    display: grid;
+    grid-template-columns: 380px 1fr;
     gap: var(--desktop-gap);
-    align-items: flex-start;
+    align-items: start;
     /* Shared background for unified block appearance */
     background: rgba(var(--color-foreground), 0.02);
     border: 1px solid rgba(var(--color-foreground), 0.08);
     border-radius: 16px;
-    padding: 1rem; /* Reduced from 1.5rem for tighter layout */
+    padding: 1rem;
   }
 
-  /* LEFT column: Controls (fixed width for compact layout) */
+  /* LEFT column: Controls */
   .pet-processor-container.has-result .processor-controls {
-    order: 1; /* Visual order: appears first (left) */
-    flex: 0 0 380px; /* Fixed width for compact controls */
-    min-width: 320px;
-    max-width: 420px; /* Cap for ultra-wide displays */
-    align-self: flex-start; /* Safari fix: prevent height inflation from sticky sibling */
+    min-width: 0; /* Prevent grid blowout */
   }
 
-  /* RIGHT column: Preview (flexible, fills remaining space) */
+  /* RIGHT column: Preview (sticky, scrollable) */
   .pet-processor-container.has-result .processor-preview {
-    order: 2; /* Visual order: appears second (right) */
-    flex: 1; /* Grows to fill remaining space - larger preview */
-    min-width: 400px; /* Minimum preview size */
     position: sticky;
     top: 20px;
     max-height: calc(100vh - 40px);
-    overflow-y: auto; /* Scroll within sticky container if content exceeds viewport */
-    display: block;
-    align-self: flex-start; /* Safari fix: use content height, not max-height, for flex calculation */
+    overflow-y: auto;
+    min-width: 0; /* Prevent grid blowout */
   }
 
   /* Keep original section header visible and centered on desktop */
@@ -1138,8 +1134,8 @@
 
 /* Large Desktop (1440px+) - Slightly larger left column */
 @media (min-width: 1440px) and (hover: hover) {
-  .pet-processor-container.has-result .processor-controls {
-    flex: 0 0 400px; /* +20px for larger screens */
+  .pet-processor-container.has-result .processor-columns {
+    grid-template-columns: 400px 1fr;
   }
 
   .processor-preview .pet-image-container,
@@ -1150,8 +1146,8 @@
 
 /* XL Desktop (1920px+) - Even larger left column for 4K displays */
 @media (min-width: 1920px) and (hover: hover) {
-  .pet-processor-container.has-result .processor-controls {
-    flex: 0 0 420px; /* +40px for 4K displays */
+  .pet-processor-container.has-result .processor-columns {
+    grid-template-columns: 420px 1fr;
   }
 
   .processor-preview .pet-image-container,
@@ -1278,12 +1274,14 @@
   }
 }
 
-/* Layout containment removed — contain:layout on a flex parent with a sticky child
+/* Layout containment removed — contain:layout on a flex/grid parent with a sticky child
    causes cross-browser layout miscalculation (Chrome + Safari both affected).
+   Flexbox replaced with CSS Grid — Safari inflates flex container height when a child
+   has position:sticky + max-height. Grid's align-items:start resolves this.
    See: customer layout bug investigation 2026-02-13 */
 
 /* Graceful degradation for older browsers (side-by-side: controls left, preview right) */
-@supports not (display: flex) {
+@supports not (display: grid) {
   @media (min-width: 1024px) {
     .processor-columns {
       display: table;
