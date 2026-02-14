@@ -1021,6 +1021,7 @@
     flex: 0 0 380px; /* Fixed width for compact controls */
     min-width: 320px;
     max-width: 420px; /* Cap for ultra-wide displays */
+    align-self: flex-start; /* Safari fix: prevent height inflation from sticky sibling */
   }
 
   /* RIGHT column: Preview (flexible, fills remaining space) */
@@ -1031,7 +1032,9 @@
     position: sticky;
     top: 20px;
     max-height: calc(100vh - 40px);
+    overflow-y: auto; /* Scroll within sticky container if content exceeds viewport */
     display: block;
+    align-self: flex-start; /* Safari fix: use content height, not max-height, for flex calculation */
   }
 
   /* Keep original section header visible and centered on desktop */
