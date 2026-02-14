@@ -287,7 +287,7 @@
         "enable_faq_schema": true,
         "image_ratio": "adapt",
         "desktop_layout": "image_second",
-        "padding_top": 8,
+        "padding_top": 20,
         "padding_bottom": 20
       }
     }
