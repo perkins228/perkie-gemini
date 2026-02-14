@@ -134,7 +134,7 @@
     "cart_tax_note_show": false,
     "cart_continue_shopping_btn": true,
     "cart_payment_icons_show": false,
-    "cart_discount_form_show": true,
+    "cart_discount_form_show": false,
     "cart_shipping_calc_show": false,
     "cart_delivery_calendar_show": false,
     "cart_sub_upgrade_show": false,
