@@ -64,7 +64,7 @@
         "color_scheme": "scheme-f318d737-2be2-4346-8605-b2fbd6208608",
         "full_width": true,
         "padding_top": 12,
-        "padding_bottom": 12
+        "padding_bottom": 24
       }
     },
     "deep_dives": {
@@ -113,11 +113,11 @@
         "columns_desktop": 3,
         "column_alignment": "left",
         "background_style": "primary",
-        "color_scheme": "scheme-1",
+        "color_scheme": "scheme-f318d737-2be2-4346-8605-b2fbd6208608",
         "columns_mobile": "1",
-        "swipe_on_mobile": false,
-        "padding_top": 36,
-        "padding_bottom": 36
+        "swipe_on_mobile": true,
+        "padding_top": 12,
+        "padding_bottom": 12
       }
     },
     "decision_guide": {
