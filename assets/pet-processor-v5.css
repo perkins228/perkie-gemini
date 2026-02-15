@@ -1024,13 +1024,20 @@
     min-width: 0; /* Prevent grid blowout */
   }
 
-  /* RIGHT column: Preview (sticky, scrollable) */
+  /* RIGHT column: Preview (grid cell only — NO sticky/max-height here).
+     Sticky behavior is on __inner to decouple from grid row sizing.
+     Safari inflates grid row height when a direct grid child has
+     position:sticky + max-height. The wrapper pattern prevents this. */
   .pet-processor-container.has-result .processor-preview {
+    min-width: 0; /* Prevent grid blowout */
+  }
+
+  /* Inner wrapper carries sticky + scroll behavior, isolated from grid */
+  .pet-processor-container.has-result .processor-preview__inner {
     position: sticky;
     top: 20px;
     max-height: calc(100vh - 40px);
     overflow-y: auto;
-    min-width: 0; /* Prevent grid blowout */
   }
 
   /* Keep original section header visible and centered on desktop */
@@ -1552,12 +1559,13 @@
 }
 
 /* ==========================================================================
-   TEMPORARY DIAGNOSTIC — Safari layout debugging (v3.0)
+   TEMPORARY DIAGNOSTIC — Safari layout debugging (v3.1)
    Remove after confirming fix is received by customer.
-   If you can see colored borders, CSS v3.0 is active.
+   If you can see colored borders, CSS v3.1 (wrapper fix) is active.
    RED = .processor-columns (grid container)
    BLUE = .processor-controls (left column)
-   GREEN = .processor-preview (right column / sticky)
+   GREEN = .processor-preview (grid cell, should be short)
+   MAGENTA = .processor-preview__inner (sticky inner wrapper)
    ORANGE DASHED = .has-result wrapper
    ========================================================================== */
 @media (min-width: 1024px) and (hover: hover) {
@@ -1569,6 +1577,9 @@
   }
   .pet-processor-container.has-result .processor-preview {
     outline: 3px solid green !important;
+  }
+  .pet-processor-container.has-result .processor-preview__inner {
+    outline: 3px solid magenta !important;
   }
   .pet-processor-container.has-result {
     outline: 3px dashed orange !important;

@@ -4,12 +4,12 @@
 {%- endcomment -%}
 
 {%- comment -%}
-  Async CSS loading for LCP optimization (cache busting v3.0)
+  Async CSS loading for LCP optimization (cache busting v3.1)
   Uses media="print" + onload pattern with noscript fallback for JS-disabled browsers
-  v3.0: Force CDN refresh after Grid layout migration (Safari fix)
+  v3.1: Wrapper div fix — decouple sticky from grid cell for Safari
 {%- endcomment -%}
-<link rel="stylesheet" href="{{ 'pet-processor-v5.css' | asset_url }}?v=3.0" media="print" onload="this.media='all'">
-<link rel="stylesheet" href="{{ 'pet-processor-mobile.css' | asset_url }}?v=3.0" media="print" onload="this.media='all'">
+<link rel="stylesheet" href="{{ 'pet-processor-v5.css' | asset_url }}?v=3.1" media="print" onload="this.media='all'">
+<link rel="stylesheet" href="{{ 'pet-processor-mobile.css' | asset_url }}?v=3.1" media="print" onload="this.media='all'">
 {%- comment -%} DISABLED: Comparison feature not in current customer journey {%- endcomment -%}
 {%- comment -%} {{ 'effect-comparison.css' | asset_url | stylesheet_tag }} {%- endcomment -%}
 <link rel="stylesheet" href="{{ 'crop-processor.css' | asset_url }}" media="print" onload="this.media='all'">
