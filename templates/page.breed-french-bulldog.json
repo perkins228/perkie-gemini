@@ -1,0 +1,229 @@
+{
+  "sections": {
+    "breed-landing": {
+      "type": "breed-landing",
+      "blocks": {
+        "style-color": {
+          "type": "style_recommendation",
+          "settings": {
+            "style_name": "Color Portrait",
+            "style_tag": "Every Detail, Every Wrinkle",
+            "style_description": "Color captures everything that makes your Frenchie unique: the coat pattern, the nose pigment, the subtle shading in their wrinkles and around their eyes. Especially striking for brindle, merle, and multi-toned Frenchies where the coat pattern is part of their identity.",
+            "style_image": "",
+            "style_url": "/pages/color-pet-portrait"
+          }
+        },
+        "style-bw": {
+          "type": "style_recommendation",
+          "settings": {
+            "style_name": "Professional Black & White",
+            "style_tag": "All Face, All Character",
+            "style_description": "Without color, a Frenchie's face becomes pure architecture. The ears, the wrinkles, the jaw structure, the intensity of their eyes. Black and white is the most popular Frenchie portrait style for a reason: it turns that distinctive face into fine art. Also the top choice for french bulldog memorial portraits.",
+            "style_image": "",
+            "style_url": "/pages/black-and-white-pet-portrait"
+          }
+        },
+        "style-inkwash": {
+          "type": "style_recommendation",
+          "settings": {
+            "style_name": "Ink Wash",
+            "style_tag": "Soft Meets Bold",
+            "style_description": "Ink wash creates an interesting contrast with the Frenchie's strong facial features. The soft, flowing brushstrokes soften the angular jaw and prominent ears into something more painterly and gentle. A beautiful choice for Frenchie owners who want something artistic without being too literal.",
+            "style_image": "",
+            "style_url": "/pages/ink-wash-pet-portrait"
+          }
+        },
+        "style-marker": {
+          "type": "style_recommendation",
+          "settings": {
+            "style_name": "Marker",
+            "style_tag": "Maximum Attitude",
+            "style_description": "If your Frenchie has a big personality (and they all do), Marker is the style that matches their energy. Bold lines and vivid colors bring out the sass, the confidence, and the humor that defines this breed. This style is especially fun for Frenchie puppies.",
+            "style_image": "",
+            "style_url": "/pages/marker-pet-portrait"
+          }
+        },
+        "tip-1": {
+          "type": "photo_tip",
+          "settings": {
+            "tip_icon": "\ud83d\udcf7",
+            "tip_title": "Shoot straight on or at a slight angle",
+            "tip_description": "French bulldogs have flat faces, and extreme angles can exaggerate this in unflattering ways. A straight-on shot or a slight three-quarter angle shows their face at its best and gives us the clearest view of their expression. Avoid photos shot from directly above or below."
+          }
+        },
+        "tip-2": {
+          "type": "photo_tip",
+          "settings": {
+            "tip_icon": "\ud83d\udca1",
+            "tip_title": "Make sure the wrinkles are visible",
+            "tip_description": "The folds and wrinkles around a Frenchie's nose and forehead are part of what makes them look like themselves. Good lighting that creates soft shadows in those wrinkles gives the portrait depth and character. Soft indoor light near a window works best. Harsh flash washes out wrinkle detail."
+          }
+        },
+        "tip-3": {
+          "type": "photo_tip",
+          "settings": {
+            "tip_icon": "\ud83d\udc15",
+            "tip_title": "Catch the ears at full attention",
+            "tip_description": "Those bat ears are the most iconic feature of the breed. A portrait where the ears are perked up and alert looks dramatically better than one where they're relaxed or folded back. Make a small noise or hold a treat just above the camera to get them to pop those ears up."
+          }
+        },
+        "tip-4": {
+          "type": "photo_tip",
+          "settings": {
+            "tip_icon": "\ud83d\udc45",
+            "tip_title": "Watch for tongue-out timing",
+            "tip_description": "Frenchies pant a lot, especially in warm weather. A photo with the tongue hanging out can be charming in real life but sometimes looks odd in a formal portrait. If you want a dignified look, catch them with their mouth closed. If you want something playful, the tongue is fine."
+          }
+        },
+        "tip-5": {
+          "type": "photo_tip",
+          "settings": {
+            "tip_icon": "\ud83c\udfa8",
+            "tip_title": "Any coat color and pattern works",
+            "tip_description": "Fawn, brindle, cream, blue, black, lilac, pied, merle. Every Frenchie coat color produces a beautiful portrait. If your Frenchie has an unusual or rare color, Color style is the best way to showcase it. Upload your photo and preview all four for free."
+          }
+        },
+        "tip-6": {
+          "type": "photo_tip",
+          "settings": {
+            "tip_icon": "\ud83d\udcf1",
+            "tip_title": "Phone photos work perfectly",
+            "tip_description": "You don't need a professional camera. Some of our best French bulldog portraits have come from casual phone shots. As long as your Frenchie's face is clear and well-lit, you're good to go."
+          }
+        },
+        "gift-1": {
+          "type": "gift_angle",
+          "settings": {
+            "gift_icon": "\ud83c\udf81",
+            "gift_title": "The gift Frenchie people actually want",
+            "gift_description": "<p>French bulldog owners are a specific breed of person. They already have the Frenchie socks, the Frenchie phone case from Amazon, the mass-produced Frenchie art. A <a href=\"/products/personalized-pet-portrait\" title=\"Framed Pet Portrait\">custom framed portrait</a> of their actual dog is the upgrade they didn't know they needed. Pair it with a <a href=\"/collections/personalized-pet-products-gifts\">matching mug or phone case</a> for a complete set.</p>"
+          }
+        },
+        "gift-2": {
+          "type": "gift_angle",
+          "settings": {
+            "gift_icon": "\ud83d\udd4a\ufe0f",
+            "gift_title": "Memorial and remembrance",
+            "gift_description": "<p>French bulldogs have shorter lifespans than many breeds, and their owners feel that loss deeply. A custom portrait from a favorite photo creates a lasting tribute that honors what made their Frenchie irreplaceable. Our <a href=\"/pages/black-and-white-pet-portrait\">Black & White</a> and <a href=\"/pages/ink-wash-pet-portrait\">Ink Wash</a> styles are especially popular for <a href=\"/pages/pet-memorial-portrait\" title=\"Pet Memorial Portraits\">memorial portraits</a>.</p>"
+          }
+        },
+        "gift-3": {
+          "type": "gift_angle",
+          "settings": {
+            "gift_icon": "\ud83c\udfe0",
+            "gift_title": "Housewarming for the Frenchie household",
+            "gift_description": "<p>Know someone who just moved into a new place with their Frenchie? A <a href=\"/pages/color-pet-portrait\" title=\"Custom Color Pet Portraits From Your Photo\">Color Portrait</a> is the kind of wall art that makes a new house feel like their home immediately.</p>"
+          }
+        },
+        "gift-4": {
+          "type": "gift_angle",
+          "settings": {
+            "gift_icon": "\ud83d\udc6b",
+            "gift_title": "Couple and family gifts",
+            "gift_description": "<p>Frenchies are popular with couples and young families. A portrait of the family Frenchie makes a meaningful anniversary, wedding, or holiday gift that both people will love. <a href=\"/pages/custom-pet-portrait-styles\">Preview every style free</a> to find the right match.</p>"
+          }
+        },
+        "faq-1": {
+          "type": "faq",
+          "settings": {
+            "question": "Can I get a custom portrait of my French bulldog from a phone photo?",
+            "answer": "<p>Yes, phone photos work great for French bulldog portraits. The most important thing is a clear view of your Frenchie's face with good lighting. A photo where the wrinkles and ears are clearly visible will produce the best result.</p>"
+          }
+        },
+        "faq-2": {
+          "type": "faq",
+          "settings": {
+            "question": "Which portrait style is best for French bulldogs?",
+            "answer": "<p>Black & White is the most popular style for French bulldogs because it highlights their dramatic facial structure. Color is the best choice if your Frenchie has a distinctive coat pattern like brindle, merle, or lilac. <a href=\"/pages/custom-pet-portrait-styles\">Upload your photo and preview all styles free</a> to see which one looks best on your dog.</p>"
+          }
+        },
+        "faq-3": {
+          "type": "faq",
+          "settings": {
+            "question": "Do dark-coated French bulldog portraits turn out well?",
+            "answer": "<p>Yes. Our portrait styles are designed to capture facial detail regardless of coat color. For dark-coated Frenchies, starting with a well-lit photo where you can see the eyes and wrinkle detail makes the biggest difference. Soft natural light works best.</p>"
+          }
+        },
+        "faq-4": {
+          "type": "faq",
+          "settings": {
+            "question": "How does the free French bulldog portrait preview work?",
+            "answer": "<p>Upload any photo of your French bulldog and you'll instantly see it transformed into all available art styles. It's completely free, no account or credit card required. If you love the result, pick your style and product and place your order. <a href=\"/pages/custom-pet-portrait-styles\">Try it now</a>.</p>"
+          }
+        },
+        "faq-5": {
+          "type": "faq",
+          "settings": {
+            "question": "Can I include multiple French bulldogs in one portrait?",
+            "answer": "<p>Yes. If you have multiple Frenchies, we can combine separate photos into a single portrait. The photos don't need to be from the same session. Visit our <a href=\"/pages/multi-pet-portrait\">multi-pet portrait page</a> for details on how it works.</p>"
+          }
+        },
+        "faq-6": {
+          "type": "faq",
+          "settings": {
+            "question": "What products can I put my French bulldog portrait on?",
+            "answer": "<p>Over 20 products including framed prints, canvas wraps, coffee mugs, phone cases, t-shirts, hoodies, tote bags, throw pillows, blankets, and more. Every product starts with the same free preview so you can see exactly what it will look like.</p>"
+          }
+        }
+      },
+      "block_order": [
+        "style-color",
+        "style-bw",
+        "style-inkwash",
+        "style-marker",
+        "tip-1",
+        "tip-2",
+        "tip-3",
+        "tip-4",
+        "tip-5",
+        "tip-6",
+        "gift-1",
+        "gift-2",
+        "gift-3",
+        "gift-4",
+        "faq-1",
+        "faq-2",
+        "faq-3",
+        "faq-4",
+        "faq-5",
+        "faq-6"
+      ],
+      "settings": {
+        "accent_color": "#C2185B",
+        "eyebrow_text": "Big Personality, Custom Portrait",
+        "heading": "",
+        "subtitle": "That flat little face. Those ridiculous bat ears. The attitude of a dog three times their size. Your Frenchie deserves a portrait as bold as their personality.",
+        "hero_image": "",
+        "hero_image_ratio": "natural",
+        "hero_image_alt": "Custom French bulldog portrait from photo",
+        "show_before_after_badge": false,
+        "cta_text": "See Your Frenchie in Every Style for Free",
+        "cta_url": "shopify://pages/custom-pet-portrait-styles",
+        "secondary_cta_text": "",
+        "secondary_cta_url": "",
+        "preview_banner_heading": "Free Instant Preview",
+        "preview_banner_text": "Upload your photo and preview your French bulldog in every style instantly. Completely free.",
+        "styles_heading": "Which Portrait Style Fits Your Frenchie?",
+        "styles_subtitle": "Every Frenchie looks incredible in every style. But their unique features make certain pairings especially striking.",
+        "styles_cta_text": "Preview All Styles Free",
+        "tips_heading": "Photo Tips for French Bulldog Portraits",
+        "gifts_heading": "French Bulldog Gifts: Custom Portraits Worth the Wall Space",
+        "gifts_intro": "French bulldog owners don't just like their dog. They build their entire identity around their Frenchie. If you know someone like that (and you definitely do), a custom portrait of their actual dog is the gift that stops them in their tracks.\n\nA few occasions where a personalized French bulldog portrait makes the perfect gift:",
+        "gifts_closing": "The best part: you can upload their Frenchie's photo and preview every style before you commit to anything. It's completely free, and you'll know exactly what you're getting before you order.",
+        "gifts_cta_text": "Preview Styles Free",
+        "products_collection": "personalized-pet-products-gifts",
+        "products_heading": "Available Products",
+        "products_subtitle": "Custom Frenchie wall art, framed prints, mugs, and 20+ products featuring your French bulldog portrait.",
+        "products_image_ratio": "square",
+        "products_limit": 8,
+        "faq_heading": "French Bulldog Portrait FAQ",
+        "final_cta_heading": "Ready to See Your Frenchie as Art?",
+        "final_cta_text": "Upload your favorite photo and preview every style instantly. Completely free, no account needed.",
+        "trust_text": "No account needed \u00b7 Takes less than 60 seconds \u00b7 100% free"
+      }
+    }
+  },
+  "order": [
+    "breed-landing"
+  ]
+}
