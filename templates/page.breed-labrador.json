@@ -105,7 +105,7 @@
           "settings": {
             "gift_icon": "🎄",
             "gift_title": "Holiday gifts that actually mean something",
-            "gift_description": "<p>Lab owners get a lot of generic dog gifts. A custom portrait of their actual dog is the one that stays on the wall for years. It shows you understand what their lab means to them.</p>"
+            "gift_description": "<p>Lab owners get a lot of generic dog gifts. A custom portrait of their actual dog is the one that stays on the <a href=\"/products/personalized-pet-portrait\" title=\"Framed Pet Portrait\">wall</a> for years. It shows you understand what their lab means to them.</p>"
           }
         },
         "gift-2": {
@@ -113,7 +113,7 @@
           "settings": {
             "gift_icon": "🕊️",
             "gift_title": "Memorial and remembrance",
-            "gift_description": "<p>Labs live an average of 10 to 12 years, and losing one leaves a hole nothing else can fill. A custom portrait from a favorite photo gives someone a beautiful way to remember their best friend. Our <a href=\"/pages/black-and-white-pet-portrait\">Black &amp; White</a> and <a href=\"/pages/ink-wash-pet-portrait\">Ink Wash</a> styles are especially popular for <a href=\"/pages/pet-memorial\">memorial portraits</a>.</p>"
+            "gift_description": "<p>Labs live an average of 10 to 12 years, and losing one leaves a hole nothing else can fill. A custom portrait from a favorite photo gives someone a beautiful way to remember their best friend. Our <a href=\"/pages/black-and-white-pet-portrait\">Black & White</a> and <a href=\"/pages/ink-wash-pet-portrait\">Ink Wash</a> styles are especially popular for <a href=\"/pages/pet-memorial-portrait\" title=\"Pet Memorial Portraits\">memorial portraits</a>.</p>"
           }
         },
         "gift-3": {
