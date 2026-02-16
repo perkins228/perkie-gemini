@@ -1339,13 +1339,17 @@ class PetProcessor {
             </div>
           </div>
           
-          <!-- Right Column: Preview -->
+          <!-- Right Column: Preview
+               Outer div is the grid cell (no sticky/max-height).
+               Inner __inner div carries sticky behavior, decoupled from
+               grid row sizing to prevent Safari height inflation bug. -->
           <div class="processor-preview">
+           <div class="processor-preview__inner">
             <!-- Result View -->
             <div class="result-view" hidden>
               <div class="pet-image-container">
                 <img class="pet-image" alt="Your pet">
-                
+
                 <!-- Comparison Overlay (hidden by default) -->
                 <div class="comparison-overlay" hidden>
                   <div class="comparison-panel comparison-current">
@@ -1362,18 +1366,19 @@ class PetProcessor {
                   Tap right to select • Swipe for more • Tap left to exit
                 </div>
               </div>
-              
+
               <!-- Share Button Container -->
               <div class="share-buttons-container">
                 <!-- Simple share button will be inserted here by pet-social-sharing-simple.js -->
               </div>
             </div>
-            
+
             <!-- Placeholder for when no image is loaded -->
             <div class="preview-placeholder">
               <div class="placeholder-icon">🖼️</div>
               <div class="placeholder-text">Your processed image will appear here</div>
             </div>
+           </div>
           </div>
         </div>
 
