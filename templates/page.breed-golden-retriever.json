@@ -105,15 +105,15 @@
           "settings": {
             "gift_icon": "🎁",
             "gift_title": "Birthdays & Holidays",
-            "gift_description": "<p>A framed portrait of their golden is the kind of gift that gets hung on the wall the same day it's opened. It's the golden retriever birthday or Christmas gift that actually means something. Pair it with a <a href=\"/collections/personalized-pet-products-gifts\">coffee mug or phone case</a> featuring the same portrait for a complete set.</p>"
+            "gift_description": "<p>A <a href=\"/products/personalized-pet-portrait\" title=\"Framed Pet Portrait\">framed portrait</a> of their golden is the kind of gift that gets hung on the wall the same day it's opened. It's the golden retriever birthday or Christmas gift that actually means something. Pair it with a <a href=\"/collections/personalized-pet-products-gifts\">coffee mug or phone case</a> featuring the same portrait for a complete set.</p>"
           }
         },
         "gift-3": {
           "type": "gift_angle",
           "settings": {
             "gift_icon": "🐾",
-            "gift_title": "Adoption Anniversaries",
-            "gift_description": "<p>Many golden retriever owners celebrate the day they brought their dog home. A <a href=\"/pages/color-pet-portrait\">Color Portrait</a> that captures their golden's warm coat makes the anniversary even more special.</p>"
+            "gift_title": "Adoption Anniversaries & \"gotcha days\"",
+            "gift_description": "<p>Many golden retriever owners celebrate the day they brought their dog home. A <a href=\"/pages/color-pet-portrait\" title=\"Custom Color Pet Portraits From Your Photo\">Color Portrait</a> that captures their golden's warm coat makes the anniversary even more special.</p>"
           }
         },
         "gift-2": {
@@ -121,7 +121,7 @@
           "settings": {
             "gift_icon": "🕊️",
             "gift_title": "Pet Memorial & Remembrance",
-            "gift_description": "<p>Losing a golden retriever is losing a family member. A custom portrait created from a favorite photo is a thoughtful sympathy gift that gives them something beautiful to hold onto. Our <a href=\"/pages/black-and-white-pet-portrait\">Black &amp; White</a> and <a href=\"/pages/ink-wash-pet-portrait\">Ink Wash</a> styles are especially popular for memorial pieces. Visit our <a href=\"/pages/pet-memorial\">memorial portrait page</a> for guidance on choosing the right photo.</p>"
+            "gift_description": "<p>Losing a golden retriever is losing a family member. A custom portrait created from a favorite photo is a thoughtful sympathy gift that gives them something beautiful to hold onto. Our <a href=\"/pages/black-and-white-pet-portrait\">Black & White</a> and <a href=\"/pages/ink-wash-pet-portrait\">Ink Wash</a> styles are especially popular for memorial pieces. Visit our <a href=\"/pages/pet-memorial-portrait\" title=\"Pet Memorial Portraits\">memorial portrait page</a> for guidance on choosing the right photo.</p>"
           }
         },
         "gift-4": {
@@ -217,14 +217,14 @@
         "styles_cta_text": "Preview All Styles Free",
         "tips_heading": "Photo Tips for Golden Retriever Portraits",
         "gifts_heading": "Golden Retriever Gifts: Custom Portraits That Mean Something",
-        "gifts_intro": "If you know a golden retriever mom or dad (and let's be honest, golden owners don't just love their dogs, they're fully devoted to them), a custom portrait is one of the most unique and meaningful gifts you can give. It's personal, it's beautiful, and it shows you get what their dog means to them.",
+        "gifts_intro": "If you know a golden retriever mom or dad (and let's be honest, golden owners don't just love their dogs, they're fully devoted to them), a custom portrait is one of the most unique and meaningful gifts you can give. It's personal, it's beautiful, and it shows you get what their dog means to them.<br><br>\nA few occasions where golden retriever portraits work especially well:",
         "gifts_closing": "The best part: you can upload their dog's photo and preview every style before you commit to anything. Send yourself the preview to make sure you're picking the right style, then order when you're ready.",
         "gifts_cta_text": "Preview Styles Free",
         "products_collection": "personalized-pet-products-gifts",
         "products_heading": "Available Products",
         "products_subtitle": "Your custom golden retriever portrait goes on more than just a wall. Choose from over 20 products.",
         "products_image_ratio": "square",
-        "products_limit": 8,
+        "products_limit": 10,
         "faq_heading": "Golden Retriever Portrait FAQ",
         "final_cta_heading": "Ready to See Your Golden as Art?",
         "final_cta_text": "Upload your favorite photo and preview every style instantly. Completely free, no account needed.",
