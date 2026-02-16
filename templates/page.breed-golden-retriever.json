@@ -17,7 +17,8 @@
           "settings": {
             "style_name": "Color Portrait",
             "style_tag": "Most Popular for Goldens",
-            "style_description": "Preserves the warm gold, amber, and cream tones that make golden retrievers so beautiful.",
+            "style_description": "If you want a portrait that captures your golden exactly as they are, Color is the way to go. This style preserves the warm tones and subtle coat variations that make goldens so beautiful. The gradients from deep amber to light cream come through in full detail. For most golden retriever owners, this is the style that makes them say \"that's my dog.\"",
+            "style_image": "shopify://shop_images/22757_Carlon_8x10_color.png",
             "style_url": "/pages/color-pet-portrait"
           }
         },
@@ -25,8 +26,9 @@
           "type": "style_recommendation",
           "settings": {
             "style_name": "Black & White",
-            "style_tag": "Best for Memorials",
-            "style_description": "Fine art, studio-quality look. Facial features and fur texture take center stage.",
+            "style_tag": "Dramatic and Timeless",
+            "style_description": "Strip away the color and something unexpected happens: your golden's facial features take center stage. Their eyes, the texture of their fur, the structure of their face. Black and white portraits give goldens a fine art, studio-quality look that works especially well as large framed prints. This is also a popular choice for memorial portraits, where the classic, dignified feel of black and white creates a timeless tribute.",
+            "style_image": "shopify://shop_images/22757_Carlon_8x10_KARL.png",
             "style_url": "/pages/black-and-white-pet-portrait"
           }
         },
@@ -34,8 +36,9 @@
           "type": "style_recommendation",
           "settings": {
             "style_name": "Ink Wash",
-            "style_tag": "",
-            "style_description": "Gentle, hand-painted quality. Flowing brushstrokes blend naturally with a golden's soft, feathered coat.",
+            "style_tag": "Soft and Painterly",
+            "style_description": "Ink wash gives golden retriever portraits a gentle, hand-painted quality. The flowing brushstrokes blend naturally with a golden's soft, feathered coat. If you love the look of traditional watercolor or ink painting, this style feels like it was made for this breed.",
+            "style_image": "shopify://shop_images/golden_inkwash.png",
             "style_url": "/pages/ink-wash-pet-portrait"
           }
         },
@@ -43,8 +46,9 @@
           "type": "style_recommendation",
           "settings": {
             "style_name": "Marker",
-            "style_tag": "",
-            "style_description": "Bold, playful, and full of personality. Works especially well for younger goldens and puppies.",
+            "style_tag": "Bold and Playful",
+            "style_description": "Marker brings out the personality. The vivid lines and saturated colors match the energy of a breed that lives life at full speed. This style works especially well for younger goldens and puppies, where you want the portrait to feel as lively as the dog.",
+            "style_image": "shopify://shop_images/golden_marker.png",
             "style_url": "/pages/marker-pet-portrait"
           }
         },
@@ -88,20 +92,20 @@
             "gift_description": "<p>A framed portrait of their golden is the kind of gift that gets hung on the wall the same day it's opened. It's the golden retriever birthday or Christmas gift that actually means something. Pair it with a <a href=\"/collections/personalized-pet-products-gifts\">coffee mug or phone case</a> featuring the same portrait for a complete set.</p>"
           }
         },
-        "gift-2": {
-          "type": "gift_angle",
-          "settings": {
-            "gift_icon": "🕊️",
-            "gift_title": "Pet Memorial & Remembrance",
-            "gift_description": "<p>Losing a golden retriever is losing a family member. A custom portrait created from a favorite photo is a thoughtful sympathy gift that gives them something beautiful to hold onto. Our <a href=\"/pages/black-and-white-pet-portrait\">Black &amp; White</a> and <a href=\"/pages/ink-wash-pet-portrait\">Ink Wash</a> styles are especially popular for memorial pieces. Visit our <a href=\"/pages/pet-memorial\">memorial portrait page</a> for guidance on choosing the right photo.</p>"
-          }
-        },
         "gift-3": {
           "type": "gift_angle",
           "settings": {
             "gift_icon": "🐾",
             "gift_title": "Adoption Anniversaries",
             "gift_description": "<p>Many golden retriever owners celebrate the day they brought their dog home. A <a href=\"/pages/color-pet-portrait\">Color Portrait</a> that captures their golden's warm coat makes the anniversary even more special.</p>"
+          }
+        },
+        "gift-2": {
+          "type": "gift_angle",
+          "settings": {
+            "gift_icon": "🕊️",
+            "gift_title": "Pet Memorial & Remembrance",
+            "gift_description": "<p>Losing a golden retriever is losing a family member. A custom portrait created from a favorite photo is a thoughtful sympathy gift that gives them something beautiful to hold onto. Our <a href=\"/pages/black-and-white-pet-portrait\">Black &amp; White</a> and <a href=\"/pages/ink-wash-pet-portrait\">Ink Wash</a> styles are especially popular for memorial pieces. Visit our <a href=\"/pages/pet-memorial\">memorial portrait page</a> for guidance on choosing the right photo.</p>"
           }
         },
         "gift-4": {
@@ -165,8 +169,8 @@
         "tip-3",
         "tip-4",
         "gift-1",
-        "gift-2",
         "gift-3",
+        "gift-2",
         "gift-4",
         "faq-1",
         "faq-2",
