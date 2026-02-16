@@ -17,7 +17,8 @@
           "settings": {
             "style_name": "Color Portrait",
             "style_tag": "See Every Shade",
-            "style_description": "The best choice for showcasing your lab's coat color. Whether they're a sunny yellow, a rich chocolate, or a deep black, Color captures the tones that make your labrador uniquely yours.",
+            "style_description": "The best choice for showcasing your lab's coat color. Whether they're a sunny yellow, a rich chocolate, or a deep black, Color captures the tones that make your labrador uniquely yours. This is the style that makes people say \"you can practically feel their fur.\"",
+            "style_image": "shopify://shop_images/lab_color.png",
             "style_url": "/pages/color-pet-portrait"
           }
         },
@@ -27,6 +28,7 @@
             "style_name": "Professional Black & White",
             "style_tag": "Classic and Commanding",
             "style_description": "Black and white portraits bring out the structure and expression in a lab's face. Without color as a distraction, every detail shines. Black lab portraits are particularly striking in this style. This is also the most popular choice for labrador memorial portraits.",
+            "style_image": "shopify://shop_images/lab_bw.png",
             "style_url": "/pages/black-and-white-pet-portrait"
           }
         },
@@ -35,7 +37,8 @@
           "settings": {
             "style_name": "Ink Wash",
             "style_tag": "Soft and Soulful",
-            "style_description": "Ink wash portraits feel like a quiet moment with your lab. The soft, flowing brushstrokes capture the gentle side of a breed that's known for being a big softie at heart. Whether you have a yellow lab, chocolate lab, or black lab, ink wash renders every coat color with quiet elegance.",
+            "style_description": "Ink wash portraits feel like a quiet moment with your lab. This style capture the gentle side of a breed that's known for being a big softie at heart. Particularly beautiful for older labs, where the softer rendering style matches the calm, wise expression they develop with age.",
+            "style_image": "shopify://shop_images/lab_inkwash_b7c67141-01d9-45bd-9516-29cd61c61270.png",
             "style_url": "/pages/ink-wash-pet-portrait"
           }
         },
@@ -44,7 +47,8 @@
           "settings": {
             "style_name": "Marker",
             "style_tag": "Pure Lab Energy",
-            "style_description": "Bold lines and saturated colors that match a lab's enthusiasm for absolutely everything. Works especially well for younger labs and puppies who haven't learned the meaning of \"calm down\" yet.",
+            "style_description": "Bold lines and saturated colors that match a lab's enthusiasm for absolutely everything. This style captures the joyful, high-energy side of the breed. Works especially well for younger labs and puppies who haven't learned the meaning of \"calm down\" yet.",
+            "style_image": "shopify://shop_images/lab_marker_36c0f6e6-f59a-475b-ba70-60b666b45265.png",
             "style_url": "/pages/marker-pet-portrait"
           }
         },
@@ -185,15 +189,16 @@
         "faq-6"
       ],
       "settings": {
-        "accent_color": "#8B6914",
+        "accent_color": "#8b6914",
         "eyebrow_text": "America's Favorite Dog, Your Custom Portrait",
         "heading": "",
         "subtitle": "Your lab's personality is bigger than any room they've ever been in. A custom portrait captures that loyal, goofy, endlessly lovable spirit in art you'll keep forever.",
+        "hero_image": "shopify://shop_images/lab_beforeafter.png",
         "hero_image_ratio": "natural",
         "hero_image_alt": "Custom labrador retriever portrait from photo",
         "show_before_after_badge": true,
-        "cta_text": "See Your Lab in Every Style — Free",
-        "cta_url": "/pages/custom-pet-portrait-styles",
+        "cta_text": "See Your Lab in Every Style for Free",
+        "cta_url": "shopify://pages/custom-image-processing",
         "secondary_cta_text": "",
         "secondary_cta_url": "",
         "preview_banner_heading": "Free Instant Preview",
