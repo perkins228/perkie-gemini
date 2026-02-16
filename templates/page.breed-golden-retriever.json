@@ -1,3 +1,12 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
 {
   "sections": {
     "breed-landing": {
@@ -25,6 +34,7 @@
           "type": "style_recommendation",
           "settings": {
             "style_name": "Ink Wash",
+            "style_tag": "",
             "style_description": "Gentle, hand-painted quality. Flowing brushstrokes blend naturally with a golden's soft, feathered coat.",
             "style_url": "/pages/ink-wash-pet-portrait"
           }
@@ -33,6 +43,7 @@
           "type": "style_recommendation",
           "settings": {
             "style_name": "Marker",
+            "style_tag": "",
             "style_description": "Bold, playful, and full of personality. Works especially well for younger goldens and puppies.",
             "style_url": "/pages/marker-pet-portrait"
           }
@@ -129,10 +140,12 @@
         "faq-6"
       ],
       "settings": {
-        "accent_color": "#C9A87C",
+        "accent_color": "#c9a87c",
         "eyebrow_text": "The Portrait They Deserve",
         "heading": "",
         "subtitle": "That golden coat. Those warm brown eyes. Upload your favorite photo and see it transformed into custom art instantly. Preview every style free.",
+        "hero_image": "shopify://shop_images/golden_beforeafter.png",
+        "hero_image_ratio": "natural",
         "hero_image_alt": "Custom golden retriever portrait from photo",
         "show_before_after_badge": true,
         "cta_text": "See Your Golden in Every Style — Free",
