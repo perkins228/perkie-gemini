@@ -1,0 +1,714 @@
+{% comment %}
+  PERKIE PRINTS — Breed Landing Page Section (Hybrid)
+  ====================================================
+  Page body copy lives in the Shopify page editor (rich text).
+  Structured visual components live here as section settings + blocks.
+
+  CONTENT FLOW:
+  Hero → Preview Banner → {{ page.content }} → Style Recommendations →
+  Photo Tips → Products → FAQ → Final CTA
+
+  REUSE:
+  One section file, one CSS file. Each breed gets its own JSON template.
+  Section + CSS never change; content varies per template.
+{% endcomment %}
+
+{{ 'breed-landing.css' | asset_url | stylesheet_tag }}
+
+<div class="breed-landing" style="--breed-accent: {{ section.settings.accent_color }}; --breed-accent-light: {{ section.settings.accent_color }}1a;">
+
+  {%- comment -%} ===== HERO ===== {%- endcomment -%}
+  <section class="breed-landing__hero">
+    <div class="page-width breed-landing__hero-inner">
+      <div class="breed-landing__hero-content">
+        {% if section.settings.eyebrow_text != blank %}
+          <p class="breed-landing__eyebrow">{{ section.settings.eyebrow_text }}</p>
+        {% endif %}
+        <h1 class="breed-landing__title">
+          {{ section.settings.heading | default: page.title }}
+        </h1>
+        {% if section.settings.subtitle != blank %}
+          <p class="breed-landing__subtitle">{{ section.settings.subtitle }}</p>
+        {% endif %}
+        <div class="breed-landing__hero-ctas">
+          <a href="{{ section.settings.cta_url | default: '/pages/custom-image-processing' }}" class="breed-landing__cta-primary button button--primary">
+            {{ section.settings.cta_text | default: 'See Your Pet in Every Style — Free' }}
+          </a>
+          {% if section.settings.secondary_cta_text != blank %}
+            <a href="{{ section.settings.secondary_cta_url }}" class="breed-landing__cta-secondary">
+              {{ section.settings.secondary_cta_text }} →
+            </a>
+          {% endif %}
+        </div>
+        <p class="breed-landing__hero-trust">{{ section.settings.trust_text | default: 'No account needed · Takes less than 60 seconds · 100% free' }}</p>
+      </div>
+      <div class="breed-landing__hero-media">
+        {% if section.settings.hero_image != blank %}
+          {%- assign hero_ratio = section.settings.hero_image_ratio -%}
+          <div class="breed-landing__hero-media-inner{% if hero_ratio != 'natural' %} breed-landing__hero-media-inner--{{ hero_ratio }}{% endif %}">
+            {{ section.settings.hero_image | image_url: width: 800 | image_tag:
+              alt: section.settings.hero_image_alt,
+              loading: 'eager',
+              widths: '400, 600, 800',
+              class: 'breed-landing__hero-img'
+            }}
+          </div>
+          {% if section.settings.show_before_after_badge %}
+            <span class="breed-landing__badge">Before → After</span>
+          {% endif %}
+        {% else %}
+          <div class="breed-landing__placeholder">
+            {{ 'image' | placeholder_svg_tag }}
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </section>
+
+  {%- comment -%} ===== FREE PREVIEW BANNER ===== {%- endcomment -%}
+  <section class="breed-landing__preview-banner">
+    <div class="page-width">
+      <div class="breed-landing__preview-banner-inner">
+        <div class="breed-landing__preview-icon">✨</div>
+        <div class="breed-landing__preview-text">
+          <strong>{{ section.settings.preview_banner_heading | default: 'Free Instant Preview' }}</strong>
+          <span>{{ section.settings.preview_banner_text | default: 'Upload your photo and preview every style instantly. Completely free.' }}</span>
+        </div>
+        <a href="{{ section.settings.cta_url | default: '/pages/custom-image-processing' }}" class="button button--secondary breed-landing__preview-btn">
+          Try It Free
+        </a>
+      </div>
+    </div>
+  </section>
+
+  {%- comment -%}
+    ===== PAGE BODY CONTENT (from Shopify page editor) =====
+    NOTE: Do NOT use H1 in the page body content — H1 is already rendered
+    from the section heading above. Use H2 and below only.
+  {%- endcomment -%}
+  {% if page.content != blank %}
+    <section class="breed-landing__body">
+      <div class="page-width">
+        <div class="breed-landing__body-content rte">
+          {{ page.content }}
+        </div>
+      </div>
+    </section>
+  {% endif %}
+
+  {%- comment -%} ===== STYLE RECOMMENDATIONS ===== {%- endcomment -%}
+  {% assign style_blocks = section.blocks | where: 'type', 'style_recommendation' %}
+  {% if style_blocks.size > 0 %}
+    <section class="breed-landing__styles">
+      <div class="page-width">
+        <h2 class="breed-landing__section-heading">{{ section.settings.styles_heading | default: 'Recommended Styles' }}</h2>
+        {% if section.settings.styles_subtitle != blank %}
+          <p class="breed-landing__section-subtitle">{{ section.settings.styles_subtitle }}</p>
+        {% endif %}
+        <div class="breed-landing__styles-grid">
+          {% for block in style_blocks %}
+            <a href="{{ block.settings.style_url }}" class="breed-landing__style-card" {{ block.shopify_attributes }}>
+              {% if block.settings.style_image != blank %}
+                <div class="breed-landing__style-card-media">
+                  {{ block.settings.style_image | image_url: width: 400 | image_tag:
+                    alt: block.settings.style_name,
+                    loading: 'lazy',
+                    widths: '200, 300, 400',
+                    class: 'breed-landing__style-card-img'
+                  }}
+                </div>
+              {% endif %}
+              <div class="breed-landing__style-card-content">
+                <h3>{{ block.settings.style_name }}</h3>
+                {% if block.settings.style_tag != blank %}
+                  <span class="breed-landing__style-tag">{{ block.settings.style_tag }}</span>
+                {% endif %}
+                {% if block.settings.style_description != blank %}
+                  <p>{{ block.settings.style_description }}</p>
+                {% endif %}
+              </div>
+            </a>
+          {% endfor %}
+        </div>
+        <div class="breed-landing__styles-cta">
+          <a href="{{ section.settings.cta_url | default: '/pages/custom-pet-portrait-styles' }}" class="button button--primary">
+            {{ section.settings.styles_cta_text | default: 'Preview All Styles Free' }}
+          </a>
+        </div>
+      </div>
+    </section>
+  {% endif %}
+
+  {%- comment -%} ===== PHOTO TIPS ===== {%- endcomment -%}
+  {% assign tip_blocks = section.blocks | where: 'type', 'photo_tip' %}
+  {% if tip_blocks.size > 0 %}
+    <section class="breed-landing__tips">
+      <div class="page-width">
+        <h2 class="breed-landing__section-heading">{{ section.settings.tips_heading | default: 'Photo Tips' }}</h2>
+        <div class="breed-landing__tips-grid">
+          {% for block in tip_blocks %}
+            <div class="breed-landing__tip" {{ block.shopify_attributes }}>
+              {% if block.settings.tip_icon != blank %}
+                <span class="breed-landing__tip-icon">{{ block.settings.tip_icon }}</span>
+              {% endif %}
+              <div>
+                <strong>{{ block.settings.tip_title }}</strong>
+                {% if block.settings.tip_description != blank %}
+                  <p>{{ block.settings.tip_description }}</p>
+                {% endif %}
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+    </section>
+  {% endif %}
+
+  {%- comment -%} ===== AVAILABLE PRODUCTS ===== {%- endcomment -%}
+  {% if section.settings.products_collection != blank %}
+    <section class="breed-landing__products">
+      <div class="page-width">
+        <h2 class="breed-landing__section-heading">{{ section.settings.products_heading | default: 'Available Products' }}</h2>
+        {% if section.settings.products_subtitle != blank %}
+          <p class="breed-landing__section-subtitle">{{ section.settings.products_subtitle }}</p>
+        {% endif %}
+        {%- assign product_ratio = section.settings.products_image_ratio -%}
+        <div class="breed-landing__products-carousel-wrapper">
+          <button type="button" class="breed-landing__carousel-btn breed-landing__carousel-btn--prev" aria-label="Previous products" data-carousel-prev>‹</button>
+          <div class="breed-landing__products-carousel" data-products-carousel>
+            {% for product in section.settings.products_collection.products limit: section.settings.products_limit %}
+              <div class="breed-landing__product-card">
+                <a href="{{ product.url }}" class="breed-landing__product-link">
+                  {% if product.featured_image != blank %}
+                    <div class="breed-landing__product-media{% if product_ratio != 'natural' %} breed-landing__product-media--{{ product_ratio }}{% endif %}">
+                      {{ product.featured_image | image_url: width: 400 | image_tag:
+                        alt: product.title,
+                        loading: 'lazy',
+                        widths: '200, 300, 400',
+                        class: 'breed-landing__product-img'
+                      }}
+                    </div>
+                  {% endif %}
+                  <h3 class="breed-landing__product-title">{{ product.title }}</h3>
+                  <p class="breed-landing__product-price">{{ product.price | money }}</p>
+                </a>
+              </div>
+            {% endfor %}
+          </div>
+          <button type="button" class="breed-landing__carousel-btn breed-landing__carousel-btn--next" aria-label="Next products" data-carousel-next>›</button>
+          <div class="breed-landing__carousel-dots" data-carousel-dots aria-hidden="true"></div>
+        </div>
+      </div>
+    </section>
+  {% endif %}
+
+  {%- comment -%} ===== FAQ (with Schema Markup) ===== {%- endcomment -%}
+  {% assign faq_blocks = section.blocks | where: 'type', 'faq' %}
+  {% if faq_blocks.size > 0 %}
+    <section class="breed-landing__faq">
+      <div class="page-width">
+        <h2 class="breed-landing__section-heading">{{ section.settings.faq_heading | default: 'Frequently Asked Questions' }}</h2>
+        <div class="breed-landing__faq-list">
+          {% for block in faq_blocks %}
+            <details class="breed-landing__faq-item" {{ block.shopify_attributes }}>
+              <summary class="breed-landing__faq-question">
+                {{ block.settings.question }}
+                <span class="breed-landing__faq-toggle" aria-hidden="true">+</span>
+              </summary>
+              <div class="breed-landing__faq-answer rte">
+                {{ block.settings.answer }}
+              </div>
+            </details>
+          {% endfor %}
+        </div>
+      </div>
+    </section>
+
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+          {%- for block in faq_blocks -%}
+            {% if forloop.first == false %},{% endif %}{
+              "@type": "Question",
+              "name": {{ block.settings.question | json }},
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": {{ block.settings.answer | strip_html | json }}
+              }
+            }
+          {%- endfor -%}
+        ]
+      }
+    </script>
+  {% endif %}
+
+  {%- comment -%} ===== FINAL CTA ===== {%- endcomment -%}
+  <section class="breed-landing__final-cta">
+    <div class="page-width">
+      <div class="breed-landing__final-cta-inner">
+        <h2>{{ section.settings.final_cta_heading | default: 'Ready to See Your Pet as Art?' }}</h2>
+        <p>{{ section.settings.final_cta_text | default: 'Upload your favorite photo and preview every style instantly. Completely free.' }}</p>
+        <a href="{{ section.settings.cta_url | default: '/pages/custom-image-processing' }}" class="button button--primary breed-landing__cta-large">
+          {{ section.settings.cta_text | default: 'See Your Pet in Every Style — Free' }}
+        </a>
+        <p class="breed-landing__trust-line">{{ section.settings.trust_text | default: 'No account needed · Takes less than 60 seconds · 100% free' }}</p>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<script>
+  (function() {
+    var wrappers = document.querySelectorAll('.breed-landing__products-carousel-wrapper');
+    for (var i = 0; i < wrappers.length; i++) {
+      (function(wrapper) {
+        var carousel = wrapper.querySelector('[data-products-carousel]');
+        var prevBtn = wrapper.querySelector('[data-carousel-prev]');
+        var nextBtn = wrapper.querySelector('[data-carousel-next]');
+        if (!carousel) return;
+
+        var gap = 20;
+        var scrollAmount = function() {
+          var card = carousel.querySelector('.breed-landing__product-card');
+          return card ? card.offsetWidth + gap : 220;
+        };
+
+        var updateButtons = function() {
+          var atStart = carousel.scrollLeft <= 4;
+          var atEnd = carousel.scrollLeft + carousel.offsetWidth >= carousel.scrollWidth - 4;
+          prevBtn.style.display = atStart ? 'none' : '';
+          nextBtn.style.display = atEnd ? 'none' : '';
+        };
+
+        prevBtn.addEventListener('click', function() {
+          carousel.scrollBy({ left: -scrollAmount(), behavior: 'smooth' });
+        });
+        nextBtn.addEventListener('click', function() {
+          carousel.scrollBy({ left: scrollAmount(), behavior: 'smooth' });
+        });
+
+        carousel.addEventListener('scroll', updateButtons);
+        window.addEventListener('resize', updateButtons);
+        updateButtons();
+
+        // Mobile scroll dots
+        var dotsContainer = wrapper.querySelector('[data-carousel-dots]');
+        if (dotsContainer) {
+          var cards = carousel.querySelectorAll('.breed-landing__product-card');
+          if (cards.length > 0) {
+            var visibleW = carousel.offsetWidth;
+            var totalGroups = Math.max(1, Math.ceil((carousel.scrollWidth - visibleW) / visibleW) + 1);
+
+            if (totalGroups <= 1) {
+              dotsContainer.style.display = 'none';
+            } else {
+              for (var d = 0; d < totalGroups; d++) {
+                var dot = document.createElement('span');
+                dot.className = 'breed-landing__carousel-dot' + (d === 0 ? ' breed-landing__carousel-dot--active' : '');
+                dotsContainer.appendChild(dot);
+              }
+
+              var dots = dotsContainer.querySelectorAll('.breed-landing__carousel-dot');
+              carousel.addEventListener('scroll', function() {
+                var maxScroll = carousel.scrollWidth - carousel.offsetWidth;
+                var scrollFraction = maxScroll > 0 ? carousel.scrollLeft / maxScroll : 0;
+                var activeIdx = Math.round(scrollFraction * (dots.length - 1));
+                activeIdx = Math.max(0, Math.min(activeIdx, dots.length - 1));
+                for (var j = 0; j < dots.length; j++) {
+                  if (j === activeIdx) {
+                    dots[j].classList.add('breed-landing__carousel-dot--active');
+                  } else {
+                    dots[j].classList.remove('breed-landing__carousel-dot--active');
+                  }
+                }
+              });
+            }
+          }
+        }
+      })(wrappers[i]);
+    }
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "Breed Landing Page",
+  "tag": "div",
+  "class": "breed-landing-wrapper",
+  "settings": [
+    {
+      "type": "header",
+      "content": "🎨 Accent Color"
+    },
+    {
+      "type": "color",
+      "id": "accent_color",
+      "label": "Accent color",
+      "default": "#C9A87C",
+      "info": "Tints badges, icons, buttons, hover states."
+    },
+    {
+      "type": "header",
+      "content": "Hero Section"
+    },
+    {
+      "type": "text",
+      "id": "eyebrow_text",
+      "label": "Eyebrow text",
+      "default": "Custom Pet Portrait",
+      "info": "Small text above the H1."
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "H1 heading",
+      "info": "Leave blank to use the page title from the page editor"
+    },
+    {
+      "type": "text",
+      "id": "subtitle",
+      "label": "Subtitle",
+      "default": "Upload your favorite photo and see it transformed into custom art instantly. Preview every style free before you spend anything."
+    },
+    {
+      "type": "image_picker",
+      "id": "hero_image",
+      "label": "Hero image",
+      "info": "Before/after transformation of this breed. Recommended: 800x600px."
+    },
+    {
+      "type": "select",
+      "id": "hero_image_ratio",
+      "label": "Hero image ratio",
+      "default": "natural",
+      "options": [
+        { "value": "natural", "label": "Natural" },
+        { "value": "square", "label": "Square (1:1)" },
+        { "value": "portrait", "label": "Portrait (3:4)" },
+        { "value": "landscape", "label": "Landscape (4:3)" }
+      ]
+    },
+    {
+      "type": "text",
+      "id": "hero_image_alt",
+      "label": "Hero image alt text",
+      "info": "SEO alt text. E.g., 'Custom golden retriever portrait from photo'"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_before_after_badge",
+      "label": "Show 'Before → After' badge",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "CTA Buttons (used across the page)"
+    },
+    {
+      "type": "text",
+      "id": "cta_text",
+      "label": "Primary CTA text",
+      "default": "See Your Pet in Every Style — Free"
+    },
+    {
+      "type": "url",
+      "id": "cta_url",
+      "label": "Primary CTA link"
+    },
+    {
+      "type": "text",
+      "id": "secondary_cta_text",
+      "label": "Secondary CTA text (optional)"
+    },
+    {
+      "type": "url",
+      "id": "secondary_cta_url",
+      "label": "Secondary CTA link"
+    },
+    {
+      "type": "header",
+      "content": "Free Preview Banner"
+    },
+    {
+      "type": "text",
+      "id": "preview_banner_heading",
+      "label": "Banner heading",
+      "default": "Free Instant Preview"
+    },
+    {
+      "type": "text",
+      "id": "preview_banner_text",
+      "label": "Banner description",
+      "default": "Upload your photo and preview every style instantly. Completely free."
+    },
+    {
+      "type": "header",
+      "content": "Style Recommendations"
+    },
+    {
+      "type": "text",
+      "id": "styles_heading",
+      "label": "Section heading",
+      "default": "Recommended Styles"
+    },
+    {
+      "type": "text",
+      "id": "styles_subtitle",
+      "label": "Subtitle (optional)"
+    },
+    {
+      "type": "text",
+      "id": "styles_cta_text",
+      "label": "CTA button text",
+      "default": "Preview All Styles Free"
+    },
+    {
+      "type": "header",
+      "content": "Photo Tips"
+    },
+    {
+      "type": "text",
+      "id": "tips_heading",
+      "label": "Section heading",
+      "default": "Photo Tips"
+    },
+    {
+      "type": "header",
+      "content": "Products"
+    },
+    {
+      "type": "collection",
+      "id": "products_collection",
+      "label": "Products collection"
+    },
+    {
+      "type": "text",
+      "id": "products_heading",
+      "label": "Section heading",
+      "default": "Available Products"
+    },
+    {
+      "type": "text",
+      "id": "products_subtitle",
+      "label": "Subtitle"
+    },
+    {
+      "type": "select",
+      "id": "products_image_ratio",
+      "label": "Product image ratio",
+      "default": "square",
+      "options": [
+        { "value": "natural", "label": "Natural" },
+        { "value": "square", "label": "Square (1:1)" },
+        { "value": "portrait", "label": "Portrait (3:4)" },
+        { "value": "landscape", "label": "Landscape (4:3)" }
+      ]
+    },
+    {
+      "type": "range",
+      "id": "products_limit",
+      "label": "Max products to show",
+      "min": 3,
+      "max": 12,
+      "step": 1,
+      "default": 8
+    },
+    {
+      "type": "header",
+      "content": "FAQ"
+    },
+    {
+      "type": "text",
+      "id": "faq_heading",
+      "label": "FAQ heading",
+      "default": "Frequently Asked Questions"
+    },
+    {
+      "type": "header",
+      "content": "Final CTA"
+    },
+    {
+      "type": "text",
+      "id": "final_cta_heading",
+      "label": "Heading",
+      "default": "Ready to See Your Pet as Art?"
+    },
+    {
+      "type": "text",
+      "id": "final_cta_text",
+      "label": "Body text",
+      "default": "Upload your favorite photo and preview every style instantly. Completely free."
+    },
+    {
+      "type": "text",
+      "id": "trust_text",
+      "label": "Trust line",
+      "default": "No account needed · Takes less than 60 seconds · 100% free"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "style_recommendation",
+      "name": "Style Recommendation",
+      "limit": 6,
+      "settings": [
+        {
+          "type": "text",
+          "id": "style_name",
+          "label": "Style name",
+          "default": "Color Portrait"
+        },
+        {
+          "type": "text",
+          "id": "style_tag",
+          "label": "Tag line (optional)",
+          "info": "E.g., 'Most Popular' or 'Best for Memorials'"
+        },
+        {
+          "type": "text",
+          "id": "style_description",
+          "label": "Description",
+          "default": "Captures the warm tones and natural beauty of your pet's coat."
+        },
+        {
+          "type": "image_picker",
+          "id": "style_image",
+          "label": "Style example image",
+          "info": "Example portrait of this breed in this style."
+        },
+        {
+          "type": "url",
+          "id": "style_url",
+          "label": "Link to style page"
+        }
+      ]
+    },
+    {
+      "type": "photo_tip",
+      "name": "Photo Tip",
+      "limit": 8,
+      "settings": [
+        {
+          "type": "text",
+          "id": "tip_icon",
+          "label": "Emoji icon",
+          "default": "📸"
+        },
+        {
+          "type": "text",
+          "id": "tip_title",
+          "label": "Tip title",
+          "default": "Use natural light"
+        },
+        {
+          "type": "text",
+          "id": "tip_description",
+          "label": "Tip description"
+        }
+      ]
+    },
+    {
+      "type": "faq",
+      "name": "FAQ Item",
+      "limit": 10,
+      "settings": [
+        {
+          "type": "text",
+          "id": "question",
+          "label": "Question"
+        },
+        {
+          "type": "richtext",
+          "id": "answer",
+          "label": "Answer"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Breed Landing Page",
+      "blocks": [
+        {
+          "type": "style_recommendation",
+          "settings": {
+            "style_name": "Color Portrait",
+            "style_tag": "Most Popular",
+            "style_description": "Captures the warm tones and natural beauty of your pet's coat."
+          }
+        },
+        {
+          "type": "style_recommendation",
+          "settings": {
+            "style_name": "Black & White",
+            "style_tag": "Best for Memorials",
+            "style_description": "Dramatic, timeless, and fine-art quality."
+          }
+        },
+        {
+          "type": "style_recommendation",
+          "settings": {
+            "style_name": "Ink Wash",
+            "style_description": "Soft, hand-painted, and elegant."
+          }
+        },
+        {
+          "type": "style_recommendation",
+          "settings": {
+            "style_name": "Marker",
+            "style_description": "Bold, playful, and full of personality."
+          }
+        },
+        {
+          "type": "photo_tip",
+          "settings": {
+            "tip_icon": "☀️",
+            "tip_title": "Use natural light",
+            "tip_description": "Outdoor or window light brings out the best coat detail and color."
+          }
+        },
+        {
+          "type": "photo_tip",
+          "settings": {
+            "tip_icon": "📷",
+            "tip_title": "Focus on the face",
+            "tip_description": "Close-up face and chest shots make the most impactful portraits."
+          }
+        },
+        {
+          "type": "photo_tip",
+          "settings": {
+            "tip_icon": "🐕",
+            "tip_title": "Capture a natural expression",
+            "tip_description": "Relaxed, natural moments make better portraits than posed shots."
+          }
+        },
+        {
+          "type": "faq",
+          "settings": {
+            "question": "How does the free preview work?",
+            "answer": "<p>Upload any photo of your pet and you'll instantly see it transformed into all available art styles. It's completely free, no account or credit card required.</p>"
+          }
+        },
+        {
+          "type": "faq",
+          "settings": {
+            "question": "What kind of photo works best?",
+            "answer": "<p>Any clear photo where your pet's face is visible works great. Phone photos are perfect. The better the lighting, the more detail we can capture.</p>"
+          }
+        },
+        {
+          "type": "faq",
+          "settings": {
+            "question": "How long does it take to receive my order?",
+            "answer": "<p>Most orders ship within 3-5 business days. You'll receive a digital preview before your order ships so you can make sure everything is perfect.</p>"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}
