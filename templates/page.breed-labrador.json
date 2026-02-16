@@ -92,6 +92,14 @@
             "tip_description": "Yellow, chocolate, black, fox red, white. Every labrador coat color produces a striking portrait. Our styles are designed to work with the full range. Upload your photo and see for yourself."
           }
         },
+        "photo_tip_PtRBak": {
+          "type": "photo_tip",
+          "settings": {
+            "tip_icon": "📱",
+            "tip_title": "Phone photos work well",
+            "tip_description": "You don't need a professional camera. Some of our best labrador retriever portraits have come from casual phone shots."
+          }
+        },
         "gift-1": {
           "type": "gift_angle",
           "settings": {
@@ -177,6 +185,7 @@
         "tip-3",
         "tip-4",
         "tip-5",
+        "photo_tip_PtRBak",
         "gift-1",
         "gift-2",
         "gift-3",
