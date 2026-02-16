@@ -84,6 +84,22 @@
             "tip_description": "Face and chest area makes the most impactful portrait. We'll handle the background removal and composition."
           }
         },
+        "photo_tip_kaWFhJ": {
+          "type": "photo_tip",
+          "settings": {
+            "tip_icon": "🖼️",
+            "tip_title": "Any background is fine",
+            "tip_description": "Our process removes the background entirely. As long as your golden's face is clear and well-lit, the photo will work"
+          }
+        },
+        "photo_tip_qRrDqn": {
+          "type": "photo_tip",
+          "settings": {
+            "tip_icon": "📱",
+            "tip_title": "Phone photos work well",
+            "tip_description": "You don't need a professional camera. Some of our best golden retriever portraits have come from casual phone shots taken on a random Tuesday afternoon."
+          }
+        },
         "gift-1": {
           "type": "gift_angle",
           "settings": {
@@ -168,6 +184,8 @@
         "tip-2",
         "tip-3",
         "tip-4",
+        "photo_tip_kaWFhJ",
+        "photo_tip_qRrDqn",
         "gift-1",
         "gift-3",
         "gift-2",
