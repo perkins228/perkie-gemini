@@ -205,7 +205,7 @@
         "hero_image": "shopify://shop_images/lab_beforeafter.png",
         "hero_image_ratio": "natural",
         "hero_image_alt": "Custom labrador retriever portrait from photo",
-        "show_before_after_badge": true,
+        "show_before_after_badge": false,
         "cta_text": "See Your Lab in Every Style for Free",
         "cta_url": "shopify://pages/custom-image-processing",
         "secondary_cta_text": "",
