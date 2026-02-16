@@ -164,6 +164,46 @@
     </section>
   {% endif %}
 
+  {%- comment -%} ===== GIFT ANGLES ===== {%- endcomment -%}
+  {% assign gift_blocks = section.blocks | where: 'type', 'gift_angle' %}
+  {% if gift_blocks.size > 0 %}
+    <section class="breed-landing__gifts">
+      <div class="page-width">
+        <h2 class="breed-landing__section-heading">{{ section.settings.gifts_heading | default: 'The Perfect Gift' }}</h2>
+        {% if section.settings.gifts_intro != blank %}
+          <p class="breed-landing__gifts-intro">{{ section.settings.gifts_intro }}</p>
+        {% endif %}
+        <div class="breed-landing__gifts-grid">
+          {% for block in gift_blocks %}
+            <div class="breed-landing__gift" {{ block.shopify_attributes }}>
+              {% if block.settings.gift_icon != blank %}
+                <span class="breed-landing__gift-icon" aria-hidden="true">{{ block.settings.gift_icon }}</span>
+              {% endif %}
+              <div>
+                <strong>{{ block.settings.gift_title }}</strong>
+                {% if block.settings.gift_description != blank %}
+                  <div class="breed-landing__gift-description rte">
+                    {{ block.settings.gift_description }}
+                  </div>
+                {% endif %}
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+        {% if section.settings.gifts_closing != blank %}
+          <div class="breed-landing__gifts-closing">
+            <p>{{ section.settings.gifts_closing }}</p>
+          </div>
+        {% endif %}
+        <div class="breed-landing__gifts-cta">
+          <a href="{{ section.settings.cta_url | default: '/pages/custom-image-processing' }}" class="button button--primary">
+            {{ section.settings.gifts_cta_text | default: 'Preview Styles Free' }}
+          </a>
+        </div>
+      </div>
+    </section>
+  {% endif %}
+
   {%- comment -%} ===== AVAILABLE PRODUCTS ===== {%- endcomment -%}
   {% if section.settings.products_collection != blank %}
     <section class="breed-landing__products">
@@ -477,6 +517,32 @@
     },
     {
       "type": "header",
+      "content": "Gift Angles"
+    },
+    {
+      "type": "text",
+      "id": "gifts_heading",
+      "label": "Section heading",
+      "default": "The Perfect Gift"
+    },
+    {
+      "type": "textarea",
+      "id": "gifts_intro",
+      "label": "Intro text (optional)"
+    },
+    {
+      "type": "textarea",
+      "id": "gifts_closing",
+      "label": "Closing text (optional)"
+    },
+    {
+      "type": "text",
+      "id": "gifts_cta_text",
+      "label": "CTA button text",
+      "default": "Preview Styles Free"
+    },
+    {
+      "type": "header",
       "content": "Products"
     },
     {
@@ -611,6 +677,30 @@
       ]
     },
     {
+      "type": "gift_angle",
+      "name": "Gift Angle",
+      "limit": 6,
+      "settings": [
+        {
+          "type": "text",
+          "id": "gift_icon",
+          "label": "Emoji icon",
+          "default": "🎁"
+        },
+        {
+          "type": "text",
+          "id": "gift_title",
+          "label": "Occasion title",
+          "default": "Birthdays & Holidays"
+        },
+        {
+          "type": "richtext",
+          "id": "gift_description",
+          "label": "Description"
+        }
+      ]
+    },
+    {
       "type": "faq",
       "name": "FAQ Item",
       "limit": 10,
@@ -684,6 +774,22 @@
             "tip_icon": "🐕",
             "tip_title": "Capture a natural expression",
             "tip_description": "Relaxed, natural moments make better portraits than posed shots."
+          }
+        },
+        {
+          "type": "gift_angle",
+          "settings": {
+            "gift_icon": "🎁",
+            "gift_title": "Birthdays & Holidays",
+            "gift_description": "<p>A framed portrait of their pet is the kind of gift that gets hung on the wall the same day it's opened.</p>"
+          }
+        },
+        {
+          "type": "gift_angle",
+          "settings": {
+            "gift_icon": "🕊️",
+            "gift_title": "Pet Memorial",
+            "gift_description": "<p>A custom portrait created from a favorite photo gives them something beautiful to hold onto.</p>"
           }
         },
         {
