@@ -197,6 +197,10 @@
         "faq-5",
         "faq-6"
       ],
+      "custom_css": [
+        ".button {background-color: #ff5964 !important; /* The background color */ color: #ffffff !important; /* The text color */ border: none; /* Optional: removes border */}",
+        "h1 {text-align: center;}"
+      ],
       "settings": {
         "accent_color": "#8b6914",
         "eyebrow_text": "America's Favorite Dog, Your Custom Portrait",

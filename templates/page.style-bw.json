@@ -154,7 +154,9 @@
         "faq-4"
       ],
       "custom_css": [
-        ".style-landing__audience-icon {display: flex; justify-content: center; align-items: center; margin: 0 auto;}"
+        ".style-landing__audience-icon {display: flex; justify-content: center; align-items: center; margin: 0 auto;}",
+        ".button {background-color: #ff5964 !important; /* The background color */ color: #ffffff !important; /* The text color */ border: none; /* Optional: removes border */}",
+        "h1 {text-align: center;}"
       ],
       "settings": {
         "accent_color": "#333333",
@@ -164,7 +166,7 @@
         "hero_image": "shopify://shop_images/Dogs_Slide5.png",
         "hero_image_ratio": "natural",
         "hero_image_alt": "Custom black and white pet portrait from photo",
-        "show_before_after_badge": true,
+        "show_before_after_badge": false,
         "cta_text": "See Your Pet in Black & White for Free",
         "cta_url": "/pages/custom-image-processing",
         "secondary_cta_text": "Want to keep the color? See our Color style.",
