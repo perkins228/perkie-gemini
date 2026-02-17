@@ -12,23 +12,13 @@
     "breed-landing": {
       "type": "breed-landing",
       "blocks": {
-        "style-color": {
-          "type": "style_recommendation",
-          "settings": {
-            "style_name": "Color Portrait",
-            "style_tag": "The Full Boxer Experience",
-            "style_description": "Color captures the warm fawn tones, the brindle pattern, and the flash markings that make each boxer unique. This style preserves the eye color and subtle facial shading that give boxers their distinctive expressive quality. The most popular choice for boxer owners who want a portrait that looks exactly like their dog.",
-            "style_image": "",
-            "style_url": "/pages/color-pet-portrait"
-          }
-        },
         "style-bw": {
           "type": "style_recommendation",
           "settings": {
             "style_name": "Professional Black & White",
             "style_tag": "Strong and Soulful",
             "style_description": "Black and white transforms a boxer's square, muscular face into something that belongs in a gallery. The strong jawline, the deep eyes, the underbite. These features create a portrait with real visual weight. Especially striking for flashy boxers, where the white markings create bold graphic contrast. A popular choice for boxer memorial portraits, where the dignified feel creates a lasting tribute.",
-            "style_image": "",
+            "style_image": "shopify://shop_images/boxer_bw.png",
             "style_url": "/pages/black-and-white-pet-portrait"
           }
         },
@@ -38,8 +28,16 @@
             "style_name": "Marker",
             "style_tag": "Born for This Style",
             "style_description": "Boxers and Marker are a natural match. The bold, energetic lines mirror the breed's personality perfectly. Vivid colors and defined strokes bring out the joy and enthusiasm that boxers radiate. Brindle boxers are particularly stunning in Marker, where the pattern becomes an eye-catching graphic element.",
-            "style_image": "",
             "style_url": "/pages/marker-pet-portrait"
+          }
+        },
+        "style-color": {
+          "type": "style_recommendation",
+          "settings": {
+            "style_name": "Color Portrait",
+            "style_tag": "The Full Boxer Experience",
+            "style_description": "Color captures the warm fawn tones, the brindle pattern, and the flash markings that make each boxer unique. This style preserves the eye color and subtle facial shading that give boxers their distinctive expressive quality. The most popular choice for boxer owners who want a portrait that looks exactly like their dog.",
+            "style_url": "/pages/color-pet-portrait"
           }
         },
         "style-inkwash": {
@@ -48,7 +46,6 @@
             "style_name": "Ink Wash",
             "style_tag": "The Quieter Side",
             "style_description": "Ink wash captures the gentle, sensitive side of boxers that only their owners get to see. Behind all that energy is a deeply affectionate dog, and ink wash brings that warmth to the surface. A beautiful choice for senior boxers and memorial portraits.",
-            "style_image": "",
             "style_url": "/pages/ink-wash-pet-portrait"
           }
         },
@@ -176,9 +173,9 @@
         }
       },
       "block_order": [
-        "style-color",
         "style-bw",
         "style-marker",
+        "style-color",
         "style-inkwash",
         "tip-1",
         "tip-2",
@@ -201,14 +198,14 @@
         ".button {background-color: #ff5964 !important; /* The background color */ color: #ffffff !important; /* The text color */ border: none; /* Optional: removes border */}"
       ],
       "settings": {
-        "accent_color": "#C8902E",
+        "accent_color": "#c8902e",
         "eyebrow_text": "Maximum Joy, Custom Art",
         "heading": "",
         "subtitle": "The underbite. The boundless energy. That face that broadcasts pure joy. Your boxer deserves a portrait that captures the spirit that lights up every room.",
-        "hero_image": "",
+        "hero_image": "shopify://shop_images/boxer_beforeafter.png",
         "hero_image_ratio": "natural",
         "hero_image_alt": "Custom boxer portrait from photo",
-        "show_before_after_badge": false,
+        "show_before_after_badge": true,
         "cta_text": "See Your Boxer in Every Style for Free",
         "cta_url": "shopify://pages/custom-image-processing",
         "secondary_cta_text": "",
