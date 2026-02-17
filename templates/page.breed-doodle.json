@@ -27,7 +27,7 @@
           "settings": {
             "style_name": "Ink Wash",
             "style_tag": "Made for the Floof",
-            "style_description": "Ink wash and curly coats are a perfect match. The flowing, painterly brushstrokes mirror the natural movement of a doodle's curls in a way that feels almost organic. The result looks like a hand-painted watercolor of your dog. If your doodle has a wavy or loosely curled coat, ink wash captures that texture beautifully. A top recommendation for goldendoodle portraits.",
+            "style_description": "Ink wash and curly coats are a perfect match. The flowing, painterly brushstroke style mirrors the natural movement of a doodle's curls in a way that feels almost organic. The result looks like a hand-painted watercolor of your dog. If your doodle has a wavy or loosely curled coat, ink wash captures that texture beautifully. A top recommendation for goldendoodle portraits.",
             "style_image": "shopify://shop_images/doodle_inkwash.png",
             "style_url": "/pages/ink-wash-pet-portrait"
           }
@@ -198,8 +198,7 @@
         "faq-6"
       ],
       "custom_css": [
-        ".button {background-color: #ff5964 !important; /* The background color */ color: #ffffff !important; /* The text color */ border: none; /* Optional: removes border */}",
-        "h1 {text-align: center;}"
+        ".button {background-color: #ff5964 !important; /* The background color */ color: #ffffff !important; /* The text color */ border: none; /* Optional: removes border */}"
       ],
       "settings": {
         "accent_color": "#e6a44e",
