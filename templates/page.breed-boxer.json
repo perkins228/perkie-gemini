@@ -38,6 +38,7 @@
             "style_name": "Color Portrait",
             "style_tag": "The Full Boxer Experience",
             "style_description": "Color captures the warm fawn tones, the brindle pattern, and the flash markings that make each boxer unique. This style preserves the eye color and subtle facial shading that give boxers their distinctive expressive quality. The most popular choice for boxer owners who want a portrait that looks exactly like their dog.",
+            "style_image": "shopify://shop_images/boxer_color.png",
             "style_url": "/pages/color-pet-portrait"
           }
         },
@@ -47,6 +48,7 @@
             "style_name": "Ink Wash",
             "style_tag": "The Quieter Side",
             "style_description": "Ink wash captures the gentle, sensitive side of boxers that only their owners get to see. Behind all that energy is a deeply affectionate dog, and ink wash brings that warmth to the surface. A beautiful choice for senior boxers and memorial portraits.",
+            "style_image": "shopify://shop_images/boxer_inkwash.png",
             "style_url": "/pages/ink-wash-pet-portrait"
           }
         },
@@ -103,7 +105,7 @@
           "settings": {
             "gift_icon": "🥊",
             "gift_title": "For the boxer superfan",
-            "gift_description": "<p>Boxer owners don't just like their breed. They're obsessed. A <a href=\"/products/personalized-pet-portrait\" title=\"Framed Pet Portrait\">custom portrait</a> of their specific boxer is the kind of gift that earns you permanent favorite-person status. Pair it with a <a href=\"/collections/personalized-pet-products-gifts\" title=\"Personalized Pet Products & Gifts\">matching mug or pocket tee</a> for a complete set.</p>"
+            "gift_description": "<p>Boxer owners don't just like their breed. They're obsessed. A <a href=\"/products/personalized-pet-portrait\" title=\"Framed Pet Portrait\">custom portrait</a> of their specific boxer is the kind of gift that earns you permanent favorite-person status. Pair it with a matching <a href=\"/products/personalized-pet-canvas-tote-bag\" title=\"Canvas Tote Bag\">tote</a> or <a href=\"/products/sweatshirt\" title=\"Sweatshirt\">sweatshirt</a> for a complete set.</p>"
           }
         },
         "gift-2": {
