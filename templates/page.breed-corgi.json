@@ -12,24 +12,24 @@
     "breed-landing": {
       "type": "breed-landing",
       "blocks": {
-        "style-color": {
-          "type": "style_recommendation",
-          "settings": {
-            "style_name": "Color Portrait",
-            "style_tag": "That Golden Glow",
-            "style_description": "Color captures the warm reds, fawns, and sables that define the Pembroke look, and the complex tricolor and merle patterns of Cardigans. This style brings out the warmth of the corgi coat and preserves the eye color and subtle facial markings that make each corgi unique.",
-            "style_image": "",
-            "style_url": "/pages/color-pet-portrait"
-          }
-        },
         "style-bw": {
           "type": "style_recommendation",
           "settings": {
             "style_name": "Professional Black & White",
             "style_tag": "The Regal Corgi",
             "style_description": "Corgis have a surprisingly regal quality in black and white. The pointed ears, the sharp facial features, the alert posture. Remove the color and you get a portrait that feels almost aristocratic. Particularly striking for tricolor corgis where the natural pattern creates strong contrast. The top choice for corgi memorial portraits and large framed prints.",
-            "style_image": "",
+            "style_image": "shopify://shop_images/corgi_bw.png",
             "style_url": "/pages/black-and-white-pet-portrait"
+          }
+        },
+        "style-color": {
+          "type": "style_recommendation",
+          "settings": {
+            "style_name": "Color Portrait",
+            "style_tag": "That Golden Glow",
+            "style_description": "Color captures the warm reds, fawns, and sables that define the Pembroke look, and the complex tricolor and merle patterns of Cardigans. This style brings out the warmth of the corgi coat and preserves the eye color and subtle facial markings that make each corgi unique.",
+            "style_image": "shopify://shop_images/corgi_color.png",
+            "style_url": "/pages/color-pet-portrait"
           }
         },
         "style-inkwash": {
@@ -37,8 +37,8 @@
           "settings": {
             "style_name": "Ink Wash",
             "style_tag": "Soft and Storybook",
-            "style_description": "Ink wash gives corgi portraits a storybook quality. The soft brushstrokes and flowing style capture the fluffy texture of their double coat beautifully. This style feels like an illustration from a fairy tale, which honestly fits a breed that looks like it belongs in one.",
-            "style_image": "",
+            "style_description": "Ink wash gives corgi portraits a storybook quality. The soft and flowing brushstroke style captures the fluffy texture of their double coat beautifully. This style feels like an illustration from a fairy tale, which honestly fits a breed that looks like it belongs in one.",
+            "style_image": "shopify://shop_images/corgi_inkwash.png",
             "style_url": "/pages/ink-wash-pet-portrait"
           }
         },
@@ -48,7 +48,7 @@
             "style_name": "Marker",
             "style_tag": "Pure Corgi Energy",
             "style_description": "Corgis are playful, mischievous, and perpetually amused. Marker matches that energy with bold lines and vivid colors. This is the style that captures the zoomies, the sploot, and the \"I stole your shoe and I'm not sorry\" face all at once.",
-            "style_image": "",
+            "style_image": "shopify://shop_images/corgi_marker.png",
             "style_url": "/pages/marker-pet-portrait"
           }
         },
@@ -105,7 +105,7 @@
           "settings": {
             "gift_icon": "😊",
             "gift_title": "For the corgi community",
-            "gift_description": "<p>Corgi owners are a tight-knit, enthusiastic community. A <a href=\"/products/personalized-pet-portrait\" title=\"Framed Pet Portrait\">custom portrait</a> of their specific corgi is the kind of thing that gets posted on every corgi group and subreddit within hours of unwrapping. Pair it with a <a href=\"/collections/personalized-pet-products-gifts\" title=\"Personalized Pet Products & Gifts\">matching mug or pocket tee</a> for a complete set.</p>"
+            "gift_description": "<p>Corgi owners are a tight-knit, enthusiastic community. A <a href=\"/products/personalized-pet-portrait\" title=\"Framed Pet Portrait\">custom portrait</a> of their specific corgi is the kind of thing that gets posted on every corgi group and subreddit within hours of unwrapping. Pair it with a matching <a href=\"/products/personalized-pet-coffee-mug\" title=\"Coffee Mug\">mug</a> or <a href=\"/products/personalized-pet-canvas-zip-tote\" title=\"Canvas Zip Tote\">canvas tote</a> for a complete set.</p>"
           }
         },
         "gift-2": {
@@ -176,8 +176,8 @@
         }
       },
       "block_order": [
-        "style-color",
         "style-bw",
+        "style-color",
         "style-inkwash",
         "style-marker",
         "tip-1",
@@ -201,11 +201,11 @@
         ".button {background-color: #ff5964 !important; /* The background color */ color: #ffffff !important; /* The text color */ border: none; /* Optional: removes border */}"
       ],
       "settings": {
-        "accent_color": "#D2691E",
+        "accent_color": "#d2691e",
         "eyebrow_text": "Short Legs, Big Portrait",
         "heading": "",
         "subtitle": "Short legs. Big ears. Bigger attitude. Your corgi deserves a portrait that captures that unmistakable smile and all the personality that comes with it.",
-        "hero_image": "",
+        "hero_image": "shopify://shop_images/corgi_beforeafter.png",
         "hero_image_ratio": "natural",
         "hero_image_alt": "Custom corgi portrait from photo",
         "show_before_after_badge": false,
