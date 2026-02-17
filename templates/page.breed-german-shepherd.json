@@ -113,7 +113,7 @@
           "settings": {
             "gift_icon": "🕊️",
             "gift_title": "Memorial and remembrance",
-            "gift_description": "<p>Losing a German shepherd is losing a protector, a partner, and in most cases, a best friend. A custom portrait from a favorite photo gives them something beautiful to hold onto. Our <a href=\"/pages/black-and-white-pet-portrait\">Black & White</a> and <a href=\"/pages/ink-wash-pet-portrait\">Ink Wash</a> styles are especially popular for <a href=\"/pages/pet-memorial-portrait\" title=\"Pet Memorial Portraits\">memorial portraits</a>.</p>"
+            "gift_description": "<p>Losing a German shepherd is losing a protector, a partner, and in most cases, a best friend. A custom portrait from a favorite photo gives them something beautiful to hold onto. Our <a href=\"/pages/black-and-white-pet-portrait\" title=\"Custom Black & White Pet Portraits From Your Photo\">Black & White</a> and <a href=\"/pages/ink-wash-pet-portrait\" title=\"Ink Wash Pet Portraits From Your Photo\">Ink Wash</a> styles are especially popular for <a href=\"/pages/pet-memorial-portrait\" title=\"Pet Memorial Portraits\">memorial portraits</a>.</p>"
           }
         },
         "gift-3": {
@@ -121,7 +121,7 @@
           "settings": {
             "gift_icon": "🏠",
             "gift_title": "The family guardian portrait",
-            "gift_description": "<p>For many families, the German shepherd is the dog that makes the house feel like home. A <a href=\"/pages/color-pet-portrait\" title=\"Custom Color Pet Portraits From Your Photo\">Color Portrait</a> that captures their shepherd's full presence makes a meaningful holiday or anniversary gift. Pair it with a <a href=\"/collections/personalized-pet-products-gifts\" title=\"Personalized Pet Products & Gifts\">matching mug or phone case</a> for a complete set.</p>"
+            "gift_description": "<p>For many families, the German shepherd is the dog that makes the house feel like home. A <a href=\"/pages/color-pet-portrait\" title=\"Custom Color Pet Portraits From Your Photo\">Color Portrait</a> that captures their shepherd's full presence makes a meaningful holiday or anniversary gift. Pair it with a <a href=\"/collections/personalized-pet-products-gifts\" title=\"Personalized Pet Products & Gifts\">matching mug or pocket tee</a> for a complete set.</p>"
           }
         },
         "gift-4": {
@@ -197,7 +197,10 @@
         "faq-5",
         "faq-6"
       ],
-      "custom_css": [],
+      "custom_css": [
+        ".button {background-color: #ff5964 !important; /* The background color */ color: #ffffff !important; /* The text color */ border: none; /* Optional: removes border */}",
+        "h1 {text-align: center;}"
+      ],
       "settings": {
         "accent_color": "#5d4037",
         "eyebrow_text": "Noble, Intelligent, Yours",
@@ -225,7 +228,7 @@
         "products_heading": "Available Products",
         "products_subtitle": "Custom German shepherd wall art, framed prints, mugs, and 20+ products featuring your GSD portrait.",
         "products_image_ratio": "square",
-        "products_limit": 8,
+        "products_limit": 10,
         "faq_heading": "German Shepherd Portrait FAQ",
         "final_cta_heading": "Ready to See Your German Shepherd as Art?",
         "final_cta_text": "Upload your favorite photo and preview every style instantly. Completely free, no account needed.",
