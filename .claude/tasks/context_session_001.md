@@ -1904,6 +1904,130 @@ Replace `display: flex` with `display: grid` on `.processor-columns`. CSS Grid w
 
 ---
 
+### 2026-02-14: Safari Wrapper Div Fix (4th Fix Attempt)
+
+**Issue Confirmed**: Customer screenshots with v3.0 diagnostic borders showed:
+- All 4 diagnostic borders visible → CSS v3.0 WAS delivered (cache-buster worked)
+- Grid layout WAS active (two-column visible)
+- BUT left column pink/coral background extended massively below content and even below the `.has-result` wrapper border
+- Root cause: Safari inflates grid ROW height when a direct grid child has `position: sticky` + `max-height`, even with `align-items: start`. Same underlying Safari bug, different manifestation in Grid vs Flexbox.
+
+**Fix (95% confidence)**: Wrapper div pattern — decouple `position: sticky` from grid cell.
+
+**Changes**:
+1. `assets/pet-processor.js` (line ~1343): Wrapped `.processor-preview` contents in `.processor-preview__inner`
+2. `assets/pet-processor-v5.css`: Moved `position: sticky`, `top: 20px`, `max-height: calc(100vh - 40px)`, `overflow-y: auto` from `.processor-preview` to `.processor-preview__inner`
+3. `sections/ks-pet-processor-v5.liquid`: Bumped cache-buster v3.0 → v3.1
+4. Updated diagnostic borders to v3.1 with magenta outline on `__inner`
+
+**Verification (Chrome DevTools)**:
+- `.processor-preview`: `position: static`, `maxHeight: none` (clean grid cell)
+- `.processor-preview__inner`: `position: sticky`, `top: 20px`, `maxHeight: 734px`
+- Grid container height: 506px (not inflated)
+- All 5 diagnostic borders rendering correctly
+
+**Commit**: `a241c66` (staging)
+
+**Code Quality Review**: Approved — no selector breakage, no mobile impact, fallback path works.
+
+**Why this should work**: Safari cannot inflate the grid row because the grid cell participant (`.processor-preview`) has NO `max-height` or `sticky` properties. The inner wrapper is NOT a grid item, so its `max-height` doesn't contribute to grid row sizing.
+
+**Next Steps**: Ask customer to quit Safari, reopen, test fresh, send screenshot showing diagnostic borders.
+
+---
+
+### 2026-02-16 - Gift Angles Section Added to Breed Landing Page
+
+**Task**: Add gift section between Photo Tips and Products Carousel in breed landing page.
+
+**Agent Consultations**: Conversion, UX, and SEO agents reviewed the gift section design.
+
+**Implementation**:
+- Added `gift_angle` block type (limit: 6) with emoji icon, title, and richtext description
+- Added gift section HTML between Photo Tips and Products Carousel
+- Added Gift Angles settings: heading, intro textarea, closing textarea, CTA text
+- Added 2 default gift_angle blocks to presets
+- Added responsive CSS: 2-col desktop grid, 1-col mobile, white cards on white bg
+- Updated Golden Retriever template with 4 gift blocks and settings content
+
+**Code Review Findings Addressed**:
+- Fixed consecutive `#fafaf8` backgrounds (removed from gifts section to restore alternating pattern)
+- Added `aria-hidden="true"` to decorative emoji icons
+- Removed redundant `rte` class from closing text div (plain textarea content)
+
+**Files Modified**:
+- `sections/breed-landing.liquid` — gift section HTML, schema block type, settings, presets
+- `assets/breed-landing.css` — gift section CSS with responsive breakpoints
+- `templates/page.breed-golden-retriever.json` — 4 gift blocks + gift settings values
+
+**Commits** (two-phase deploy to avoid Shopify race condition):
+- `6e10e48` — feat(breed-landing): Add gift angles section with block type (section + CSS)
+- `c9c7bc3` — feat(breed-landing): Add gift angle content to Golden Retriever template
+
+**Status**: ✅ DEPLOYED TO STAGING
+
+---
+
+### 2026-02-16 - SEO Optimization for Golden Retriever Gift Section
+
+**Task**: Incorporate SEO agent P1 recommendations into gift section.
+
+**Changes**:
+- H2 changed from "The Perfect Gift for Golden Retriever Owners" to "Golden Retriever Gifts: Custom Portraits That Mean Something"
+- Added 6 internal links across 4 gift descriptions (memorial styles, color portrait, product collection, styles preview)
+- Wove in long-tail keywords: "golden retriever birthday/Christmas gift", "sympathy gift", "golden retriever mom/dad", "unique"
+
+**Commit**: `25e5f44` — seo(breed-landing): Optimize gift section for golden retriever gift keywords
+
+**Status**: ✅ DEPLOYED TO STAGING
+
+---
+
+### 2026-02-16 - Labrador Retriever Breed Landing Page Template
+
+**Task**: Create Lab breed page template from spec at `docs/labrador-retriever-portrait-page.md`.
+
+**Agent Consultations**: SEO, conversion, and UX agents reviewed the spec.
+
+**Implementation**:
+- Created `templates/page.breed-labrador.json` using existing `breed-landing` section
+- 4 style recommendation blocks with coat-color keywords (black/yellow/chocolate lab portrait)
+- 5 photo tips with breed-specific emoji icons
+- 4 gift angle blocks with internal links (memorial styles, color portrait, styles preview)
+- 6 FAQ blocks including black lab-specific question
+- All section settings defined (gifts_heading, gifts_intro, gifts_closing, styles_heading, etc.)
+- SEO: H2 leads with "Labrador Retriever Gifts" keyword, products_subtitle targets "custom lab wall art"
+
+**Key Decisions**:
+- Kept 5 tips (spec-specified) despite agents recommending 4 — Tip 5 covers coat color reassurance which is Lab-specific
+- No two-phase deploy needed (new template, existing section type + block types)
+- Hero image and style images to be added via Shopify Admin UI after deployment
+
+**Files Created**:
+- `templates/page.breed-labrador.json` — Complete Lab breed page template (19 blocks)
+
+**Commit**: `036880f` — feat(breed-landing): Add Labrador Retriever breed template
+
+**Status**: ✅ DEPLOYED TO STAGING
+
+---
+
+### 2026-02-16 - SEO Review: French Bulldog Breed Landing Page Spec
+
+**Agent**: seo-optimization-expert
+**Task**: Review `docs/french-bulldog-portrait-page.md` for SEO gaps before implementation
+**Reference**: Golden Retriever (live, SEO-optimized) and Labrador (deployed) templates
+
+**Findings Summary**:
+- 6 P1 (must-fix) issues identified
+- 5 P2 (nice-to-have) recommendations
+- Primary gaps: Missing gifts_heading, zero internal links in gift descriptions, missing template settings
+- See full review delivered to user in conversation
+
+**Status**: Review complete, awaiting implementation
+
+---
+
 ## Notes
 - Always append new work with timestamp
 - Archive when file > 400KB or task complete
