@@ -155,8 +155,7 @@
       ],
       "custom_css": [
         ".style-landing__audience-icon {display: flex; justify-content: center; align-items: center; margin: 0 auto;}",
-        ".button {background-color: #ff5964 !important; /* The background color */ color: #ffffff !important; /* The text color */ border: none; /* Optional: removes border */}",
-        "h1 {text-align: center;}"
+        ".button {background-color: #ff5964 !important; /* The background color */ color: #ffffff !important; /* The text color */ border: none; /* Optional: removes border */}"
       ],
       "settings": {
         "accent_color": "#333333",
