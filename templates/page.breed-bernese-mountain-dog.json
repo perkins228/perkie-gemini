@@ -18,7 +18,7 @@
             "style_name": "Color Portrait",
             "style_tag": "The Tricolor Masterpiece",
             "style_description": "Color is the natural choice for Bernese mountain dogs because the tricolor coat is their defining feature. The jet black, clean white, and warm rust create a color palette that's as striking as any artist could design. Color portraits preserve this palette in full detail. The most popular choice by a wide margin.",
-            "style_image": "",
+            "style_image": "shopify://shop_images/bernie_color.png",
             "style_url": "/pages/color-pet-portrait"
           }
         },
@@ -28,7 +28,7 @@
             "style_name": "Professional Black & White",
             "style_tag": "Dramatic Contrast",
             "style_description": "The tricolor coat translates surprisingly well into black and white. The three distinct tonal values (dark, mid-tone, and light) create rich contrast and visual depth. The rust markings become a medium gray that adds dimension, while the white blaze and chest provide highlights. A sophisticated choice for large prints and Bernese mountain dog memorial portraits.",
-            "style_image": "",
+            "style_image": "shopify://shop_images/bernie_bw.png",
             "style_url": "/pages/black-and-white-pet-portrait"
           }
         },
@@ -37,8 +37,8 @@
           "settings": {
             "style_name": "Ink Wash",
             "style_tag": "Mountain Dog, Mountain Art",
-            "style_description": "Ink wash and the Bernese mountain dog's flowing coat are a perfect pairing. The soft, painterly brushstrokes capture the wave and movement of the thick fur beautifully. The result feels like a portrait painted in the Swiss Alps, with a rugged warmth that matches the breed's heritage. Stunning for memorial portraits.",
-            "style_image": "",
+            "style_description": "Ink wash and the Bernese mountain dog's flowing coat are a perfect pairing. The soft, painterly brushstroke style captures the wave and movement of the thick fur beautifully. The result feels like a portrait painted in the Swiss Alps, with a rugged warmth that matches the breed's heritage. Stunning for memorial portraits.",
+            "style_image": "shopify://shop_images/bernie_ink.png",
             "style_url": "/pages/ink-wash-pet-portrait"
           }
         },
@@ -48,7 +48,7 @@
             "style_name": "Marker",
             "style_tag": "Vibrant and Joyful",
             "style_description": "Marker brings out the playful side of Berners. Despite their size and calm demeanor, these dogs have a silly, joyful streak. Bold lines and vivid colors celebrate that personality. The tricolor pattern pops with extra vibrancy in this style. A fun choice for younger Berners.",
-            "style_image": "",
+            "style_image": "shopify://shop_images/bernie_marker.png",
             "style_url": "/pages/marker-pet-portrait"
           }
         },
@@ -129,7 +129,7 @@
           "settings": {
             "gift_icon": "👨‍👩‍👧‍👦",
             "gift_title": "Family portrait centerpiece",
-            "gift_description": "<p>A Bernese mountain dog portrait works as the centerpiece of a family gallery wall. The warmth of their expression and the beauty of their coat create a piece that elevates the entire display. <a href=\"/pages/custom-pet-portrait-styles\">Preview every style free</a> to find the perfect match.</p>"
+            "gift_description": "<p>A Bernese mountain dog portrait works as the centerpiece of a family gallery wall. The warmth of their expression and the beauty of their coat create a piece that elevates the entire display. <a href=\"/pages/custom-pet-portrait-styles\" title=\"Custom Pet Portraits From Your Photo: 4 Art Styles, All Free to Preview\">Preview every style free </a>to find the perfect match.</p>"
           }
         },
         "faq-1": {
@@ -201,11 +201,11 @@
         ".button {background-color: #ff5964 !important; /* The background color */ color: #ffffff !important; /* The text color */ border: none; /* Optional: removes border */}"
       ],
       "settings": {
-        "accent_color": "#2F4F4F",
+        "accent_color": "#2f4f4f",
         "eyebrow_text": "Swiss Beauty, Custom Art",
         "heading": "",
         "subtitle": "That tricolor coat. Those gentle, intelligent eyes. Your Bernese mountain dog is one of the most beautiful breeds in the world, and they deserve a portrait that proves it.",
-        "hero_image": "",
+        "hero_image": "shopify://shop_images/bernie_beforeafter.png",
         "hero_image_ratio": "natural",
         "hero_image_alt": "Custom Bernese mountain dog portrait from photo",
         "show_before_after_badge": false,
