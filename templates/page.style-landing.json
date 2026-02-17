@@ -96,8 +96,7 @@
         "faq_TxUqFg"
       ],
       "custom_css": [
-        ".button {background-color: #ff5964 !important; /* The background color */ color: #ffffff !important; /* The text color */ border: none; /* Optional: removes border */}",
-        "h1 {text-align: center;}"
+        ".button {background-color: #ff5964 !important; /* The background color */ color: #ffffff !important; /* The text color */ border: none; /* Optional: removes border */}"
       ],
       "settings": {
         "accent_color": "#e8615a",
