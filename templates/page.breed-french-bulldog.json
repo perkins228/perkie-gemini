@@ -105,7 +105,7 @@
           "settings": {
             "gift_icon": "🎁",
             "gift_title": "The gift Frenchie people actually want",
-            "gift_description": "<p>French bulldog owners are a specific breed of person. They already have the Frenchie socks, the Frenchie phone case from Amazon, the mass-produced Frenchie art. A <a href=\"/products/personalized-pet-portrait\" title=\"Framed Pet Portrait\">custom framed portrait</a> of their actual dog is the upgrade they didn't know they needed. Pair it with a <a href=\"/collections/personalized-pet-products-gifts\">matching mug or phone case</a> for a complete set.</p>"
+            "gift_description": "<p>French bulldog owners are a specific breed of person. They already have the Frenchie socks, the Frenchie phone case from Amazon, the mass-produced Frenchie art. A <a href=\"/products/personalized-pet-portrait\" title=\"Framed Pet Portrait\">custom framed portrait</a> of their actual dog is the upgrade they didn't know they needed. Pair it with a<a href=\"/collections/personalized-pet-products-gifts\" title=\"Personalized Pet Products & Gifts\"> matching mug or phone case</a> for a complete set.</p>"
           }
         },
         "gift-2": {
@@ -224,7 +224,7 @@
         "products_heading": "Available Products",
         "products_subtitle": "Custom Frenchie wall art, framed prints, mugs, and 20+ products featuring your French bulldog portrait.",
         "products_image_ratio": "square",
-        "products_limit": 8,
+        "products_limit": 10,
         "faq_heading": "French Bulldog Portrait FAQ",
         "final_cta_heading": "Ready to See Your Frenchie as Art?",
         "final_cta_text": "Upload your favorite photo and preview every style instantly. Completely free, no account needed.",
