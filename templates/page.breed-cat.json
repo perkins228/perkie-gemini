@@ -1,0 +1,233 @@
+{
+  "sections": {
+    "breed-landing": {
+      "type": "breed-landing",
+      "blocks": {
+        "style-color": {
+          "type": "style_recommendation",
+          "settings": {
+            "style_name": "Color Portrait",
+            "style_tag": "Every Whisker, Every Pattern",
+            "style_description": "Color captures the full range of your cat's coat, from the warm ginger of a tabby to the cool points of a Siamese to the complex silver patterns of a Maine Coon. This is also the style that does the most justice to cat eyes, preserving the vivid greens, golds, and blues that make them so mesmerizing. The most popular choice for cat portraits by a wide margin.",
+            "style_image": "",
+            "style_url": "/pages/color-pet-portrait"
+          }
+        },
+        "style-bw": {
+          "type": "style_recommendation",
+          "settings": {
+            "style_name": "Professional Black & White",
+            "style_tag": "Feline Intensity",
+            "style_description": "Cats have a natural intensity that Black & White amplifies. The sharp facial geometry, the whiskers, the piercing gaze. Without color, these elements become the entire portrait. Especially dramatic for tuxedo cats and black cats, where the monochrome style plays with their natural coloring. The top choice for cat memorial portraits, where the classic, dignified feel creates a lasting tribute.",
+            "style_image": "",
+            "style_url": "/pages/black-and-white-pet-portrait"
+          }
+        },
+        "style-inkwash": {
+          "type": "style_recommendation",
+          "settings": {
+            "style_name": "Ink Wash",
+            "style_tag": "Graceful and Flowing",
+            "style_description": "Ink wash captures the fluid, graceful quality that cats embody. The soft brushstrokes are particularly beautiful for long-haired breeds like Maine Coons and Persians, where the flowing fur translates naturally into the flowing paint style. Creates an artistic, almost dreamy quality that matches a cat's mysterious personality.",
+            "style_image": "",
+            "style_url": "/pages/ink-wash-pet-portrait"
+          }
+        },
+        "style-marker": {
+          "type": "style_recommendation",
+          "settings": {
+            "style_name": "Marker",
+            "style_tag": "Bold Cat Energy",
+            "style_description": "Marker brings out the playful, mischievous side of cats. Bold lines and vivid colors create a portrait that feels alive with personality. Works especially well for kittens, orange tabbies, and any cat whose personality is more \"chaos agent\" than \"refined dignitary.\" A fun, modern take on the classic cat portrait.",
+            "style_image": "",
+            "style_url": "/pages/marker-pet-portrait"
+          }
+        },
+        "tip-1": {
+          "type": "photo_tip",
+          "settings": {
+            "tip_icon": "👁️",
+            "tip_title": "The eyes are everything",
+            "tip_description": "Cat eyes are the emotional center of every portrait. Make sure they're in focus, well-lit, and looking toward (or near) the camera. A photo where the eyes catch a bit of light and show their color will produce a dramatically better portrait than one where the eyes are in shadow or looking away."
+          }
+        },
+        "tip-2": {
+          "type": "photo_tip",
+          "settings": {
+            "tip_icon": "🐱",
+            "tip_title": "Don't force a pose. Catch a candid moment.",
+            "tip_description": "Cats don't take direction. That's fine. The best cat portraits come from natural moments: the regal sit on a windowsill, the alert stare from the top of the cat tree, the relaxed loaf on the bed. Keep your phone nearby and catch them in a moment that feels like them."
+          }
+        },
+        "tip-3": {
+          "type": "photo_tip",
+          "settings": {
+            "tip_icon": "☀️",
+            "tip_title": "Window light is your best friend",
+            "tip_description": "Cats love windows, and window light produces the best cat portraits. The soft, directional light creates gentle shadows that reveal facial detail and makes cat eyes glow. Avoid flash photography with cats entirely. It flattens the facial features and turns their beautiful eyes into flat, reflective discs."
+          }
+        },
+        "tip-4": {
+          "type": "photo_tip",
+          "settings": {
+            "tip_icon": "📷",
+            "tip_title": "Get close to their face",
+            "tip_description": "Cat faces are small and detailed. A photo taken from across the room won't give us enough detail to work with. Get close enough that the face fills most of the frame. Just make sure the focus locks on the eyes, not the nose or ears."
+          }
+        },
+        "tip-5": {
+          "type": "photo_tip",
+          "settings": {
+            "tip_icon": "💡",
+            "tip_title": "Black cats and dark cats need extra light",
+            "tip_description": "Dark-coated cats can disappear in photos if the lighting isn't right. Position them near a window or in a well-lit area so the facial features, especially the eyes, are clearly visible. Soft indirect light that reveals the shape of the face is what you're looking for."
+          }
+        },
+        "tip-6": {
+          "type": "photo_tip",
+          "settings": {
+            "tip_icon": "📱",
+            "tip_title": "Phone photos work perfectly",
+            "tip_description": "You don't need a professional camera. Some of our best cat portraits have come from casual phone shots. As long as your cat's face is clear and well-lit, the photo will work."
+          }
+        },
+        "gift-1": {
+          "type": "gift_angle",
+          "settings": {
+            "gift_icon": "🎁",
+            "gift_title": "For the cat person in your life",
+            "gift_description": "<p>Cat people are particular. Generic gifts don't cut it. A <a href=\"/products/personalized-pet-portrait\" title=\"Framed Pet Portrait\">custom framed portrait</a> of their actual cat, in an art style that captures who that cat really is, shows you understand what their cat means to them. Pair it with a <a href=\"/collections/personalized-pet-products-gifts\" title=\"Personalized Pet Products & Gifts\">matching mug or phone case</a> for a complete cat lover gift set.</p>"
+          }
+        },
+        "gift-2": {
+          "type": "gift_angle",
+          "settings": {
+            "gift_icon": "🕊️",
+            "gift_title": "Memorial and remembrance",
+            "gift_description": "<p>Losing a cat leaves a quiet absence in the house that nothing fills. A custom portrait created from a favorite photo gives someone a beautiful way to remember the cat who chose them. Our <a href=\"/pages/black-and-white-pet-portrait\" title=\"Custom Black & White Pet Portraits From Your Photo\">Black & White</a> and <a href=\"/pages/ink-wash-pet-portrait\" title=\"Ink Wash Pet Portraits From Your Photo\">Ink Wash</a> styles are especially popular for <a href=\"/pages/pet-memorial-portrait\" title=\"Pet Memorial Portraits\">cat memorial portraits</a>.</p>"
+          }
+        },
+        "gift-3": {
+          "type": "gift_angle",
+          "settings": {
+            "gift_icon": "🐱",
+            "gift_title": "New cat or kitten celebration",
+            "gift_description": "<p>Someone just adopted a cat or brought home a kitten? A <a href=\"/pages/color-pet-portrait\" title=\"Custom Color Pet Portraits From Your Photo\">Color Portrait</a> of the newest family member is a thoughtful gift that becomes more meaningful as the cat grows. Kitten portraits are especially popular in the <a href=\"/pages/marker-pet-portrait\" title=\"Marker Pet Portraits From Your Photo\">Marker style</a>.</p>"
+          }
+        },
+        "gift-4": {
+          "type": "gift_angle",
+          "settings": {
+            "gift_icon": "👑",
+            "gift_title": "Because your cat demands it",
+            "gift_description": "<p>Let's be honest. Your cat already thinks they deserve a portrait. They sit in the most prominent spot in the house, they demand attention on their terms, and they carry themselves like royalty. <a href=\"/pages/custom-pet-portrait-styles\">Preview every style free</a> to give them what they've always expected.</p>"
+          }
+        },
+        "faq-1": {
+          "type": "faq",
+          "settings": {
+            "question": "Can I get a custom portrait of any type of cat?",
+            "answer": "<p>Yes. Maine Coon, Siamese, Persian, tabby, tuxedo, orange, black, calico, tortoiseshell, Ragdoll, Bengal, Scottish Fold, Sphynx, and any other breed or mix. Every cat type produces a beautiful portrait.</p>"
+          }
+        },
+        "faq-2": {
+          "type": "faq",
+          "settings": {
+            "question": "Which portrait style is best for cats?",
+            "answer": "<p>Color is the most popular choice because it preserves the eye color and coat patterns that make each cat unique. Black & White is the top pick for memorial portraits and tuxedo cats. For long-haired breeds like Maine Coons and Persians, Ink Wash is especially beautiful. <a href=\"/pages/custom-pet-portrait-styles\">Upload your photo and preview all styles free</a>.</p>"
+          }
+        },
+        "faq-3": {
+          "type": "faq",
+          "settings": {
+            "question": "My cat is black. Will the portrait still show their features?",
+            "answer": "<p>Yes. Black cats produce stunning portraits when the source photo has good lighting. The key is using a photo where the facial features and eyes are clearly visible, not lost in shadow. Soft natural light near a window works best. Our Black & White style handles dark coats particularly well.</p>"
+          }
+        },
+        "faq-4": {
+          "type": "faq",
+          "settings": {
+            "question": "How does the free cat portrait preview work?",
+            "answer": "<p>Upload any photo of your cat and you'll instantly see it transformed into all available art styles. It's completely free, no account or credit card required. If you love the result, pick your style and product and place your order. <a href=\"/pages/custom-pet-portrait-styles\">Try it now</a>.</p>"
+          }
+        },
+        "faq-5": {
+          "type": "faq",
+          "settings": {
+            "question": "Can I include multiple cats in one portrait?",
+            "answer": "<p>Yes. If you have two or three cats, we can combine separate photos into a single portrait. The photos don't need to be from the same session, and the cats don't need to be the same breed. Visit our <a href=\"/pages/multi-pet-portrait\">multi-pet portrait page</a> for details.</p>"
+          }
+        },
+        "faq-6": {
+          "type": "faq",
+          "settings": {
+            "question": "Can I get a portrait with both my cat and my dog?",
+            "answer": "<p>Yes. We can combine photos of different pets into a single portrait, including cats and dogs together. Each pet can be from a separate photo. Visit our <a href=\"/pages/multi-pet-portrait\">multi-pet portrait page</a> for details on how multi-pet compositions work.</p>"
+          }
+        }
+      },
+      "block_order": [
+        "style-color",
+        "style-bw",
+        "style-inkwash",
+        "style-marker",
+        "tip-1",
+        "tip-2",
+        "tip-3",
+        "tip-4",
+        "tip-5",
+        "tip-6",
+        "gift-1",
+        "gift-2",
+        "gift-3",
+        "gift-4",
+        "faq-1",
+        "faq-2",
+        "faq-3",
+        "faq-4",
+        "faq-5",
+        "faq-6"
+      ],
+      "custom_css": [
+        ".button {background-color: #ff5964 !important; /* The background color */ color: #ffffff !important; /* The text color */ border: none; /* Optional: removes border */}",
+        "h1 {text-align: center;}"
+      ],
+      "settings": {
+        "accent_color": "#6A5ACD",
+        "eyebrow_text": "Elegant, Independent, Yours",
+        "heading": "",
+        "subtitle": "Independent, elegant, and completely in charge. Your cat deserves a portrait that captures their personality, their mystery, and those unforgettable eyes.",
+        "hero_image": "",
+        "hero_image_ratio": "natural",
+        "hero_image_alt": "Custom cat portrait from photo",
+        "show_before_after_badge": false,
+        "cta_text": "See Your Cat in Every Style for Free",
+        "cta_url": "shopify://pages/custom-image-processing",
+        "secondary_cta_text": "",
+        "secondary_cta_url": "",
+        "preview_banner_heading": "Free Instant Preview",
+        "preview_banner_text": "Upload your photo and preview your cat in every style instantly. Completely free.",
+        "styles_heading": "Which Portrait Style Fits Your Cat?",
+        "styles_subtitle": "Every cat looks stunning in every style. But coat patterns, eye colors, and individual personality make certain pairings especially striking.",
+        "styles_cta_text": "Preview All Styles Free",
+        "tips_heading": "Photo Tips for Cat Portraits",
+        "gifts_heading": "Cat Lover Gifts: Custom Cat Portraits That Capture Everything",
+        "gifts_intro": "Cat owners know: their cat isn't \"just a cat.\" They're the quiet presence that makes the house feel right, the one who chose you as much as you chose them. A personalized cat portrait captures what makes your cat irreplaceable in art you'll keep forever.\n\nA few occasions where a custom cat portrait makes the perfect gift:",
+        "gifts_closing": "The best part: you can upload their cat's photo and preview every style before you commit to anything. It's completely free, and you'll know exactly what you're getting before you order.",
+        "gifts_cta_text": "Preview Styles Free",
+        "products_collection": "personalized-pet-products-gifts",
+        "products_heading": "Available Products",
+        "products_subtitle": "Custom cat wall art, framed prints, mugs, and 20+ products featuring your cat portrait.",
+        "products_image_ratio": "square",
+        "products_limit": 10,
+        "faq_heading": "Cat Portrait FAQ",
+        "final_cta_heading": "Ready to See Your Cat as Art?",
+        "final_cta_text": "Upload your favorite photo and preview every style instantly. Completely free, no account needed.",
+        "trust_text": "No account needed · Takes less than 60 seconds · 100% free"
+      }
+    }
+  },
+  "order": [
+    "breed-landing"
+  ]
+}

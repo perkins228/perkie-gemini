@@ -1,0 +1,233 @@
+{
+  "sections": {
+    "breed-landing": {
+      "type": "breed-landing",
+      "blocks": {
+        "style-color": {
+          "type": "style_recommendation",
+          "settings": {
+            "style_name": "Color Portrait",
+            "style_tag": "Every Curl in Full Color",
+            "style_description": "Color is the go-to style for doodles. The warm apricots, the rich chocolates, the creamy whites, the complex parti and merle patterns. Color captures the coat that makes your doodle uniquely yours. Especially stunning for red Goldendoodles and tricolor Bernedoodles where the color variation is part of their identity.",
+            "style_image": "",
+            "style_url": "/pages/color-pet-portrait"
+          }
+        },
+        "style-inkwash": {
+          "type": "style_recommendation",
+          "settings": {
+            "style_name": "Ink Wash",
+            "style_tag": "Made for the Floof",
+            "style_description": "Ink wash and curly coats are a perfect match. The flowing, painterly brushstrokes mirror the natural movement of a doodle's curls in a way that feels almost organic. The result looks like a hand-painted watercolor of your dog. If your doodle has a wavy or loosely curled coat, ink wash captures that texture beautifully. A top recommendation for goldendoodle portraits.",
+            "style_image": "",
+            "style_url": "/pages/ink-wash-pet-portrait"
+          }
+        },
+        "style-bw": {
+          "type": "style_recommendation",
+          "settings": {
+            "style_name": "Professional Black & White",
+            "style_tag": "Texture and Contrast",
+            "style_description": "Black and white turns a doodle's coat texture into the star of the portrait. Without color, every curl and wave becomes a study in light and shadow. The result is surprisingly sophisticated for a breed that spends most of its time being silly. The top choice for doodle memorial portraits and large framed prints, where the classic, dignified feel creates a lasting tribute.",
+            "style_image": "",
+            "style_url": "/pages/black-and-white-pet-portrait"
+          }
+        },
+        "style-marker": {
+          "type": "style_recommendation",
+          "settings": {
+            "style_name": "Marker",
+            "style_tag": "Fun Matches Fun",
+            "style_description": "Doodles are playful dogs and Marker is a playful style. The bold lines and saturated colors match the breed's joyful energy. Works especially well for doodle puppies and lighter-colored doodles where the vivid marker colors create a vibrant, eye-catching contrast.",
+            "style_image": "",
+            "style_url": "/pages/marker-pet-portrait"
+          }
+        },
+        "tip-1": {
+          "type": "photo_tip",
+          "settings": {
+            "tip_icon": "👁️",
+            "tip_title": "Make sure the eyes are visible through the floof",
+            "tip_description": "This is the single most important tip for doodle portraits. If your doodle's face fur is covering their eyes in the photo, the portrait will look like a ball of fur without a face. Brush the hair back, wait until after a grooming appointment, or catch a moment where the wind or head angle reveals their eyes."
+          }
+        },
+        "tip-2": {
+          "type": "photo_tip",
+          "settings": {
+            "tip_icon": "✂️",
+            "tip_title": "Groomed vs shaggy creates different portraits",
+            "tip_description": "Both looks work, but they create very different portraits. A freshly groomed doodle with a short face cut produces a cleaner, more structured portrait. A shaggy, grown-out doodle creates a softer, fluffier portrait with more texture and character. Neither is better. Just know that whichever version you photograph is the version you'll get."
+          }
+        },
+        "tip-3": {
+          "type": "photo_tip",
+          "settings": {
+            "tip_icon": "☀️",
+            "tip_title": "Natural light makes curly coats shine",
+            "tip_description": "A doodle's curly coat catches and reflects light in complex ways. Natural outdoor light, especially soft light on a cloudy day or during golden hour, brings out every curl and wave. Indoor flash tends to create hot spots on the lighter curls while losing detail in the shadows between them."
+          }
+        },
+        "tip-4": {
+          "type": "photo_tip",
+          "settings": {
+            "tip_icon": "📷",
+            "tip_title": "Face-forward photos work best",
+            "tip_description": "Doodles have round, symmetrical faces that look best photographed from the front or at a slight angle. Side profiles can get lost in the coat volume. A straight-on shot with the ears framing the face captures the classic teddy bear look that doodle owners love. Get down to their eye level for the most natural perspective."
+          }
+        },
+        "tip-5": {
+          "type": "photo_tip",
+          "settings": {
+            "tip_icon": "🐕",
+            "tip_title": "Every doodle mix works beautifully",
+            "tip_description": "Goldendoodle, Labradoodle, Bernedoodle, Aussiedoodle, Cockapoo, Cavapoo, Sheepadoodle, Whoodle. If it has poodle in the mix, it works. The curly coat genetics that all doodles share is what makes them such great portrait subjects."
+          }
+        },
+        "tip-6": {
+          "type": "photo_tip",
+          "settings": {
+            "tip_icon": "📱",
+            "tip_title": "Phone photos work perfectly",
+            "tip_description": "You don't need a professional camera. Some of our best doodle portraits have come from casual phone shots. As long as your doodle's face is clear and well-lit, the photo will work."
+          }
+        },
+        "gift-1": {
+          "type": "gift_angle",
+          "settings": {
+            "gift_icon": "📱",
+            "gift_title": "For the doodle-obsessed Instagram parent",
+            "gift_description": "<p>You know this person. Their entire camera roll is their doodle. They follow 47 doodle accounts. They've named their WiFi after their dog. A <a href=\"/products/personalized-pet-portrait\" title=\"Framed Pet Portrait\">custom framed portrait</a> is the physical manifestation of everything they already feel. Pair it with a <a href=\"/collections/personalized-pet-products-gifts\" title=\"Personalized Pet Products & Gifts\">matching mug or phone case</a> for a complete set.</p>"
+          }
+        },
+        "gift-2": {
+          "type": "gift_angle",
+          "settings": {
+            "gift_icon": "🕊️",
+            "gift_title": "Memorial and remembrance",
+            "gift_description": "<p>A custom portrait from a favorite photo captures the personality and warmth that made your doodle irreplaceable. Every curl, every expression, preserved in art you can keep forever. Our <a href=\"/pages/black-and-white-pet-portrait\" title=\"Custom Black & White Pet Portraits From Your Photo\">Black & White</a> and <a href=\"/pages/ink-wash-pet-portrait\" title=\"Ink Wash Pet Portraits From Your Photo\">Ink Wash</a> styles are especially popular for <a href=\"/pages/pet-memorial-portrait\" title=\"Pet Memorial Portraits\">doodle memorial portraits</a>.</p>"
+          }
+        },
+        "gift-3": {
+          "type": "gift_angle",
+          "settings": {
+            "gift_icon": "🐶",
+            "gift_title": "Puppy's first portrait",
+            "gift_description": "<p>Doodle puppies grow and change so fast. That tiny fluffball stage is over before you know it. A <a href=\"/pages/color-pet-portrait\" title=\"Custom Color Pet Portraits From Your Photo\">Color Portrait</a> from a puppy photo freezes that moment permanently. Order one now and watch it become more meaningful every year.</p>"
+          }
+        },
+        "gift-4": {
+          "type": "gift_angle",
+          "settings": {
+            "gift_icon": "🎁",
+            "gift_title": "The doodle parent starter kit",
+            "gift_description": "<p>Someone just brought home a new doodle? Pair a custom portrait with a <a href=\"/collections/personalized-pet-products-gifts\" title=\"Personalized Pet Products & Gifts\">matching mug or phone case</a> for a welcome gift that celebrates the newest family member. <a href=\"/pages/custom-pet-portrait-styles\">Preview every style free</a> to find the perfect match.</p>"
+          }
+        },
+        "faq-1": {
+          "type": "faq",
+          "settings": {
+            "question": "Can I get a portrait of any type of doodle?",
+            "answer": "<p>Yes. Goldendoodle, Labradoodle, Bernedoodle, Aussiedoodle, Cockapoo, Cavapoo, Sheepadoodle, and any other poodle mix. The curly coat genetics they all share make every doodle variety a great portrait subject.</p>"
+          }
+        },
+        "faq-2": {
+          "type": "faq",
+          "settings": {
+            "question": "Which portrait style is best for doodles?",
+            "answer": "<p>Color is the most popular choice because it captures the warmth and variety of doodle coats. Ink Wash is a close second because the painterly brushstrokes complement curly coats beautifully. <a href=\"/pages/custom-pet-portrait-styles\">Upload your photo and preview all styles free</a> to see which one looks best on your doodle.</p>"
+          }
+        },
+        "faq-3": {
+          "type": "faq",
+          "settings": {
+            "question": "My doodle's face fur covers their eyes. Will the portrait still work?",
+            "answer": "<p>The portrait will reproduce what's in the photo. If the eyes are hidden behind fur, they'll be hidden in the portrait too. For the best result, use a photo where the eyes are visible, either after a grooming session or by brushing the face fur aside before taking the photo.</p>"
+          }
+        },
+        "faq-4": {
+          "type": "faq",
+          "settings": {
+            "question": "How does the free doodle portrait preview work?",
+            "answer": "<p>Upload any photo of your doodle and you'll instantly see it transformed into all available art styles. It's completely free, no account or credit card required. If you love the result, pick your style and product and place your order. <a href=\"/pages/custom-pet-portrait-styles\">Try it now</a>.</p>"
+          }
+        },
+        "faq-5": {
+          "type": "faq",
+          "settings": {
+            "question": "Should I use a groomed or shaggy photo of my doodle?",
+            "answer": "<p>Both work great but create different looks. A groomed doodle produces a cleaner portrait with defined facial features. A shaggy doodle produces a fluffier, more textured portrait. Use whichever version feels more like your dog's personality.</p>"
+          }
+        },
+        "faq-6": {
+          "type": "faq",
+          "settings": {
+            "question": "Can I include multiple doodles in one portrait?",
+            "answer": "<p>Yes. If you have two or three doodles, we can combine separate photos into a single portrait. They don't need to be the same doodle mix. Visit our <a href=\"/pages/multi-pet-portrait\">multi-pet portrait page</a> for details on how it works.</p>"
+          }
+        }
+      },
+      "block_order": [
+        "style-color",
+        "style-inkwash",
+        "style-bw",
+        "style-marker",
+        "tip-1",
+        "tip-2",
+        "tip-3",
+        "tip-4",
+        "tip-5",
+        "tip-6",
+        "gift-1",
+        "gift-2",
+        "gift-3",
+        "gift-4",
+        "faq-1",
+        "faq-2",
+        "faq-3",
+        "faq-4",
+        "faq-5",
+        "faq-6"
+      ],
+      "custom_css": [
+        ".button {background-color: #ff5964 !important; /* The background color */ color: #ffffff !important; /* The text color */ border: none; /* Optional: removes border */}",
+        "h1 {text-align: center;}"
+      ],
+      "settings": {
+        "accent_color": "#E6A44E",
+        "eyebrow_text": "Curly, Fluffy, Custom",
+        "heading": "",
+        "subtitle": "That curly coat. That teddy bear face. Your doodle deserves a portrait as unique as the mix that made them. Goldendoodle, Bernedoodle, Labradoodle, and every doodle in between.",
+        "hero_image": "",
+        "hero_image_ratio": "natural",
+        "hero_image_alt": "Custom doodle portrait from photo - Goldendoodle, Bernedoodle, Labradoodle",
+        "show_before_after_badge": false,
+        "cta_text": "See Your Doodle in Every Style for Free",
+        "cta_url": "shopify://pages/custom-image-processing",
+        "secondary_cta_text": "",
+        "secondary_cta_url": "",
+        "preview_banner_heading": "Free Instant Preview",
+        "preview_banner_text": "Upload your photo and preview your doodle in every style instantly. Completely free.",
+        "styles_heading": "Which Portrait Style Fits Your Doodle?",
+        "styles_subtitle": "Every doodle looks incredible in every style. But the curly coat and teddy bear face make certain pairings especially stunning.",
+        "styles_cta_text": "Preview All Styles Free",
+        "tips_heading": "Photo Tips for Doodle Portraits",
+        "gifts_heading": "Doodle Gifts: Custom Portraits for Every Poodle Mix",
+        "gifts_intro": "Doodle owners don't just like their dog. They've built an entire identity around that curly, fluffy, slightly ridiculous best friend. Whether it's a Goldendoodle, Labradoodle, Bernedoodle, or any other poodle mix, a personalized doodle portrait captures what makes them irreplaceable.\n\nA few occasions where a custom doodle portrait makes the perfect gift:",
+        "gifts_closing": "The best part: you can upload their doodle's photo and preview every style before you commit to anything. It's completely free, and you'll know exactly what you're getting before you order.",
+        "gifts_cta_text": "Preview Styles Free",
+        "products_collection": "personalized-pet-products-gifts",
+        "products_heading": "Available Products",
+        "products_subtitle": "Custom doodle wall art, framed prints, mugs, and 20+ products featuring your doodle portrait.",
+        "products_image_ratio": "square",
+        "products_limit": 10,
+        "faq_heading": "Doodle Portrait FAQ",
+        "final_cta_heading": "Ready to See Your Doodle as Art?",
+        "final_cta_text": "Upload your favorite photo and preview every style instantly. Completely free, no account needed.",
+        "trust_text": "No account needed · Takes less than 60 seconds · 100% free"
+      }
+    }
+  },
+  "order": [
+    "breed-landing"
+  ]
+}
