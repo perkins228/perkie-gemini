@@ -12,24 +12,24 @@
     "breed-landing": {
       "type": "breed-landing",
       "blocks": {
-        "style-color": {
-          "type": "style_recommendation",
-          "settings": {
-            "style_name": "Color Portrait",
-            "style_tag": "The Classic Doxie",
-            "style_description": "Captures the warmth of a red dachshund's coat, the rich contrast of black and tan markings, and the beautiful mottled pattern of dapple dachshunds. Color is the most popular choice for dachshunds because their coat colors and patterns are so varied and distinctive.",
-            "style_image": "",
-            "style_url": "/pages/color-pet-portrait"
-          }
-        },
         "style-bw": {
           "type": "style_recommendation",
           "settings": {
             "style_name": "Professional Black & White",
             "style_tag": "Elegant and Timeless",
             "style_description": "Dachshunds have a surprising elegance when stripped to black and white. The clean lines of a smooth dachshund's face become sculptural. The long, expressive eyes take center stage. A strong choice for framed prints and dachshund memorial portraits, where the classic, dignified feel creates a lasting tribute.",
-            "style_image": "",
+            "style_image": "shopify://shop_images/dachshund_bw.png",
             "style_url": "/pages/black-and-white-pet-portrait"
+          }
+        },
+        "style-color": {
+          "type": "style_recommendation",
+          "settings": {
+            "style_name": "Color Portrait",
+            "style_tag": "The Classic Doxie",
+            "style_description": "Captures the warmth of a red dachshund's coat, the rich contrast of black and tan markings, and the beautiful mottled pattern of dapple dachshunds. Color is a popular choice for dachshunds because their coat colors and patterns are so varied and distinctive.",
+            "style_image": "shopify://shop_images/dachshund_color.png",
+            "style_url": "/pages/color-pet-portrait"
           }
         },
         "style-inkwash": {
@@ -37,8 +37,8 @@
           "settings": {
             "style_name": "Ink Wash",
             "style_tag": "Perfect for Longhairs",
-            "style_description": "If you have a longhaired dachshund, Ink Wash is a standout choice. The flowing brushstrokes mirror the feathered coat beautifully. Even for smooth and wirehaired dachshunds, Ink Wash gives the portrait a soft, painterly quality that feels warm and personal.",
-            "style_image": "",
+            "style_description": "If you have a longhaired dachshund, Ink Wash is a standout choice. The flowing brushstroke style mirrors the feathered coat beautifully. Even for smooth and wirehaired dachshunds, Ink Wash gives the portrait a soft, painterly quality that feels warm and personal.",
+            "style_image": "shopify://shop_images/dachshund_inkwash.png",
             "style_url": "/pages/ink-wash-pet-portrait"
           }
         },
@@ -48,7 +48,7 @@
             "style_name": "Marker",
             "style_tag": "All the Sass",
             "style_description": "Dachshunds are famously stubborn, opinionated, and hilariously dramatic. Marker style matches that energy perfectly. Bold lines and vivid colors capture the breed's personality in a way that makes people smile every time they look at it.",
-            "style_image": "",
+            "style_image": "shopify://shop_images/dachshund_marker.png",
             "style_url": "/pages/marker-pet-portrait"
           }
         },
@@ -105,7 +105,7 @@
           "settings": {
             "gift_icon": "🌭",
             "gift_title": "For the dachshund collector",
-            "gift_description": "<p>Dachshund owners tend to collect dachshund things. But a <a href=\"/products/personalized-pet-portrait\" title=\"Framed Pet Portrait\">custom portrait</a> of their actual dog is the piece that sits above all the generic wiener dog merch. It's personal, it's beautiful, and it's the one they'll never replace. Pair it with a <a href=\"/collections/personalized-pet-products-gifts\" title=\"Personalized Pet Products & Gifts\">matching mug or pocket tee</a> for a complete set.</p>"
+            "gift_description": "<p>Dachshund owners tend to collect dachshund things. But a <a href=\"/products/personalized-pet-portrait\" title=\"Framed Pet Portrait\">custom portrait</a> of their actual dog is the piece that sits above all the generic wiener dog merch. It's personal, it's beautiful, and it's the one they'll never replace. Pair it with a matching <a href=\"/products/crew-t-shirt\" title=\"Graphic Tee\">graphic tee</a> or <a href=\"/products/hoodie-sweatshirt\" title=\"Hoodie\">hoodie</a> for a complete set.</p>"
           }
         },
         "gift-2": {
@@ -129,7 +129,7 @@
           "settings": {
             "gift_icon": "💕",
             "gift_title": "Pairs and multiples",
-            "gift_description": "<p>Dachshund owners rarely stop at one. If someone has two or three doxies, a <a href=\"/pages/multi-pet-portrait\" title=\"Multi-Pet Portrait\">multi-pet portrait</a> featuring the whole pack is the ultimate gift. <a href=\"/pages/custom-pet-portrait-styles\">Preview every style free</a> to find the perfect match.</p>"
+            "gift_description": "<p>Dachshund owners rarely stop at one. If someone has two or three doxies, a multi-pet portrait featuring the whole pack is the ultimate gift. <a href=\"/pages/custom-pet-portrait-styles\">Preview every style free</a> to find the perfect match.</p>"
           }
         },
         "faq-1": {
@@ -176,8 +176,8 @@
         }
       },
       "block_order": [
-        "style-color",
         "style-bw",
+        "style-color",
         "style-inkwash",
         "style-marker",
         "tip-1",
@@ -201,14 +201,14 @@
         ".button {background-color: #ff5964 !important; /* The background color */ color: #ffffff !important; /* The text color */ border: none; /* Optional: removes border */}"
       ],
       "settings": {
-        "accent_color": "#A0522D",
+        "accent_color": "#a0522d",
         "eyebrow_text": "Small Dog, Big Portrait",
         "heading": "",
         "subtitle": "Long body. Short legs. Enormous personality. Your dachshund deserves a portrait that captures every ounce of that oversized attitude.",
-        "hero_image": "",
+        "hero_image": "shopify://shop_images/dachshund_beforeafter.png",
         "hero_image_ratio": "natural",
         "hero_image_alt": "Custom dachshund portrait from photo",
-        "show_before_after_badge": false,
+        "show_before_after_badge": true,
         "cta_text": "See Your Dachshund in Every Style for Free",
         "cta_url": "shopify://pages/custom-image-processing",
         "secondary_cta_text": "",
