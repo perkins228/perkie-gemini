@@ -1,3 +1,12 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
 {
   "sections": {
     "breed-landing": {
@@ -9,7 +18,7 @@
             "style_name": "Professional Black & White",
             "style_tag": "The Power Portrait",
             "style_description": "German shepherds were made for black and white. The strong bone structure, the intense eyes, the upright ears. Strip away the color and what remains is pure presence. This is the style that makes people stop and look. The most popular choice for german shepherd memorial portraits, where the classic, dignified feel creates a lasting tribute.",
-            "style_image": "",
+            "style_image": "shopify://shop_images/gsd_bw.png",
             "style_url": "/pages/black-and-white-pet-portrait"
           }
         },
@@ -19,7 +28,7 @@
             "style_name": "Color Portrait",
             "style_tag": "The Full Story",
             "style_description": "Color captures the rich tones of your GSD's coat in full detail. The warm tans, the deep blacks, the subtle gradients where the saddle meets the lighter undercoat. For sable German shepherds, Color is the only style that truly shows the complex layering of their coat. This is the most faithful representation of your dog as they are.",
-            "style_image": "",
+            "style_image": "shopify://shop_images/gsd_color.png",
             "style_url": "/pages/color-pet-portrait"
           }
         },
@@ -28,8 +37,8 @@
           "settings": {
             "style_name": "Ink Wash",
             "style_tag": "Strength Made Soft",
-            "style_description": "Ink wash does something unexpected with a German shepherd. The flowing brushstrokes soften the breed's hard edges without losing any of the character. The result feels like a portrait painted by someone who knows your dog personally. Particularly beautiful for senior GSDs where the softer rendering matches the wisdom in their expression.",
-            "style_image": "",
+            "style_description": "Ink wash does something unexpected with a German shepherd. The flowing brushstroke style softens the breed's hard edges without losing any of the character. The result feels like a portrait painted by someone who knows your dog personally. Particularly beautiful for senior GSDs where the softer rendering matches the wisdom in their expression.",
+            "style_image": "shopify://shop_images/gsd_inkwash.png",
             "style_url": "/pages/ink-wash-pet-portrait"
           }
         },
@@ -39,14 +48,14 @@
             "style_name": "Marker",
             "style_tag": "Bold and Confident",
             "style_description": "Marker brings out the energy and athleticism of the breed. The bold lines match a German shepherd's confident bearing, and the vivid color saturation makes the black and tan pattern pop. A great choice for working dogs, active GSDs, and younger shepherds with that boundless drive.",
-            "style_image": "",
+            "style_image": "shopify://shop_images/gsd_marker.png",
             "style_url": "/pages/marker-pet-portrait"
           }
         },
         "tip-1": {
           "type": "photo_tip",
           "settings": {
-            "tip_icon": "\ud83d\udc15",
+            "tip_icon": "🐕",
             "tip_title": "Capture the ears up",
             "tip_description": "A German shepherd's erect, pointed ears are the defining feature of their silhouette. A portrait with ears at full attention looks completely different from one where the ears are relaxed or pinned back. Use a sound, a treat, or a verbal cue to get those ears locked forward."
           }
@@ -54,7 +63,7 @@
         "tip-2": {
           "type": "photo_tip",
           "settings": {
-            "tip_icon": "\ud83d\udcf7",
+            "tip_icon": "📷",
             "tip_title": "Use the alert expression, not the panting one",
             "tip_description": "German shepherds have two modes: the intense, focused gaze and the relaxed, open-mouthed pant. The alert expression produces a far more powerful portrait. The furrowed brow, the locked-in eyes, the slight tension in the jaw. Catch them right after they hear something interesting."
           }
@@ -62,7 +71,7 @@
         "tip-3": {
           "type": "photo_tip",
           "settings": {
-            "tip_icon": "\ud83d\uddbc\ufe0f",
+            "tip_icon": "🖼️",
             "tip_title": "Side and three-quarter angles work best",
             "tip_description": "The German shepherd's sloping profile is distinctive and photogenic. A slight three-quarter angle shows both the strong jawline and the depth of the face. Straight-on shots work too, especially for capturing those intense eyes, but the three-quarter view gives the portrait a more dynamic, regal quality."
           }
@@ -70,7 +79,7 @@
         "tip-4": {
           "type": "photo_tip",
           "settings": {
-            "tip_icon": "\ud83d\udca1",
+            "tip_icon": "💡",
             "tip_title": "Watch for dark face markings blending into shadows",
             "tip_description": "Many German shepherds have dark masks around their eyes and muzzle. In poor lighting, these dark markings can blend into shadows and lose detail. Soft natural light is your best friend. You want enough light to see the eyes clearly through the dark facial fur."
           }
@@ -78,7 +87,7 @@
         "tip-5": {
           "type": "photo_tip",
           "settings": {
-            "tip_icon": "\u2600\ufe0f",
+            "tip_icon": "☀️",
             "tip_title": "Outdoor photos bring out the best in this breed",
             "tip_description": "German shepherds look most natural and impressive outdoors. The breed's athletic build and alert posture come alive when they're in their element. Don't worry about the background. We remove and replace it. What matters is the expression and the lighting."
           }
@@ -86,7 +95,7 @@
         "tip-6": {
           "type": "photo_tip",
           "settings": {
-            "tip_icon": "\ud83d\udcf1",
+            "tip_icon": "📱",
             "tip_title": "Phone photos work perfectly",
             "tip_description": "You don't need a professional camera. Some of our best German shepherd portraits have come from casual phone shots taken in the backyard on a random afternoon. As long as the face is clear and well-lit, the photo will work."
           }
@@ -94,7 +103,7 @@
         "gift-1": {
           "type": "gift_angle",
           "settings": {
-            "gift_icon": "\ud83c\udf96\ufe0f",
+            "gift_icon": "🎖️",
             "gift_title": "Service and working dog tribute",
             "gift_description": "<p>German shepherds have served as police K9s, military working dogs, search and rescue partners, and service animals for generations. A <a href=\"/products/personalized-pet-portrait\" title=\"Framed Pet Portrait\">custom framed portrait</a> is one of the few gifts worthy of that service. Our <a href=\"/pages/black-and-white-pet-portrait\">Black & White</a> style is the most popular choice for tributes.</p>"
           }
@@ -102,7 +111,7 @@
         "gift-2": {
           "type": "gift_angle",
           "settings": {
-            "gift_icon": "\ud83d\udd4a\ufe0f",
+            "gift_icon": "🕊️",
             "gift_title": "Memorial and remembrance",
             "gift_description": "<p>Losing a German shepherd is losing a protector, a partner, and in most cases, a best friend. A custom portrait from a favorite photo gives them something beautiful to hold onto. Our <a href=\"/pages/black-and-white-pet-portrait\">Black & White</a> and <a href=\"/pages/ink-wash-pet-portrait\">Ink Wash</a> styles are especially popular for <a href=\"/pages/pet-memorial-portrait\" title=\"Pet Memorial Portraits\">memorial portraits</a>.</p>"
           }
@@ -110,7 +119,7 @@
         "gift-3": {
           "type": "gift_angle",
           "settings": {
-            "gift_icon": "\ud83c\udfe0",
+            "gift_icon": "🏠",
             "gift_title": "The family guardian portrait",
             "gift_description": "<p>For many families, the German shepherd is the dog that makes the house feel like home. A <a href=\"/pages/color-pet-portrait\" title=\"Custom Color Pet Portraits From Your Photo\">Color Portrait</a> that captures their shepherd's full presence makes a meaningful holiday or anniversary gift. Pair it with a <a href=\"/collections/personalized-pet-products-gifts\" title=\"Personalized Pet Products & Gifts\">matching mug or phone case</a> for a complete set.</p>"
           }
@@ -118,7 +127,7 @@
         "gift-4": {
           "type": "gift_angle",
           "settings": {
-            "gift_icon": "\ud83d\udc3e",
+            "gift_icon": "🐾",
             "gift_title": "For the GSD-obsessed",
             "gift_description": "<p>You know the person. Their phone background is their shepherd. Their entire personality includes \"German shepherd parent.\" This is their gift. <a href=\"/pages/custom-pet-portrait-styles\">Preview every style free</a> to find the perfect match.</p>"
           }
@@ -188,17 +197,18 @@
         "faq-5",
         "faq-6"
       ],
+      "custom_css": [],
       "settings": {
-        "accent_color": "#5D4037",
+        "accent_color": "#5d4037",
         "eyebrow_text": "Noble, Intelligent, Yours",
         "heading": "",
         "subtitle": "Noble, intelligent, and built like they could handle anything. Your German shepherd deserves a portrait that captures their presence, loyalty, and that unmistakable intensity.",
-        "hero_image": "",
+        "hero_image": "shopify://shop_images/gsd_beforeafter.png",
         "hero_image_ratio": "natural",
         "hero_image_alt": "Custom German shepherd portrait from photo",
         "show_before_after_badge": false,
         "cta_text": "See Your German Shepherd in Every Style for Free",
-        "cta_url": "shopify://pages/custom-pet-portrait-styles",
+        "cta_url": "shopify://pages/custom-image-processing",
         "secondary_cta_text": "",
         "secondary_cta_url": "",
         "preview_banner_heading": "Free Instant Preview",
@@ -219,7 +229,7 @@
         "faq_heading": "German Shepherd Portrait FAQ",
         "final_cta_heading": "Ready to See Your German Shepherd as Art?",
         "final_cta_text": "Upload your favorite photo and preview every style instantly. Completely free, no account needed.",
-        "trust_text": "No account needed \u00b7 Takes less than 60 seconds \u00b7 100% free"
+        "trust_text": "No account needed · Takes less than 60 seconds · 100% free"
       }
     }
   },
