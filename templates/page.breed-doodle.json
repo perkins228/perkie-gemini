@@ -1,3 +1,12 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
 {
   "sections": {
     "breed-landing": {
@@ -9,7 +18,7 @@
             "style_name": "Color Portrait",
             "style_tag": "Every Curl in Full Color",
             "style_description": "Color is the go-to style for doodles. The warm apricots, the rich chocolates, the creamy whites, the complex parti and merle patterns. Color captures the coat that makes your doodle uniquely yours. Especially stunning for red Goldendoodles and tricolor Bernedoodles where the color variation is part of their identity.",
-            "style_image": "",
+            "style_image": "shopify://shop_images/doodle_color.png",
             "style_url": "/pages/color-pet-portrait"
           }
         },
@@ -19,7 +28,7 @@
             "style_name": "Ink Wash",
             "style_tag": "Made for the Floof",
             "style_description": "Ink wash and curly coats are a perfect match. The flowing, painterly brushstrokes mirror the natural movement of a doodle's curls in a way that feels almost organic. The result looks like a hand-painted watercolor of your dog. If your doodle has a wavy or loosely curled coat, ink wash captures that texture beautifully. A top recommendation for goldendoodle portraits.",
-            "style_image": "",
+            "style_image": "shopify://shop_images/doodle_inkwash.png",
             "style_url": "/pages/ink-wash-pet-portrait"
           }
         },
@@ -29,7 +38,7 @@
             "style_name": "Professional Black & White",
             "style_tag": "Texture and Contrast",
             "style_description": "Black and white turns a doodle's coat texture into the star of the portrait. Without color, every curl and wave becomes a study in light and shadow. The result is surprisingly sophisticated for a breed that spends most of its time being silly. The top choice for doodle memorial portraits and large framed prints, where the classic, dignified feel creates a lasting tribute.",
-            "style_image": "",
+            "style_image": "shopify://shop_images/doodle_bw.png",
             "style_url": "/pages/black-and-white-pet-portrait"
           }
         },
@@ -39,7 +48,7 @@
             "style_name": "Marker",
             "style_tag": "Fun Matches Fun",
             "style_description": "Doodles are playful dogs and Marker is a playful style. The bold lines and saturated colors match the breed's joyful energy. Works especially well for doodle puppies and lighter-colored doodles where the vivid marker colors create a vibrant, eye-catching contrast.",
-            "style_image": "",
+            "style_image": "shopify://shop_images/doodle_marker.png",
             "style_url": "/pages/marker-pet-portrait"
           }
         },
@@ -96,7 +105,7 @@
           "settings": {
             "gift_icon": "📱",
             "gift_title": "For the doodle-obsessed Instagram parent",
-            "gift_description": "<p>You know this person. Their entire camera roll is their doodle. They follow 47 doodle accounts. They've named their WiFi after their dog. A <a href=\"/products/personalized-pet-portrait\" title=\"Framed Pet Portrait\">custom framed portrait</a> is the physical manifestation of everything they already feel. Pair it with a <a href=\"/collections/personalized-pet-products-gifts\" title=\"Personalized Pet Products & Gifts\">matching mug or phone case</a> for a complete set.</p>"
+            "gift_description": "<p>You know this person. Their entire camera roll is their doodle. They follow 47 doodle accounts. They've named their WiFi after their dog. A <a href=\"/products/personalized-pet-portrait\" title=\"Framed Pet Portrait\">custom framed portrait</a> is the physical manifestation of everything they already feel. Pair it with a <a href=\"/collections/personalized-pet-products-gifts\" title=\"Personalized Pet Products & Gifts\">matching mug or graphic tee</a> for a complete set.</p>"
           }
         },
         "gift-2": {
@@ -120,7 +129,7 @@
           "settings": {
             "gift_icon": "🎁",
             "gift_title": "The doodle parent starter kit",
-            "gift_description": "<p>Someone just brought home a new doodle? Pair a custom portrait with a <a href=\"/collections/personalized-pet-products-gifts\" title=\"Personalized Pet Products & Gifts\">matching mug or phone case</a> for a welcome gift that celebrates the newest family member. <a href=\"/pages/custom-pet-portrait-styles\">Preview every style free</a> to find the perfect match.</p>"
+            "gift_description": "<p>Someone just brought home a new doodle? Pair a <a href=\"/products/personalized-pet-portrait\" title=\"Framed Pet Portrait\">custom portrait</a> with a matching <a href=\"/products/personalized-pet-coffee-mug\" title=\"Coffee Mug\">mug</a> or <a href=\"/products/pet-in-pocket-tee\" title=\"Pet-In-Pocket Tee\">pocket tee</a> for a welcome gift that celebrates the newest family member. <a href=\"/pages/custom-pet-portrait-styles\">Preview every style free</a> to find the perfect match.</p>"
           }
         },
         "faq-1": {
@@ -193,11 +202,11 @@
         "h1 {text-align: center;}"
       ],
       "settings": {
-        "accent_color": "#E6A44E",
+        "accent_color": "#e6a44e",
         "eyebrow_text": "Curly, Fluffy, Custom",
         "heading": "",
         "subtitle": "That curly coat. That teddy bear face. Your doodle deserves a portrait as unique as the mix that made them. Goldendoodle, Bernedoodle, Labradoodle, and every doodle in between.",
-        "hero_image": "",
+        "hero_image": "shopify://shop_images/doodle_beforeafter.png",
         "hero_image_ratio": "natural",
         "hero_image_alt": "Custom doodle portrait from photo - Goldendoodle, Bernedoodle, Labradoodle",
         "show_before_after_badge": false,
