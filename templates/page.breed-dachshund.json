@@ -1,0 +1,241 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "sections": {
+    "breed-landing": {
+      "type": "breed-landing",
+      "blocks": {
+        "style-color": {
+          "type": "style_recommendation",
+          "settings": {
+            "style_name": "Color Portrait",
+            "style_tag": "The Classic Doxie",
+            "style_description": "Captures the warmth of a red dachshund's coat, the rich contrast of black and tan markings, and the beautiful mottled pattern of dapple dachshunds. Color is the most popular choice for dachshunds because their coat colors and patterns are so varied and distinctive.",
+            "style_image": "",
+            "style_url": "/pages/color-pet-portrait"
+          }
+        },
+        "style-bw": {
+          "type": "style_recommendation",
+          "settings": {
+            "style_name": "Professional Black & White",
+            "style_tag": "Elegant and Timeless",
+            "style_description": "Dachshunds have a surprising elegance when stripped to black and white. The clean lines of a smooth dachshund's face become sculptural. The long, expressive eyes take center stage. A strong choice for framed prints and dachshund memorial portraits, where the classic, dignified feel creates a lasting tribute.",
+            "style_image": "",
+            "style_url": "/pages/black-and-white-pet-portrait"
+          }
+        },
+        "style-inkwash": {
+          "type": "style_recommendation",
+          "settings": {
+            "style_name": "Ink Wash",
+            "style_tag": "Perfect for Longhairs",
+            "style_description": "If you have a longhaired dachshund, Ink Wash is a standout choice. The flowing brushstrokes mirror the feathered coat beautifully. Even for smooth and wirehaired dachshunds, Ink Wash gives the portrait a soft, painterly quality that feels warm and personal.",
+            "style_image": "",
+            "style_url": "/pages/ink-wash-pet-portrait"
+          }
+        },
+        "style-marker": {
+          "type": "style_recommendation",
+          "settings": {
+            "style_name": "Marker",
+            "style_tag": "All the Sass",
+            "style_description": "Dachshunds are famously stubborn, opinionated, and hilariously dramatic. Marker style matches that energy perfectly. Bold lines and vivid colors capture the breed's personality in a way that makes people smile every time they look at it.",
+            "style_image": "",
+            "style_url": "/pages/marker-pet-portrait"
+          }
+        },
+        "tip-1": {
+          "type": "photo_tip",
+          "settings": {
+            "tip_icon": "📷",
+            "tip_title": "Focus on the face, not the full body",
+            "tip_description": "Dachshunds' elongated proportions can look awkward in a standard portrait crop. A close-up of the face and chest produces the most striking result. We'll handle the composition, but giving us a detailed face shot gives us the best starting material."
+          }
+        },
+        "tip-2": {
+          "type": "photo_tip",
+          "settings": {
+            "tip_icon": "⬇️",
+            "tip_title": "Shoot at their level, not from above",
+            "tip_description": "Dachshunds are low to the ground, and photos taken from standing height look straight down at the top of their head. Get down on the floor or hold your phone at their eye level. The difference in the final portrait is dramatic."
+          }
+        },
+        "tip-3": {
+          "type": "photo_tip",
+          "settings": {
+            "tip_icon": "✨",
+            "tip_title": "Longhaired dachshunds: show the feathering",
+            "tip_description": "If your doxie has a longhaired coat, make sure the photo captures some of that flowing fur around the ears, chest, and legs. This texture is what makes longhaired dachshund portraits special, especially in Ink Wash and Color styles."
+          }
+        },
+        "tip-4": {
+          "type": "photo_tip",
+          "settings": {
+            "tip_icon": "🐾",
+            "tip_title": "Wirehaired dachshunds: show the beard",
+            "tip_description": "The wirehaired dachshund's facial furnishings (the beard, the bushy eyebrows, the mustache) are their most distinctive features. A photo where these are clearly visible produces a portrait with incredible character. Straight-on angles work best for showing off the facial hair."
+          }
+        },
+        "tip-5": {
+          "type": "photo_tip",
+          "settings": {
+            "tip_icon": "👂",
+            "tip_title": "Let the ears hang naturally",
+            "tip_description": "Dachshund ears are beautiful framing devices in portraits. Let them hang in their natural position rather than catching them mid-flap or pinned back. The ears create a soft frame around the face that makes the composition feel complete."
+          }
+        },
+        "tip-6": {
+          "type": "photo_tip",
+          "settings": {
+            "tip_icon": "📱",
+            "tip_title": "Phone photos work perfectly",
+            "tip_description": "You don't need a professional camera. Some of our best dachshund portraits have come from casual phone shots. As long as your dachshund's face is clear and well-lit, the photo will work."
+          }
+        },
+        "gift-1": {
+          "type": "gift_angle",
+          "settings": {
+            "gift_icon": "🌭",
+            "gift_title": "For the dachshund collector",
+            "gift_description": "<p>Dachshund owners tend to collect dachshund things. But a <a href=\"/products/personalized-pet-portrait\" title=\"Framed Pet Portrait\">custom portrait</a> of their actual dog is the piece that sits above all the generic wiener dog merch. It's personal, it's beautiful, and it's the one they'll never replace. Pair it with a <a href=\"/collections/personalized-pet-products-gifts\" title=\"Personalized Pet Products & Gifts\">matching mug or pocket tee</a> for a complete set.</p>"
+          }
+        },
+        "gift-2": {
+          "type": "gift_angle",
+          "settings": {
+            "gift_icon": "🕊️",
+            "gift_title": "Memorial and remembrance",
+            "gift_description": "<p>A custom portrait from a favorite photo captures the soulful eyes and gentle expression that made your dachshund irreplaceable. Our <a href=\"/pages/black-and-white-pet-portrait\" title=\"Custom Black & White Pet Portraits From Your Photo\">Black & White</a> and <a href=\"/pages/ink-wash-pet-portrait\" title=\"Ink Wash Pet Portraits From Your Photo\">Ink Wash</a> styles are especially popular for <a href=\"/pages/pet-memorial-portrait\" title=\"Pet Memorial Portraits\">dachshund memorial portraits</a>. A beautiful way to honor a small dog who took up an enormous amount of space in your heart.</p>"
+          }
+        },
+        "gift-3": {
+          "type": "gift_angle",
+          "settings": {
+            "gift_icon": "🎂",
+            "gift_title": "Gotcha days and birthdays",
+            "gift_description": "<p>Dachshund owners celebrate everything their dog does. A <a href=\"/pages/color-pet-portrait\" title=\"Custom Color Pet Portraits From Your Photo\">Color Portrait</a> marking a milestone makes the celebration permanent.</p>"
+          }
+        },
+        "gift-4": {
+          "type": "gift_angle",
+          "settings": {
+            "gift_icon": "💕",
+            "gift_title": "Pairs and multiples",
+            "gift_description": "<p>Dachshund owners rarely stop at one. If someone has two or three doxies, a <a href=\"/pages/multi-pet-portrait\" title=\"Multi-Pet Portrait\">multi-pet portrait</a> featuring the whole pack is the ultimate gift. <a href=\"/pages/custom-pet-portrait-styles\">Preview every style free</a> to find the perfect match.</p>"
+          }
+        },
+        "faq-1": {
+          "type": "faq",
+          "settings": {
+            "question": "Can I get a custom portrait of my dachshund from a phone photo?",
+            "answer": "<p>Yes, phone photos work great. Get down to your dachshund's eye level for the best angle, and make sure their face is clearly visible and well-lit. Close-up face shots tend to produce better portraits than full-body shots for this breed.</p>"
+          }
+        },
+        "faq-2": {
+          "type": "faq",
+          "settings": {
+            "question": "Which portrait style is best for dachshunds?",
+            "answer": "<p>Color is the most popular choice because it captures the warmth and variety of dachshund coats. For longhaired dachshunds, Ink Wash is particularly beautiful. <a href=\"/pages/custom-pet-portrait-styles\">Upload your photo and preview all styles free</a> to compare.</p>"
+          }
+        },
+        "faq-3": {
+          "type": "faq",
+          "settings": {
+            "question": "I have a wirehaired dachshund. Will the portrait capture the beard and eyebrows?",
+            "answer": "<p>Yes, and those features are what make wirehaired dachshund portraits so distinctive. Use a well-lit photo where the facial furnishings are clearly visible. The more detail we can see in the beard and eyebrows, the more character the portrait will have.</p>"
+          }
+        },
+        "faq-4": {
+          "type": "faq",
+          "settings": {
+            "question": "How does the free preview work?",
+            "answer": "<p>Upload any photo of your dachshund and you'll instantly see it transformed into all available art styles. It's completely free, no account or credit card required. If you love the result, pick your style and product and place your order. <a href=\"/pages/custom-pet-portrait-styles\">Try it now</a>.</p>"
+          }
+        },
+        "faq-5": {
+          "type": "faq",
+          "settings": {
+            "question": "Do full-body dachshund portraits work, or just face shots?",
+            "answer": "<p>Both work, but face and chest close-ups tend to produce the most impactful dachshund portraits. The elongated body can look awkward in a standard portrait crop. We'll compose the image for the best result regardless of what you upload.</p>"
+          }
+        },
+        "faq-6": {
+          "type": "faq",
+          "settings": {
+            "question": "Can I include multiple dachshunds in one portrait?",
+            "answer": "<p>Yes. If you have two or three dachshunds, we can combine separate photos into a single portrait. The photos don't need to be from the same session. Visit our <a href=\"/pages/multi-pet-portrait\">multi-pet portrait page</a> for details.</p>"
+          }
+        }
+      },
+      "block_order": [
+        "style-color",
+        "style-bw",
+        "style-inkwash",
+        "style-marker",
+        "tip-1",
+        "tip-2",
+        "tip-3",
+        "tip-4",
+        "tip-5",
+        "tip-6",
+        "gift-1",
+        "gift-2",
+        "gift-3",
+        "gift-4",
+        "faq-1",
+        "faq-2",
+        "faq-3",
+        "faq-4",
+        "faq-5",
+        "faq-6"
+      ],
+      "custom_css": [
+        ".button {background-color: #ff5964 !important; /* The background color */ color: #ffffff !important; /* The text color */ border: none; /* Optional: removes border */}"
+      ],
+      "settings": {
+        "accent_color": "#A0522D",
+        "eyebrow_text": "Small Dog, Big Portrait",
+        "heading": "",
+        "subtitle": "Long body. Short legs. Enormous personality. Your dachshund deserves a portrait that captures every ounce of that oversized attitude.",
+        "hero_image": "",
+        "hero_image_ratio": "natural",
+        "hero_image_alt": "Custom dachshund portrait from photo",
+        "show_before_after_badge": false,
+        "cta_text": "See Your Dachshund in Every Style for Free",
+        "cta_url": "shopify://pages/custom-image-processing",
+        "secondary_cta_text": "",
+        "secondary_cta_url": "",
+        "preview_banner_heading": "Free Instant Preview",
+        "preview_banner_text": "Upload your photo and preview your dachshund in every style instantly. Completely free.",
+        "styles_heading": "Which Portrait Style Fits Your Dachshund?",
+        "styles_subtitle": "Every dachshund looks incredible in every style. But the varied coat types and that unmistakable face make certain pairings especially stunning.",
+        "styles_cta_text": "Preview All Styles Free",
+        "tips_heading": "Photo Tips for Dachshund Portraits",
+        "gifts_heading": "Dachshund Gifts: Custom Portraits for Every Doxie Owner",
+        "gifts_intro": "Dachshund owners don't just love their dogs. They're devoted to a breed that packs more personality into a small, elongated package than seems physically possible. Whether it's a standard or a miniature, a smooth, longhaired, or wirehaired, every dachshund has an attitude that far exceeds their size. A personalized dachshund portrait captures that oversized personality in art you'll keep forever.\n\nA few occasions where a custom dachshund portrait makes the perfect gift:",
+        "gifts_closing": "The best part: you can upload their dachshund's photo and preview every style before you commit to anything. It's completely free, and you'll know exactly what you're getting before you order.",
+        "gifts_cta_text": "Preview Styles Free",
+        "products_collection": "personalized-pet-products-gifts",
+        "products_heading": "Available Products",
+        "products_subtitle": "Custom dachshund wall art, framed prints, mugs, and 20+ products featuring your dachshund portrait.",
+        "products_image_ratio": "square",
+        "products_limit": 10,
+        "faq_heading": "Dachshund Portrait FAQ",
+        "final_cta_heading": "Ready to See Your Dachshund as Art?",
+        "final_cta_text": "Upload your favorite photo and preview every style instantly. Completely free, no account needed.",
+        "trust_text": "No account needed · Takes less than 60 seconds · 100% free"
+      }
+    }
+  },
+  "order": [
+    "breed-landing"
+  ]
+}

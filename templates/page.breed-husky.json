@@ -1,0 +1,241 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "sections": {
+    "breed-landing": {
+      "type": "breed-landing",
+      "blocks": {
+        "style-bw": {
+          "type": "style_recommendation",
+          "settings": {
+            "style_name": "Professional Black & White",
+            "style_tag": "The Eyes Have It",
+            "style_description": "This is the definitive husky portrait style. Black and white transforms the facial mask, the coat contrast, and those legendary eyes into something that looks like fine art. The graphic quality of a husky's markings becomes even more dramatic without color. If your husky has blue eyes, the intensity comes through even in monochrome. The most requested style for this breed by a wide margin, and the top choice for husky memorial portraits.",
+            "style_image": "",
+            "style_url": "/pages/black-and-white-pet-portrait"
+          }
+        },
+        "style-color": {
+          "type": "style_recommendation",
+          "settings": {
+            "style_name": "Color Portrait",
+            "style_tag": "Ice Blue and Beyond",
+            "style_description": "Color is essential if you want the full impact of your husky's eye color. Blue, amber, bi-colored. Color preserves what makes husky eyes legendary. It also captures the red, agouti, and gray coat variations that distinguish individual huskies. The best choice when the eye color is a defining feature you can't lose.",
+            "style_image": "",
+            "style_url": "/pages/color-pet-portrait"
+          }
+        },
+        "style-inkwash": {
+          "type": "style_recommendation",
+          "settings": {
+            "style_name": "Ink Wash",
+            "style_tag": "Wolf in Watercolor",
+            "style_description": "Ink wash gives husky portraits a wild, untamed quality. The flowing brushstrokes capture the thick coat and wolf-like features in a way that feels elemental and natural. The result looks like a portrait painted during an expedition. Beautiful for huskies whose personality leans more wild than domestic.",
+            "style_image": "",
+            "style_url": "/pages/ink-wash-pet-portrait"
+          }
+        },
+        "style-marker": {
+          "type": "style_recommendation",
+          "settings": {
+            "style_name": "Marker",
+            "style_tag": "Vivid and Electric",
+            "style_description": "Marker amplifies the visual drama that huskies naturally bring. The bold lines make the facial mask pop, and vivid colors make those eyes practically glow. This style captures the intense, electric energy of a breed that was built to run and never stop. Especially striking for red huskies.",
+            "style_image": "",
+            "style_url": "/pages/marker-pet-portrait"
+          }
+        },
+        "tip-1": {
+          "type": "photo_tip",
+          "settings": {
+            "tip_icon": "👁️",
+            "tip_title": "The eyes are the portrait. Light them well.",
+            "tip_description": "Husky eyes are the focal point of every portrait. Make sure they're well-lit, in focus, and showing their color. A photo where the eyes catch a little light and show depth produces a dramatically better portrait than one where the eyes are in shadow. If your husky has heterochromia (two different colored eyes), angle the photo so both eyes are clearly visible."
+          }
+        },
+        "tip-2": {
+          "type": "photo_tip",
+          "settings": {
+            "tip_icon": "❄️",
+            "tip_title": "Don't shoot in bright snow",
+            "tip_description": "Huskies love snow, but bright white snow creates extreme contrast that can blow out the white fur and underexpose the face. Overcast days in snow are fine. Bright sunny snow days make it nearly impossible to get good facial detail. Save the snow photos for Instagram and take the portrait photo in softer lighting."
+          }
+        },
+        "tip-3": {
+          "type": "photo_tip",
+          "settings": {
+            "tip_icon": "🎭",
+            "tip_title": "Capture the mask markings clearly",
+            "tip_description": "The facial mask is what makes a husky instantly recognizable. Make sure the lighting reveals the mask pattern clearly: the contrast between the dark and light areas around the eyes and forehead. Flat or dim lighting can muddy these markings and lose the visual impact."
+          }
+        },
+        "tip-4": {
+          "type": "photo_tip",
+          "settings": {
+            "tip_icon": "🐺",
+            "tip_title": "The head-up, alert pose is strongest",
+            "tip_description": "Huskies looking up with ears forward and eyes locked on something have a wolf-like presence that translates powerfully into portraits. Catch them during a moment of focused attention for the most impactful result."
+          }
+        },
+        "tip-5": {
+          "type": "photo_tip",
+          "settings": {
+            "tip_icon": "🐾",
+            "tip_title": "Malamutes work the same way",
+            "tip_description": "Alaskan Malamutes, Alaskan Huskies, and other northern breeds share the same wolf-like features. The portrait approach and photo tips are identical. The main difference is size, which doesn't affect the portrait."
+          }
+        },
+        "tip-6": {
+          "type": "photo_tip",
+          "settings": {
+            "tip_icon": "📱",
+            "tip_title": "Phone photos work perfectly",
+            "tip_description": "You don't need a professional camera. Some of our best husky portraits have come from casual phone shots. As long as the eyes are well-lit and the face is clear, the photo will work."
+          }
+        },
+        "gift-1": {
+          "type": "gift_angle",
+          "settings": {
+            "gift_icon": "❄️",
+            "gift_title": "For the husky obsessed",
+            "gift_description": "<p>Husky owners are drawn to the breed's wild beauty. A <a href=\"/products/personalized-pet-portrait\" title=\"Framed Pet Portrait\">custom portrait</a> that captures those striking eyes and wolf-like features is the centerpiece piece of art they've been looking for. Pair it with a <a href=\"/collections/personalized-pet-products-gifts\" title=\"Personalized Pet Products & Gifts\">matching mug or pocket tee</a> for a complete set.</p>"
+          }
+        },
+        "gift-2": {
+          "type": "gift_angle",
+          "settings": {
+            "gift_icon": "🕊️",
+            "gift_title": "Memorial and remembrance",
+            "gift_description": "<p>A custom portrait preserves the piercing gaze and commanding presence that made your husky unforgettable. Our <a href=\"/pages/black-and-white-pet-portrait\" title=\"Custom Black & White Pet Portraits From Your Photo\">Black & White</a> and <a href=\"/pages/ink-wash-pet-portrait\" title=\"Ink Wash Pet Portraits From Your Photo\">Ink Wash</a> styles are the most popular for <a href=\"/pages/pet-memorial-portrait\" title=\"Pet Memorial Portraits\">husky memorial portraits</a>.</p>"
+          }
+        },
+        "gift-3": {
+          "type": "gift_angle",
+          "settings": {
+            "gift_icon": "🐺",
+            "gift_title": "The wild companion",
+            "gift_description": "<p>Huskies walk the line between domestic dog and something wilder. A <a href=\"/pages/color-pet-portrait\" title=\"Custom Color Pet Portraits From Your Photo\">Color Portrait</a> that captures that duality, the wolf-like features combined with the loyal companion, makes a powerful statement piece.</p>"
+          }
+        },
+        "gift-4": {
+          "type": "gift_angle",
+          "settings": {
+            "gift_icon": "🏔️",
+            "gift_title": "Adventure dog tributes",
+            "gift_description": "<p>For huskies who hike, mush, or explore alongside their owners, a custom portrait marks the partnership and the adventures shared. <a href=\"/pages/custom-pet-portrait-styles\">Preview every style free</a> to find the perfect match.</p>"
+          }
+        },
+        "faq-1": {
+          "type": "faq",
+          "settings": {
+            "question": "Can I get a custom portrait of my husky from a phone photo?",
+            "answer": "<p>Yes, phone photos work great. The most important thing is that the eyes are well-lit and clearly visible, since the eyes are the centerpiece of every husky portrait. Natural outdoor light produces the best results.</p>"
+          }
+        },
+        "faq-2": {
+          "type": "faq",
+          "settings": {
+            "question": "Which portrait style is best for huskies?",
+            "answer": "<p>Black & White is the most popular choice by far because it dramatizes the facial mask and coat contrast. Color is the best option if you want to preserve the eye color, especially for blue-eyed or bi-eyed huskies. <a href=\"/pages/custom-pet-portrait-styles\">Upload your photo and preview all styles free</a>.</p>"
+          }
+        },
+        "faq-3": {
+          "type": "faq",
+          "settings": {
+            "question": "My husky has two different colored eyes. Will both show in the portrait?",
+            "answer": "<p>Yes. Heterochromia is one of the most striking features in husky portraits. Use a photo where both eyes are clearly visible and well-lit. Color style is the best choice for showcasing the two different eye colors.</p>"
+          }
+        },
+        "faq-4": {
+          "type": "faq",
+          "settings": {
+            "question": "How does the free preview work?",
+            "answer": "<p>Upload any photo of your husky and you'll instantly see it transformed into all available art styles. It's completely free, no account or credit card required. If you love the result, pick your style and product and place your order. <a href=\"/pages/custom-pet-portrait-styles\">Try it now</a>.</p>"
+          }
+        },
+        "faq-5": {
+          "type": "faq",
+          "settings": {
+            "question": "Do you do portraits for Alaskan Malamutes too?",
+            "answer": "<p>Yes. Malamutes, Alaskan Huskies, and other northern breeds with similar wolf-like features all produce beautiful portraits using the same approach as Siberian Huskies.</p>"
+          }
+        },
+        "faq-6": {
+          "type": "faq",
+          "settings": {
+            "question": "Can I include my husky with another pet in one portrait?",
+            "answer": "<p>Yes. We can combine separate photos of different pets into a single portrait, regardless of breed or species. Visit our <a href=\"/pages/multi-pet-portrait\">multi-pet portrait page</a> for details.</p>"
+          }
+        }
+      },
+      "block_order": [
+        "style-bw",
+        "style-color",
+        "style-inkwash",
+        "style-marker",
+        "tip-1",
+        "tip-2",
+        "tip-3",
+        "tip-4",
+        "tip-5",
+        "tip-6",
+        "gift-1",
+        "gift-2",
+        "gift-3",
+        "gift-4",
+        "faq-1",
+        "faq-2",
+        "faq-3",
+        "faq-4",
+        "faq-5",
+        "faq-6"
+      ],
+      "custom_css": [
+        ".button {background-color: #ff5964 !important; /* The background color */ color: #ffffff !important; /* The text color */ border: none; /* Optional: removes border */}"
+      ],
+      "settings": {
+        "accent_color": "#4682B4",
+        "eyebrow_text": "Wild Beauty, Custom Art",
+        "heading": "",
+        "subtitle": "Those piercing eyes. That wolf-like face. Your husky is one of the most visually stunning breeds alive, and they deserve a portrait that proves it.",
+        "hero_image": "",
+        "hero_image_ratio": "natural",
+        "hero_image_alt": "Custom husky portrait from photo",
+        "show_before_after_badge": false,
+        "cta_text": "See Your Husky in Every Style for Free",
+        "cta_url": "shopify://pages/custom-image-processing",
+        "secondary_cta_text": "",
+        "secondary_cta_url": "",
+        "preview_banner_heading": "Free Instant Preview",
+        "preview_banner_text": "Upload your photo and preview your husky in every style instantly. Completely free.",
+        "styles_heading": "Which Portrait Style Fits Your Husky?",
+        "styles_subtitle": "Every husky looks stunning in every style. But those piercing eyes and dramatic facial markings make certain pairings especially striking.",
+        "styles_cta_text": "Preview All Styles Free",
+        "tips_heading": "Photo Tips for Husky Portraits",
+        "gifts_heading": "Husky Gifts: Custom Portraits That Capture Wild Beauty",
+        "gifts_intro": "Husky owners chose one of the most visually stunning breeds in the world, and they'll tell you about it loudly and often, just like their husky tells them about everything. The dramatic eyes, the wolf-like face, the theatrical personality. A personalized husky portrait captures the wild beauty that drew them to the breed.\n\nA few occasions where a custom husky portrait makes the perfect gift:",
+        "gifts_closing": "The best part: you can upload their husky's photo and preview every style before you commit to anything. It's completely free, and you'll know exactly what you're getting before you order.",
+        "gifts_cta_text": "Preview Styles Free",
+        "products_collection": "personalized-pet-products-gifts",
+        "products_heading": "Available Products",
+        "products_subtitle": "Custom husky wall art, framed prints, mugs, and 20+ products featuring your husky portrait.",
+        "products_image_ratio": "square",
+        "products_limit": 10,
+        "faq_heading": "Husky Portrait FAQ",
+        "final_cta_heading": "Ready to See Your Husky as Art?",
+        "final_cta_text": "Upload your favorite photo and preview every style instantly. Completely free, no account needed.",
+        "trust_text": "No account needed · Takes less than 60 seconds · 100% free"
+      }
+    }
+  },
+  "order": [
+    "breed-landing"
+  ]
+}

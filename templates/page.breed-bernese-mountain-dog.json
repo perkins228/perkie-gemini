@@ -1,0 +1,241 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "sections": {
+    "breed-landing": {
+      "type": "breed-landing",
+      "blocks": {
+        "style-color": {
+          "type": "style_recommendation",
+          "settings": {
+            "style_name": "Color Portrait",
+            "style_tag": "The Tricolor Masterpiece",
+            "style_description": "Color is the natural choice for Bernese mountain dogs because the tricolor coat is their defining feature. The jet black, clean white, and warm rust create a color palette that's as striking as any artist could design. Color portraits preserve this palette in full detail. The most popular choice by a wide margin.",
+            "style_image": "",
+            "style_url": "/pages/color-pet-portrait"
+          }
+        },
+        "style-bw": {
+          "type": "style_recommendation",
+          "settings": {
+            "style_name": "Professional Black & White",
+            "style_tag": "Dramatic Contrast",
+            "style_description": "The tricolor coat translates surprisingly well into black and white. The three distinct tonal values (dark, mid-tone, and light) create rich contrast and visual depth. The rust markings become a medium gray that adds dimension, while the white blaze and chest provide highlights. A sophisticated choice for large prints and Bernese mountain dog memorial portraits.",
+            "style_image": "",
+            "style_url": "/pages/black-and-white-pet-portrait"
+          }
+        },
+        "style-inkwash": {
+          "type": "style_recommendation",
+          "settings": {
+            "style_name": "Ink Wash",
+            "style_tag": "Mountain Dog, Mountain Art",
+            "style_description": "Ink wash and the Bernese mountain dog's flowing coat are a perfect pairing. The soft, painterly brushstrokes capture the wave and movement of the thick fur beautifully. The result feels like a portrait painted in the Swiss Alps, with a rugged warmth that matches the breed's heritage. Stunning for memorial portraits.",
+            "style_image": "",
+            "style_url": "/pages/ink-wash-pet-portrait"
+          }
+        },
+        "style-marker": {
+          "type": "style_recommendation",
+          "settings": {
+            "style_name": "Marker",
+            "style_tag": "Vibrant and Joyful",
+            "style_description": "Marker brings out the playful side of Berners. Despite their size and calm demeanor, these dogs have a silly, joyful streak. Bold lines and vivid colors celebrate that personality. The tricolor pattern pops with extra vibrancy in this style. A fun choice for younger Berners.",
+            "style_image": "",
+            "style_url": "/pages/marker-pet-portrait"
+          }
+        },
+        "tip-1": {
+          "type": "photo_tip",
+          "settings": {
+            "tip_icon": "🌿",
+            "tip_title": "Outdoor photos bring out the best in this breed",
+            "tip_description": "Bernese mountain dogs are mountain dogs. They look most natural and relaxed in outdoor settings. A photo taken on a trail, in a park, or in the yard on a nice day captures the breed's essence better than an indoor photo. Don't worry about the background. We remove and replace it. What matters is the natural expression outdoor settings produce."
+          }
+        },
+        "tip-2": {
+          "type": "photo_tip",
+          "settings": {
+            "tip_icon": "☀️",
+            "tip_title": "Make sure the tricolor markings are well-lit",
+            "tip_description": "The black portions of a Berner's coat can lose detail in poor lighting, while the white areas can blow out in harsh sun. The sweet spot is even, soft natural light that shows clear detail in all three colors: black, white, and rust. Overcast days are ideal."
+          }
+        },
+        "tip-3": {
+          "type": "photo_tip",
+          "settings": {
+            "tip_icon": "💕",
+            "tip_title": "Capture the gentle expression",
+            "tip_description": "Bernese mountain dogs have a calm, warm expression that is the emotional heart of their portraits. Catch them in a relaxed, content moment rather than during high-energy play. The soft eyes and slightly furrowed brow that Berners are known for produce the most emotionally powerful portraits."
+          }
+        },
+        "tip-4": {
+          "type": "photo_tip",
+          "settings": {
+            "tip_icon": "🖼️",
+            "tip_title": "Include the chest ruff",
+            "tip_description": "The white chest blaze and the thick coat ruff are signature Bernese features. A crop that includes the chest gives the portrait more visual substance and better represents the breed's impressive appearance. Don't cut the frame at the chin."
+          }
+        },
+        "tip-5": {
+          "type": "photo_tip",
+          "settings": {
+            "tip_icon": "📷",
+            "tip_title": "Face-forward shows the symmetry",
+            "tip_description": "The Bernese face is beautifully symmetrical, with the white blaze centering the composition. A straight-on or slight angle shot showcases this symmetry and captures both rust eyebrow markings clearly."
+          }
+        },
+        "tip-6": {
+          "type": "photo_tip",
+          "settings": {
+            "tip_icon": "📱",
+            "tip_title": "Phone photos work perfectly",
+            "tip_description": "You don't need a professional camera. Some of our best Bernese mountain dog portraits have come from casual phone shots taken outdoors. As long as the face and tricolor markings are clear, the photo will work."
+          }
+        },
+        "gift-1": {
+          "type": "gift_angle",
+          "settings": {
+            "gift_icon": "🏔️",
+            "gift_title": "For the Berner family",
+            "gift_description": "<p>Bernese mountain dog owners are deeply attached to their breed. These dogs become the emotional center of the household. A <a href=\"/products/personalized-pet-portrait\" title=\"Framed Pet Portrait\">custom portrait</a> that captures their gentle, beautiful presence is the most meaningful gift you can give. Pair it with a <a href=\"/collections/personalized-pet-products-gifts\" title=\"Personalized Pet Products & Gifts\">matching mug or pocket tee</a> for a complete set.</p>"
+          }
+        },
+        "gift-2": {
+          "type": "gift_angle",
+          "settings": {
+            "gift_icon": "🕊️",
+            "gift_title": "Memorial and remembrance",
+            "gift_description": "<p>Bernese mountain dogs have tragically short lifespans for their size. A custom portrait from a favorite photo preserves the warmth and beauty that defined every day with them. This is one of our most requested memorial breeds. Our <a href=\"/pages/black-and-white-pet-portrait\" title=\"Custom Black & White Pet Portraits From Your Photo\">Black & White</a> and <a href=\"/pages/ink-wash-pet-portrait\" title=\"Ink Wash Pet Portraits From Your Photo\">Ink Wash</a> styles are especially popular for <a href=\"/pages/pet-memorial-portrait\" title=\"Pet Memorial Portraits\">Bernese memorial portraits</a>.</p>"
+          }
+        },
+        "gift-3": {
+          "type": "gift_angle",
+          "settings": {
+            "gift_icon": "🎄",
+            "gift_title": "Holiday and milestone gifts",
+            "gift_description": "<p>The tricolor coat is naturally festive, and Berner portraits make beautiful holiday gifts. A <a href=\"/pages/color-pet-portrait\" title=\"Custom Color Pet Portraits From Your Photo\">Color Portrait</a> also works for birthdays, adoption anniversaries, and \"just because\" moments.</p>"
+          }
+        },
+        "gift-4": {
+          "type": "gift_angle",
+          "settings": {
+            "gift_icon": "👨‍👩‍👧‍👦",
+            "gift_title": "Family portrait centerpiece",
+            "gift_description": "<p>A Bernese mountain dog portrait works as the centerpiece of a family gallery wall. The warmth of their expression and the beauty of their coat create a piece that elevates the entire display. <a href=\"/pages/custom-pet-portrait-styles\">Preview every style free</a> to find the perfect match.</p>"
+          }
+        },
+        "faq-1": {
+          "type": "faq",
+          "settings": {
+            "question": "Can I get a custom portrait of my Bernese mountain dog from a phone photo?",
+            "answer": "<p>Yes. Phone photos work beautifully for Bernese portraits. Take the photo outdoors in natural light if possible, and make sure all three coat colors (black, white, and rust) are clearly visible.</p>"
+          }
+        },
+        "faq-2": {
+          "type": "faq",
+          "settings": {
+            "question": "Which portrait style is best for Bernese mountain dogs?",
+            "answer": "<p>Color is the most popular choice by far because the tricolor coat is the breed's defining feature. Ink Wash is a beautiful second option that captures the flowing coat texture. <a href=\"/pages/custom-pet-portrait-styles\">Upload your photo and preview all styles free</a>.</p>"
+          }
+        },
+        "faq-3": {
+          "type": "faq",
+          "settings": {
+            "question": "Will all three coat colors show clearly in the portrait?",
+            "answer": "<p>Yes, as long as the source photo has good lighting. Even, natural light is best for showing clear detail in the black, white, and rust areas. Avoid harsh sun or dim indoor lighting that can wash out or lose detail in any of the three colors.</p>"
+          }
+        },
+        "faq-4": {
+          "type": "faq",
+          "settings": {
+            "question": "How does the free preview work?",
+            "answer": "<p>Upload any photo of your Bernese mountain dog and you'll instantly see it transformed into all available art styles. It's completely free, no account or credit card required. If you love the result, pick your style and product and place your order. <a href=\"/pages/custom-pet-portrait-styles\">Try it now</a>.</p>"
+          }
+        },
+        "faq-5": {
+          "type": "faq",
+          "settings": {
+            "question": "My Bernese mountain dog has passed. Can I still get a portrait?",
+            "answer": "<p>Yes. Memorial portraits are one of our most common orders for Bernese mountain dogs. Any clear photo will work, even older photos. We'll create a beautiful tribute that captures your Berner's warmth and beauty.</p>"
+          }
+        },
+        "faq-6": {
+          "type": "faq",
+          "settings": {
+            "question": "Can I include my Bernese mountain dog with other pets in one portrait?",
+            "answer": "<p>Yes. We can combine separate photos of multiple pets into a single portrait. Visit our <a href=\"/pages/multi-pet-portrait\">multi-pet portrait page</a> for details.</p>"
+          }
+        }
+      },
+      "block_order": [
+        "style-color",
+        "style-bw",
+        "style-inkwash",
+        "style-marker",
+        "tip-1",
+        "tip-2",
+        "tip-3",
+        "tip-4",
+        "tip-5",
+        "tip-6",
+        "gift-1",
+        "gift-2",
+        "gift-3",
+        "gift-4",
+        "faq-1",
+        "faq-2",
+        "faq-3",
+        "faq-4",
+        "faq-5",
+        "faq-6"
+      ],
+      "custom_css": [
+        ".button {background-color: #ff5964 !important; /* The background color */ color: #ffffff !important; /* The text color */ border: none; /* Optional: removes border */}"
+      ],
+      "settings": {
+        "accent_color": "#2F4F4F",
+        "eyebrow_text": "Swiss Beauty, Custom Art",
+        "heading": "",
+        "subtitle": "That tricolor coat. Those gentle, intelligent eyes. Your Bernese mountain dog is one of the most beautiful breeds in the world, and they deserve a portrait that proves it.",
+        "hero_image": "",
+        "hero_image_ratio": "natural",
+        "hero_image_alt": "Custom Bernese mountain dog portrait from photo",
+        "show_before_after_badge": false,
+        "cta_text": "See Your Berner in Every Style for Free",
+        "cta_url": "shopify://pages/custom-image-processing",
+        "secondary_cta_text": "",
+        "secondary_cta_url": "",
+        "preview_banner_heading": "Free Instant Preview",
+        "preview_banner_text": "Upload your photo and preview your Bernese mountain dog in every style instantly. Completely free.",
+        "styles_heading": "Which Portrait Style Fits Your Bernese Mountain Dog?",
+        "styles_subtitle": "Every Bernese mountain dog looks stunning in every style. But the tricolor coat and gentle expression make certain pairings especially beautiful.",
+        "styles_cta_text": "Preview All Styles Free",
+        "tips_heading": "Photo Tips for Bernese Mountain Dog Portraits",
+        "gifts_heading": "Bernese Mountain Dog Gifts: Custom Portraits That Capture Their Beauty",
+        "gifts_intro": "Bernese mountain dog owners know they're on borrowed time. With shorter lifespans than most breeds, every year with a Berner is precious. These beautiful, gentle dogs fill their homes with warmth and their hearts with a love that deserves to be preserved. A personalized Bernese mountain dog portrait captures the beauty and spirit that make every moment matter.\n\nA few occasions where a custom Bernese mountain dog portrait makes the perfect gift:",
+        "gifts_closing": "The best part: you can upload their Berner's photo and preview every style before you commit to anything. It's completely free, and you'll know exactly what you're getting before you order.",
+        "gifts_cta_text": "Preview Styles Free",
+        "products_collection": "personalized-pet-products-gifts",
+        "products_heading": "Available Products",
+        "products_subtitle": "Custom Bernese mountain dog wall art, framed prints, mugs, and 20+ products featuring your Berner portrait.",
+        "products_image_ratio": "square",
+        "products_limit": 10,
+        "faq_heading": "Bernese Mountain Dog Portrait FAQ",
+        "final_cta_heading": "Ready to See Your Berner as Art?",
+        "final_cta_text": "Upload your favorite photo and preview every style instantly. Completely free, no account needed.",
+        "trust_text": "No account needed · Takes less than 60 seconds · 100% free"
+      }
+    }
+  },
+  "order": [
+    "breed-landing"
+  ]
+}

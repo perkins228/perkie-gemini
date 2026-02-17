@@ -1,0 +1,241 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "sections": {
+    "breed-landing": {
+      "type": "breed-landing",
+      "blocks": {
+        "style-color": {
+          "type": "style_recommendation",
+          "settings": {
+            "style_name": "Color Portrait",
+            "style_tag": "Wrinkles in Full Detail",
+            "style_description": "Color captures every wrinkle, every fold, and the distinctive fawn-and-black-mask combination that defines the classic pug look. The warm coat tones and the dark, expressive eyes come through in full detail. The most faithful representation of exactly how your pug looks.",
+            "style_image": "",
+            "style_url": "/pages/color-pet-portrait"
+          }
+        },
+        "style-bw": {
+          "type": "style_recommendation",
+          "settings": {
+            "style_name": "Professional Black & White",
+            "style_tag": "Maximum Drama",
+            "style_description": "Black and white turns pug wrinkles into art. The folds and creases become dramatic patterns of light and shadow, and the enormous dark eyes become the undeniable focal point. For black pugs, this style pulls remarkable detail out of the dark coat. A sophisticated choice that gives the pug's comedic face an unexpectedly artistic treatment. Also a popular choice for pug memorial portraits.",
+            "style_image": "",
+            "style_url": "/pages/black-and-white-pet-portrait"
+          }
+        },
+        "style-marker": {
+          "type": "style_recommendation",
+          "settings": {
+            "style_name": "Marker",
+            "style_tag": "Full Pug Energy",
+            "style_description": "Pugs are funny, bold, and completely unapologetic. Marker is the style that matches that energy. The vivid colors and defined lines bring out the breed's personality in the most entertaining way possible. If your pug's vibe is more \"comedy\" than \"fine art,\" this is their style.",
+            "style_image": "",
+            "style_url": "/pages/marker-pet-portrait"
+          }
+        },
+        "style-inkwash": {
+          "type": "style_recommendation",
+          "settings": {
+            "style_name": "Ink Wash",
+            "style_tag": "The Softer Side",
+            "style_description": "Ink wash softens the pug's strong features into something gentle and warm. The flowing brushstrokes smooth the wrinkles without losing them entirely, creating a portrait that feels more intimate than dramatic. A lovely choice for senior pugs and memorial portraits.",
+            "style_image": "",
+            "style_url": "/pages/ink-wash-pet-portrait"
+          }
+        },
+        "tip-1": {
+          "type": "photo_tip",
+          "settings": {
+            "tip_icon": "👁️",
+            "tip_title": "Get the eyes in focus and well-lit",
+            "tip_description": "Pug eyes are everything. They're large, round, and incredibly expressive, but they're also deep-set enough that poor lighting can make them look flat. Make sure the eyes catch some light and show a highlight. This single detail is the difference between a good portrait and one that feels alive."
+          }
+        },
+        "tip-2": {
+          "type": "photo_tip",
+          "settings": {
+            "tip_icon": "📷",
+            "tip_title": "Shoot at face level",
+            "tip_description": "Like all flat-faced breeds, pugs look best photographed straight on or at a very slight angle. Avoid extreme downward angles that exaggerate the flatness of the face. Get the camera at their eye level for the most natural, flattering perspective."
+          }
+        },
+        "tip-3": {
+          "type": "photo_tip",
+          "settings": {
+            "tip_icon": "☀️",
+            "tip_title": "Show the wrinkles",
+            "tip_description": "The wrinkles are what make a pug a pug. Soft, directional light (from a window, for example) creates gentle shadows in the folds that give the portrait depth and character. Flat lighting smooths out the wrinkles and loses the texture that makes pug portraits special."
+          }
+        },
+        "tip-4": {
+          "type": "photo_tip",
+          "settings": {
+            "tip_icon": "🐕",
+            "tip_title": "The head tilt is iconic",
+            "tip_description": "If your pug does the head tilt, photograph it. A tilted pug head with those enormous questioning eyes produces a portrait that is universally loved. It's one of the most engaging expressions any breed can offer."
+          }
+        },
+        "tip-5": {
+          "type": "photo_tip",
+          "settings": {
+            "tip_icon": "💡",
+            "tip_title": "Black pugs need window light",
+            "tip_description": "Black pug portraits can be stunning, but the source photo needs enough light to show the facial wrinkles and eye detail. Position your black pug near a window or in bright shade where the features are clearly visible against the dark coat."
+          }
+        },
+        "tip-6": {
+          "type": "photo_tip",
+          "settings": {
+            "tip_icon": "📱",
+            "tip_title": "Phone photos work perfectly",
+            "tip_description": "You don't need a professional camera. Some of our best pug portraits have come from casual phone shots. As long as your pug's face is clear and well-lit, the photo will work."
+          }
+        },
+        "gift-1": {
+          "type": "gift_angle",
+          "settings": {
+            "gift_icon": "😍",
+            "gift_title": "For the pug-obsessed",
+            "gift_description": "<p>Pug people are a special breed of their own. They already have pug socks, pug mugs, and a pug phone case. A <a href=\"/products/personalized-pet-portrait\" title=\"Framed Pet Portrait\">custom portrait</a> of their actual pug is the piece that sits above all the mass-produced stuff. Pair it with a <a href=\"/collections/personalized-pet-products-gifts\" title=\"Personalized Pet Products & Gifts\">matching mug or pocket tee</a> for a personalized set.</p>"
+          }
+        },
+        "gift-2": {
+          "type": "gift_angle",
+          "settings": {
+            "gift_icon": "🕊️",
+            "gift_title": "Memorial and remembrance",
+            "gift_description": "<p>Pugs have shorter lifespans than many breeds, and their loss is felt deeply. A custom portrait captures those enormous eyes and all the personality behind them. Our <a href=\"/pages/black-and-white-pet-portrait\" title=\"Custom Black & White Pet Portraits From Your Photo\">Black & White</a> and <a href=\"/pages/ink-wash-pet-portrait\" title=\"Ink Wash Pet Portraits From Your Photo\">Ink Wash</a> styles are especially popular for <a href=\"/pages/pet-memorial-portrait\" title=\"Pet Memorial Portraits\">pug memorial portraits</a>.</p>"
+          }
+        },
+        "gift-3": {
+          "type": "gift_angle",
+          "settings": {
+            "gift_icon": "😂",
+            "gift_title": "Celebrating the comedy",
+            "gift_description": "<p>Pugs are hilarious, and the best pug portraits capture that humor. The head tilt, the skeptical squint, the \"I can't believe you're eating without me\" face. A <a href=\"/pages/color-pet-portrait\" title=\"Custom Color Pet Portraits From Your Photo\">Color Portrait</a> that makes people laugh every time they see it.</p>"
+          }
+        },
+        "gift-4": {
+          "type": "gift_angle",
+          "settings": {
+            "gift_icon": "🎁",
+            "gift_title": "Universal crowd-pleaser gift",
+            "gift_description": "<p>Even people who don't know someone's specific pug will smile at a pug portrait. The breed's universal charm makes this a gift that works for any pug owner on any occasion. <a href=\"/pages/custom-pet-portrait-styles\">Preview every style free</a> to find the perfect match.</p>"
+          }
+        },
+        "faq-1": {
+          "type": "faq",
+          "settings": {
+            "question": "Can I get a custom portrait of my pug from a phone photo?",
+            "answer": "<p>Yes, phone photos work great. Focus on getting the eyes in sharp focus with good lighting. A straight-on angle at the pug's eye level produces the best portrait photo.</p>"
+          }
+        },
+        "faq-2": {
+          "type": "faq",
+          "settings": {
+            "question": "Which portrait style is best for pugs?",
+            "answer": "<p>Color is the most popular for fawn pugs because it captures the mask-and-coat contrast beautifully. Black & White is a strong choice for artistic, dramatic portraits that showcase the wrinkle texture. <a href=\"/pages/custom-pet-portrait-styles\">Upload your photo and preview all styles free</a>.</p>"
+          }
+        },
+        "faq-3": {
+          "type": "faq",
+          "settings": {
+            "question": "I have a black pug. Will the portrait show the wrinkles?",
+            "answer": "<p>Yes, as long as the source photo has good lighting. Position your black pug near a window or in bright shade so the wrinkles and eye detail are clearly visible. Black & White style is particularly effective at pulling detail from dark coats.</p>"
+          }
+        },
+        "faq-4": {
+          "type": "faq",
+          "settings": {
+            "question": "How does the free preview work?",
+            "answer": "<p>Upload any photo of your pug and you'll instantly see it transformed into all available art styles. It's completely free, no account or credit card required. If you love the result, pick your style and product and place your order. <a href=\"/pages/custom-pet-portrait-styles\">Try it now</a>.</p>"
+          }
+        },
+        "faq-5": {
+          "type": "faq",
+          "settings": {
+            "question": "Do pug portraits capture the wrinkles?",
+            "answer": "<p>Yes, wrinkle detail is one of the most distinctive features in pug portraits. Our styles are designed to preserve and even enhance the texture that makes pugs visually unique. Soft directional lighting in your source photo brings out the wrinkles best.</p>"
+          }
+        },
+        "faq-6": {
+          "type": "faq",
+          "settings": {
+            "question": "Can I include my pug with another pet in one portrait?",
+            "answer": "<p>Yes. We can combine separate photos of different pets into a single portrait. Visit our <a href=\"/pages/multi-pet-portrait\">multi-pet portrait page</a> for details.</p>"
+          }
+        }
+      },
+      "block_order": [
+        "style-color",
+        "style-bw",
+        "style-marker",
+        "style-inkwash",
+        "tip-1",
+        "tip-2",
+        "tip-3",
+        "tip-4",
+        "tip-5",
+        "tip-6",
+        "gift-1",
+        "gift-2",
+        "gift-3",
+        "gift-4",
+        "faq-1",
+        "faq-2",
+        "faq-3",
+        "faq-4",
+        "faq-5",
+        "faq-6"
+      ],
+      "custom_css": [
+        ".button {background-color: #ff5964 !important; /* The background color */ color: #ffffff !important; /* The text color */ border: none; /* Optional: removes border */}"
+      ],
+      "settings": {
+        "accent_color": "#D2B48C",
+        "eyebrow_text": "Big Eyes, Bigger Personality",
+        "heading": "",
+        "subtitle": "The wrinkles. The bug eyes. Personality per pound that no other breed can match. Your pug deserves a portrait as distinctive and unapologetic as they are.",
+        "hero_image": "",
+        "hero_image_ratio": "natural",
+        "hero_image_alt": "Custom pug portrait from photo",
+        "show_before_after_badge": false,
+        "cta_text": "See Your Pug in Every Style for Free",
+        "cta_url": "shopify://pages/custom-image-processing",
+        "secondary_cta_text": "",
+        "secondary_cta_url": "",
+        "preview_banner_heading": "Free Instant Preview",
+        "preview_banner_text": "Upload your photo and preview your pug in every style instantly. Completely free.",
+        "styles_heading": "Which Portrait Style Fits Your Pug?",
+        "styles_subtitle": "Every pug looks incredible in every style. But the wrinkles, the enormous eyes, and that unmistakable face make certain pairings especially striking.",
+        "styles_cta_text": "Preview All Styles Free",
+        "tips_heading": "Photo Tips for Pug Portraits",
+        "gifts_heading": "Pug Gifts: Custom Portraits for the Most Lovable Face",
+        "gifts_intro": "Pug owners know their dog runs the house. These small, wrinkly, snoring bundles of personality have a way of becoming the center of everything. A personalized pug portrait captures those enormous eyes, those unforgettable wrinkles, and all the character that makes a pug irreplaceable.\n\nA few occasions where a custom pug portrait makes the perfect gift:",
+        "gifts_closing": "The best part: you can upload their pug's photo and preview every style before you commit to anything. It's completely free, and you'll know exactly what you're getting before you order.",
+        "gifts_cta_text": "Preview Styles Free",
+        "products_collection": "personalized-pet-products-gifts",
+        "products_heading": "Available Products",
+        "products_subtitle": "Custom pug wall art, framed prints, mugs, and 20+ products featuring your pug portrait.",
+        "products_image_ratio": "square",
+        "products_limit": 10,
+        "faq_heading": "Pug Portrait FAQ",
+        "final_cta_heading": "Ready to See Your Pug as Art?",
+        "final_cta_text": "Upload your favorite photo and preview every style instantly. Completely free, no account needed.",
+        "trust_text": "No account needed · Takes less than 60 seconds · 100% free"
+      }
+    }
+  },
+  "order": [
+    "breed-landing"
+  ]
+}

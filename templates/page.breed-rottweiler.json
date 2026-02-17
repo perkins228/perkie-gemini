@@ -1,0 +1,241 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "sections": {
+    "breed-landing": {
+      "type": "breed-landing",
+      "blocks": {
+        "style-bw": {
+          "type": "style_recommendation",
+          "settings": {
+            "style_name": "Professional Black & White",
+            "style_tag": "Commanding Presence",
+            "style_description": "Black and white is the definitive rottweiler portrait style. The dark coat becomes a dramatic backdrop, the tan markings translate into lighter tones that highlight the eyes and expression, and the overall effect is a portrait that feels powerful and dignified. This style captures the authority of the breed in its purest form. The most popular choice for rottweiler memorial portraits.",
+            "style_image": "",
+            "style_url": "/pages/black-and-white-pet-portrait"
+          }
+        },
+        "style-color": {
+          "type": "style_recommendation",
+          "settings": {
+            "style_name": "Color Portrait",
+            "style_tag": "The Full Rottie",
+            "style_description": "Color preserves the warm mahogany and rust markings that give rottweilers their distinctive look. The contrast between the rich black coat and the warm tan accents creates a portrait with natural visual drama. The best choice for showcasing the specific shade and placement of your rottie's markings.",
+            "style_image": "",
+            "style_url": "/pages/color-pet-portrait"
+          }
+        },
+        "style-inkwash": {
+          "type": "style_recommendation",
+          "settings": {
+            "style_name": "Ink Wash",
+            "style_tag": "The Gentle Giant",
+            "style_description": "Ink wash brings out the softer side of rottweilers. The flowing brushstrokes create a portrait that feels warm and approachable, capturing the gentle companion that rottie owners know and love. Beautiful for memorial portraits and for owners who want art that shows their dog's true nature.",
+            "style_image": "",
+            "style_url": "/pages/ink-wash-pet-portrait"
+          }
+        },
+        "style-marker": {
+          "type": "style_recommendation",
+          "settings": {
+            "style_name": "Marker",
+            "style_tag": "Bold and Proud",
+            "style_description": "Marker matches the rottweiler's confident energy with bold lines and saturated color. The tan markings pop vibrantly against the dark coat, creating a portrait that feels dynamic and alive. A great choice for younger rotties and for owners who want something with visual impact.",
+            "style_image": "",
+            "style_url": "/pages/marker-pet-portrait"
+          }
+        },
+        "tip-1": {
+          "type": "photo_tip",
+          "settings": {
+            "tip_icon": "💡",
+            "tip_title": "Light the face, not just the dog",
+            "tip_description": "Rottweilers' black coats absorb light, which means facial features can disappear without proper lighting. The tan eyebrow markings and the eyes need to be clearly visible. Soft natural light, outdoor shade, or window light works best. Avoid dim rooms and direct flash."
+          }
+        },
+        "tip-2": {
+          "type": "photo_tip",
+          "settings": {
+            "tip_icon": "💕",
+            "tip_title": "Catch the gentle expression",
+            "tip_description": "Rottweilers look their best in portraits when their expression is calm, relaxed, and warm. The soft eyes, the slightly relaxed jaw, the quiet confidence. This is the expression that captures who they really are. Avoid photos where they look tense, anxious, or overly alert unless that's the mood you want."
+          }
+        },
+        "tip-3": {
+          "type": "photo_tip",
+          "settings": {
+            "tip_icon": "👁️",
+            "tip_title": "Show the eyebrow markings",
+            "tip_description": "The tan markings above a rottweiler's eyes are the breed's most expressive feature. Make sure the lighting reveals these clearly. The \"eyebrows\" add emotional depth to the portrait that no other feature can match."
+          }
+        },
+        "tip-4": {
+          "type": "photo_tip",
+          "settings": {
+            "tip_icon": "📷",
+            "tip_title": "A slight angle adds dimension",
+            "tip_description": "A three-quarter angle shows the broad head and muscular neck while still revealing both eyes and the full expression. This angle gives rottweiler portraits a more three-dimensional, powerful quality than a flat straight-on shot."
+          }
+        },
+        "tip-5": {
+          "type": "photo_tip",
+          "settings": {
+            "tip_icon": "🖼️",
+            "tip_title": "Don't crop too tight",
+            "tip_description": "Include the chest and neck in the frame. Rottweilers have a thick, muscular neck that contributes to their presence. A portrait that includes the chest shows the full physicality of the breed, and the chest tan markings add visual interest."
+          }
+        },
+        "tip-6": {
+          "type": "photo_tip",
+          "settings": {
+            "tip_icon": "📱",
+            "tip_title": "Phone photos work perfectly",
+            "tip_description": "You don't need a professional camera. Some of our best rottweiler portraits have come from casual phone shots in good natural light. As long as the face and tan markings are clearly visible, the photo will work."
+          }
+        },
+        "gift-1": {
+          "type": "gift_angle",
+          "settings": {
+            "gift_icon": "🛡️",
+            "gift_title": "Honoring the family protector",
+            "gift_description": "<p>Rottweilers take their guardian role seriously. A <a href=\"/products/personalized-pet-portrait\" title=\"Framed Pet Portrait\">custom portrait</a> displayed prominently in the home is a fitting tribute to the dog who watches over the family. Pair it with a <a href=\"/collections/personalized-pet-products-gifts\" title=\"Personalized Pet Products & Gifts\">matching mug or pocket tee</a> for a complete set.</p>"
+          }
+        },
+        "gift-2": {
+          "type": "gift_angle",
+          "settings": {
+            "gift_icon": "🕊️",
+            "gift_title": "Memorial and remembrance",
+            "gift_description": "<p>Losing a rottweiler means losing a protector, a companion, and a constant presence. A custom portrait captures the strength and loyalty that defined them. Our <a href=\"/pages/black-and-white-pet-portrait\" title=\"Custom Black & White Pet Portraits From Your Photo\">Black & White</a> and <a href=\"/pages/ink-wash-pet-portrait\" title=\"Ink Wash Pet Portraits From Your Photo\">Ink Wash</a> styles are especially popular for <a href=\"/pages/pet-memorial-portrait\" title=\"Pet Memorial Portraits\">rottweiler memorial portraits</a>.</p>"
+          }
+        },
+        "gift-3": {
+          "type": "gift_angle",
+          "settings": {
+            "gift_icon": "💕",
+            "gift_title": "Showing the real rottie",
+            "gift_description": "<p>A beautiful <a href=\"/pages/color-pet-portrait\" title=\"Custom Color Pet Portraits From Your Photo\">Color Portrait</a> of a rottweiler at their gentlest, soft eyes, relaxed expression, quietly contradicts every stereotype. It's a celebration of who these dogs really are.</p>"
+          }
+        },
+        "gift-4": {
+          "type": "gift_angle",
+          "settings": {
+            "gift_icon": "🎁",
+            "gift_title": "For the rottweiler devotee",
+            "gift_description": "<p>Rottie owners are fiercely loyal to the breed. A custom portrait of their specific dog is the most meaningful gift you can give them. <a href=\"/pages/custom-pet-portrait-styles\">Preview every style free</a> to find the perfect match.</p>"
+          }
+        },
+        "faq-1": {
+          "type": "faq",
+          "settings": {
+            "question": "Can I get a custom portrait of my rottweiler from a phone photo?",
+            "answer": "<p>Yes, phone photos work well. The key for rottweilers is good lighting that clearly shows the facial features and tan markings. Soft natural light produces the best results for dark-coated breeds.</p>"
+          }
+        },
+        "faq-2": {
+          "type": "faq",
+          "settings": {
+            "question": "Which portrait style is best for rottweilers?",
+            "answer": "<p>Black & White is the most popular choice because it dramatizes the contrast between the dark coat and lighter markings, creating a powerful, dignified portrait. Color is ideal for showcasing the warmth of the mahogany markings. <a href=\"/pages/custom-pet-portrait-styles\">Upload your photo and preview all styles free</a>.</p>"
+          }
+        },
+        "faq-3": {
+          "type": "faq",
+          "settings": {
+            "question": "My rottweiler's face is very dark. Will the portrait show their features?",
+            "answer": "<p>Yes. The tan eyebrow markings, cheek markings, and eyes provide natural contrast points that our portrait styles use to bring out the expression. Starting with a well-lit photo where these markings are clearly visible produces the best result.</p>"
+          }
+        },
+        "faq-4": {
+          "type": "faq",
+          "settings": {
+            "question": "How does the free preview work?",
+            "answer": "<p>Upload any photo of your rottweiler and you'll instantly see it transformed into all available art styles. It's completely free, no account or credit card required. If you love the result, pick your style and product and place your order. <a href=\"/pages/custom-pet-portrait-styles\">Try it now</a>.</p>"
+          }
+        },
+        "faq-5": {
+          "type": "faq",
+          "settings": {
+            "question": "Do you do rottweiler memorial portraits?",
+            "answer": "<p>Yes. Memorial portraits are among our most requested orders for rottweilers. Any clear photo will work, even older photos. Black & White and Ink Wash are especially popular for memorial pieces.</p>"
+          }
+        },
+        "faq-6": {
+          "type": "faq",
+          "settings": {
+            "question": "Can I include my rottweiler with another pet in one portrait?",
+            "answer": "<p>Yes. We can combine separate photos into a single portrait, regardless of breed or species. Visit our <a href=\"/pages/multi-pet-portrait\">multi-pet portrait page</a> for details.</p>"
+          }
+        }
+      },
+      "block_order": [
+        "style-bw",
+        "style-color",
+        "style-inkwash",
+        "style-marker",
+        "tip-1",
+        "tip-2",
+        "tip-3",
+        "tip-4",
+        "tip-5",
+        "tip-6",
+        "gift-1",
+        "gift-2",
+        "gift-3",
+        "gift-4",
+        "faq-1",
+        "faq-2",
+        "faq-3",
+        "faq-4",
+        "faq-5",
+        "faq-6"
+      ],
+      "custom_css": [
+        ".button {background-color: #ff5964 !important; /* The background color */ color: #ffffff !important; /* The text color */ border: none; /* Optional: removes border */}"
+      ],
+      "settings": {
+        "accent_color": "#8B4513",
+        "eyebrow_text": "Powerful, Loyal, Custom Art",
+        "heading": "",
+        "subtitle": "Powerful, loyal, and more affectionate than the world knows. Your rottweiler deserves a portrait that captures both the strength and the softness.",
+        "hero_image": "",
+        "hero_image_ratio": "natural",
+        "hero_image_alt": "Custom rottweiler portrait from photo",
+        "show_before_after_badge": false,
+        "cta_text": "See Your Rottie in Every Style for Free",
+        "cta_url": "shopify://pages/custom-image-processing",
+        "secondary_cta_text": "",
+        "secondary_cta_url": "",
+        "preview_banner_heading": "Free Instant Preview",
+        "preview_banner_text": "Upload your photo and preview your rottweiler in every style instantly. Completely free.",
+        "styles_heading": "Which Portrait Style Fits Your Rottweiler?",
+        "styles_subtitle": "Every rottweiler looks powerful in every style. But the black-and-tan contrast and expressive eyes make certain pairings especially striking.",
+        "styles_cta_text": "Preview All Styles Free",
+        "tips_heading": "Photo Tips for Rottweiler Portraits",
+        "gifts_heading": "Rottweiler Gifts: Custom Portraits That Honor the Bond",
+        "gifts_intro": "Rottweiler owners know a truth that the world doesn't always see: behind the powerful exterior is one of the most loyal, affectionate breeds alive. These dogs lean into their owners, follow them from room to room, and give a love that's as strong as they are. A personalized rottweiler portrait captures both the strength and the tenderness.\n\nA few occasions where a custom rottweiler portrait makes the perfect gift:",
+        "gifts_closing": "The best part: you can upload their rottweiler's photo and preview every style before you commit to anything. It's completely free, and you'll know exactly what you're getting before you order.",
+        "gifts_cta_text": "Preview Styles Free",
+        "products_collection": "personalized-pet-products-gifts",
+        "products_heading": "Available Products",
+        "products_subtitle": "Custom rottweiler wall art, framed prints, mugs, and 20+ products featuring your rottweiler portrait.",
+        "products_image_ratio": "square",
+        "products_limit": 10,
+        "faq_heading": "Rottweiler Portrait FAQ",
+        "final_cta_heading": "Ready to See Your Rottweiler as Art?",
+        "final_cta_text": "Upload your favorite photo and preview every style instantly. Completely free, no account needed.",
+        "trust_text": "No account needed · Takes less than 60 seconds · 100% free"
+      }
+    }
+  },
+  "order": [
+    "breed-landing"
+  ]
+}

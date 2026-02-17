@@ -1,0 +1,241 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "sections": {
+    "breed-landing": {
+      "type": "breed-landing",
+      "blocks": {
+        "style-color": {
+          "type": "style_recommendation",
+          "settings": {
+            "style_name": "Color Portrait",
+            "style_tag": "Rich and Refined",
+            "style_description": "Color showcases the beautiful solid tones of poodle coats: the deep apricots, the warm reds, the cool silvers, the rich blacks. Combined with the curly coat texture, Color portraits of poodles have a depth and richness that's hard to beat. The most popular choice for poodles with distinctive coat colors.",
+            "style_image": "",
+            "style_url": "/pages/color-pet-portrait"
+          }
+        },
+        "style-inkwash": {
+          "type": "style_recommendation",
+          "settings": {
+            "style_name": "Ink Wash",
+            "style_tag": "Made for Curls",
+            "style_description": "Ink wash and poodle curls are a match made in portrait heaven. The flowing, painterly brushstrokes mirror the natural movement of a curly coat, creating a portrait that feels like a hand-painted masterpiece. Particularly stunning for white and silver poodles, where the subtle tonal variations come alive in this style.",
+            "style_image": "",
+            "style_url": "/pages/ink-wash-pet-portrait"
+          }
+        },
+        "style-bw": {
+          "type": "style_recommendation",
+          "settings": {
+            "style_name": "Professional Black & White",
+            "style_tag": "Sculpted and Dramatic",
+            "style_description": "Black and white turns a poodle into sculpture. The curly texture becomes a study in light and shadow, and the elegant facial proportions command attention. White poodles in Black & White produce a striking, high-contrast look. Black poodles in this style show incredible detail in every curl. The most sophisticated option for framed prints and poodle memorial portraits.",
+            "style_image": "",
+            "style_url": "/pages/black-and-white-pet-portrait"
+          }
+        },
+        "style-marker": {
+          "type": "style_recommendation",
+          "settings": {
+            "style_name": "Marker",
+            "style_tag": "Unexpected and Delightful",
+            "style_description": "Marker brings out the playful side that poodle owners know well. Behind the elegant exterior is a funny, athletic, slightly mischievous dog. Marker's bold lines and vivid colors capture that hidden personality beautifully. A great choice for owners who know their poodle is more clown than aristocrat.",
+            "style_image": "",
+            "style_url": "/pages/marker-pet-portrait"
+          }
+        },
+        "tip-1": {
+          "type": "photo_tip",
+          "settings": {
+            "tip_icon": "✂️",
+            "tip_title": "Grooming clip matters for the portrait look",
+            "tip_description": "A poodle in a show continental clip produces a dramatically different portrait than one in a puppy cut or a sporting clip. There's no \"right\" cut for portraits, but know that whichever grooming style is in the photo is the one that shows up in the art. Use a photo from a clip you love."
+          }
+        },
+        "tip-2": {
+          "type": "photo_tip",
+          "settings": {
+            "tip_icon": "☀️",
+            "tip_title": "Natural light reveals the curl texture",
+            "tip_description": "Poodle curls catch light in complex ways. Soft, natural light (outdoor shade, window light, overcast days) creates gentle highlights and shadows in the coat that give the portrait depth. Harsh flash or overhead lighting flattens the curls into a uniform mass and loses the texture."
+          }
+        },
+        "tip-3": {
+          "type": "photo_tip",
+          "settings": {
+            "tip_icon": "📷",
+            "tip_title": "Face-forward for the best expression",
+            "tip_description": "Poodles have refined, symmetrical facial features that look best photographed from the front or at a slight angle. The almond-shaped eyes, the long muzzle, the topknot. A straight-on shot captures the intelligent, poised expression that defines the breed."
+          }
+        },
+        "tip-4": {
+          "type": "photo_tip",
+          "settings": {
+            "tip_icon": "💡",
+            "tip_title": "Dark poodles need good lighting",
+            "tip_description": "Black and dark brown poodles can lose facial detail in poor lighting, just like any dark-coated dog. Make sure the eyes and facial features are clearly visible. The curly coat actually helps because the highlights on the curl tops provide natural contrast even on dark dogs."
+          }
+        },
+        "tip-5": {
+          "type": "photo_tip",
+          "settings": {
+            "tip_icon": "🐩",
+            "tip_title": "All sizes photograph the same way",
+            "tip_description": "Standard, miniature, and toy poodles have identical proportions, so the same photo tips apply to all three. Get at their eye level, focus on the face, and use natural light. The only difference is that toy and miniature poodles require getting closer to fill the frame."
+          }
+        },
+        "tip-6": {
+          "type": "photo_tip",
+          "settings": {
+            "tip_icon": "📱",
+            "tip_title": "Phone photos work perfectly",
+            "tip_description": "You don't need a professional camera. Some of our best poodle portraits have come from casual phone shots. As long as your poodle's face is clear and well-lit, the photo will work."
+          }
+        },
+        "gift-1": {
+          "type": "gift_angle",
+          "settings": {
+            "gift_icon": "🎩",
+            "gift_title": "For the sophisticated dog owner",
+            "gift_description": "<p>Poodle owners appreciate quality and aesthetics. A <a href=\"/products/personalized-pet-portrait\" title=\"Framed Pet Portrait\">custom portrait</a> that matches their poodle's elegance makes a gift they'll display prominently and proudly. Pair it with a <a href=\"/collections/personalized-pet-products-gifts\" title=\"Personalized Pet Products & Gifts\">matching mug or pocket tee</a> for a complete set.</p>"
+          }
+        },
+        "gift-2": {
+          "type": "gift_angle",
+          "settings": {
+            "gift_icon": "🕊️",
+            "gift_title": "Memorial and remembrance",
+            "gift_description": "<p>A custom portrait captures the intelligence, the grace, and the personality that made your poodle irreplaceable. Our <a href=\"/pages/ink-wash-pet-portrait\" title=\"Ink Wash Pet Portraits From Your Photo\">Ink Wash</a> and <a href=\"/pages/black-and-white-pet-portrait\" title=\"Custom Black & White Pet Portraits From Your Photo\">Black & White</a> styles are especially popular for <a href=\"/pages/pet-memorial-portrait\" title=\"Pet Memorial Portraits\">poodle memorial portraits</a>.</p>"
+          }
+        },
+        "gift-3": {
+          "type": "gift_angle",
+          "settings": {
+            "gift_icon": "🏆",
+            "gift_title": "Show dog celebrations",
+            "gift_description": "<p>For poodles who compete in conformation, a <a href=\"/pages/color-pet-portrait\" title=\"Custom Color Pet Portraits From Your Photo\">Color Portrait</a> in their show clip is a beautiful way to commemorate a championship, a retirement, or simply the bond between handler and dog.</p>"
+          }
+        },
+        "gift-4": {
+          "type": "gift_angle",
+          "settings": {
+            "gift_icon": "✂️",
+            "gift_title": "Post-grooming portrait",
+            "gift_description": "<p>There's a brief window after a grooming session where every poodle looks absolutely perfect. Capture that moment with a photo and turn it into permanent art before the curls grow out. Have multiple poodles? Visit our <a href=\"/pages/multi-pet-portrait\" title=\"Multi-Pet Portrait\">multi-pet portrait page</a> to combine them in one piece. <a href=\"/pages/custom-pet-portrait-styles\">Preview every style free</a> to find the perfect match.</p>"
+          }
+        },
+        "faq-1": {
+          "type": "faq",
+          "settings": {
+            "question": "Can I get a portrait of any size poodle?",
+            "answer": "<p>Yes. Standard, miniature, and toy poodles all produce beautiful portraits. The proportions are the same across all three sizes, so the portrait approach works identically.</p>"
+          }
+        },
+        "faq-2": {
+          "type": "faq",
+          "settings": {
+            "question": "Which portrait style is best for poodles?",
+            "answer": "<p>Color and Ink Wash are the two most popular styles. Color showcases the coat color beautifully, while Ink Wash complements the curly texture in a way that feels painterly and artistic. <a href=\"/pages/custom-pet-portrait-styles\">Upload your photo and preview all styles free</a> to compare.</p>"
+          }
+        },
+        "faq-3": {
+          "type": "faq",
+          "settings": {
+            "question": "Does my poodle's grooming clip affect the portrait?",
+            "answer": "<p>Yes. The portrait will reflect whatever grooming clip your poodle has in the photo. Use a photo from a grooming style you love, whether that's a show clip, puppy cut, sporting clip, or natural look.</p>"
+          }
+        },
+        "faq-4": {
+          "type": "faq",
+          "settings": {
+            "question": "How does the free preview work?",
+            "answer": "<p>Upload any photo of your poodle and you'll instantly see it transformed into all available art styles. It's completely free, no account or credit card required. If you love the result, pick your style and product and place your order. <a href=\"/pages/custom-pet-portrait-styles\">Try it now</a>.</p>"
+          }
+        },
+        "faq-5": {
+          "type": "faq",
+          "settings": {
+            "question": "I have a black poodle. Will the portrait show the curls?",
+            "answer": "<p>Yes, as long as the source photo has good lighting. Soft natural light creates highlights on the curl tops that give the portrait depth and texture. Avoid dim or harsh lighting that flattens the coat into a solid dark mass.</p>"
+          }
+        },
+        "faq-6": {
+          "type": "faq",
+          "settings": {
+            "question": "What's the difference between a poodle portrait and a doodle portrait?",
+            "answer": "<p>Purebred poodles have tighter, more uniform curls and solid coat colors, while doodles have varied curl patterns and often multi-colored coats. Both produce beautiful portraits, but the aesthetic is different. We have a dedicated <a href=\"/pages/doodle-portrait\">doodle portrait page</a> if your dog is a poodle mix.</p>"
+          }
+        }
+      },
+      "block_order": [
+        "style-color",
+        "style-inkwash",
+        "style-bw",
+        "style-marker",
+        "tip-1",
+        "tip-2",
+        "tip-3",
+        "tip-4",
+        "tip-5",
+        "tip-6",
+        "gift-1",
+        "gift-2",
+        "gift-3",
+        "gift-4",
+        "faq-1",
+        "faq-2",
+        "faq-3",
+        "faq-4",
+        "faq-5",
+        "faq-6"
+      ],
+      "custom_css": [
+        ".button {background-color: #ff5964 !important; /* The background color */ color: #ffffff !important; /* The text color */ border: none; /* Optional: removes border */}"
+      ],
+      "settings": {
+        "accent_color": "#7B68AE",
+        "eyebrow_text": "Elegant, Intelligent, Custom Art",
+        "heading": "",
+        "subtitle": "Elegant, intelligent, and carrying centuries of portrait tradition. Your poodle deserves art that matches their sophistication. Standard, miniature, or toy.",
+        "hero_image": "",
+        "hero_image_ratio": "natural",
+        "hero_image_alt": "Custom poodle portrait from photo",
+        "show_before_after_badge": false,
+        "cta_text": "See Your Poodle in Every Style for Free",
+        "cta_url": "shopify://pages/custom-image-processing",
+        "secondary_cta_text": "",
+        "secondary_cta_url": "",
+        "preview_banner_heading": "Free Instant Preview",
+        "preview_banner_text": "Upload your photo and preview your poodle in every style instantly. Completely free.",
+        "styles_heading": "Which Portrait Style Fits Your Poodle?",
+        "styles_subtitle": "Every poodle looks stunning in every style. But the curly coat texture and elegant proportions make certain pairings especially beautiful.",
+        "styles_cta_text": "Preview All Styles Free",
+        "tips_heading": "Photo Tips for Poodle Portraits",
+        "gifts_heading": "Poodle Gifts: Custom Portraits That Match Their Elegance",
+        "gifts_intro": "Poodle owners appreciate the breed's unique combination of intelligence, elegance, and hidden humor. Behind the sophisticated exterior is a funny, athletic, deeply loyal dog. A personalized poodle portrait captures the grace and personality that make this breed exceptional.\n\nA few occasions where a custom poodle portrait makes the perfect gift:",
+        "gifts_closing": "The best part: you can upload their poodle's photo and preview every style before you commit to anything. It's completely free, and you'll know exactly what you're getting before you order.",
+        "gifts_cta_text": "Preview Styles Free",
+        "products_collection": "personalized-pet-products-gifts",
+        "products_heading": "Available Products",
+        "products_subtitle": "Custom poodle wall art, framed prints, mugs, and 20+ products featuring your poodle portrait.",
+        "products_image_ratio": "square",
+        "products_limit": 10,
+        "faq_heading": "Poodle Portrait FAQ",
+        "final_cta_heading": "Ready to See Your Poodle as Art?",
+        "final_cta_text": "Upload your favorite photo and preview every style instantly. Completely free, no account needed.",
+        "trust_text": "No account needed · Takes less than 60 seconds · 100% free"
+      }
+    }
+  },
+  "order": [
+    "breed-landing"
+  ]
+}

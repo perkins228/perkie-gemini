@@ -1,0 +1,241 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "sections": {
+    "breed-landing": {
+      "type": "breed-landing",
+      "blocks": {
+        "style-bw": {
+          "type": "style_recommendation",
+          "settings": {
+            "style_name": "Professional Black & White",
+            "style_tag": "Raw and Real",
+            "style_description": "Black and white strips a pitbull portrait down to what matters most: the face. The broad structure, the deep-set eyes, the powerful jaw softened by that gentle expression. This style captures the duality that defines the breed. It's strong and tender at the same time. The most popular choice for pitbull memorial portraits and for owners who want something that commands respect.",
+            "style_image": "",
+            "style_url": "/pages/black-and-white-pet-portrait"
+          }
+        },
+        "style-color": {
+          "type": "style_recommendation",
+          "settings": {
+            "style_name": "Color Portrait",
+            "style_tag": "Every Detail Visible",
+            "style_description": "Color preserves the beautiful coat variations that pitbulls come in: blue, red, fawn, brindle, and beyond. It also captures the eye color, which is often a standout feature in pitbulls with lighter coats. If your pittie has a distinctive marking pattern or unusual coloring, Color is the way to showcase it.",
+            "style_image": "",
+            "style_url": "/pages/color-pet-portrait"
+          }
+        },
+        "style-inkwash": {
+          "type": "style_recommendation",
+          "settings": {
+            "style_name": "Ink Wash",
+            "style_tag": "The Gentle Side",
+            "style_description": "Ink wash brings out the softness that every pitbull owner knows is the truth of the breed. The flowing brushstrokes soften the hard edges without losing the character. This style captures the pittie that curls up in your lap, not the one the stereotypes describe. A beautiful choice for memorial portraits.",
+            "style_image": "",
+            "style_url": "/pages/ink-wash-pet-portrait"
+          }
+        },
+        "style-marker": {
+          "type": "style_recommendation",
+          "settings": {
+            "style_name": "Marker",
+            "style_tag": "Bold and Unapologetic",
+            "style_description": "Pitbulls don't apologize for who they are, and Marker doesn't either. Bold lines and vivid colors match the breed's confident, unapologetic energy. This style celebrates the strength and personality that make pitbulls unforgettable. Especially striking for brindle pitbulls where the pattern pops.",
+            "style_image": "",
+            "style_url": "/pages/marker-pet-portrait"
+          }
+        },
+        "tip-1": {
+          "type": "photo_tip",
+          "settings": {
+            "tip_icon": "💕",
+            "tip_title": "Capture the soft expression",
+            "tip_description": "Pitbulls have an incredible range of expressions, from goofy grin to soulful stare. The most powerful portraits come from the softer moments: the gentle eyes, the relaxed face, the look they give you when they're content. This is the side of the breed that portraits capture best and that viewers connect with most."
+          }
+        },
+        "tip-2": {
+          "type": "photo_tip",
+          "settings": {
+            "tip_icon": "🐕",
+            "tip_title": "The head tilt is portrait gold",
+            "tip_description": "If your pitbull does the head tilt, get that photo. A tilted head with those wide, curious eyes produces a portrait that is impossible not to love. It's the single most engaging expression for this breed."
+          }
+        },
+        "tip-3": {
+          "type": "photo_tip",
+          "settings": {
+            "tip_icon": "☀️",
+            "tip_title": "Good lighting matters for every coat color",
+            "tip_description": "Blue pitbulls can look washed out in dim light. Black pitbulls lose facial detail in shadows. White pitbulls can blow out in bright sun. The universal solution is soft, natural light: cloudy days, shaded areas, or near a window. This works for every coat color and ensures the facial features are clearly visible."
+          }
+        },
+        "tip-4": {
+          "type": "photo_tip",
+          "settings": {
+            "tip_icon": "📷",
+            "tip_title": "Straight-on or slight angle shows the face best",
+            "tip_description": "The broad, symmetrical face of a pitbull looks most impactful when photographed from the front or at a slight three-quarter turn. Extreme side profiles lose the width of the face that makes the breed so distinctive."
+          }
+        },
+        "tip-5": {
+          "type": "photo_tip",
+          "settings": {
+            "tip_icon": "🧘",
+            "tip_title": "Relax them first",
+            "tip_description": "Pitbulls are sensitive to their owner's energy. If you're hovering with a camera trying to get the perfect shot, they'll look tense and uncertain. Let them settle into a comfortable spot, then casually take photos when they're relaxed. The best pittie portraits come from candid, calm moments."
+          }
+        },
+        "tip-6": {
+          "type": "photo_tip",
+          "settings": {
+            "tip_icon": "📱",
+            "tip_title": "Phone photos work perfectly",
+            "tip_description": "You don't need a professional camera. Some of our best pitbull portraits have come from casual phone shots. As long as your pittie's face is clear and well-lit, the photo will work."
+          }
+        },
+        "gift-1": {
+          "type": "gift_angle",
+          "settings": {
+            "gift_icon": "💪",
+            "gift_title": "Celebrating the breed you love",
+            "gift_description": "<p>Pitbull owners are the most devoted breed advocates out there. A <a href=\"/products/personalized-pet-portrait\" title=\"Framed Pet Portrait\">custom portrait</a> is a celebration of the dog they love and the breed they champion. It's a statement piece that says \"this is my dog, and they're incredible.\" Pair it with a <a href=\"/collections/personalized-pet-products-gifts\" title=\"Personalized Pet Products & Gifts\">matching mug or pocket tee</a> for a complete set.</p>"
+          }
+        },
+        "gift-2": {
+          "type": "gift_angle",
+          "settings": {
+            "gift_icon": "🕊️",
+            "gift_title": "Memorial and remembrance",
+            "gift_description": "<p>Losing a pitbull means losing a protector, a cuddler, and a best friend all at once. A custom portrait captures the softness and loyalty that defined every day with them. Our <a href=\"/pages/black-and-white-pet-portrait\" title=\"Custom Black & White Pet Portraits From Your Photo\">Black & White</a> and <a href=\"/pages/ink-wash-pet-portrait\" title=\"Ink Wash Pet Portraits From Your Photo\">Ink Wash</a> styles are especially popular for <a href=\"/pages/pet-memorial-portrait\" title=\"Pet Memorial Portraits\">pitbull memorial portraits</a>.</p>"
+          }
+        },
+        "gift-3": {
+          "type": "gift_angle",
+          "settings": {
+            "gift_icon": "🏡",
+            "gift_title": "Adoption day tributes",
+            "gift_description": "<p>Many pitbulls come from rescue backgrounds. A <a href=\"/pages/color-pet-portrait\" title=\"Custom Color Pet Portraits From Your Photo\">Color Portrait</a> marking the day they found their forever home is deeply meaningful for both the dog and the owner.</p>"
+          }
+        },
+        "gift-4": {
+          "type": "gift_angle",
+          "settings": {
+            "gift_icon": "❤️",
+            "gift_title": "Changing perceptions",
+            "gift_description": "<p>A beautiful, professional portrait of a pitbull displayed in a home quietly challenges every stereotype about the breed. It's advocacy through art. <a href=\"/pages/custom-pet-portrait-styles\">Preview every style free</a> to find the perfect match.</p>"
+          }
+        },
+        "faq-1": {
+          "type": "faq",
+          "settings": {
+            "question": "Can I get a custom portrait of my pitbull from a phone photo?",
+            "answer": "<p>Yes, phone photos work great. Make sure your pittie's face is clearly visible and the lighting shows their facial features well. A relaxed, natural expression produces the best portrait.</p>"
+          }
+        },
+        "faq-2": {
+          "type": "faq",
+          "settings": {
+            "question": "Which portrait style is best for pitbulls?",
+            "answer": "<p>Black & White is the most popular choice because it highlights the breed's powerful facial structure and expressive eyes. Color is ideal for showcasing unusual coat colors like blue, brindle, or red. <a href=\"/pages/custom-pet-portrait-styles\">Upload your photo and preview all styles free</a> to compare.</p>"
+          }
+        },
+        "faq-3": {
+          "type": "faq",
+          "settings": {
+            "question": "Do you do portraits for all pitbull-type breeds?",
+            "answer": "<p>Yes. American Pit Bull Terriers, American Staffordshire Terriers, Staffordshire Bull Terriers, American Bullies, and any mix with pitbull features. If your dog has that unmistakable pittie face, this is for you.</p>"
+          }
+        },
+        "faq-4": {
+          "type": "faq",
+          "settings": {
+            "question": "How does the free preview work?",
+            "answer": "<p>Upload any photo of your pitbull and you'll instantly see it transformed into all available art styles. It's completely free, no account or credit card required. If you love the result, pick your style and product and place your order. <a href=\"/pages/custom-pet-portrait-styles\">Try it now</a>.</p>"
+          }
+        },
+        "faq-5": {
+          "type": "faq",
+          "settings": {
+            "question": "My pitbull is a rescue and I don't have many good photos. Will a lower quality photo still work?",
+            "answer": "<p>As long as the face is visible and reasonably clear, we can work with it. Phone photos in natural light are ideal. Even older or slightly imperfect photos can produce beautiful portraits. Upload what you have and preview the result for free.</p>"
+          }
+        },
+        "faq-6": {
+          "type": "faq",
+          "settings": {
+            "question": "Can I include my pitbull with my other dog in one portrait?",
+            "answer": "<p>Yes. We can combine separate photos of different dogs into a single portrait, regardless of breed. Visit our <a href=\"/pages/multi-pet-portrait\">multi-pet portrait page</a> for details.</p>"
+          }
+        }
+      },
+      "block_order": [
+        "style-bw",
+        "style-color",
+        "style-inkwash",
+        "style-marker",
+        "tip-1",
+        "tip-2",
+        "tip-3",
+        "tip-4",
+        "tip-5",
+        "tip-6",
+        "gift-1",
+        "gift-2",
+        "gift-3",
+        "gift-4",
+        "faq-1",
+        "faq-2",
+        "faq-3",
+        "faq-4",
+        "faq-5",
+        "faq-6"
+      ],
+      "custom_css": [
+        ".button {background-color: #ff5964 !important; /* The background color */ color: #ffffff !important; /* The text color */ border: none; /* Optional: removes border */}"
+      ],
+      "settings": {
+        "accent_color": "#4A7C59",
+        "eyebrow_text": "Strength, Softness, Custom Art",
+        "heading": "",
+        "subtitle": "That wide, open face. Those eyes that melt everyone who looks. Your pitbull deserves a portrait that shows the world what you already know: they're the biggest softie you'll ever meet.",
+        "hero_image": "",
+        "hero_image_ratio": "natural",
+        "hero_image_alt": "Custom pitbull portrait from photo",
+        "show_before_after_badge": false,
+        "cta_text": "See Your Pittie in Every Style for Free",
+        "cta_url": "shopify://pages/custom-image-processing",
+        "secondary_cta_text": "",
+        "secondary_cta_url": "",
+        "preview_banner_heading": "Free Instant Preview",
+        "preview_banner_text": "Upload your photo and preview your pitbull in every style instantly. Completely free.",
+        "styles_heading": "Which Portrait Style Fits Your Pitbull?",
+        "styles_subtitle": "Every pitbull looks incredible in every style. But the expressive face and clean coat make certain pairings especially powerful.",
+        "styles_cta_text": "Preview All Styles Free",
+        "tips_heading": "Photo Tips for Pitbull Portraits",
+        "gifts_heading": "Pitbull Gifts: Custom Portraits That Show the Real Pittie",
+        "gifts_intro": "Pitbull owners don't just love their dogs. They advocate for them. Every pittie parent knows the truth that the world is still catching up to: these dogs are the biggest, most loyal, most loving softies on the planet. A personalized pitbull portrait captures the side of the breed that their owners see every day.\n\nA few occasions where a custom pitbull portrait makes the perfect gift:",
+        "gifts_closing": "The best part: you can upload their pitbull's photo and preview every style before you commit to anything. It's completely free, and you'll know exactly what you're getting before you order.",
+        "gifts_cta_text": "Preview Styles Free",
+        "products_collection": "personalized-pet-products-gifts",
+        "products_heading": "Available Products",
+        "products_subtitle": "Custom pitbull wall art, framed prints, mugs, and 20+ products featuring your pitbull portrait.",
+        "products_image_ratio": "square",
+        "products_limit": 10,
+        "faq_heading": "Pitbull Portrait FAQ",
+        "final_cta_heading": "Ready to See Your Pitbull as Art?",
+        "final_cta_text": "Upload your favorite photo and preview every style instantly. Completely free, no account needed.",
+        "trust_text": "No account needed · Takes less than 60 seconds · 100% free"
+      }
+    }
+  },
+  "order": [
+    "breed-landing"
+  ]
+}
