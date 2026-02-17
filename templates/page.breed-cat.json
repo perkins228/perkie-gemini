@@ -18,7 +18,7 @@
             "style_name": "Color Portrait",
             "style_tag": "Every Whisker, Every Pattern",
             "style_description": "Color captures the full range of your cat's coat, from the warm ginger of a tabby to the cool points of a Siamese to the complex silver patterns of a Maine Coon. This is also the style that does the most justice to cat eyes, preserving the vivid greens, golds, and blues that make them so mesmerizing. The most popular choice for cat portraits by a wide margin.",
-            "style_image": "",
+            "style_image": "shopify://shop_images/cat_color.png",
             "style_url": "/pages/color-pet-portrait"
           }
         },
@@ -28,7 +28,7 @@
             "style_name": "Professional Black & White",
             "style_tag": "Feline Intensity",
             "style_description": "Cats have a natural intensity that Black & White amplifies. The sharp facial geometry, the whiskers, the piercing gaze. Without color, these elements become the entire portrait. Especially dramatic for tuxedo cats and black cats, where the monochrome style plays with their natural coloring. The top choice for cat memorial portraits, where the classic, dignified feel creates a lasting tribute.",
-            "style_image": "",
+            "style_image": "shopify://shop_images/cat_bw.png",
             "style_url": "/pages/black-and-white-pet-portrait"
           }
         },
@@ -38,7 +38,7 @@
             "style_name": "Ink Wash",
             "style_tag": "Graceful and Flowing",
             "style_description": "Ink wash captures the fluid, graceful quality that cats embody. The soft brushstrokes are particularly beautiful for long-haired breeds like Maine Coons and Persians, where the flowing fur translates naturally into the flowing paint style. Creates an artistic, almost dreamy quality that matches a cat's mysterious personality.",
-            "style_image": "",
+            "style_image": "shopify://shop_images/cat_ink.png",
             "style_url": "/pages/ink-wash-pet-portrait"
           }
         },
@@ -48,7 +48,7 @@
             "style_name": "Marker",
             "style_tag": "Bold Cat Energy",
             "style_description": "Marker brings out the playful, mischievous side of cats. Bold lines and vivid colors create a portrait that feels alive with personality. Works especially well for kittens, orange tabbies, and any cat whose personality is more \"chaos agent\" than \"refined dignitary.\" A fun, modern take on the classic cat portrait.",
-            "style_image": "",
+            "style_image": "shopify://shop_images/cat_marker_3e37cb6a-2039-4bce-87f9-4964c647f1b5.png",
             "style_url": "/pages/marker-pet-portrait"
           }
         },
@@ -105,7 +105,7 @@
           "settings": {
             "gift_icon": "🎁",
             "gift_title": "For the cat person in your life",
-            "gift_description": "<p>Cat people are particular. Generic gifts don't cut it. A <a href=\"/products/personalized-pet-portrait\" title=\"Framed Pet Portrait\">custom framed portrait</a> of their actual cat, in an art style that captures who that cat really is, shows you understand what their cat means to them. Pair it with a <a href=\"/collections/personalized-pet-products-gifts\" title=\"Personalized Pet Products & Gifts\">matching mug or phone case</a> for a complete cat lover gift set.</p>"
+            "gift_description": "<p>Cat people are particular. Generic gifts don't cut it. A <a href=\"/products/personalized-pet-portrait\" title=\"Framed Pet Portrait\">custom framed portrait</a> of their actual cat, in an art style that captures who that cat really is, shows you understand what their cat means to them. Pair it with a matching <a href=\"/products/personalized-pet-coffee-mug\" title=\"Coffee Mug\">mug</a> or <a href=\"/products/personalized-pet-throw-pillow-cover\" title=\"Throw Pillow Cover\">pillow case</a> for a complete cat lover gift set.</p>"
           }
         },
         "gift-2": {
@@ -202,11 +202,11 @@
         "h1 {text-align: center;}"
       ],
       "settings": {
-        "accent_color": "#6A5ACD",
+        "accent_color": "#6a5acd",
         "eyebrow_text": "Elegant, Independent, Yours",
         "heading": "",
         "subtitle": "Independent, elegant, and completely in charge. Your cat deserves a portrait that captures their personality, their mystery, and those unforgettable eyes.",
-        "hero_image": "",
+        "hero_image": "shopify://shop_images/cat_beforeafter_4339c70d-723a-4b99-99e7-73ddf2e9e052.png",
         "hero_image_ratio": "natural",
         "hero_image_alt": "Custom cat portrait from photo",
         "show_before_after_badge": false,
