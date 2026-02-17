@@ -1003,41 +1003,41 @@
     display: none;
   }
   
-  /* RESULT STATE: Two-column grid layout when has-result class is present.
-     CSS Grid (not Flexbox) is required because Safari inflates flex container
-     height when a flex child has position:sticky + max-height. Grid's
-     align-items:start correctly sizes rows from content, not max-height. */
+  /* RESULT STATE: Two-column grid layout.
+     Multi-layered Safari fix: align-items + align-self + fit-content +
+     no max-height on sticky descendant. Safari inflates grid rows from
+     max-height on sticky children/descendants; removing it + constraining
+     grid items prevents the left column from stretching. */
   .pet-processor-container.has-result .processor-columns {
     display: grid;
     grid-template-columns: 380px 1fr;
     gap: var(--desktop-gap);
     align-items: start;
-    /* Shared background for unified block appearance */
     background: rgba(var(--color-foreground), 0.02);
     border: 1px solid rgba(var(--color-foreground), 0.08);
     border-radius: 16px;
     padding: 1rem;
   }
 
-  /* LEFT column: Controls */
+  /* LEFT column: Controls — triple-constrained for Safari */
   .pet-processor-container.has-result .processor-controls {
-    min-width: 0; /* Prevent grid blowout */
+    min-width: 0;
+    align-self: start;
+    height: fit-content;
   }
 
-  /* RIGHT column: Preview (grid cell only — NO sticky/max-height here).
-     Sticky behavior is on __inner to decouple from grid row sizing.
-     Safari inflates grid row height when a direct grid child has
-     position:sticky + max-height. The wrapper pattern prevents this. */
+  /* RIGHT column: Preview grid cell (no sticky/max-height here) */
   .pet-processor-container.has-result .processor-preview {
-    min-width: 0; /* Prevent grid blowout */
+    min-width: 0;
+    align-self: start;
   }
 
-  /* Inner wrapper carries sticky + scroll behavior, isolated from grid */
+  /* Inner wrapper: sticky only, NO max-height (image already constrained
+     to 400-500px by .pet-image-container/.pet-image rules). Removing
+     max-height eliminates the signal Safari uses to inflate grid rows. */
   .pet-processor-container.has-result .processor-preview__inner {
     position: sticky;
     top: 20px;
-    max-height: calc(100vh - 40px);
-    overflow-y: auto;
   }
 
   /* Keep original section header visible and centered on desktop */
@@ -1073,6 +1073,7 @@
     gap: 0.75rem; /* Reduced from 1rem for tighter layout */
     width: 100%; /* Fill available width */
     margin: 0;
+    align-items: start; /* Prevent cards from stretching within cells */
   }
 
   /* Style cards - comfortable size for left column, centered */
@@ -1430,6 +1431,13 @@
   box-shadow: 0 0 0 2px rgba(255, 89, 100, 0.3);
 }
 
+/* Override .effect-btn.active pink background on style cards (specificity 0,4,0).
+   Active indicator is the border+shadow above; the tint background from
+   .effect-btn.active (0,2,0) causes visible stretching in Safari. */
+.effect-grid .effect-btn.style-card.active {
+  background: none;
+}
+
 /* Gray-out non-selected styles */
 .style-card:not(.active) .style-card__image {
   opacity: 0.5;
@@ -1558,32 +1566,5 @@
   outline-offset: 2px;
 }
 
-/* ==========================================================================
-   TEMPORARY DIAGNOSTIC — Safari layout debugging (v3.1)
-   Remove after confirming fix is received by customer.
-   If you can see colored borders, CSS v3.1 (wrapper fix) is active.
-   RED = .processor-columns (grid container)
-   BLUE = .processor-controls (left column)
-   GREEN = .processor-preview (grid cell, should be short)
-   MAGENTA = .processor-preview__inner (sticky inner wrapper)
-   ORANGE DASHED = .has-result wrapper
-   ========================================================================== */
-@media (min-width: 1024px) and (hover: hover) {
-  .pet-processor-container.has-result .processor-columns {
-    outline: 3px solid red !important;
-  }
-  .pet-processor-container.has-result .processor-controls {
-    outline: 3px solid blue !important;
-  }
-  .pet-processor-container.has-result .processor-preview {
-    outline: 3px solid green !important;
-  }
-  .pet-processor-container.has-result .processor-preview__inner {
-    outline: 3px solid magenta !important;
-  }
-  .pet-processor-container.has-result {
-    outline: 3px dashed orange !important;
-  }
-}
 
 
