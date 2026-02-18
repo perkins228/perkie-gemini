@@ -1029,8 +1029,10 @@
     width: 380px;
   }
 
-  /* RIGHT column: offset past float + gap, natural block flow */
+  /* RIGHT column: offset past float + gap, natural block flow.
+     width: auto overrides base width: 100% so margin-left shrinks the block. */
   .pet-processor-container.has-result .processor-preview {
+    width: auto;
     margin-left: calc(380px + var(--desktop-gap));
   }
 
