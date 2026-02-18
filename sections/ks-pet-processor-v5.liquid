@@ -4,12 +4,12 @@
 {%- endcomment -%}
 
 {%- comment -%}
-  Async CSS loading for LCP optimization (cache busting v3.3)
+  Async CSS loading for LCP optimization (cache busting v3.4)
   Uses media="print" + onload pattern with noscript fallback for JS-disabled browsers
-  v3.3: Float layout replaces CSS Grid — Safari grid row inflation immune
+  v3.4: Inner card grid switched from CSS Grid to Flexbox wrap — eliminates Safari grid row inflation
 {%- endcomment -%}
-<link rel="stylesheet" href="{{ 'pet-processor-v5.css' | asset_url }}?v=3.3" media="print" onload="this.media='all'">
-<link rel="stylesheet" href="{{ 'pet-processor-mobile.css' | asset_url }}?v=3.3" media="print" onload="this.media='all'">
+<link rel="stylesheet" href="{{ 'pet-processor-v5.css' | asset_url }}?v=3.4" media="print" onload="this.media='all'">
+<link rel="stylesheet" href="{{ 'pet-processor-mobile.css' | asset_url }}?v=3.4" media="print" onload="this.media='all'">
 {%- comment -%} DISABLED: Comparison feature not in current customer journey {%- endcomment -%}
 {%- comment -%} {{ 'effect-comparison.css' | asset_url | stylesheet_tag }} {%- endcomment -%}
 <link rel="stylesheet" href="{{ 'crop-processor.css' | asset_url }}" media="print" onload="this.media='all'">
