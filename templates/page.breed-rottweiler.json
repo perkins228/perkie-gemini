@@ -18,7 +18,7 @@
             "style_name": "Professional Black & White",
             "style_tag": "Commanding Presence",
             "style_description": "Black and white is the definitive rottweiler portrait style. The dark coat becomes a dramatic backdrop, the tan markings translate into lighter tones that highlight the eyes and expression, and the overall effect is a portrait that feels powerful and dignified. This style captures the authority of the breed in its purest form. The most popular choice for rottweiler memorial portraits.",
-            "style_image": "",
+            "style_image": "shopify://shop_images/rottweiler_bw.png",
             "style_url": "/pages/black-and-white-pet-portrait"
           }
         },
@@ -28,18 +28,8 @@
             "style_name": "Color Portrait",
             "style_tag": "The Full Rottie",
             "style_description": "Color preserves the warm mahogany and rust markings that give rottweilers their distinctive look. The contrast between the rich black coat and the warm tan accents creates a portrait with natural visual drama. The best choice for showcasing the specific shade and placement of your rottie's markings.",
-            "style_image": "",
+            "style_image": "shopify://shop_images/rottweiler_color_43e7add1-2f4b-4a48-9ce6-4fff68c966b8.png",
             "style_url": "/pages/color-pet-portrait"
-          }
-        },
-        "style-inkwash": {
-          "type": "style_recommendation",
-          "settings": {
-            "style_name": "Ink Wash",
-            "style_tag": "The Gentle Giant",
-            "style_description": "Ink wash brings out the softer side of rottweilers. The flowing brushstrokes create a portrait that feels warm and approachable, capturing the gentle companion that rottie owners know and love. Beautiful for memorial portraits and for owners who want art that shows their dog's true nature.",
-            "style_image": "",
-            "style_url": "/pages/ink-wash-pet-portrait"
           }
         },
         "style-marker": {
@@ -48,8 +38,18 @@
             "style_name": "Marker",
             "style_tag": "Bold and Proud",
             "style_description": "Marker matches the rottweiler's confident energy with bold lines and saturated color. The tan markings pop vibrantly against the dark coat, creating a portrait that feels dynamic and alive. A great choice for younger rotties and for owners who want something with visual impact.",
-            "style_image": "",
+            "style_image": "shopify://shop_images/rottweiler_marker_f6238ae4-33f6-4ff3-bd64-d8719ccabf46.png",
             "style_url": "/pages/marker-pet-portrait"
+          }
+        },
+        "style-inkwash": {
+          "type": "style_recommendation",
+          "settings": {
+            "style_name": "Ink Wash",
+            "style_tag": "The Gentle Giant",
+            "style_description": "Ink wash brings out the softer side of rottweilers. The flowing brushstroke style creates a portrait that feels warm and approachable, capturing the gentle companion that rottie owners know and love. Beautiful for memorial portraits and for owners who want art that shows their dog's true nature.",
+            "style_image": "shopify://shop_images/rottweiler_inkwash_d1b32355-5619-4008-b0b2-4229d36fa57e.png",
+            "style_url": "/pages/ink-wash-pet-portrait"
           }
         },
         "tip-1": {
@@ -178,8 +178,8 @@
       "block_order": [
         "style-bw",
         "style-color",
-        "style-inkwash",
         "style-marker",
+        "style-inkwash",
         "tip-1",
         "tip-2",
         "tip-3",
@@ -201,11 +201,11 @@
         ".button {background-color: #ff5964 !important; /* The background color */ color: #ffffff !important; /* The text color */ border: none; /* Optional: removes border */}"
       ],
       "settings": {
-        "accent_color": "#8B4513",
+        "accent_color": "#8b4513",
         "eyebrow_text": "Powerful, Loyal, Custom Art",
         "heading": "",
         "subtitle": "Powerful, loyal, and more affectionate than the world knows. Your rottweiler deserves a portrait that captures both the strength and the softness.",
-        "hero_image": "",
+        "hero_image": "shopify://shop_images/rottweiler_beforeafter.png",
         "hero_image_ratio": "natural",
         "hero_image_alt": "Custom rottweiler portrait from photo",
         "show_before_after_badge": false,
