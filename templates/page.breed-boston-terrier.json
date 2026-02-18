@@ -18,7 +18,7 @@
             "style_name": "Professional Black & White",
             "style_tag": "The Natural Tuxedo",
             "style_description": "Boston terriers are already dressed in black and white. A Black & White portrait takes what nature started and elevates it into fine art. The high-contrast markings become even more dramatic, the round eyes become the undeniable focal point, and the result is graphic, elegant, and striking. This is the style that feels like it was invented for Boston terriers, and the top choice for Boston terrier memorial portraits.",
-            "style_image": "",
+            "style_image": "shopify://shop_images/boston_bw.png",
             "style_url": "/pages/black-and-white-pet-portrait"
           }
         },
@@ -28,7 +28,7 @@
             "style_name": "Color Portrait",
             "style_tag": "Beyond the Tuxedo",
             "style_description": "Color reveals what black and white hides: the warm brown undertones of a seal coat, the subtle brindle pattern, the pink of the tongue, the depth in those dark eyes. Color portraits feel warmer and more lifelike, and they're the best choice for brindle Bostons where the tiger-stripe pattern deserves to be seen.",
-            "style_image": "",
+            "style_image": "shopify://shop_images/boston_color.png",
             "style_url": "/pages/color-pet-portrait"
           }
         },
@@ -38,7 +38,7 @@
             "style_name": "Marker",
             "style_tag": "Gentleman Goes Bold",
             "style_description": "Marker takes the Boston terrier's graphic quality and amplifies it. The bold lines and vivid colors turn the tuxedo markings into a pop-art statement piece. This style captures the playful, goofy side of the breed that the \"gentleman\" nickname understates. Fun, eye-catching, and full of personality.",
-            "style_image": "",
+            "style_image": "shopify://shop_images/boston_marker_863f0be2-6abd-4313-8382-8b5a4a8dbd4c.png",
             "style_url": "/pages/marker-pet-portrait"
           }
         },
@@ -47,8 +47,8 @@
           "settings": {
             "style_name": "Ink Wash",
             "style_tag": "Softly Dapper",
-            "style_description": "Ink wash gives the Boston terrier's sharp markings a softer, more artistic treatment. The flowing brushstrokes blend the hard edges between dark and light into something gentler and more painterly. A beautiful choice for senior Bostons and memorial portraits where warmth matters more than graphic impact.",
-            "style_image": "",
+            "style_description": "Ink wash gives the Boston terrier's sharp markings a softer, more artistic treatment. The flowing brushstroke style blends the hard edges between dark and light into something gentler and more painterly. A beautiful choice for senior Bostons and memorial portraits where warmth matters more than graphic impact.",
+            "style_image": "shopify://shop_images/boston_inkwash_7924b8bb-4ce1-4e65-926f-4bf902eaddd6.png",
             "style_url": "/pages/ink-wash-pet-portrait"
           }
         },
@@ -201,11 +201,11 @@
         ".button {background-color: #ff5964 !important; /* The background color */ color: #ffffff !important; /* The text color */ border: none; /* Optional: removes border */}"
       ],
       "settings": {
-        "accent_color": "#1C1C2E",
+        "accent_color": "#1c1c2e",
         "eyebrow_text": "The American Gentleman, Custom Art",
         "heading": "",
         "subtitle": "The tuxedo coat. The big, round eyes. Gentleman meets goofball. Your Boston terrier deserves a portrait as sharp as their natural tuxedo.",
-        "hero_image": "",
+        "hero_image": "shopify://shop_images/boston_beforeafter.png",
         "hero_image_ratio": "natural",
         "hero_image_alt": "Custom Boston terrier portrait from photo",
         "show_before_after_badge": false,
