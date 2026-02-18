@@ -18,7 +18,7 @@
             "style_name": "Professional Black & White",
             "style_tag": "The Eyes Have It",
             "style_description": "This is the definitive husky portrait style. Black and white transforms the facial mask, the coat contrast, and those legendary eyes into something that looks like fine art. The graphic quality of a husky's markings becomes even more dramatic without color. If your husky has blue eyes, the intensity comes through even in monochrome. The most requested style for this breed by a wide margin, and the top choice for husky memorial portraits.",
-            "style_image": "",
+            "style_image": "shopify://shop_images/husky_bw.png",
             "style_url": "/pages/black-and-white-pet-portrait"
           }
         },
@@ -28,7 +28,7 @@
             "style_name": "Color Portrait",
             "style_tag": "Ice Blue and Beyond",
             "style_description": "Color is essential if you want the full impact of your husky's eye color. Blue, amber, bi-colored. Color preserves what makes husky eyes legendary. It also captures the red, agouti, and gray coat variations that distinguish individual huskies. The best choice when the eye color is a defining feature you can't lose.",
-            "style_image": "",
+            "style_image": "shopify://shop_images/husky_color.png",
             "style_url": "/pages/color-pet-portrait"
           }
         },
@@ -37,8 +37,8 @@
           "settings": {
             "style_name": "Ink Wash",
             "style_tag": "Wolf in Watercolor",
-            "style_description": "Ink wash gives husky portraits a wild, untamed quality. The flowing brushstrokes capture the thick coat and wolf-like features in a way that feels elemental and natural. The result looks like a portrait painted during an expedition. Beautiful for huskies whose personality leans more wild than domestic.",
-            "style_image": "",
+            "style_description": "Ink wash gives husky portraits a wild, untamed quality. The flowing brushstroke style captures the thick coat and wolf-like features in a way that feels elemental and natural. The result looks like a portrait painted during an expedition. Beautiful for huskies whose personality leans more wild than domestic.",
+            "style_image": "shopify://shop_images/husky_inkwash_3e2ed0e3-7c26-464a-94ec-3683a01d38dd.png",
             "style_url": "/pages/ink-wash-pet-portrait"
           }
         },
@@ -48,7 +48,7 @@
             "style_name": "Marker",
             "style_tag": "Vivid and Electric",
             "style_description": "Marker amplifies the visual drama that huskies naturally bring. The bold lines make the facial mask pop, and vivid colors make those eyes practically glow. This style captures the intense, electric energy of a breed that was built to run and never stop. Especially striking for red huskies.",
-            "style_image": "",
+            "style_image": "shopify://shop_images/husky_marker_c1396cf9-3abc-4f25-8a2b-ee0cb2bfee87.png",
             "style_url": "/pages/marker-pet-portrait"
           }
         },
@@ -105,7 +105,7 @@
           "settings": {
             "gift_icon": "❄️",
             "gift_title": "For the husky obsessed",
-            "gift_description": "<p>Husky owners are drawn to the breed's wild beauty. A <a href=\"/products/personalized-pet-portrait\" title=\"Framed Pet Portrait\">custom portrait</a> that captures those striking eyes and wolf-like features is the centerpiece piece of art they've been looking for. Pair it with a <a href=\"/collections/personalized-pet-products-gifts\" title=\"Personalized Pet Products & Gifts\">matching mug or pocket tee</a> for a complete set.</p>"
+            "gift_description": "<p>Husky owners are drawn to the breed's wild beauty. A <a href=\"/products/personalized-pet-portrait\" title=\"Framed Pet Portrait\">custom portrait</a> that captures those striking eyes and wolf-like features is the centerpiece piece of art they've been looking for. Pair it with a matching <a href=\"/products/sweatshirt\" title=\"Sweatshirt\">sweatshirt</a> or <a href=\"/products/personalized-pet-canvas-tote-bag\" title=\"Canvas Tote Bag\">tote bag</a> for a complete set.</p>"
           }
         },
         "gift-2": {
@@ -129,7 +129,7 @@
           "settings": {
             "gift_icon": "🏔️",
             "gift_title": "Adventure dog tributes",
-            "gift_description": "<p>For huskies who hike, mush, or explore alongside their owners, a custom portrait marks the partnership and the adventures shared. <a href=\"/pages/custom-pet-portrait-styles\">Preview every style free</a> to find the perfect match.</p>"
+            "gift_description": "<p>For huskies who hike, mush, or explore alongside their owners, a custom portrait marks the partnership and the adventures shared. <a href=\"/pages/custom-pet-portrait-styles\" title=\"Custom Pet Portraits From Your Photo: 4 Art Styles, All Free to Preview\">Preview every style free</a> to find the perfect match.</p>"
           }
         },
         "faq-1": {
@@ -201,11 +201,11 @@
         ".button {background-color: #ff5964 !important; /* The background color */ color: #ffffff !important; /* The text color */ border: none; /* Optional: removes border */}"
       ],
       "settings": {
-        "accent_color": "#4682B4",
+        "accent_color": "#4682b4",
         "eyebrow_text": "Wild Beauty, Custom Art",
         "heading": "",
         "subtitle": "Those piercing eyes. That wolf-like face. Your husky is one of the most visually stunning breeds alive, and they deserve a portrait that proves it.",
-        "hero_image": "",
+        "hero_image": "shopify://shop_images/husky_beforeafter.png",
         "hero_image_ratio": "natural",
         "hero_image_alt": "Custom husky portrait from photo",
         "show_before_after_badge": false,
