@@ -36,14 +36,6 @@
             "tip_description": "You might think a photo with both pets in it is the ideal starting point. Actually, individual photos where each pet is the focus tend to produce better results. Each pet gets the full frame, the best focus, and the clearest detail. Group shots often have at least one pet looking away, blinking, or slightly out of focus."
           }
         },
-        "tip-4": {
-          "type": "photo_tip",
-          "settings": {
-            "tip_icon": "⭐",
-            "tip_title": "Use each pet's best photo",
-            "tip_description": "The goal is a portrait where every pet looks their best. Don't compromise on one pet's photo quality just because it happens to match the other pet's photo better. Pick the best photo of each pet independently. We handle the rest."
-          }
-        },
         "gift-1": {
           "type": "gift_angle",
           "settings": {
@@ -130,7 +122,6 @@
         "tip-1",
         "tip-2",
         "tip-3",
-        "tip-4",
         "gift-1",
         "gift-2",
         "gift-3",
@@ -151,7 +142,7 @@
         "eyebrow_text": "Multiple Pets, One Portrait",
         "heading": "",
         "subtitle": "You don't need one photo with all your pets in it. You probably don't have one. Send us separate photos of each pet and we compose them into a single portrait as if they were posing side by side. Same art style, same composition, one finished piece of art with your whole crew in it.",
-        "hero_image": "",
+        "hero_image": "shopify://shop_images/mutli-pet.gif",
         "hero_image_ratio": "natural",
         "hero_image_alt": "Custom multi-pet portrait from separate photos - two pets composed together",
         "show_before_after_badge": false,
@@ -161,7 +152,7 @@
         "secondary_cta_url": "",
         "preview_banner_heading": "Free Instant Preview",
         "preview_banner_text": "Upload a photo of each pet and preview them composed together in every art style. Completely free.",
-        "styles_heading": "",
+        "styles_heading": "Test",
         "styles_subtitle": "",
         "styles_cta_text": "",
         "tips_heading": "Photo Tips for Multi-Pet Portraits",
