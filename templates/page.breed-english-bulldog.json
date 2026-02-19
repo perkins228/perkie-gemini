@@ -18,7 +18,7 @@
             "style_name": "Color Portrait",
             "style_tag": "Every Wrinkle, Full Color",
             "style_description": "Color captures the warmth and personality of the bulldog face in full detail. The fawn tones, the pink undertones in the jowls, the brindle pattern, the subtle color variations in each wrinkle fold. This is the most faithful representation of your bulldog exactly as they look. The most popular choice for the breed.",
-            "style_image": "",
+            "style_image": "shopify://shop_images/bulldog_color.png",
             "style_url": "/pages/color-pet-portrait"
           }
         },
@@ -28,7 +28,7 @@
             "style_name": "Professional Black & White",
             "style_tag": "Wrinkles as Art",
             "style_description": "Black and white transforms bulldog wrinkles into a study in light and shadow. The deep folds become dramatic texture, the jowls gain sculptural weight, and the eyes emerge as the emotional center. This style gives the bulldog's somewhat comical face an unexpectedly artistic, dignified treatment. Stunning as large framed prints and the top choice for bulldog memorial portraits.",
-            "style_image": "",
+            "style_image": "shopify://shop_images/bulldog_bw.png",
             "style_url": "/pages/black-and-white-pet-portrait"
           }
         },
@@ -38,7 +38,7 @@
             "style_name": "Marker",
             "style_tag": "Maximum Character",
             "style_description": "Bulldogs already have maximum character, and Marker turns the dial up even further. Bold lines emphasize the exaggerated features, and vivid colors bring out the personality that bulldogs radiate. This is the style for owners who love the humor and charm of the breed and want art that celebrates it unapologetically.",
-            "style_image": "",
+            "style_image": "shopify://shop_images/bulldog_marker.png",
             "style_url": "/pages/marker-pet-portrait"
           }
         },
@@ -47,8 +47,8 @@
           "settings": {
             "style_name": "Ink Wash",
             "style_tag": "The Gentle Bruiser",
-            "style_description": "Ink wash softens the bulldog's hard edges without losing what makes them distinctive. The flowing brushstrokes give the wrinkles a gentler quality, and the overall effect is warmer and more intimate. A beautiful choice for senior bulldogs and memorial portraits where you want to capture the tenderness beneath the tough exterior.",
-            "style_image": "",
+            "style_description": "Ink wash softens the bulldog's hard edges without losing what makes them distinctive. The flowing brushstroke style gives the wrinkles a gentler quality, and the overall effect is warmer and more intimate. A beautiful choice for senior bulldogs and memorial portraits where you want to capture the tenderness beneath the tough exterior.",
+            "style_image": "shopify://shop_images/bulldog_inkmask.png",
             "style_url": "/pages/ink-wash-pet-portrait"
           }
         },
@@ -105,7 +105,7 @@
           "settings": {
             "gift_icon": "🏆",
             "gift_title": "For the bulldog devotee",
-            "gift_description": "<p>Bulldog owners are a dedicated bunch. They chose the breed knowing about the snoring, the stubborn streak, and the vet bills, and they wouldn't have it any other way. A <a href=\"/products/personalized-pet-portrait\" title=\"Framed Pet Portrait\">custom portrait</a> is a celebration of that commitment. Pair it with a matching <a href=\"/products/sweatshirt\" title=\"Sweatshirt\">sweatshirt</a> or <a href=\"/products/personalized-pet-canvas-tote-bag\" title=\"Canvas Tote Bag\">tote bag</a> for a complete set.</p>"
+            "gift_description": "<p>Bulldog owners are a dedicated bunch. They chose the breed knowing about the snoring, the stubborn streak, and the vet bills, and they wouldn't have it any other way. A <a href=\"/products/personalized-pet-portrait\" title=\"Framed Pet Portrait\">custom portrait</a> is a celebration of that commitment. Pair it with a matching <a href=\"/products/crew-socks\" title=\"Socks\">socks</a> or <a href=\"/products/personalized-pet-in-pocket-cropped-tee\" title=\"Cropped Pet-In-Pocket Tee\">cropped pocket tee</a> for a complete set.</p>"
           }
         },
         "gift-2": {
@@ -201,14 +201,14 @@
         ".button {background-color: #ff5964 !important; /* The background color */ color: #ffffff !important; /* The text color */ border: none; /* Optional: removes border */}"
       ],
       "settings": {
-        "accent_color": "#C4A265",
+        "accent_color": "#c4a265",
         "eyebrow_text": "Wrinkled, Stubborn, Loveable",
         "heading": "",
         "subtitle": "That underbite. Those wrinkles. The face that launched a thousand smiles. Your English bulldog deserves a portrait with as much character as they have.",
-        "hero_image": "",
+        "hero_image": "shopify://shop_images/bulldog_beforeafter.png",
         "hero_image_ratio": "natural",
         "hero_image_alt": "Custom English bulldog portrait from photo",
-        "show_before_after_badge": false,
+        "show_before_after_badge": true,
         "cta_text": "See Your Bulldog in Every Style for Free",
         "cta_url": "shopify://pages/custom-image-processing",
         "secondary_cta_text": "",
