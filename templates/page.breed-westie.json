@@ -18,7 +18,7 @@
             "style_name": "Professional Black & White",
             "style_tag": "The Westie Classic",
             "style_description": "This is the signature Westie portrait style. The white coat translates into rich gray tones that show every bit of coat texture, while the dark eyes and nose become bold focal points. The result is a portrait with striking contrast and elegant simplicity. Black & White Westie portraits have a timeless quality that makes them feel like they belong in a gallery. The top choice for Westie memorial portraits.",
-            "style_image": "",
+            "style_image": "shopify://shop_images/westie_bw.png",
             "style_url": "/pages/black-and-white-pet-portrait"
           }
         },
@@ -27,8 +27,8 @@
           "settings": {
             "style_name": "Ink Wash",
             "style_tag": "Artistry on White",
-            "style_description": "The all-white coat gives Ink Wash room to shine. Without competing coat colors, every brushstroke is visible and contributes to the artistic quality of the portrait. The result is soft, painterly, and beautifully textured. Particularly stunning because the Westie's coat provides just enough warmth and variation for the style to work with.",
-            "style_image": "",
+            "style_description": "The all-white coat gives Ink Wash room to shine. Without competing coat colors, every contour is visible and contributes to the artistic quality of the portrait. The result is soft, painterly, and beautifully textured. Particularly stunning because the Westie's coat provides just enough warmth and variation for the style to work with.",
+            "style_image": "shopify://shop_images/westie_inkwash.png",
             "style_url": "/pages/ink-wash-pet-portrait"
           }
         },
@@ -38,7 +38,7 @@
             "style_name": "Color Portrait",
             "style_tag": "Warmer Than You Think",
             "style_description": "People think Westies are pure white, but their coat carries a subtle warmth, especially around the ears and back, that Color captures beautifully. Add the dark eyes, the black nose, and the occasional pink tongue, and a Color Westie portrait has more visual variety than you'd expect. The best choice for capturing your Westie exactly as they look.",
-            "style_image": "",
+            "style_image": "shopify://shop_images/westie_color.png",
             "style_url": "/pages/color-pet-portrait"
           }
         },
@@ -48,7 +48,7 @@
             "style_name": "Marker",
             "style_tag": "Terrier Energy, Bold Lines",
             "style_description": "Westies have big terrier energy in a small package. Marker matches that with bold lines and vivid treatment that brings out the breed's confident, spirited personality. This style makes the dark eyes and nose pop with extra emphasis. A fun, modern choice.",
-            "style_image": "",
+            "style_image": "shopify://shop_images/westie_marker.png",
             "style_url": "/pages/marker-pet-portrait"
           }
         },
@@ -105,7 +105,7 @@
           "settings": {
             "gift_icon": "🏴󠁧󠁢󠁳󠁣󠁴󠁿",
             "gift_title": "For the Westie enthusiast",
-            "gift_description": "<p>Westie owners are fiercely loyal to the breed. Many have had multiple Westies throughout their lives. A <a href=\"/products/personalized-pet-portrait\" title=\"Framed Pet Portrait\">custom portrait</a> of their current companion fits naturally into a lifetime of Westie love. Pair it with a matching <a href=\"/products/crew-socks\" title=\"Socks\">socks</a> or <a href=\"/products/personalized-pet-canvas-tote-bag\" title=\"Canvas Tote Bag\">tote bag</a> for a complete set.</p>"
+            "gift_description": "<p>Westie owners are fiercely loyal to the breed. Many have had multiple Westies throughout their lives. A <a href=\"/products/personalized-pet-portrait\" title=\"Framed Pet Portrait\">custom portrait</a> of their current companion fits naturally into a lifetime of Westie love. Pair it with a matching <a href=\"/products/sweatshirt\" title=\"Sweatshirt\">sweatshirt</a> or <a href=\"/products/personalized-pet-canvas-tote-bag\" title=\"Canvas Tote Bag\">tote bag</a> for a complete set.</p>"
           }
         },
         "gift-2": {
@@ -201,11 +201,11 @@
         ".button {background-color: #ff5964 !important; /* The background color */ color: #ffffff !important; /* The text color */ border: none; /* Optional: removes border */}"
       ],
       "settings": {
-        "accent_color": "#E8DCC8",
+        "accent_color": "#e8dcc8",
         "eyebrow_text": "Small, White, Full of Character",
         "heading": "",
         "subtitle": "That white coat. Those dark, bright eyes. Pure terrier confidence. Your Westie deserves a portrait that captures the spirit behind that charming exterior.",
-        "hero_image": "",
+        "hero_image": "shopify://shop_images/westie_beforeafter.png",
         "hero_image_ratio": "natural",
         "hero_image_alt": "Custom Westie portrait from photo - West Highland White Terrier",
         "show_before_after_badge": false,
