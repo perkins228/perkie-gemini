@@ -2,18 +2,18 @@
 .breed-hub {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 0 1.5rem;
+  padding: 3rem 1.5rem 0;
 }
 
 @media screen and (min-width: 750px) {
   .breed-hub {
-    padding: 0 5rem;
+    padding: 3rem 5rem 0;
   }
 }
 
 /* ── Title ── */
 .breed-hub__title {
-  text-align: center;
+  text-align: left;
   font-size: 2rem;
   font-weight: 700;
   margin: 0 0 1rem;
@@ -23,8 +23,8 @@
 /* ── Intro ── */
 .breed-hub__intro {
   max-width: 720px;
-  margin: 0 auto 2rem;
-  text-align: center;
+  margin: 0 0 2rem;
+  text-align: left;
   font-size: 1.05rem;
   line-height: 1.7;
   color: var(--text-color, #333);
