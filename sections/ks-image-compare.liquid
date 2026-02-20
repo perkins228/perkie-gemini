@@ -18,24 +18,17 @@
     font-size: {{ section.settings.icv_labels_font_size | append: 'rem' }};
   }
 
-  {% if section.settings.show_only_img %}
-    {% assign _ref_img = section.settings.desktop_before_img %}
-    {% if _ref_img != blank and _ref_img.aspect_ratio > 0 %}
-      {% assign _max_w = section.settings.desktop_max_height | times: _ref_img.aspect_ratio | round %}
-      @media screen and (min-width: 990px) {
-        #ks-image-compare-{{ section.id }} .ks-image-compare-tablet {
-          max-width: {{ _max_w }}px;
-          margin: 0 auto;
-        }
-      }
-    {% endif %}
-  {% else %}
-    @media screen and (min-width: 990px) {
+  @media screen and (min-width: 990px) {
+    #ks-image-compare-{{ section.id }} {
+      max-height: {{ section.settings.desktop_max_height }}px;
+      overflow: hidden;
+    }
+    {% unless section.settings.show_only_img %}
       #ks-image-compare-{{ section.id }} {
         --desktop-img-width: {{ section.settings.desktop_img_width }}%;
       }
-    }
-  {% endif %}
+    {% endunless %}
+  }
 
   #ks-image-compare-{{ section.id }} .icv__icv--horizontal .icv__label {
     {% if section.settings.icv_labels_position == 'top' %}
@@ -241,12 +234,12 @@
     {
       "type": "range",
       "id": "desktop_max_height",
-      "label": "Max image height - desktop",
-      "info": "Caps image height in full-width mode. Only applies when 'Show only the image' is on.",
+      "label": "Max section height - desktop",
+      "info": "Caps the overall section height on desktop. Content beyond this height is hidden.",
       "min": 300,
-      "max": 800,
+      "max": 1200,
       "step": 50,
-      "default": 500,
+      "default": 800,
       "unit": "px"
     },
     {
