@@ -1122,10 +1122,19 @@
     width: 100%;
   }
 
-  /* Preview area styling - constrained height for above-fold optimization */
+  /* Preview area styling - constrained height for above-fold optimization.
+     width: fit-content shrinks the container to the image's actual rendered
+     size, eliminating grey empty space for portrait-orientation photos.
+     Mobile CSS desktop breakpoints are scoped with :not(.has-result) so they
+     no longer conflict with the float layout. */
   .processor-preview .pet-image-container {
     min-height: auto; /* Remove fixed minimum */
+    min-width: 200px; /* Prevent zero-width collapse before image renders */
+    width: -webkit-fit-content; /* Safari 11-16 fallback */
+    width: fit-content; /* Shrink to image content — no grey waste */
+    max-width: 100%; /* Never exceed right column */
     max-height: 400px; /* Reduced from 500px to bring products above fold */
+    margin: 0 auto; /* Center in right column */
     display: flex;
     align-items: center;
     justify-content: center;
@@ -1135,10 +1144,11 @@
   }
 
   .processor-preview .pet-image {
-    width: 100%;
+    width: auto; /* Size to content, not container */
+    max-width: 100%; /* Never exceed container */
     height: auto;
     max-height: 400px; /* Reduced from 500px */
-    object-fit: contain;
+    display: block;
   }
   
   /* Processing overlay for left column */
@@ -1166,7 +1176,10 @@
     margin-left: calc(400px + var(--desktop-gap));
   }
 
-  .processor-preview .pet-image-container,
+  .processor-preview .pet-image-container {
+    max-height: 450px; /* Reduced from 560px */
+    max-width: 100%;
+  }
   .processor-preview .pet-image {
     max-height: 450px; /* Reduced from 560px */
   }
@@ -1181,7 +1194,10 @@
     margin-left: calc(420px + var(--desktop-gap));
   }
 
-  .processor-preview .pet-image-container,
+  .processor-preview .pet-image-container {
+    max-height: 500px; /* Reduced from 620px */
+    max-width: 100%;
+  }
   .processor-preview .pet-image {
     max-height: 500px; /* Reduced from 620px */
   }
