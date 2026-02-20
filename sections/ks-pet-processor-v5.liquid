@@ -4,12 +4,12 @@
 {%- endcomment -%}
 
 {%- comment -%}
-  Async CSS loading for LCP optimization (cache busting v3.5)
+  Async CSS loading for LCP optimization (cache busting v3.6)
   Uses media="print" + onload pattern with noscript fallback for JS-disabled browsers
-  v3.5: Fix preview column overflow (width:auto overrides base width:100%)
+  v3.6: Fix image container width constraints — fit-content + scoped mobile breakpoints
 {%- endcomment -%}
-<link rel="stylesheet" href="{{ 'pet-processor-v5.css' | asset_url }}?v=3.5" media="print" onload="this.media='all'">
-<link rel="stylesheet" href="{{ 'pet-processor-mobile.css' | asset_url }}?v=3.5" media="print" onload="this.media='all'">
+<link rel="stylesheet" href="{{ 'pet-processor-v5.css' | asset_url }}?v=3.6" media="print" onload="this.media='all'">
+<link rel="stylesheet" href="{{ 'pet-processor-mobile.css' | asset_url }}?v=3.6" media="print" onload="this.media='all'">
 {%- comment -%} DISABLED: Comparison feature not in current customer journey {%- endcomment -%}
 {%- comment -%} {{ 'effect-comparison.css' | asset_url | stylesheet_tag }} {%- endcomment -%}
 <link rel="stylesheet" href="{{ 'crop-processor.css' | asset_url }}" media="print" onload="this.media='all'">
