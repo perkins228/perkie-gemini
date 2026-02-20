@@ -15,13 +15,23 @@
     </a>
   </div>
 
+  <nav class="breed-hub__jump-nav" aria-label="Breed categories">
+    {% for block in section.blocks %}
+      {% if block.type == 'category_heading' %}
+        <a href="#cat-{{ block.settings.title | handleize }}" class="breed-hub__jump-link">
+          {{ block.settings.title }}
+        </a>
+      {% endif %}
+    {% endfor %}
+  </nav>
+
   <div class="breed-hub__categories">
     {% for block in section.blocks %}
       {% if block.type == 'category_heading' %}
         {% unless forloop.first %}
           </div><!-- close previous grid -->
         {% endunless %}
-        <h2 class="breed-hub__category-title" {{ block.shopify_attributes }}>
+        <h2 id="cat-{{ block.settings.title | handleize }}" class="breed-hub__category-title" {{ block.shopify_attributes }}>
           {{ block.settings.title }}
         </h2>
         <div class="breed-hub__grid">
