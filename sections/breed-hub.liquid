@@ -15,7 +15,7 @@
     </a>
   </div>
 
-  <nav class="breed-hub__jump-nav" aria-label="Breed categories">
+  <nav class="breed-hub__jump-nav" aria-label="Browse breed categories">
     {% for block in section.blocks %}
       {% if block.type == 'category_heading' %}
         <a href="#cat-{{ block.settings.title | handleize }}" class="breed-hub__jump-link">
