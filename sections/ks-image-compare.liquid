@@ -19,15 +19,16 @@
   }
 
   {% if section.settings.show_only_img %}
-    @media screen and (min-width: 990px) {
-      #ks-image-compare-{{ section.id }} .ks-image-compare-img,
-      #ks-image-compare-{{ section.id }} [data-image-compare] {
-        max-height: {{ section.settings.desktop_max_height }}px;
+    {% assign _ref_img = section.settings.desktop_before_img %}
+    {% if _ref_img != blank and _ref_img.aspect_ratio > 0 %}
+      {% assign _max_w = section.settings.desktop_max_height | times: _ref_img.aspect_ratio | round %}
+      @media screen and (min-width: 990px) {
+        #ks-image-compare-{{ section.id }} .ks-image-compare-tablet {
+          max-width: {{ _max_w }}px;
+          margin: 0 auto;
+        }
       }
-      #ks-image-compare-{{ section.id }} .ks-image-compare-img {
-        object-fit: contain;
-      }
-    }
+    {% endif %}
   {% else %}
     @media screen and (min-width: 990px) {
       #ks-image-compare-{{ section.id }} {
