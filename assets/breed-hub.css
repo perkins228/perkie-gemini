@@ -2,12 +2,12 @@
 .breed-hub {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 3rem 1.5rem 0;
+  padding: 48px 24px 0;
 }
 
 @media screen and (min-width: 750px) {
   .breed-hub {
-    padding: 3rem 5rem 0;
+    padding: 48px 80px 0;
   }
 }
 
@@ -25,7 +25,7 @@
 /* ── Intro ── */
 .breed-hub__intro {
   max-width: 720px;
-  margin: 0 0 2rem;
+  margin: 0 0 32px;
   text-align: left;
   font-size: 17px;
   line-height: 1.6;
@@ -35,15 +35,15 @@
 /* ── Top CTA (secondary style — don't compete with breed cards) ── */
 .breed-hub__cta-top {
   text-align: center;
-  margin-bottom: 2rem;
+  margin-bottom: 32px;
 }
 
 .breed-hub__cta-top .breed-hub__button {
   background: transparent;
   color: var(--primary-accent, #222);
-  border: 1px solid #ccc;
-  font-size: 0.85rem;
-  padding: 10px 24px;
+  border: 1.5px solid #aaa;
+  font-size: 15px;
+  padding: 11px 24px;
 }
 
 .breed-hub__cta-top .breed-hub__button:hover {
@@ -58,7 +58,7 @@
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
   padding: 12px 0;
-  margin-bottom: 1rem;
+  margin-bottom: 16px;
   scrollbar-width: none;
 }
 
@@ -71,7 +71,7 @@
   padding: 6px 14px;
   border: 1px solid #ddd;
   border-radius: 20px;
-  font-size: 0.8rem;
+  font-size: 13px;
   font-weight: 600;
   text-decoration: none;
   color: #333;
@@ -101,7 +101,7 @@
   text-decoration: none;
   border-radius: 6px;
   font-weight: 600;
-  font-size: 0.95rem;
+  font-size: 15px;
   transition: opacity 0.2s;
 }
 
@@ -125,8 +125,8 @@
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 1.5px;
-  margin: 2.5rem 0 1rem;
-  padding-bottom: 0.5rem;
+  margin: 40px 0 16px;
+  padding-bottom: 8px;
   border-bottom: 2px solid #222;
   color: #2D2D2D;
 }
@@ -136,7 +136,7 @@
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 20px;
-  margin-bottom: 1rem;
+  margin-bottom: 16px;
 }
 
 @media (max-width: 900px) {
@@ -196,14 +196,14 @@
 }
 
 .breed-card__name {
-  font-size: 1rem;
+  font-size: 16px;
   font-weight: 700;
   margin: 0 0 4px;
   line-height: 1.3;
 }
 
 .breed-card__description {
-  font-size: 0.85rem;
+  font-size: 14px;
   color: #666;
   margin: 0;
   line-height: 1.5;
@@ -213,7 +213,7 @@
 .breed-card__content::after {
   content: 'View portrait guide \2192';
   display: block;
-  font-size: 0.75rem;
+  font-size: 12px;
   color: #999;
   margin-top: 6px;
   transition: color 0.15s;
@@ -230,7 +230,7 @@
   }
 
   .breed-card__name {
-    font-size: 0.875rem;
+    font-size: 14px;
   }
 
   .breed-card__description {
@@ -239,7 +239,7 @@
 
   .breed-card__content::after {
     content: '\2192';
-    font-size: 0.85rem;
+    font-size: 14px;
     margin-top: 4px;
   }
 }
@@ -247,46 +247,46 @@
 /* ── Fallback section ── */
 .breed-hub__fallback {
   text-align: center;
-  padding: 3rem 1.5rem;
-  margin: 3rem 0 1.5rem;
+  padding: 48px 24px;
+  margin: 48px 0 24px;
   background: #f8f5f2;
   border-radius: 12px;
   border: 1px solid #e8e2dc;
 }
 
 .breed-hub__fallback-title {
-  font-size: 1.3rem;
+  font-size: 24px;
   font-weight: 700;
-  margin: 0 0 0.75rem;
+  margin: 0 0 12px;
 }
 
 .breed-hub__fallback-text {
-  font-size: 1rem;
+  font-size: 16px;
   color: #555;
   max-width: 600px;
-  margin: 0 auto 1.5rem;
-  line-height: 1.6;
+  margin: 0 auto 24px;
+  line-height: 1.75;
 }
 
 /* ── Multi-pet callout ── */
 .breed-hub__callout {
   text-align: center;
-  padding: 2rem 1.5rem;
-  margin: 0 0 2rem;
+  padding: 32px 24px;
+  margin: 0 0 32px;
   border: 1px dashed #ccc;
   border-radius: 12px;
 }
 
 .breed-hub__callout-title {
-  font-size: 1.3rem;
+  font-size: 24px;
   font-weight: 700;
-  margin: 0 0 0.75rem;
+  margin: 0 0 12px;
 }
 
 .breed-hub__callout-text {
-  font-size: 1rem;
+  font-size: 16px;
   color: #555;
   max-width: 600px;
-  margin: 0 auto 1.5rem;
-  line-height: 1.6;
+  margin: 0 auto 24px;
+  line-height: 1.75;
 }
