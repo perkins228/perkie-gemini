@@ -447,7 +447,7 @@
         "desktop_before_img": "shopify://shop_images/ufocolor.png",
         "desktop_after_img": "shopify://shop_images/Ufobw.png",
         "desktop_img_width": 40,
-        "desktop_max_height": 450,
+        "desktop_max_height": 800,
         "icv_controls_color": "#ffffff",
         "icv_controls_circle": false,
         "icv_smoothing": true,
