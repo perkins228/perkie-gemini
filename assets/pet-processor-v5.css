@@ -1003,39 +1003,42 @@
     display: none;
   }
   
-  /* RESULT STATE: Two-column grid layout.
-     Multi-layered Safari fix: align-items + align-self + fit-content +
-     no max-height on sticky descendant. Safari inflates grid rows from
-     max-height on sticky children/descendants; removing it + constraining
-     grid items prevents the left column from stretching. */
+  /* RESULT STATE: Float-based two-column layout.
+     CSS Grid abandoned after 5 failed Safari fixes — Safari inflates grid
+     row height from sticky/max-height descendants and ignores align-self,
+     fit-content, and wrapper div patterns. Float layout is immune: floated
+     elements always size to their content height. */
   .pet-processor-container.has-result .processor-columns {
-    display: grid;
-    grid-template-columns: 380px 1fr;
-    gap: var(--desktop-gap);
-    align-items: start;
+    display: block;
     background: rgba(var(--color-foreground), 0.02);
     border: 1px solid rgba(var(--color-foreground), 0.08);
     border-radius: 16px;
     padding: 1rem;
   }
 
-  /* LEFT column: Controls — triple-constrained for Safari */
+  /* Clearfix: contain the float within the styled container */
+  .pet-processor-container.has-result .processor-columns::after {
+    content: '';
+    display: table;
+    clear: both;
+  }
+
+  /* LEFT column: float left, always sizes to content height */
   .pet-processor-container.has-result .processor-controls {
-    min-width: 0;
-    align-self: start;
-    height: fit-content;
+    float: left;
+    width: 380px;
   }
 
-  /* RIGHT column: Preview grid cell (no sticky/max-height here) */
+  /* RIGHT column: offset past float + gap, natural block flow.
+     width: auto overrides base width: 100% so margin-left shrinks the block. */
   .pet-processor-container.has-result .processor-preview {
-    min-width: 0;
-    align-self: start;
+    width: auto;
+    margin-left: calc(380px + var(--desktop-gap));
   }
 
-  /* Inner wrapper: sticky only, NO max-height (image already constrained
-     to 400-500px by .pet-image-container/.pet-image rules). Removing
-     max-height eliminates the signal Safari uses to inflate grid rows. */
+  /* Inner wrapper: sticky with -webkit- prefix for older Safari */
   .pet-processor-container.has-result .processor-preview__inner {
+    position: -webkit-sticky;
     position: sticky;
     top: 20px;
   }
@@ -1067,13 +1070,27 @@
     color: rgb(var(--color-foreground));
   }
 
-  /* Style selector 2x2 grid on desktop - fills left column */
+  /* Style selector 2x2 layout on desktop - Flexbox wrap (no grid rows for Safari to inflate) */
   .processor-controls .effect-grid.style-selector__grid {
-    grid-template-columns: repeat(2, 1fr) !important; /* 2x2 grid */
-    gap: 0.75rem; /* Reduced from 1rem for tighter layout */
-    width: 100%; /* Fill available width */
+    display: flex !important;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: 0.75rem;
+    width: 100%;
     margin: 0;
-    align-items: start; /* Prevent cards from stretching within cells */
+  }
+
+  .processor-controls .style-selector__grid > .style-card {
+    flex: 0 0 calc(50% - 0.375rem); /* Exactly 2 per row, accounting for gap */
+    min-width: 0;
+  }
+
+  /* Fallback for Safari <14.1 where gap in flexbox isn't supported */
+  @supports not (gap: 1rem) {
+    .processor-controls .style-selector__grid > .style-card {
+      margin: 0 0.75rem 0.75rem 0;
+      flex: 0 0 calc(50% - 0.75rem);
+    }
   }
 
   /* Style cards - comfortable size for left column, centered */
@@ -1142,8 +1159,11 @@
 
 /* Large Desktop (1440px+) - Slightly larger left column */
 @media (min-width: 1440px) and (hover: hover) {
-  .pet-processor-container.has-result .processor-columns {
-    grid-template-columns: 400px 1fr;
+  .pet-processor-container.has-result .processor-controls {
+    width: 400px;
+  }
+  .pet-processor-container.has-result .processor-preview {
+    margin-left: calc(400px + var(--desktop-gap));
   }
 
   .processor-preview .pet-image-container,
@@ -1154,8 +1174,11 @@
 
 /* XL Desktop (1920px+) - Even larger left column for 4K displays */
 @media (min-width: 1920px) and (hover: hover) {
-  .pet-processor-container.has-result .processor-columns {
-    grid-template-columns: 420px 1fr;
+  .pet-processor-container.has-result .processor-controls {
+    width: 420px;
+  }
+  .pet-processor-container.has-result .processor-preview {
+    margin-left: calc(420px + var(--desktop-gap));
   }
 
   .processor-preview .pet-image-container,
@@ -1282,11 +1305,10 @@
   }
 }
 
-/* Layout containment removed — contain:layout on a flex/grid parent with a sticky child
-   causes cross-browser layout miscalculation (Chrome + Safari both affected).
-   Flexbox replaced with CSS Grid — Safari inflates flex container height when a child
-   has position:sticky + max-height. Grid's align-items:start resolves this.
-   See: customer layout bug investigation 2026-02-13 */
+/* Layout history: contain:layout → flexbox → CSS Grid → float.
+   Safari persistently inflates column height in flex/grid contexts when a sibling
+   has position:sticky. Float layout is immune (floats always size to content).
+   See: customer layout bug investigation 2026-02-13 through 2026-02-17 */
 
 /* Graceful degradation for older browsers (side-by-side: controls left, preview right) */
 @supports not (display: grid) {

@@ -2643,6 +2643,9 @@ class PetProcessor {
 
         // Dispatch event for product mockup grid to display
         this.dispatchProcessingComplete(result);
+
+        // Layout diagnostics overlay (gated behind ?debug=layout URL param)
+        this._renderLayoutDiagnostics();
       } catch (err) {
         console.error('[PetProcessor] showResult error:', err);
         // Recovery: ensure critical UI elements are visible
@@ -2655,6 +2658,108 @@ class PetProcessor {
         this.isProcessing = false;
       }
     });
+  }
+
+  /**
+   * Layout diagnostics overlay — activated by ?debug=layout URL param.
+   * Captures computed styles and element dimensions for debugging Safari layout bugs.
+   */
+  _renderLayoutDiagnostics() {
+    var params = new URLSearchParams(window.location.search);
+    if (!params.has('debug') || params.get('debug') !== 'layout') return;
+
+    // Remove existing overlay if present
+    var existing = document.getElementById('layout-diagnostics-overlay');
+    if (existing) existing.remove();
+
+    var overlay = document.createElement('div');
+    overlay.id = 'layout-diagnostics-overlay';
+    overlay.style.cssText = 'position:fixed;top:10px;right:10px;width:420px;max-height:80vh;overflow-y:auto;' +
+      'background:rgba(0,0,0,0.9);color:#0f0;font-family:monospace;font-size:11px;padding:12px;' +
+      'z-index:999999;border-radius:8px;line-height:1.4;white-space:pre-wrap;';
+
+    var lines = [];
+    lines.push('=== LAYOUT DIAGNOSTICS ===');
+    lines.push('UA: ' + navigator.userAgent);
+    lines.push('Viewport: ' + window.innerWidth + ' x ' + window.innerHeight);
+    lines.push('DevicePixelRatio: ' + window.devicePixelRatio);
+    lines.push('hover:hover match: ' + window.matchMedia('(hover: hover)').matches);
+    lines.push('min-width:1024px match: ' + window.matchMedia('(min-width: 1024px)').matches);
+    lines.push('');
+
+    var selectors = [
+      '.processor-columns',
+      '.processor-controls',
+      '.effect-grid-wrapper',
+      '.style-selector__grid',
+    ];
+    var container = this.container;
+
+    for (var i = 0; i < selectors.length; i++) {
+      var el = container.querySelector(selectors[i]);
+      if (!el) {
+        lines.push(selectors[i] + ': NOT FOUND');
+        lines.push('');
+        continue;
+      }
+      var cs = window.getComputedStyle(el);
+      var rect = el.getBoundingClientRect();
+      lines.push('--- ' + selectors[i] + ' ---');
+      lines.push('  size: ' + el.offsetWidth + ' x ' + el.offsetHeight);
+      lines.push('  rect.top: ' + Math.round(rect.top) + '  rect.h: ' + Math.round(rect.height));
+      lines.push('  display: ' + cs.display);
+      lines.push('  float: ' + cs.float);
+      lines.push('  width: ' + cs.width + '  height: ' + cs.height);
+      lines.push('  maxHeight: ' + cs.maxHeight);
+      lines.push('  gridTemplateCols: ' + cs.gridTemplateColumns);
+      lines.push('  gridTemplateRows: ' + cs.gridTemplateRows);
+      lines.push('  position: ' + cs.position);
+      lines.push('  alignItems: ' + cs.alignItems);
+      lines.push('  alignSelf: ' + cs.alignSelf);
+      lines.push('  flexDirection: ' + cs.flexDirection);
+      lines.push('  flexWrap: ' + cs.flexWrap);
+      lines.push('');
+    }
+
+    // Individual style cards
+    var cards = container.querySelectorAll('.style-selector__grid .style-card');
+    lines.push('--- STYLE CARDS (' + cards.length + ') ---');
+    for (var j = 0; j < cards.length; j++) {
+      var card = cards[j];
+      var ccs = window.getComputedStyle(card);
+      var crect = card.getBoundingClientRect();
+      var effect = card.getAttribute('data-effect') || ('card-' + j);
+      lines.push('  [' + effect + '] ' + card.offsetWidth + 'x' + card.offsetHeight +
+        '  top:' + Math.round(crect.top) +
+        '  display:' + ccs.display +
+        '  flex:' + ccs.flex +
+        '  alignSelf:' + ccs.alignSelf);
+    }
+
+    // Action buttons
+    lines.push('');
+    var cropBtn = container.querySelector('.crop-btn');
+    var tryBtn = container.querySelector('.try-another-btn');
+    if (cropBtn) {
+      var cbRect = cropBtn.getBoundingClientRect();
+      lines.push('  .crop-btn top:' + Math.round(cbRect.top) + ' h:' + Math.round(cbRect.height));
+    }
+    if (tryBtn) {
+      var tbRect = tryBtn.getBoundingClientRect();
+      lines.push('  .try-another-btn top:' + Math.round(tbRect.top) + ' h:' + Math.round(tbRect.height));
+    }
+
+    overlay.textContent = lines.join('\n');
+
+    // Add close button
+    var closeBtn = document.createElement('button');
+    closeBtn.textContent = 'X';
+    closeBtn.style.cssText = 'position:absolute;top:4px;right:8px;background:none;border:none;color:#f00;' +
+      'font-size:16px;cursor:pointer;font-weight:bold;';
+    closeBtn.onclick = function() { overlay.remove(); };
+    overlay.appendChild(closeBtn);
+
+    document.body.appendChild(overlay);
   }
 
   /**

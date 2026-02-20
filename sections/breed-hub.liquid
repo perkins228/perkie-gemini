@@ -1,0 +1,191 @@
+{{ 'breed-hub.css' | asset_url | stylesheet_tag }}
+
+<div class="breed-hub">
+  <h1 class="breed-hub__title">{{ page.title }}</h1>
+
+  {% if page.content != blank %}
+    <div class="breed-hub__intro">
+      {{ page.content }}
+    </div>
+  {% endif %}
+
+  <div class="breed-hub__cta-top">
+    <a href="/pages/custom-pet-portrait-styles" class="breed-hub__button">
+      See Your Pet in Every Style &mdash; Free
+    </a>
+  </div>
+
+  <div class="breed-hub__categories">
+    {% for block in section.blocks %}
+      {% if block.type == 'category_heading' %}
+        {% unless forloop.first %}
+          </div><!-- close previous grid -->
+        {% endunless %}
+        <h2 class="breed-hub__category-title" {{ block.shopify_attributes }}>
+          {{ block.settings.title }}
+        </h2>
+        <div class="breed-hub__grid">
+      {% elsif block.type == 'breed_card' %}
+          <a href="{{ block.settings.page_url }}" class="breed-card" {{ block.shopify_attributes }}>
+            <div class="breed-card__image-wrapper">
+              {% if block.settings.image != blank %}
+                <img src="{{ block.settings.image | image_url: width: 400 }}"
+                     alt="{{ block.settings.image_alt | default: block.settings.breed_name }}"
+                     loading="lazy"
+                     class="breed-card__image">
+              {% else %}
+                <div class="breed-card__placeholder"></div>
+              {% endif %}
+            </div>
+            <div class="breed-card__content">
+              <h3 class="breed-card__name">{{ block.settings.breed_name }}</h3>
+              {% if section.settings.show_descriptions and block.settings.description != blank %}
+                <p class="breed-card__description">{{ block.settings.description }}</p>
+              {% endif %}
+            </div>
+          </a>
+      {% elsif block.type == 'dont_see_breed' %}
+        </div><!-- close previous grid -->
+        <div class="breed-hub__fallback" {{ block.shopify_attributes }}>
+          <h2 class="breed-hub__fallback-title">{{ block.settings.title }}</h2>
+          <p class="breed-hub__fallback-text">{{ block.settings.text }}</p>
+          <a href="{{ block.settings.cta_url }}" class="breed-hub__button">
+            {{ block.settings.cta_text }}
+          </a>
+        </div>
+      {% elsif block.type == 'multi_pet_callout' %}
+        <div class="breed-hub__callout" {{ block.shopify_attributes }}>
+          <h2 class="breed-hub__callout-title">{{ block.settings.title }}</h2>
+          <p class="breed-hub__callout-text">{{ block.settings.text }}</p>
+          <a href="{{ block.settings.cta_url }}" class="breed-hub__button breed-hub__button--secondary">
+            {{ block.settings.cta_text }}
+          </a>
+        </div>
+      {% endif %}
+    {% endfor %}
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Breed Hub",
+  "tag": "section",
+  "class": "breed-hub-section",
+  "settings": [
+    {
+      "type": "checkbox",
+      "id": "show_descriptions",
+      "label": "Show breed descriptions",
+      "default": true
+    }
+  ],
+  "blocks": [
+    {
+      "type": "category_heading",
+      "name": "Category Heading",
+      "settings": [
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Category title",
+          "default": "Category Name"
+        }
+      ]
+    },
+    {
+      "type": "breed_card",
+      "name": "Breed Card",
+      "settings": [
+        {
+          "type": "text",
+          "id": "breed_name",
+          "label": "Breed name"
+        },
+        {
+          "type": "textarea",
+          "id": "description",
+          "label": "Short description"
+        },
+        {
+          "type": "url",
+          "id": "page_url",
+          "label": "Breed page URL"
+        },
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Breed thumbnail"
+        },
+        {
+          "type": "text",
+          "id": "image_alt",
+          "label": "Image alt text"
+        }
+      ]
+    },
+    {
+      "type": "dont_see_breed",
+      "name": "Don't See Your Breed",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Heading",
+          "default": "Don't See Your Breed?"
+        },
+        {
+          "type": "textarea",
+          "id": "text",
+          "label": "Body text"
+        },
+        {
+          "type": "text",
+          "id": "cta_text",
+          "label": "Button text",
+          "default": "Upload Any Pet Photo \u2014 Free Preview"
+        },
+        {
+          "type": "url",
+          "id": "cta_url",
+          "label": "Button URL"
+        }
+      ]
+    },
+    {
+      "type": "multi_pet_callout",
+      "name": "Multi-Pet Callout",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Heading",
+          "default": "Multiple Pets?"
+        },
+        {
+          "type": "textarea",
+          "id": "text",
+          "label": "Body text"
+        },
+        {
+          "type": "text",
+          "id": "cta_text",
+          "label": "Button text",
+          "default": "Learn More About Multi-Pet Portraits"
+        },
+        {
+          "type": "url",
+          "id": "cta_url",
+          "label": "Button URL"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Breed Hub"
+    }
+  ]
+}
+{% endschema %}

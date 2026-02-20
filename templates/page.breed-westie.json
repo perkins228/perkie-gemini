@@ -1,0 +1,241 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "sections": {
+    "breed-landing": {
+      "type": "breed-landing",
+      "blocks": {
+        "style-bw": {
+          "type": "style_recommendation",
+          "settings": {
+            "style_name": "Professional Black & White",
+            "style_tag": "The Westie Classic",
+            "style_description": "This is the signature Westie portrait style. The white coat translates into rich gray tones that show every bit of coat texture, while the dark eyes and nose become bold focal points. The result is a portrait with striking contrast and elegant simplicity. Black & White Westie portraits have a timeless quality that makes them feel like they belong in a gallery. The top choice for Westie memorial portraits.",
+            "style_image": "shopify://shop_images/westie_bw.png",
+            "style_url": "/pages/black-and-white-pet-portrait"
+          }
+        },
+        "style-inkwash": {
+          "type": "style_recommendation",
+          "settings": {
+            "style_name": "Ink Wash",
+            "style_tag": "Artistry on White",
+            "style_description": "The all-white coat gives Ink Wash room to shine. Without competing coat colors, every contour is visible and contributes to the artistic quality of the portrait. The result is soft, painterly, and beautifully textured. Particularly stunning because the Westie's coat provides just enough warmth and variation for the style to work with.",
+            "style_image": "shopify://shop_images/westie_inkwash.png",
+            "style_url": "/pages/ink-wash-pet-portrait"
+          }
+        },
+        "style-color": {
+          "type": "style_recommendation",
+          "settings": {
+            "style_name": "Color Portrait",
+            "style_tag": "Warmer Than You Think",
+            "style_description": "People think Westies are pure white, but their coat carries a subtle warmth, especially around the ears and back, that Color captures beautifully. Add the dark eyes, the black nose, and the occasional pink tongue, and a Color Westie portrait has more visual variety than you'd expect. The best choice for capturing your Westie exactly as they look.",
+            "style_image": "shopify://shop_images/westie_color.png",
+            "style_url": "/pages/color-pet-portrait"
+          }
+        },
+        "style-marker": {
+          "type": "style_recommendation",
+          "settings": {
+            "style_name": "Marker",
+            "style_tag": "Terrier Energy, Bold Lines",
+            "style_description": "Westies have big terrier energy in a small package. Marker matches that with bold lines and vivid treatment that brings out the breed's confident, spirited personality. This style makes the dark eyes and nose pop with extra emphasis. A fun, modern choice.",
+            "style_image": "shopify://shop_images/westie_marker.png",
+            "style_url": "/pages/marker-pet-portrait"
+          }
+        },
+        "tip-1": {
+          "type": "photo_tip",
+          "settings": {
+            "tip_icon": "👁️",
+            "tip_title": "The eyes carry everything",
+            "tip_description": "On an all-white dog, the dark eyes are the emotional anchor of the portrait. Make sure they're sharply in focus, well-lit, and catching a little light. A tiny highlight in each eye makes the portrait feel alive. Without visible eye detail, a Westie portrait loses its soul."
+          }
+        },
+        "tip-2": {
+          "type": "photo_tip",
+          "settings": {
+            "tip_icon": "🎨",
+            "tip_title": "Avoid pure white backgrounds",
+            "tip_description": "A white dog against a white background disappears. If you're photographing your Westie indoors, position them against a darker surface or background so the coat edges are clearly defined. Outdoors, grass or earth tones work naturally. Don't worry about the background in the final portrait (we handle that), but the photo needs to clearly show where the dog ends and the surroundings begin."
+          }
+        },
+        "tip-3": {
+          "type": "photo_tip",
+          "settings": {
+            "tip_icon": "☀️",
+            "tip_title": "Natural light reveals the coat texture",
+            "tip_description": "Westies have a rough, double coat with real texture. Soft natural light, especially slightly directional light from a window, creates subtle shadows in the coat that give the portrait depth. Flash or flat overhead lighting makes the white coat look like a solid, featureless mass."
+          }
+        },
+        "tip-4": {
+          "type": "photo_tip",
+          "settings": {
+            "tip_icon": "👂",
+            "tip_title": "Ears up and alert",
+            "tip_description": "Westie ears are small and pointed, and they define the silhouette. A photo with ears perked forward and at full attention captures the alert, confident expression that is pure Westie. Relaxed or pinned-back ears change the character entirely."
+          }
+        },
+        "tip-5": {
+          "type": "photo_tip",
+          "settings": {
+            "tip_icon": "✂️",
+            "tip_title": "After grooming produces the cleanest look",
+            "tip_description": "A freshly groomed Westie with a tidy coat, clean face, and trimmed furnishings produces the crispest, most defined portrait. A scruffier look works too and has its own charm, but if you want the classic, polished Westie portrait, time your photo for soon after a grooming session."
+          }
+        },
+        "tip-6": {
+          "type": "photo_tip",
+          "settings": {
+            "tip_icon": "📱",
+            "tip_title": "Phone photos work perfectly",
+            "tip_description": "You don't need a professional camera. Some of our best Westie portraits have come from casual phone shots. As long as the face is clear and the dark eyes are visible against the white coat, the photo will work."
+          }
+        },
+        "gift-1": {
+          "type": "gift_angle",
+          "settings": {
+            "gift_icon": "🏴󠁧󠁢󠁳󠁣󠁴󠁿",
+            "gift_title": "For the Westie enthusiast",
+            "gift_description": "<p>Westie owners are fiercely loyal to the breed. Many have had multiple Westies throughout their lives. A <a href=\"/products/personalized-pet-portrait\" title=\"Framed Pet Portrait\">custom portrait</a> of their current companion fits naturally into a lifetime of Westie love. Pair it with a matching <a href=\"/products/sweatshirt\" title=\"Sweatshirt\">sweatshirt</a> or <a href=\"/products/personalized-pet-canvas-tote-bag\" title=\"Canvas Tote Bag\">tote bag</a> for a complete set.</p>"
+          }
+        },
+        "gift-2": {
+          "type": "gift_angle",
+          "settings": {
+            "gift_icon": "🕊️",
+            "gift_title": "Memorial and remembrance",
+            "gift_description": "<p>A custom portrait captures those bright eyes and that distinctive white face. For a breed this charming, the portrait becomes a daily reminder of the personality that filled the house. Our <a href=\"/pages/black-and-white-pet-portrait\" title=\"Custom Black & White Pet Portraits From Your Photo\">Black & White</a> and <a href=\"/pages/ink-wash-pet-portrait\" title=\"Ink Wash Pet Portraits From Your Photo\">Ink Wash</a> styles are the most popular for <a href=\"/pages/pet-memorial-portrait\" title=\"Pet Memorial Portraits\">Westie memorial portraits</a>.</p>"
+          }
+        },
+        "gift-3": {
+          "type": "gift_angle",
+          "settings": {
+            "gift_icon": "🎁",
+            "gift_title": "The perfect small-breed gift",
+            "gift_description": "<p>Westie portraits punch above their weight. The contrast of the dark features against the white coat creates a striking piece of art that commands attention on any wall. A <a href=\"/pages/color-pet-portrait\" title=\"Custom Color Pet Portraits From Your Photo\">Color Portrait</a> that captures that charm makes a gift people can't stop complimenting.</p>"
+          }
+        },
+        "gift-4": {
+          "type": "gift_angle",
+          "settings": {
+            "gift_icon": "💐",
+            "gift_title": "Retirement and senior tributes",
+            "gift_description": "<p>Westies are a long-lived breed, and a portrait of a senior Westie captures the wisdom and warmth that come with age. Have multiple Westies? Visit our <a href=\"/pages/multi-pet-portrait\" title=\"Multi-Pet Portrait\">multi-pet portrait page</a> to combine them in one piece. <a href=\"/pages/custom-pet-portrait-styles\" title=\"Custom Pet Portraits From Your Photo: 4 Art Styles, All Free to Preview\">Preview every style free</a> to find the perfect match.</p>"
+          }
+        },
+        "faq-1": {
+          "type": "faq",
+          "settings": {
+            "question": "Can I get a custom portrait of my Westie from a phone photo?",
+            "answer": "<p>Yes, phone photos work great. The most important things are good lighting on the face and sharp focus on the dark eyes. Avoid pure white backgrounds that make the coat edges disappear.</p>"
+          }
+        },
+        "faq-2": {
+          "type": "faq",
+          "settings": {
+            "question": "Which portrait style is best for Westies?",
+            "answer": "<p>Black & White is the most popular choice because it creates striking contrast between the white coat and the dark features. Ink Wash is a standout second option for its artistic, painterly quality on white coats. <a href=\"/pages/custom-pet-portrait-styles\">Upload your photo and preview all styles free</a>.</p>"
+          }
+        },
+        "faq-3": {
+          "type": "faq",
+          "settings": {
+            "question": "My Westie's coat looks yellowish in some photos. Will that affect the portrait?",
+            "answer": "<p>Slight cream or warm tones in the coat are normal for Westies and actually add warmth to portraits, especially in Color style. A freshly bathed, well-groomed coat photographs with the cleanest, whitest tone if that's the look you prefer.</p>"
+          }
+        },
+        "faq-4": {
+          "type": "faq",
+          "settings": {
+            "question": "How does the free preview work?",
+            "answer": "<p>Upload any photo of your Westie and you'll instantly see it transformed into all available art styles. It's completely free, no account or credit card required. If you love the result, pick your style and product and place your order. <a href=\"/pages/custom-pet-portrait-styles\">Try it now</a>.</p>"
+          }
+        },
+        "faq-5": {
+          "type": "faq",
+          "settings": {
+            "question": "Will the portrait show my Westie's coat texture?",
+            "answer": "<p>Yes. The rough double coat's texture comes through beautifully in all styles, especially Black & White and Ink Wash. Soft directional lighting in your source photo brings out the texture best.</p>"
+          }
+        },
+        "faq-6": {
+          "type": "faq",
+          "settings": {
+            "question": "Can I include my Westie with another pet in one portrait?",
+            "answer": "<p>Yes. We can combine separate photos of different pets into a single portrait, regardless of breed or size. Visit our <a href=\"/pages/multi-pet-portrait\">multi-pet portrait page</a> for details.</p>"
+          }
+        }
+      },
+      "block_order": [
+        "style-bw",
+        "style-inkwash",
+        "style-color",
+        "style-marker",
+        "tip-1",
+        "tip-2",
+        "tip-3",
+        "tip-4",
+        "tip-5",
+        "tip-6",
+        "gift-1",
+        "gift-2",
+        "gift-3",
+        "gift-4",
+        "faq-1",
+        "faq-2",
+        "faq-3",
+        "faq-4",
+        "faq-5",
+        "faq-6"
+      ],
+      "custom_css": [
+        ".button {background-color: #ff5964 !important; /* The background color */ color: #ffffff !important; /* The text color */ border: none; /* Optional: removes border */}"
+      ],
+      "settings": {
+        "accent_color": "#e8dcc8",
+        "eyebrow_text": "Small, White, Full of Character",
+        "heading": "",
+        "subtitle": "That white coat. Those dark, bright eyes. Pure terrier confidence. Your Westie deserves a portrait that captures the spirit behind that charming exterior.",
+        "hero_image": "shopify://shop_images/westie_beforeafter.png",
+        "hero_image_ratio": "natural",
+        "hero_image_alt": "Custom Westie portrait from photo - West Highland White Terrier",
+        "show_before_after_badge": false,
+        "cta_text": "See Your Westie in Every Style for Free",
+        "cta_url": "shopify://pages/custom-image-processing",
+        "secondary_cta_text": "",
+        "secondary_cta_url": "",
+        "preview_banner_heading": "Free Instant Preview",
+        "preview_banner_text": "Upload your photo and preview your Westie in every style instantly. Completely free.",
+        "styles_heading": "Which Portrait Style Fits Your Westie?",
+        "styles_subtitle": "Every Westie looks stunning in every style. But the all-white coat and dark features create unique opportunities that certain styles exploit beautifully.",
+        "styles_cta_text": "Preview All Styles Free",
+        "tips_heading": "Photo Tips for Westie Portraits",
+        "gifts_heading": "Westie Gifts: Custom Portraits That Capture Terrier Spirit",
+        "gifts_intro": "Westie owners know the breed's secret: beneath that pristine white exterior is a dog with more confidence, determination, and personality than breeds twice their size. The alert eyes, the perky ears, the way they strut like they own every room they enter. A personalized Westie portrait captures the spirit that makes this breed irresistible.\n\nA few occasions where a custom Westie portrait makes the perfect gift:",
+        "gifts_closing": "The best part: you can upload their Westie's photo and preview every style before you commit to anything. It's completely free, and you'll know exactly what you're getting before you order.",
+        "gifts_cta_text": "Preview Styles Free",
+        "products_collection": "personalized-pet-products-gifts",
+        "products_heading": "Available Products",
+        "products_subtitle": "Custom Westie wall art, framed prints, mugs, and 20+ products featuring your Westie portrait.",
+        "products_image_ratio": "square",
+        "products_limit": 10,
+        "faq_heading": "Westie Portrait FAQ",
+        "final_cta_heading": "Ready to See Your Westie as Art?",
+        "final_cta_text": "Upload your favorite photo and preview every style instantly. Completely free, no account needed.",
+        "trust_text": "No account needed · Takes less than 60 seconds · 100% free"
+      }
+    }
+  },
+  "order": [
+    "breed-landing"
+  ]
+}

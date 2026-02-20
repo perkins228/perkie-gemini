@@ -1,0 +1,241 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "sections": {
+    "breed-landing": {
+      "type": "breed-landing",
+      "blocks": {
+        "style-bw": {
+          "type": "style_recommendation",
+          "settings": {
+            "style_name": "Professional Black & White",
+            "style_tag": "The Natural Tuxedo",
+            "style_description": "Boston terriers are already dressed in black and white. A Black & White portrait takes what nature started and elevates it into fine art. The high-contrast markings become even more dramatic, the round eyes become the undeniable focal point, and the result is graphic, elegant, and striking. This is the style that feels like it was invented for Boston terriers, and the top choice for Boston terrier memorial portraits.",
+            "style_image": "shopify://shop_images/boston_bw.png",
+            "style_url": "/pages/black-and-white-pet-portrait"
+          }
+        },
+        "style-color": {
+          "type": "style_recommendation",
+          "settings": {
+            "style_name": "Color Portrait",
+            "style_tag": "Beyond the Tuxedo",
+            "style_description": "Color reveals what black and white hides: the warm brown undertones of a seal coat, the subtle brindle pattern, the pink of the tongue, the depth in those dark eyes. Color portraits feel warmer and more lifelike, and they're the best choice for brindle Bostons where the tiger-stripe pattern deserves to be seen.",
+            "style_image": "shopify://shop_images/boston_color.png",
+            "style_url": "/pages/color-pet-portrait"
+          }
+        },
+        "style-marker": {
+          "type": "style_recommendation",
+          "settings": {
+            "style_name": "Marker",
+            "style_tag": "Gentleman Goes Bold",
+            "style_description": "Marker takes the Boston terrier's graphic quality and amplifies it. The bold lines and vivid colors turn the tuxedo markings into a pop-art statement piece. This style captures the playful, goofy side of the breed that the \"gentleman\" nickname understates. Fun, eye-catching, and full of personality.",
+            "style_image": "shopify://shop_images/boston_marker_863f0be2-6abd-4313-8382-8b5a4a8dbd4c.png",
+            "style_url": "/pages/marker-pet-portrait"
+          }
+        },
+        "style-inkwash": {
+          "type": "style_recommendation",
+          "settings": {
+            "style_name": "Ink Wash",
+            "style_tag": "Softly Dapper",
+            "style_description": "Ink wash gives the Boston terrier's sharp markings a softer, more artistic treatment. The flowing brushstroke style blends the hard edges between dark and light into something gentler and more painterly. A beautiful choice for senior Bostons and memorial portraits where warmth matters more than graphic impact.",
+            "style_image": "shopify://shop_images/boston_inkwash_7924b8bb-4ce1-4e65-926f-4bf902eaddd6.png",
+            "style_url": "/pages/ink-wash-pet-portrait"
+          }
+        },
+        "tip-1": {
+          "type": "photo_tip",
+          "settings": {
+            "tip_icon": "📷",
+            "tip_title": "Straight-on angle is the money shot",
+            "tip_description": "The Boston terrier's face is designed to be seen from the front. The symmetrical markings, the centered white blaze, the wide-set eyes. A straight-on photo at eye level captures all of this perfectly and produces the most balanced, impactful portrait."
+          }
+        },
+        "tip-2": {
+          "type": "photo_tip",
+          "settings": {
+            "tip_icon": "⚡",
+            "tip_title": "Make sure the white markings aren't blown out",
+            "tip_description": "The high contrast between the dark coat and white markings can fool phone cameras into overexposing the white areas. If the white blaze and chest look like featureless bright patches in your photo, the portrait will lose detail there too. Soft, even lighting keeps both the dark and light areas well-exposed. Tap on the white area of the face to adjust exposure if your phone allows it."
+          }
+        },
+        "tip-3": {
+          "type": "photo_tip",
+          "settings": {
+            "tip_icon": "👁️",
+            "tip_title": "Those eyes need to shine",
+            "tip_description": "Boston terrier eyes are large, round, and incredibly expressive. They're the star of the portrait. Make sure they're well-lit with a visible highlight. A photo where the eyes catch a little natural light and show depth produces a portrait that feels alive."
+          }
+        },
+        "tip-4": {
+          "type": "photo_tip",
+          "settings": {
+            "tip_icon": "👂",
+            "tip_title": "The bat ears should be visible",
+            "tip_description": "The erect, pointed ears are a key part of the Boston terrier silhouette. Make sure they're fully visible in the frame. If one ear is cropped off or folded back, the portrait loses a defining feature. Both ears up and forward is the ideal."
+          }
+        },
+        "tip-5": {
+          "type": "photo_tip",
+          "settings": {
+            "tip_icon": "🐾",
+            "tip_title": "Brindle Bostons: show the pattern",
+            "tip_description": "If your Boston terrier is brindle rather than solid black, make sure the lighting is good enough to show the brindle striping. This pattern adds visual texture that makes the portrait more interesting, especially in Color and Marker styles."
+          }
+        },
+        "tip-6": {
+          "type": "photo_tip",
+          "settings": {
+            "tip_icon": "📱",
+            "tip_title": "Phone photos work perfectly",
+            "tip_description": "You don't need a professional camera. Some of our best Boston terrier portraits have come from casual phone shots. As long as the face is clear and both the dark and white markings show good detail, the photo will work."
+          }
+        },
+        "gift-1": {
+          "type": "gift_angle",
+          "settings": {
+            "gift_icon": "🎩",
+            "gift_title": "For the Boston terrier collector",
+            "gift_description": "<p>Boston terrier owners tend to be breed enthusiasts for life. A <a href=\"/products/personalized-pet-portrait\" title=\"Framed Pet Portrait\">custom portrait</a> of their specific dog is the centerpiece that all the generic Boston merch orbits around. Pair it with a matching <a href=\"/products/sweatshirt\" title=\"Sweatshirt\">sweatshirt</a> or <a href=\"/products/personalized-pet-canvas-tote-bag\" title=\"Canvas Tote Bag\">tote bag</a> for a complete set.</p>"
+          }
+        },
+        "gift-2": {
+          "type": "gift_angle",
+          "settings": {
+            "gift_icon": "🕊️",
+            "gift_title": "Memorial and remembrance",
+            "gift_description": "<p>A custom portrait captures those big, round eyes and the personality behind them. The tuxedo markings make the portrait instantly recognizable and unmistakably theirs. Our <a href=\"/pages/black-and-white-pet-portrait\" title=\"Custom Black & White Pet Portraits From Your Photo\">Black & White</a> and <a href=\"/pages/ink-wash-pet-portrait\" title=\"Ink Wash Pet Portraits From Your Photo\">Ink Wash</a> styles are the most popular for <a href=\"/pages/pet-memorial-portrait\" title=\"Pet Memorial Portraits\">Boston terrier memorial portraits</a>.</p>"
+          }
+        },
+        "gift-3": {
+          "type": "gift_angle",
+          "settings": {
+            "gift_icon": "🤵",
+            "gift_title": "Celebrating the gentleman",
+            "gift_description": "<p>There's something inherently charming about a dog in a natural tuxedo. A <a href=\"/pages/color-pet-portrait\" title=\"Custom Color Pet Portraits From Your Photo\">Color Portrait</a> that plays up that dapper quality makes a gift that people can't stop complimenting.</p>"
+          }
+        },
+        "gift-4": {
+          "type": "gift_angle",
+          "settings": {
+            "gift_icon": "🎁",
+            "gift_title": "Breed-perfect gift for any occasion",
+            "gift_description": "<p>Birthday, holiday, adoption day, housewarming. A Boston terrier portrait works for everything because the breed's visual appeal is universal. Have multiple Bostons? Visit our <a href=\"/pages/multi-pet-portrait\" title=\"Multi-Pet Portrait\">multi-pet portrait page</a> to combine them in one piece. <a href=\"/pages/custom-pet-portrait-styles\" title=\"Custom Pet Portraits From Your Photo: 4 Art Styles, All Free to Preview\">Preview every style free</a> to find the perfect match.</p>"
+          }
+        },
+        "faq-1": {
+          "type": "faq",
+          "settings": {
+            "question": "Can I get a custom portrait of my Boston terrier from a phone photo?",
+            "answer": "<p>Yes. Phone photos work perfectly. Shoot straight on at eye level in natural light for the best result. Make sure both the dark and white markings show clear detail without being over or underexposed.</p>"
+          }
+        },
+        "faq-2": {
+          "type": "faq",
+          "settings": {
+            "question": "Which portrait style is best for Boston terriers?",
+            "answer": "<p>Black & White is the most popular choice because it amplifies the natural tuxedo markings into striking fine art. Color is the best option for brindle Bostons or if you want a warmer, more lifelike look. <a href=\"/pages/custom-pet-portrait-styles\">Upload your photo and preview all styles free</a>.</p>"
+          }
+        },
+        "faq-3": {
+          "type": "faq",
+          "settings": {
+            "question": "Will the tuxedo markings show clearly in the portrait?",
+            "answer": "<p>Yes. The high-contrast marking pattern is what makes Boston terrier portraits so visually striking. Every style preserves and often enhances the natural contrast between the dark and white areas.</p>"
+          }
+        },
+        "faq-4": {
+          "type": "faq",
+          "settings": {
+            "question": "How does the free preview work?",
+            "answer": "<p>Upload any photo of your Boston terrier and you'll instantly see it transformed into all available art styles. It's completely free, no account or credit card required. If you love the result, pick your style and product and place your order. <a href=\"/pages/custom-pet-portrait-styles\">Try it now</a>.</p>"
+          }
+        },
+        "faq-5": {
+          "type": "faq",
+          "settings": {
+            "question": "I have a seal-colored Boston (dark brown, not black). Which style shows that best?",
+            "answer": "<p>Color is the best choice for seal Bostons. The warm brown tone that distinguishes seal from true black shows clearly in Color portraits but is lost in Black & White. Color preserves the subtle richness of the seal coat.</p>"
+          }
+        },
+        "faq-6": {
+          "type": "faq",
+          "settings": {
+            "question": "Can I include my Boston terrier with another pet in one portrait?",
+            "answer": "<p>Yes. We can combine separate photos of different pets into a single portrait, regardless of breed or size. Visit our <a href=\"/pages/multi-pet-portrait\">multi-pet portrait page</a> for details.</p>"
+          }
+        }
+      },
+      "block_order": [
+        "style-bw",
+        "style-color",
+        "style-marker",
+        "style-inkwash",
+        "tip-1",
+        "tip-2",
+        "tip-3",
+        "tip-4",
+        "tip-5",
+        "tip-6",
+        "gift-1",
+        "gift-2",
+        "gift-3",
+        "gift-4",
+        "faq-1",
+        "faq-2",
+        "faq-3",
+        "faq-4",
+        "faq-5",
+        "faq-6"
+      ],
+      "custom_css": [
+        ".button {background-color: #ff5964 !important; /* The background color */ color: #ffffff !important; /* The text color */ border: none; /* Optional: removes border */}"
+      ],
+      "settings": {
+        "accent_color": "#1c1c2e",
+        "eyebrow_text": "The American Gentleman, Custom Art",
+        "heading": "",
+        "subtitle": "The tuxedo coat. The big, round eyes. Gentleman meets goofball. Your Boston terrier deserves a portrait as sharp as their natural tuxedo.",
+        "hero_image": "shopify://shop_images/boston_beforeafter.png",
+        "hero_image_ratio": "natural",
+        "hero_image_alt": "Custom Boston terrier portrait from photo",
+        "show_before_after_badge": false,
+        "cta_text": "See Your Boston in Every Style for Free",
+        "cta_url": "shopify://pages/custom-image-processing",
+        "secondary_cta_text": "",
+        "secondary_cta_url": "",
+        "preview_banner_heading": "Free Instant Preview",
+        "preview_banner_text": "Upload your photo and preview your Boston terrier in every style instantly. Completely free.",
+        "styles_heading": "Which Portrait Style Fits Your Boston Terrier?",
+        "styles_subtitle": "Every Boston looks incredible in every style. But the natural tuxedo markings and expressive round eyes create pairings that are especially striking.",
+        "styles_cta_text": "Preview All Styles Free",
+        "tips_heading": "Photo Tips for Boston Terrier Portraits",
+        "gifts_heading": "Boston Terrier Gifts: Custom Portraits That Match the Tuxedo",
+        "gifts_intro": "Boston terrier owners know they have one of the most visually distinctive breeds in the world. The natural tuxedo, the big round eyes, the personality that manages to be both dignified and goofy in the same moment. A personalized Boston terrier portrait captures the charm that makes this breed impossible not to love.\n\nA few occasions where a custom Boston terrier portrait makes the perfect gift:",
+        "gifts_closing": "The best part: you can upload their Boston's photo and preview every style before you commit to anything. It's completely free, and you'll know exactly what you're getting before you order.",
+        "gifts_cta_text": "Preview Styles Free",
+        "products_collection": "personalized-pet-products-gifts",
+        "products_heading": "Available Products",
+        "products_subtitle": "Custom Boston terrier wall art, framed prints, mugs, and 20+ products featuring your Boston portrait.",
+        "products_image_ratio": "square",
+        "products_limit": 10,
+        "faq_heading": "Boston Terrier Portrait FAQ",
+        "final_cta_heading": "Ready to See Your Boston as Art?",
+        "final_cta_text": "Upload your favorite photo and preview every style instantly. Completely free, no account needed.",
+        "trust_text": "No account needed · Takes less than 60 seconds · 100% free"
+      }
+    }
+  },
+  "order": [
+    "breed-landing"
+  ]
+}

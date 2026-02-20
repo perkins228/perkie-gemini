@@ -1,0 +1,336 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "sections": {
+    "breed-hub": {
+      "type": "breed-hub",
+      "blocks": {
+        "cat-sporting": {
+          "type": "category_heading",
+          "settings": {
+            "title": "Sporting & Retriever Breeds"
+          }
+        },
+        "breed-golden-retriever": {
+          "type": "breed_card",
+          "settings": {
+            "breed_name": "Golden Retriever",
+            "description": "Warm coats and gentle expressions. Color portraits capture the signature golden glow.",
+            "page_url": "/pages/golden-retriever-portrait",
+            "image": "shopify://shop_images/22757_Carlon_8x10_KARL.png",
+            "image_alt": "Custom golden retriever portrait"
+          }
+        },
+        "breed-labrador": {
+          "type": "breed_card",
+          "settings": {
+            "breed_name": "Labrador Retriever",
+            "description": "Yellow, chocolate, or black. Three coat colors, three completely different portrait personalities.",
+            "page_url": "/pages/labrador-retriever-portrait",
+            "image": "shopify://shop_images/lab_bw.png",
+            "image_alt": "Custom labrador retriever portrait"
+          }
+        },
+        "cat-doodles": {
+          "type": "category_heading",
+          "settings": {
+            "title": "Doodles & Poodles"
+          }
+        },
+        "breed-doodle": {
+          "type": "breed_card",
+          "settings": {
+            "breed_name": "Doodle",
+            "description": "Goldendoodle, Bernedoodle, Labradoodle, and every poodle mix. Those curls were made for portraits.",
+            "page_url": "/pages/doodle-portrait",
+            "image": "shopify://shop_images/doodle_bw.png",
+            "image_alt": "Custom doodle portrait"
+          }
+        },
+        "breed-poodle": {
+          "type": "breed_card",
+          "settings": {
+            "breed_name": "Poodle",
+            "description": "Standard, miniature, or toy. Centuries of portrait tradition for a reason.",
+            "page_url": "/pages/poodle-portrait",
+            "image": "shopify://shop_images/poodle_bew.png",
+            "image_alt": "Custom poodle portrait"
+          }
+        },
+        "cat-herding": {
+          "type": "category_heading",
+          "settings": {
+            "title": "Herding Breeds"
+          }
+        },
+        "breed-german-shepherd": {
+          "type": "breed_card",
+          "settings": {
+            "breed_name": "German Shepherd",
+            "description": "Intensity, intelligence, and an iconic silhouette. Black & White captures the commanding presence.",
+            "page_url": "/pages/german-shepherd-portrait",
+            "image": "shopify://shop_images/gsd_bw.png",
+            "image_alt": "Custom German Shepherd portrait"
+          }
+        },
+        "breed-corgi": {
+          "type": "breed_card",
+          "settings": {
+            "breed_name": "Corgi",
+            "description": "Short legs, big ears, bigger attitude. That smile is portrait perfection.",
+            "page_url": "/pages/corgi-portrait",
+            "image": "shopify://shop_images/corgi_bw.png",
+            "image_alt": "Custom corgi portrait"
+          }
+        },
+        "cat-terriers": {
+          "type": "category_heading",
+          "settings": {
+            "title": "Terriers"
+          }
+        },
+        "breed-yorkie": {
+          "type": "breed_card",
+          "settings": {
+            "breed_name": "Yorkshire Terrier",
+            "description": "Steel-blue and tan silk. Tiny dog, stunning portrait.",
+            "page_url": "/pages/yorkie-portrait",
+            "image": "shopify://shop_images/yorkie_bw.png",
+            "image_alt": "Custom Yorkie portrait"
+          }
+        },
+        "breed-westie": {
+          "type": "breed_card",
+          "settings": {
+            "breed_name": "West Highland White Terrier",
+            "description": "All-white coat, dark bright eyes. Black & White portraits are striking.",
+            "page_url": "/pages/westie-portrait",
+            "image": "shopify://shop_images/westie_bw.png",
+            "image_alt": "Custom Westie portrait"
+          }
+        },
+        "breed-boston-terrier": {
+          "type": "breed_card",
+          "settings": {
+            "breed_name": "Boston Terrier",
+            "description": "The natural tuxedo. Already dressed for their portrait.",
+            "page_url": "/pages/boston-terrier-portrait",
+            "image": "shopify://shop_images/boston_bw.png",
+            "image_alt": "Custom Boston terrier portrait"
+          }
+        },
+        "cat-bulldogs": {
+          "type": "category_heading",
+          "settings": {
+            "title": "Bulldogs & Bully Breeds"
+          }
+        },
+        "breed-french-bulldog": {
+          "type": "breed_card",
+          "settings": {
+            "breed_name": "French Bulldog",
+            "description": "Bat ears, flat face, and more color varieties than you'd expect.",
+            "page_url": "/pages/french-bulldog-portrait",
+            "image": "shopify://shop_images/frenchie_bw.png",
+            "image_alt": "Custom French bulldog portrait"
+          }
+        },
+        "breed-english-bulldog": {
+          "type": "breed_card",
+          "settings": {
+            "breed_name": "English Bulldog",
+            "description": "Wrinkles, underbite, and a face full of character.",
+            "page_url": "/pages/english-bulldog-portrait",
+            "image": "shopify://shop_images/bulldog_bw.png",
+            "image_alt": "Custom English bulldog portrait"
+          }
+        },
+        "breed-pitbull": {
+          "type": "breed_card",
+          "settings": {
+            "breed_name": "Pitbull",
+            "description": "Strength and softness. Portraits that show the world who they really are.",
+            "page_url": "/pages/pitbull-portrait",
+            "image": "shopify://shop_images/pitbull_bw.png",
+            "image_alt": "Custom pitbull portrait"
+          }
+        },
+        "breed-boxer": {
+          "type": "breed_card",
+          "settings": {
+            "breed_name": "Boxer",
+            "description": "Underbite, boundless energy, and an expression that radiates joy.",
+            "page_url": "/pages/boxer-portrait",
+            "image": "shopify://shop_images/boxer_bw.png",
+            "image_alt": "Custom boxer portrait"
+          }
+        },
+        "cat-working": {
+          "type": "category_heading",
+          "settings": {
+            "title": "Working & Giant Breeds"
+          }
+        },
+        "breed-great-dane": {
+          "type": "breed_card",
+          "settings": {
+            "breed_name": "Great Dane",
+            "description": "Gentle giants deserve grand portraits.",
+            "page_url": "/pages/great-dane-portrait",
+            "image": "shopify://shop_images/dane_bw.png",
+            "image_alt": "Custom Great Dane portrait"
+          }
+        },
+        "breed-bernese": {
+          "type": "breed_card",
+          "settings": {
+            "breed_name": "Bernese Mountain Dog",
+            "description": "That tricolor coat is a masterpiece before we even start.",
+            "page_url": "/pages/bernese-mountain-dog-portrait",
+            "image": "shopify://shop_images/bernie_bw.png",
+            "image_alt": "Custom Bernese mountain dog portrait"
+          }
+        },
+        "breed-rottweiler": {
+          "type": "breed_card",
+          "settings": {
+            "breed_name": "Rottweiler",
+            "description": "Powerful, loyal, and more affectionate than their reputation.",
+            "page_url": "/pages/rottweiler-portrait",
+            "image": "shopify://shop_images/rottweiler_bw.png",
+            "image_alt": "Custom rottweiler portrait"
+          }
+        },
+        "breed-husky": {
+          "type": "breed_card",
+          "settings": {
+            "breed_name": "Husky",
+            "description": "Wolf-like beauty and those legendary eyes. Black & White is the definitive style.",
+            "page_url": "/pages/husky-portrait",
+            "image": "shopify://shop_images/husky_bw.png",
+            "image_alt": "Custom husky portrait"
+          }
+        },
+        "cat-hounds": {
+          "type": "category_heading",
+          "settings": {
+            "title": "Hounds & Other Breeds"
+          }
+        },
+        "breed-dachshund": {
+          "type": "breed_card",
+          "settings": {
+            "breed_name": "Dachshund",
+            "description": "Long body, short legs, enormous personality.",
+            "page_url": "/pages/dachshund-portrait",
+            "image": "shopify://shop_images/dachshund_bw.png",
+            "image_alt": "Custom dachshund portrait"
+          }
+        },
+        "breed-pug": {
+          "type": "breed_card",
+          "settings": {
+            "breed_name": "Pug",
+            "description": "Those eyes. Those wrinkles. Maximum personality per pound.",
+            "page_url": "/pages/pug-portrait",
+            "image": "shopify://shop_images/pug_bw.png",
+            "image_alt": "Custom pug portrait"
+          }
+        },
+        "breed-dalmatian": {
+          "type": "breed_card",
+          "settings": {
+            "breed_name": "Dalmatian",
+            "description": "No two spot patterns are alike. Every portrait is one of a kind.",
+            "page_url": "/pages/dalmatian-portrait",
+            "image": "shopify://shop_images/dalmatian_bw.png",
+            "image_alt": "Custom dalmatian portrait"
+          }
+        },
+        "cat-cats": {
+          "type": "category_heading",
+          "settings": {
+            "title": "Cat Portraits"
+          }
+        },
+        "breed-cat": {
+          "type": "breed_card",
+          "settings": {
+            "breed_name": "Cat",
+            "description": "Maine Coon, Siamese, Persian, tabby, tuxedo, orange, black, and every breed and mix. One page for all cats.",
+            "page_url": "/pages/cat-portrait",
+            "image": "shopify://shop_images/cat_bw.png",
+            "image_alt": "Custom cat portrait"
+          }
+        },
+        "fallback": {
+          "type": "dont_see_breed",
+          "settings": {
+            "title": "Don't See Your Breed?",
+            "text": "Every breed and every mix works beautifully as a portrait. The pages above offer breed-specific tips and style recommendations, but our free preview works with any pet photo. Upload your photo and see the result instantly.",
+            "cta_text": "Upload Any Pet Photo — Free Preview",
+            "cta_url": "/pages/custom-pet-portrait-styles"
+          }
+        },
+        "multi-pet": {
+          "type": "multi_pet_callout",
+          "settings": {
+            "title": "Multiple Pets?",
+            "text": "Have two or three pets you'd like in a single portrait? We can combine separate photos into one composition. No group photo needed.",
+            "cta_text": "Learn More About Multi-Pet Portraits",
+            "cta_url": "/pages/multi-pet-portrait"
+          }
+        }
+      },
+      "block_order": [
+        "cat-sporting",
+        "breed-golden-retriever",
+        "breed-labrador",
+        "cat-doodles",
+        "breed-doodle",
+        "breed-poodle",
+        "cat-herding",
+        "breed-german-shepherd",
+        "breed-corgi",
+        "cat-terriers",
+        "breed-yorkie",
+        "breed-westie",
+        "breed-boston-terrier",
+        "cat-bulldogs",
+        "breed-french-bulldog",
+        "breed-english-bulldog",
+        "breed-pitbull",
+        "breed-boxer",
+        "cat-working",
+        "breed-great-dane",
+        "breed-bernese",
+        "breed-rottweiler",
+        "breed-husky",
+        "cat-hounds",
+        "breed-dachshund",
+        "breed-pug",
+        "breed-dalmatian",
+        "cat-cats",
+        "breed-cat",
+        "fallback",
+        "multi-pet"
+      ],
+      "custom_css": [
+        ".button {background-color: #ff5964 !important; /* The background color */ color: #ffffff !important; /* The text color */ border: none; /* Optional: removes border */}"
+      ],
+      "settings": {
+        "show_descriptions": true
+      }
+    }
+  },
+  "order": [
+    "breed-hub"
+  ]
+}
