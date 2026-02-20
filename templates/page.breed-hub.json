@@ -24,6 +24,7 @@
             "breed_name": "Golden Retriever",
             "description": "Warm coats and gentle expressions. Color portraits capture the signature golden glow.",
             "page_url": "/pages/golden-retriever-portrait",
+            "image": "shopify://shop_images/22757_Carlon_8x10_KARL.png",
             "image_alt": "Custom golden retriever portrait"
           }
         },
@@ -33,6 +34,7 @@
             "breed_name": "Labrador Retriever",
             "description": "Yellow, chocolate, or black. Three coat colors, three completely different portrait personalities.",
             "page_url": "/pages/labrador-retriever-portrait",
+            "image": "shopify://shop_images/lab_bw.png",
             "image_alt": "Custom labrador retriever portrait"
           }
         },
@@ -254,7 +256,7 @@
           "settings": {
             "title": "Don't See Your Breed?",
             "text": "Every breed and every mix works beautifully as a portrait. The pages above offer breed-specific tips and style recommendations, but our free preview works with any pet photo. Upload your photo and see the result instantly.",
-            "cta_text": "Upload Any Pet Photo \u2014 Free Preview",
+            "cta_text": "Upload Any Pet Photo — Free Preview",
             "cta_url": "/pages/custom-pet-portrait-styles"
           }
         },
@@ -300,6 +302,9 @@
         "breed-cat",
         "fallback",
         "multi-pet"
+      ],
+      "custom_css": [
+        ".button {background-color: #ff5964 !important; /* The background color */ color: #ffffff !important; /* The text color */ border: none; /* Optional: removes border */}"
       ],
       "settings": {
         "show_descriptions": true
