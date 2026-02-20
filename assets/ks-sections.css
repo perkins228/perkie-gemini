@@ -788,7 +788,8 @@
 .ks-image-compare-content {
 }
 
-.ks-image-compare-content-only-media {
+.ks-image-compare-content-only-media,
+.ks-image-compare-content-only-img {
   width: 100%;
 }
 
@@ -849,10 +850,10 @@
     flex-direction: row-reverse;
   }
   .ks-image-compare-content-left {
-    width: 50%;
+    width: var(--desktop-img-width, 50%);
   }
   .ks-image-compare-content-right {
-    width: 50%;
+    width: calc(100% - var(--desktop-img-width, 50%));
     padding: 3rem;
   }
 }

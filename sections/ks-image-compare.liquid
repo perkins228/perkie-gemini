@@ -18,6 +18,24 @@
     font-size: {{ section.settings.icv_labels_font_size | append: 'rem' }};
   }
 
+  {% if section.settings.show_only_img %}
+    @media screen and (min-width: 990px) {
+      #ks-image-compare-{{ section.id }} .ks-image-compare-img,
+      #ks-image-compare-{{ section.id }} [data-image-compare] {
+        max-height: {{ section.settings.desktop_max_height }}px;
+      }
+      #ks-image-compare-{{ section.id }} .ks-image-compare-img {
+        object-fit: contain;
+      }
+    }
+  {% else %}
+    @media screen and (min-width: 990px) {
+      #ks-image-compare-{{ section.id }} {
+        --desktop-img-width: {{ section.settings.desktop_img_width }}%;
+      }
+    }
+  {% endif %}
+
   #ks-image-compare-{{ section.id }} .icv__icv--horizontal .icv__label {
     {% if section.settings.icv_labels_position == 'top' %}
       top: 1rem;
@@ -203,6 +221,32 @@
       "type": "image_picker",
       "id": "desktop_after_img",
       "label": "After image"
+    },
+    {
+      "type": "header",
+      "content": "Desktop layout"
+    },
+    {
+      "type": "range",
+      "id": "desktop_img_width",
+      "label": "Image column width - desktop",
+      "info": "Controls image vs text split on desktop. Only applies when 'Show only the image' is off.",
+      "min": 40,
+      "max": 65,
+      "step": 5,
+      "default": 50,
+      "unit": "%"
+    },
+    {
+      "type": "range",
+      "id": "desktop_max_height",
+      "label": "Max image height - desktop",
+      "info": "Caps image height in full-width mode. Only applies when 'Show only the image' is on.",
+      "min": 300,
+      "max": 800,
+      "step": 50,
+      "default": 500,
+      "unit": "px"
     },
     {
       "type": "header",
