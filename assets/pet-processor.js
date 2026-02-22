@@ -472,6 +472,11 @@ class PetProcessor {
     // Uploads happen in background, awaited only at cart time
     this.pendingGcsUploads = null;
 
+    // Email capture during processing
+    this.capturedEmail = null;
+    this._emailCaptureInitialized = false;
+    this._emailCaptureTimer = null;
+
     // Initialize
     this.init();
   }
@@ -1270,6 +1275,7 @@ class PetProcessor {
                 <div class="progress-timer">⏱️ Estimating time...</div>
               </div>
               <div class="progress-stage-info"></div>
+              <div class="email-capture-container" hidden></div>
               <button class="cancel-processing-btn" onclick="window.petProcessor?.cancelProcessing()">
                 Cancel Upload
               </button>
@@ -1698,6 +1704,11 @@ class PetProcessor {
       // Process image with API (uploads original to GCS in background for fulfillment)
       const result = await this.callAPI(file);
 
+      // If no email captured during processing, mark as dismissed for this session
+      if (!this.capturedEmail) {
+        sessionStorage.setItem('perkieEmailDismissed', 'true');
+      }
+
       // Store result (originalUrl uploaded in background, available via effects._originalUrl)
       this.currentPet = {
         id: `pet_${crypto.randomUUID()}`,
@@ -1713,6 +1724,11 @@ class PetProcessor {
       this.updateEffectButtonStates();
 
     } catch (error) {
+      // Clean up email capture timer on error
+      if (this._emailCaptureTimer) {
+        clearTimeout(this._emailCaptureTimer);
+        this._emailCaptureTimer = null;
+      }
       this.showError('Processing failed. Please try again.');
       console.error('Processing error:', error);
     }
@@ -2200,6 +2216,14 @@ class PetProcessor {
       }
     }
 
+    // Check for mid-typing email before showing completion
+    const emailInput = this.container.querySelector('.email-capture-input');
+    const hasPartialEmail = emailInput && emailInput.value.trim().length > 0 && !this.capturedEmail;
+    if (hasPartialEmail) {
+      this.updateProgressWithTimer(100, 'Almost done! Finish entering your email...', 'Complete!');
+      await new Promise(resolve => setTimeout(resolve, 5000));
+    }
+
     // Final progress
     this.updateProgressWithTimer(100, '🎉 Your Perkie Print preview is ready!', 'Complete!');
     this.processingComplete = true;
@@ -2208,6 +2232,18 @@ class PetProcessor {
     // Record API call for future warmth detection
     const totalTime = Date.now() - startTime;
     warmthTracker.recordAPICall(true, totalTime);
+
+    // Fire Omnisend previewCompleted if email was captured during processing
+    if (this.capturedEmail && window.omnisend) {
+      try {
+        omnisend.push(['track', 'previewCompleted', {
+          email: this.capturedEmail,
+          processingTimeSec: Math.round(totalTime / 1000),
+          deviceType: window.innerWidth < 768 ? 'mobile' : 'desktop',
+          timestamp: new Date().toISOString()
+        }]);
+      } catch (e) { console.warn('Omnisend previewCompleted failed:', e); }
+    }
 
     // Record processing timestamp to prevent unnecessary warmup
     sessionStorage.setItem('last_processing_time', Date.now().toString());
@@ -2573,12 +2609,21 @@ class PetProcessor {
     this.hideAllViews();
     const view = this.container.querySelector('.processing-view');
     if (view) view.hidden = false;
-    
+
     // Hide preview placeholder on desktop
     const placeholder = this.container.querySelector('.preview-placeholder');
     if (placeholder) placeholder.style.display = 'none';
-    
+
     this.isProcessing = true;
+
+    // Start email capture with delay (3.5s lets user orient to processing screen first)
+    if (this.shouldShowEmailCapture()) {
+      this._emailCaptureTimer = setTimeout(() => {
+        if (!this.processingComplete) {
+          this.initEmailCapture();
+        }
+      }, 3500);
+    }
   }
   
   showResult(result) {
@@ -3006,7 +3051,199 @@ class PetProcessor {
     this.reset();
     console.log('Processing cancelled by user');
   }
-  
+
+  // ── Email Capture During Processing ──────────────────────────────
+
+  shouldShowEmailCapture() {
+    // Data attributes live on the <section> element, not this.container (inner div)
+    const section = this.container.closest('.ks-pet-processor-section');
+    if (!section) return false;
+
+    // Check Shopify admin toggle
+    if (section.dataset.enableEmailCapture !== 'true') return false;
+
+    // Only on free preview page
+    if (section.dataset.pageHandle !== 'custom-image-processing') return false;
+
+    // Not for logged-in customers
+    if (section.dataset.customerLoggedIn === 'true') return false;
+
+    // Check sessionStorage dismiss flag (ignored this session)
+    if (sessionStorage.getItem('perkieEmailDismissed')) return false;
+
+    // Email click-through visitors are already known Omnisend contacts — skip capture.
+    // NOTE: Intentional side effect (localStorage write) in a predicate method.
+    // Safe because this method is only called once per upload in showProcessing().
+    const urlParams = new URLSearchParams(window.location.search);
+    const fromEmail = urlParams.get('utm_medium') === 'email'
+      || urlParams.has('omnisendContactID')
+      || (urlParams.get('utm_source') || '').toLowerCase() === 'omnisend';
+    if (fromEmail) {
+      localStorage.setItem('perkieEmailCaptured', JSON.stringify({ timestamp: Date.now() }));
+      return false;
+    }
+
+    // Check localStorage with 90-day TTL
+    const stored = localStorage.getItem('perkieEmailCaptured');
+    if (stored) {
+      try {
+        const data = JSON.parse(stored);
+        if (typeof data === 'object' && data.timestamp) {
+          const ninetyDays = 90 * 24 * 60 * 60 * 1000;
+          if ((Date.now() - data.timestamp) < ninetyDays) return false;
+          // Expired — allow showing again
+        } else {
+          // Legacy bare 'true' or unexpected format — treat as permanent
+          return false;
+        }
+      } catch (e) {
+        // Corrupted value — treat as permanent suppression for safety
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  initEmailCapture() {
+    if (this._emailCaptureInitialized) return;
+    if (this.processingComplete) return;
+    this._emailCaptureInitialized = true;
+
+    const container = this.container.querySelector('.email-capture-container');
+    if (!container) return;
+
+    container.innerHTML = `
+      <p class="email-capture-heading" id="email-capture-label">Get your previews by email</p>
+      <p class="email-capture-subtext">We'll send all four styles so you can share or revisit them.</p>
+      <div class="email-capture-form">
+        <input type="email"
+               class="email-capture-input"
+               placeholder="your@email.com"
+               autocomplete="email"
+               inputmode="email"
+               aria-label="Email address"
+               aria-labelledby="email-capture-label">
+        <button type="button" class="email-capture-btn">Email My Previews</button>
+      </div>
+      <p class="email-capture-optional">Totally optional. Previews appear here no matter what. We may send occasional offers. Unsubscribe anytime. <a href="/policies/privacy-policy" target="_blank">Privacy Policy</a>.</p>
+      <div class="email-capture-success" role="status" aria-live="polite" hidden></div>
+    `;
+    container.hidden = false;
+
+    // Bind submit handler
+    const input = container.querySelector('.email-capture-input');
+    const btn = container.querySelector('.email-capture-btn');
+
+    const submitHandler = () => {
+      const email = input.value.trim();
+      if (email) this.handleEmailSubmit(email);
+    };
+
+    btn.addEventListener('click', submitHandler);
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        submitHandler();
+      }
+    });
+  }
+
+  handleEmailSubmit(email) {
+    // Basic email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      const input = this.container.querySelector('.email-capture-input');
+      if (input) {
+        input.style.borderColor = '#ef4444';
+        input.focus();
+        setTimeout(() => { input.style.borderColor = ''; }, 2000);
+      }
+      return;
+    }
+
+    this.capturedEmail = email;
+
+    // Show success state
+    const container = this.container.querySelector('.email-capture-container');
+    if (container) {
+      const form = container.querySelector('.email-capture-form');
+      const heading = container.querySelector('.email-capture-heading');
+      const subtext = container.querySelector('.email-capture-subtext');
+      const optional = container.querySelector('.email-capture-optional');
+      const success = container.querySelector('.email-capture-success');
+
+      if (form) form.hidden = true;
+      if (heading) heading.hidden = true;
+      if (subtext) subtext.hidden = true;
+      if (optional) optional.hidden = true;
+      if (success) {
+        success.innerHTML = `
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+            <path d="M16.67 5L7.5 14.17 3.33 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          You're all set! We'll email them when ready.
+        `;
+        success.hidden = false;
+      }
+    }
+
+    // Set localStorage with 90-day TTL
+    localStorage.setItem('perkieEmailCaptured', JSON.stringify({ timestamp: Date.now() }));
+
+    // Submit to hidden Shopify customer form
+    const shopifyForm = document.getElementById('pet-email-capture-form');
+    if (shopifyForm) {
+      const emailInput = document.getElementById('pet-email-input');
+      const tagsInput = document.getElementById('pet-email-tags');
+      if (emailInput) emailInput.value = email;
+      if (tagsInput) tagsInput.value = 'pet-processor,pet-processor-preview';
+      fetch(shopifyForm.action, {
+        method: 'POST',
+        body: new FormData(shopifyForm),
+        redirect: 'manual'
+      })
+        .then(r => { if (!r.ok) console.warn('Shopify email form:', r.status); })
+        .catch(err => console.warn('Shopify email form failed:', err));
+    }
+
+    // Fire Omnisend identification
+    if (window.omnisend) {
+      try {
+        omnisend.push(['track', '$contactIdentified', { email: email }]);
+      } catch (e) { console.warn('Omnisend identification failed:', e); }
+    }
+
+    // Fire PerkieAnalytics (GA4 + Facebook Pixel)
+    if (window.PerkieAnalytics) {
+      PerkieAnalytics.trackEmailCapture('pet_processor_preview', 5);
+    }
+
+    // Push to dataLayer for GTM
+    window.dataLayer = window.dataLayer || [];
+    window.dataLayer.push({
+      event: 'email_capture',
+      email_source: 'pet_processor_preview'
+    });
+
+    // If processing already completed, fire previewCompleted immediately (with delay for Omnisend queue)
+    if (this.processingComplete && window.omnisend) {
+      setTimeout(() => {
+        try {
+          omnisend.push(['track', 'previewCompleted', {
+            email: email,
+            deviceType: window.innerWidth < 768 ? 'mobile' : 'desktop',
+            timestamp: new Date().toISOString()
+          }]);
+        } catch (e) { console.warn('Omnisend previewCompleted failed:', e); }
+      }, 500);
+    }
+
+    console.log('📧 Email captured during processing:', email);
+  }
+
+  // ── End Email Capture ────────────────────────────────────────────
+
   // Save pet data without navigation (extracted from saveToCart)
   async savePetData() {
     if (!this.currentPet || !this.currentPet.effects) {
@@ -3469,6 +3706,16 @@ class PetProcessor {
     // Clear artist notes textarea (if it exists for backward compatibility)
     const artistNotesInput = this.container.querySelector('.artist-notes-input');
     if (artistNotesInput) artistNotesInput.value = '';
+
+    // Clear email capture state
+    this.capturedEmail = null;
+    this._emailCaptureInitialized = false;
+    if (this._emailCaptureTimer) {
+      clearTimeout(this._emailCaptureTimer);
+      this._emailCaptureTimer = null;
+    }
+    const emailContainer = this.container.querySelector('.email-capture-container');
+    if (emailContainer) { emailContainer.innerHTML = ''; emailContainer.hidden = true; }
   }
 
   /**

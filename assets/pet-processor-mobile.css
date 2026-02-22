@@ -150,6 +150,124 @@
   color: rgba(var(--color-foreground), 0.9);
 }
 
+/* Email Capture During Processing */
+@keyframes emailCaptureIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.email-capture-container {
+  animation: emailCaptureIn 0.4s ease-out;
+  background: rgba(var(--color-button), 0.05);
+  border-radius: 8px;
+  padding: 1rem;
+  margin: 1.5rem auto 0;
+  max-width: 400px;
+  text-align: center;
+}
+
+.email-capture-heading {
+  font-size: 1rem;
+  font-weight: 600;
+  color: rgb(var(--color-foreground));
+  margin: 0 0 0.25rem;
+}
+
+.email-capture-subtext {
+  font-size: 0.85rem;
+  color: rgba(var(--color-foreground), 0.7);
+  margin: 0 0 0.75rem;
+}
+
+.processing-view .email-capture-form {
+  display: flex;
+  gap: 0.5rem;
+  align-items: stretch;
+}
+
+.email-capture-input {
+  flex: 1;
+  min-height: 48px;
+  padding: 0 0.75rem;
+  border: 1px solid rgba(var(--color-foreground), 0.2);
+  border-radius: 6px;
+  font-size: 1rem;
+  color: rgb(var(--color-foreground));
+  background: rgb(var(--color-background));
+}
+
+.email-capture-input:focus {
+  outline: 2px solid rgb(var(--color-button));
+  outline-offset: -2px;
+  border-color: transparent;
+}
+
+.email-capture-btn {
+  min-height: 48px;
+  padding: 0 1rem;
+  background: rgb(var(--color-button));
+  color: rgb(var(--color-button-text));
+  border: none;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: opacity 0.2s;
+}
+
+.email-capture-btn:hover { opacity: 0.9; }
+.email-capture-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.email-capture-optional {
+  font-size: 0.75rem;
+  color: rgba(var(--color-foreground), 0.6);
+  margin: 0.5rem 0 0;
+}
+
+.email-capture-optional a {
+  color: rgba(var(--color-foreground), 0.6);
+  text-decoration: underline;
+}
+
+.email-capture-success {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  color: rgb(var(--color-foreground));
+  font-weight: 500;
+  padding: 0.5rem 0;
+}
+
+.email-capture-success svg {
+  color: #4CAF50;
+  flex-shrink: 0;
+}
+
+/* Mobile: stack input + button vertically (768px matches existing .processing-view breakpoint) */
+@media (max-width: 768px) {
+  .processing-view .email-capture-form {
+    flex-direction: column;
+  }
+
+  .email-capture-btn {
+    width: 100%;
+  }
+
+  .email-capture-container {
+    margin: 1rem auto 0;
+    padding: 0.75rem;
+  }
+}
+
+/* Respect reduced motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  .email-capture-container {
+    animation: none;
+  }
+}
+
 /* Result View */
 .pet-image-container {
   margin: 0 auto 1.5rem;

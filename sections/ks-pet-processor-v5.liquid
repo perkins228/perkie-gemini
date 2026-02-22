@@ -28,7 +28,10 @@
          {% if section.settings.style_preview_bw != blank %}data-style-preview-bw="{{ section.settings.style_preview_bw | image_url: width: 320 }}"{% endif %}
          {% if section.settings.style_preview_color != blank %}data-style-preview-color="{{ section.settings.style_preview_color | image_url: width: 320 }}"{% endif %}
          {% if section.settings.style_preview_stencil != blank %}data-style-preview-stencil="{{ section.settings.style_preview_stencil | image_url: width: 320 }}"{% endif %}
-         {% if section.settings.style_preview_sketch != blank %}data-style-preview-sketch="{{ section.settings.style_preview_sketch | image_url: width: 320 }}"{% endif %}>
+         {% if section.settings.style_preview_sketch != blank %}data-style-preview-sketch="{{ section.settings.style_preview_sketch | image_url: width: 320 }}"{% endif %}
+         data-enable-email-capture="{{ section.settings.enable_email_capture }}"
+         data-customer-logged-in="{% if customer %}true{% else %}false{% endif %}"
+         data-page-handle="{{ page.handle }}">
   <a id="pet-processor" style="position: absolute; top: -80px;"></a>
   <div class="page-width">
     {% if section.settings.heading != blank %}
@@ -115,6 +118,13 @@
       "label": "Enable Product Integration",
       "default": true,
       "info": "Allow adding processed images directly to products"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_email_capture",
+      "label": "Enable Email Capture During Processing",
+      "default": true,
+      "info": "Shows optional email field on the processing screen (free preview page only)"
     },
     {
       "type": "text",
