@@ -2240,31 +2240,23 @@ class PetProcessor {
     if (window.omnisend && !this._previewCompletedFired
         && (this.capturedEmail || this._isFromEmail || this._isLoggedIn)) {
       try {
-        var self = this;
-        var firePreviewCompleted = function() {
-          omnisend.push(["track", "previewCompleted", {
-            origin: "api",
-            properties: {
-              previewStyles: "Black & White, Color, Ink Wash, Marker",
-              previewPageUrl: window.location.href,
-              deviceType: window.innerWidth < 768 ? "mobile" : "desktop"
-            }
-          }]);
-          self._previewCompletedFired = true;
-        };
-
-        // For logged-in customers, identify first then track after 1s delay.
-        // identifyContact is async — contact must register server-side first.
+        // For logged-in customers, identify them to Omnisend first
         if (this._isLoggedIn && !this.capturedEmail && !this._isFromEmail) {
           var section = this.container.closest('.ks-pet-processor-section');
           var customerEmail = section && section.dataset ? section.dataset.customerEmail : null;
           if (customerEmail) {
             omnisend.identifyContact({ email: customerEmail });
-            setTimeout(function() { firePreviewCompleted(); }, 1000);
           }
-        } else {
-          firePreviewCompleted();
         }
+        omnisend.push(["track", "previewCompleted", {
+          origin: "api",
+          properties: {
+            previewStyles: "Black & White, Color, Ink Wash, Marker",
+            previewPageUrl: window.location.href,
+            deviceType: window.innerWidth < 768 ? "mobile" : "desktop"
+          }
+        }]);
+        this._previewCompletedFired = true;
       } catch (e) { console.warn('Omnisend previewCompleted failed:', e); }
     }
 
@@ -3240,25 +3232,21 @@ class PetProcessor {
         .catch(err => console.warn('Shopify email form failed:', err));
     }
 
-    // Fire Omnisend identification, then previewCompleted if processing already done.
-    // identifyContact is async — 1s delay gives time for server-side registration.
+    // Fire Omnisend identification + previewCompleted if processing already done.
     if (window.omnisend) {
       try {
-        var self = this;
         omnisend.identifyContact({ email: email });
-        setTimeout(function() {
-          if (self.processingComplete && !self._previewCompletedFired) {
-            omnisend.push(["track", "previewCompleted", {
-              origin: "api",
-              properties: {
-                previewStyles: "Black & White, Color, Ink Wash, Marker",
-                previewPageUrl: window.location.href,
-                deviceType: window.innerWidth < 768 ? "mobile" : "desktop"
-              }
-            }]);
-            self._previewCompletedFired = true;
-          }
-        }, 1000);
+        if (this.processingComplete && !this._previewCompletedFired) {
+          omnisend.push(["track", "previewCompleted", {
+            origin: "api",
+            properties: {
+              previewStyles: "Black & White, Color, Ink Wash, Marker",
+              previewPageUrl: window.location.href,
+              deviceType: window.innerWidth < 768 ? "mobile" : "desktop"
+            }
+          }]);
+          this._previewCompletedFired = true;
+        }
       } catch (e) { console.warn('Omnisend identification failed:', e); }
     }
 
@@ -3742,12 +3730,13 @@ class PetProcessor {
     const artistNotesInput = this.container.querySelector('.artist-notes-input');
     if (artistNotesInput) artistNotesInput.value = '';
 
-    // Clear email capture state
+    // Clear email capture + Omnisend state
     this.capturedEmail = null;
     this._emailCaptureInitialized = false;
     this._isFromEmail = false;
     this._isLoggedIn = false;
     this._previewCompletedFired = false;
+    this.processingComplete = false;
     if (this._emailCaptureTimer) {
       clearTimeout(this._emailCaptureTimer);
       this._emailCaptureTimer = null;
