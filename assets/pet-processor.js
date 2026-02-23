@@ -2239,6 +2239,7 @@ class PetProcessor {
     // Fire Omnisend previewCompleted for all identified visitors (spec v2).
     // Contact identification happens separately: via identifyContact (email capture),
     // omnisendContactID URL param (email click-through), or identifyContact below (logged-in).
+    console.log('🔍 Omnisend check:', { omnisend: !!window.omnisend, alreadyFired: this._previewCompletedFired, capturedEmail: !!this.capturedEmail, isFromEmail: this._isFromEmail, isLoggedIn: this._isLoggedIn });
     if (window.omnisend && !this._previewCompletedFired
         && (this.capturedEmail || this._isFromEmail || this._isLoggedIn)) {
       try {
@@ -2248,6 +2249,7 @@ class PetProcessor {
           const customerEmail = section?.dataset?.customerEmail;
           if (customerEmail) {
             omnisend.identifyContact({ email: customerEmail });
+            console.log('✅ Omnisend identifyContact fired for:', customerEmail);
           }
         }
         omnisend.push(['track', 'previewCompleted', {
@@ -2260,6 +2262,7 @@ class PetProcessor {
           }
         }]);
         this._previewCompletedFired = true;
+        console.log('✅ Omnisend previewCompleted event fired (source: callAPI)');
       } catch (e) { console.warn('Omnisend previewCompleted failed:', e); }
     }
 
@@ -3239,6 +3242,7 @@ class PetProcessor {
     if (window.omnisend) {
       try {
         omnisend.identifyContact({ email: email });
+        console.log('✅ Omnisend identifyContact fired for:', email);
       } catch (e) { console.warn('Omnisend identification failed:', e); }
     }
 
@@ -3268,6 +3272,7 @@ class PetProcessor {
           }
         }]);
         this._previewCompletedFired = true;
+        console.log('✅ Omnisend previewCompleted event fired (source: handleEmailSubmit)');
       } catch (e) { console.warn('Omnisend previewCompleted failed:', e); }
     }
 
