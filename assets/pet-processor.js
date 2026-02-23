@@ -2247,13 +2247,10 @@ class PetProcessor {
           omnisend.push(["track", "previewCompleted", {
             previewStyles: "Black & White, Color, Ink Wash, Marker",
             previewPageUrl: window.location.href,
-            deviceType: window.innerWidth < 768 ? "mobile" : "desktop",
-            callbacks: {
-              onSuccess: function() { console.log('✅ [Omnisend] previewCompleted DELIVERED (source: callAPI)'); },
-              onError: function() { console.log('❌ [Omnisend] previewCompleted REJECTED (source: callAPI)'); }
-            }
+            deviceType: window.innerWidth < 768 ? "mobile" : "desktop"
           }]);
           self._previewCompletedFired = true;
+          console.log('✅ [Omnisend] previewCompleted event pushed (source: callAPI)');
         };
 
         // For logged-in customers, identify first then track after a short delay.
@@ -3266,13 +3263,10 @@ class PetProcessor {
             omnisend.push(["track", "previewCompleted", {
               previewStyles: "Black & White, Color, Ink Wash, Marker",
               previewPageUrl: window.location.href,
-              deviceType: window.innerWidth < 768 ? "mobile" : "desktop",
-              callbacks: {
-                onSuccess: function() { console.log('✅ [Omnisend] previewCompleted DELIVERED (source: handleEmailSubmit)'); },
-                onError: function() { console.log('❌ [Omnisend] previewCompleted REJECTED (source: handleEmailSubmit)'); }
-              }
+              deviceType: window.innerWidth < 768 ? "mobile" : "desktop"
             }]);
             self._previewCompletedFired = true;
+            console.log('✅ [Omnisend] previewCompleted event pushed (source: handleEmailSubmit)');
           }
         }, 500);
       } catch (e) { console.warn('Omnisend identification failed:', e); }
