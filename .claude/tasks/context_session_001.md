@@ -2028,6 +2028,107 @@ Replace `display: flex` with `display: grid` on `.processor-columns`. CSS Grid w
 
 ---
 
+### 2026-02-20 - Chrome Desktop Layout Regression Fix
+
+**Issue**: Desktop two-column float layout has image container width issue on Chrome. Customer on 2019 MacBook Pro 16" (Intel UHD 630, 1536x774 viewport) reports layout problems in Chrome; Safari works.
+
+**Root Cause** (debug-specialist, verified via Chrome DevTools):
+CSS specificity/source-order conflict between the two CSS files:
+1. `pet-processor-mobile.css` (loaded second) has UNSCOPED desktop breakpoints (`@media (min-width: 1024px)` without `(hover: hover)`) that set `max-width: 600px/800px/1000px/1200px` on `.pet-image-container`
+2. `pet-processor-v5.css` desktop rules use `@media (min-width: 1024px) and (hover: hover)` — different media query, so no cascade override
+3. `.pet-image` had `width: 100%` with NO `max-width` constraint, causing the IMG element to fill 718px of right column while the visible image content (portrait) was only ~337px — massive grey empty space
+4. Chrome strictly enforces the source-order + max-width centering; Safari is more permissive in float-offset blocks
+
+**Fix** (3 files):
+
+| File | Change |
+|------|--------|
+| `assets/pet-processor-v5.css` | `.processor-preview .pet-image-container`: Added `width: fit-content` (with `-webkit-fit-content` fallback), `max-width: 100%`, `margin: 0 auto`, `min-width: 200px` |
+| `assets/pet-processor-v5.css` | `.processor-preview .pet-image`: Changed from `width: 100%` to `width: auto; max-width: 100%` — image sizes to content naturally |
+| `assets/pet-processor-mobile.css` | Scoped desktop breakpoints (1024px/1440px/1920px/2560px) with `.pet-processor-container:not(.has-result)` on `.pet-image-container` and `.effect-grid` selectors |
+| `sections/ks-pet-processor-v5.liquid` | Cache-buster v3.5 → v3.6 |
+
+**Verified via Chrome DevTools** (staging URL):
+- Before: `.pet-image-container` 718px, `.pet-image` 718px (full right column)
+- After: `.pet-image-container` 338-360px, `.pet-image` 338-360px (content-fit, centered)
+- Mobile (390x844): No impact, layout unchanged
+- Float layout intact: controls float left 400px, preview margin-left 420px
+
+**Agent Consultations**: debug-specialist (RCA), ux-design-ecommerce-expert (fit-content approach), mobile-commerce-architect (mobile safety), solution-verification-auditor (PASS with 3 minor recommendations addressed)
+
+**Status**: Ready to commit to staging
+
+**Key Finding**: THREE interacting bugs:
+1. **PRIMARY**: CSS load-order + specificity conflict. `pet-processor-mobile.css` loads AFTER `pet-processor-v5.css`, and its `@media (min-width: 1024px) { .pet-image-container { max-width: 600px } }` rule (specificity 0,1,0) overrides the desktop v5 layout rules at equal specificity due to source order.
+2. **SECONDARY**: The `.pet-image` base rule in mobile CSS (`width: 100%; height: auto; display: block;`) at specificity 0,1,0 competes with desktop's `.processor-preview .pet-image` at 0,2,0 -- but only if the desktop media query `(hover: hover)` fails or the async CSS loads in wrong order.
+3. **TERTIARY**: Async CSS loading (`media="print" onload`) creates a race condition where Chrome and Safari may resolve load order differently.
+
+**Fix Proposed**: Add `max-width: 100%` to `.pet-image` and scope mobile desktop breakpoints away from the float layout.
+
+### 2026-02-20 - Solution Verification: Chrome Desktop Layout Regression CSS Fix
+
+**Agent**: solution-verification-auditor
+**Task**: Verify CSS fix for `.pet-image-container` / `.pet-image` expanding to full right column width on Chrome desktop.
+
+**Verification Result**: CONDITIONAL PASS (GO for deployment)
+- Root cause correctly identified and addressed (CSS specificity + source-order conflict)
+- `width: fit-content` approach is sound for shrinking container to image content
+- `:not(.has-result)` scoping in mobile.css correctly prevents desktop breakpoint conflicts
+- Float layout integrity preserved (changes only affect children, not the float columns)
+- Mobile layout fully unaffected
+- Cache-buster v3.6 correctly applied
+
+**Recommendations**:
+1. [LOW] Add `-webkit-fit-content` fallback for Safari 11-16 in v5.css line 1132
+2. [COSMETIC] Fix misleading comment on v5.css line 1128 (says "max-width: none" but code uses "max-width: 100%")
+3. [OPTIONAL] Add `min-width: 200px` to prevent zero-width flash during image load
+
+**Files Verified**:
+- `assets/pet-processor-v5.css` (lines 1125-1202)
+- `assets/pet-processor-mobile.css` (lines 437-472)
+- `sections/ks-pet-processor-v5.liquid` (lines 7-12)
+
+---
+
+### 2026-02-20 - Code Quality Review: Desktop Image Container CSS Changes
+
+**Reviewer**: code-quality-reviewer agent
+**Scope**: `pet-processor-v5.css` (lines 1125-1204), `pet-processor-mobile.css` (lines 437-472, 508-521), `ks-pet-processor-v5.liquid` (cache-buster v3.6)
+**Grade**: B+ (Safe with minor risks documented below)
+
+See detailed findings in session context below.
+
+---
+
+### 2026-02-22 - Email Capture During Processing
+
+**Task**: Add optional email capture field to processing screen for abandoned preview recovery via Omnisend.
+**Spec**: `.claude/doc/email-capture-processing-spec_1.md`
+**Plan**: `.claude/plans/linked-shimmying-canyon.md`
+
+**Files to modify**: 4
+1. `sections/ks-pet-processor-v5.liquid` - schema + data attributes
+2. `layout/theme.liquid` - Omnisend popup coordination
+3. `assets/pet-processor-mobile.css` - email capture CSS
+4. `assets/pet-processor.js` - email capture logic
+
+**Key decisions**:
+- 3.5s delay before showing (UX review)
+- 90-day localStorage TTL (growth review)
+- Privacy disclosure in optional text (GDPR/CCPA)
+- Scoped CSS under `.processing-view` (code review: collision fix)
+- `this.container.closest('.ks-pet-processor-section')` for data attributes (code review)
+
+**Status**: Implementation complete (all spec v1 + v2 changes applied)
+
+**Spec v2 update** (2026-02-22): Added condition #5 — email click-through detection.
+- Checks `utm_medium=email`, `omnisendContactID` param, and `utm_source=omnisend` (case-insensitive)
+- Sets `localStorage.perkieEmailCaptured` with JSON TTL format on detection
+- Placed after sessionStorage check, before localStorage TTL check (per code review)
+- Documented intentional side effect in predicate method comment
+
+---
+
 ## Notes
 - Always append new work with timestamp
 - Archive when file > 400KB or task complete

@@ -600,5 +600,14 @@
     
     {% comment %} Mobile Bottom Navigation - Simplified {% endcomment %}
     <!-- Mobile navigation removed during optimization -->
+
+    {% comment %} Omnisend Popup Coordination: sync popup email submissions with pet processor email capture flag {% endcomment %}
+    <script>
+      window.addEventListener("omnisendForms", function(e) {
+        if (e.detail && e.detail.type === 'submit') {
+          localStorage.setItem('perkieEmailCaptured', JSON.stringify({ timestamp: Date.now() }));
+        }
+      });
+    </script>
   </body>
 </html>
