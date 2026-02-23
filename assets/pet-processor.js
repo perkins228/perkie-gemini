@@ -2237,15 +2237,11 @@ class PetProcessor {
     warmthTracker.recordAPICall(true, totalTime);
 
     // Fire Omnisend previewCompleted for all identified visitors.
-    // JS snippet format: flat properties (not REST API's origin/properties wrapper).
-    console.log('🔍 Omnisend check:', { omnisend: !!window.omnisend, alreadyFired: this._previewCompletedFired, capturedEmail: !!this.capturedEmail, isFromEmail: this._isFromEmail, isLoggedIn: this._isLoggedIn });
     if (window.omnisend && !this._previewCompletedFired
         && (this.capturedEmail || this._isFromEmail || this._isLoggedIn)) {
       try {
         var self = this;
         var firePreviewCompleted = function() {
-          // Omnisend JS SDK custom events require origin + nested properties
-          // (same structure as REST API). All property values must be strings.
           omnisend.push(["track", "previewCompleted", {
             origin: "api",
             properties: {
@@ -2255,25 +2251,18 @@ class PetProcessor {
             }
           }]);
           self._previewCompletedFired = true;
-          console.log('✅ [Omnisend] previewCompleted event pushed (source: callAPI)');
         };
 
-        // For logged-in customers, identify first then track after delay.
-        // identifyContact is async — the contact must be registered server-side
-        // before Omnisend will accept events for them. 1s delay gives time for this.
+        // For logged-in customers, identify first then track after 1s delay.
+        // identifyContact is async — contact must register server-side first.
         if (this._isLoggedIn && !this.capturedEmail && !this._isFromEmail) {
           var section = this.container.closest('.ks-pet-processor-section');
           var customerEmail = section && section.dataset ? section.dataset.customerEmail : null;
           if (customerEmail) {
             omnisend.identifyContact({ email: customerEmail });
-            console.log('🔍 [Omnisend] identifyContact fired for logged-in user:', customerEmail);
-            setTimeout(function() {
-              console.log('✅ [Omnisend] firing previewCompleted after identify delay');
-              firePreviewCompleted();
-            }, 1000);
+            setTimeout(function() { firePreviewCompleted(); }, 1000);
           }
         } else {
-          // Already identified (email captured earlier or email click-through URL param)
           firePreviewCompleted();
         }
       } catch (e) { console.warn('Omnisend previewCompleted failed:', e); }
@@ -3252,15 +3241,12 @@ class PetProcessor {
     }
 
     // Fire Omnisend identification, then previewCompleted if processing already done.
-    // identifyContact is async — contact must register server-side before events are accepted.
-    // 1s delay gives time for identification to complete before firing the custom event.
+    // identifyContact is async — 1s delay gives time for server-side registration.
     if (window.omnisend) {
       try {
         var self = this;
         omnisend.identifyContact({ email: email });
-        console.log('🔍 [Omnisend] identifyContact fired for email capture:', email);
         setTimeout(function() {
-          // If processing already completed, fire previewCompleted now that contact is identified
           if (self.processingComplete && !self._previewCompletedFired) {
             omnisend.push(["track", "previewCompleted", {
               origin: "api",
@@ -3271,7 +3257,6 @@ class PetProcessor {
               }
             }]);
             self._previewCompletedFired = true;
-            console.log('✅ [Omnisend] previewCompleted event pushed (source: handleEmailSubmit)');
           }
         }, 1000);
       } catch (e) { console.warn('Omnisend identification failed:', e); }
