@@ -31,6 +31,7 @@
          {% if section.settings.style_preview_sketch != blank %}data-style-preview-sketch="{{ section.settings.style_preview_sketch | image_url: width: 320 }}"{% endif %}
          data-enable-email-capture="{{ section.settings.enable_email_capture }}"
          data-customer-logged-in="{% if customer %}true{% else %}false{% endif %}"
+         {% if customer %}data-customer-email="{{ customer.email }}"{% endif %}
          data-page-handle="{{ page.handle }}">
   <a id="pet-processor" style="position: absolute; top: -80px;"></a>
   <div class="page-width">

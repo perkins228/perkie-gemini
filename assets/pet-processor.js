@@ -476,6 +476,9 @@ class PetProcessor {
     this.capturedEmail = null;
     this._emailCaptureInitialized = false;
     this._emailCaptureTimer = null;
+    this._isFromEmail = false;
+    this._isLoggedIn = false;
+    this._previewCompletedFired = false;
 
     // Initialize
     this.init();
@@ -2233,15 +2236,30 @@ class PetProcessor {
     const totalTime = Date.now() - startTime;
     warmthTracker.recordAPICall(true, totalTime);
 
-    // Fire Omnisend previewCompleted if email was captured during processing
-    if (this.capturedEmail && window.omnisend) {
+    // Fire Omnisend previewCompleted for all identified visitors (spec v2).
+    // Contact identification happens separately: via $contactIdentified (email capture),
+    // omnisendContactID URL param (email click-through), or $contactIdentified below (logged-in).
+    if (window.omnisend && !this._previewCompletedFired
+        && (this.capturedEmail || this._isFromEmail || this._isLoggedIn)) {
       try {
+        // For logged-in customers not yet identified in Omnisend, identify them first
+        if (this._isLoggedIn && !this.capturedEmail && !this._isFromEmail) {
+          const section = this.container.closest('.ks-pet-processor-section');
+          const customerEmail = section?.dataset?.customerEmail;
+          if (customerEmail) {
+            omnisend.push(['track', '$contactIdentified', { email: customerEmail }]);
+          }
+        }
         omnisend.push(['track', 'previewCompleted', {
-          email: this.capturedEmail,
-          processingTimeSec: Math.round(totalTime / 1000),
-          deviceType: window.innerWidth < 768 ? 'mobile' : 'desktop',
-          timestamp: new Date().toISOString()
+          origin: 'api',
+          properties: {
+            previewStyles: 'Black & White, Color, Ink Wash, Marker',
+            previewPageUrl: window.location.href,
+            deviceType: window.innerWidth < 768 ? 'mobile' : 'desktop',
+            timestamp: new Date().toISOString()
+          }
         }]);
+        this._previewCompletedFired = true;
       } catch (e) { console.warn('Omnisend previewCompleted failed:', e); }
     }
 
@@ -2615,6 +2633,16 @@ class PetProcessor {
     if (placeholder) placeholder.style.display = 'none';
 
     this.isProcessing = true;
+
+    // Detect visitor identity for Omnisend event attribution at processing completion.
+    // Computed once here so callAPI() can read these without re-parsing URL params.
+    const section = this.container.closest('.ks-pet-processor-section');
+    const urlParams = new URLSearchParams(window.location.search);
+    this._isFromEmail = urlParams.get('utm_medium') === 'email'
+      || urlParams.has('omnisendContactID')
+      || (urlParams.get('utm_source') || '').toLowerCase() === 'omnisend';
+    this._isLoggedIn = section ? section.dataset.customerLoggedIn === 'true' : false;
+    this._previewCompletedFired = false;
 
     // Start email capture with delay (3.5s lets user orient to processing screen first)
     if (this.shouldShowEmailCapture()) {
@@ -3226,17 +3254,21 @@ class PetProcessor {
       email_source: 'pet_processor_preview'
     });
 
-    // If processing already completed, fire previewCompleted immediately (with delay for Omnisend queue)
-    if (this.processingComplete && window.omnisend) {
-      setTimeout(() => {
-        try {
-          omnisend.push(['track', 'previewCompleted', {
-            email: email,
+    // If processing already completed, fire previewCompleted immediately.
+    // Omnisend's push queue handles ordering ($contactIdentified before previewCompleted).
+    if (this.processingComplete && window.omnisend && !this._previewCompletedFired) {
+      try {
+        omnisend.push(['track', 'previewCompleted', {
+          origin: 'api',
+          properties: {
+            previewStyles: 'Black & White, Color, Ink Wash, Marker',
+            previewPageUrl: window.location.href,
             deviceType: window.innerWidth < 768 ? 'mobile' : 'desktop',
             timestamp: new Date().toISOString()
-          }]);
-        } catch (e) { console.warn('Omnisend previewCompleted failed:', e); }
-      }, 500);
+          }
+        }]);
+        this._previewCompletedFired = true;
+      } catch (e) { console.warn('Omnisend previewCompleted failed:', e); }
     }
 
     console.log('📧 Email captured during processing:', email);
@@ -3710,6 +3742,9 @@ class PetProcessor {
     // Clear email capture state
     this.capturedEmail = null;
     this._emailCaptureInitialized = false;
+    this._isFromEmail = false;
+    this._isLoggedIn = false;
+    this._previewCompletedFired = false;
     if (this._emailCaptureTimer) {
       clearTimeout(this._emailCaptureTimer);
       this._emailCaptureTimer = null;
