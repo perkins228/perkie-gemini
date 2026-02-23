@@ -2237,8 +2237,8 @@ class PetProcessor {
     warmthTracker.recordAPICall(true, totalTime);
 
     // Fire Omnisend previewCompleted for all identified visitors (spec v2).
-    // Contact identification happens separately: via $contactIdentified (email capture),
-    // omnisendContactID URL param (email click-through), or $contactIdentified below (logged-in).
+    // Contact identification happens separately: via identifyContact (email capture),
+    // omnisendContactID URL param (email click-through), or identifyContact below (logged-in).
     if (window.omnisend && !this._previewCompletedFired
         && (this.capturedEmail || this._isFromEmail || this._isLoggedIn)) {
       try {
@@ -2247,7 +2247,7 @@ class PetProcessor {
           const section = this.container.closest('.ks-pet-processor-section');
           const customerEmail = section?.dataset?.customerEmail;
           if (customerEmail) {
-            omnisend.push(['track', '$contactIdentified', { email: customerEmail }]);
+            omnisend.identifyContact({ email: customerEmail });
           }
         }
         omnisend.push(['track', 'previewCompleted', {
@@ -3238,7 +3238,7 @@ class PetProcessor {
     // Fire Omnisend identification
     if (window.omnisend) {
       try {
-        omnisend.push(['track', '$contactIdentified', { email: email }]);
+        omnisend.identifyContact({ email: email });
       } catch (e) { console.warn('Omnisend identification failed:', e); }
     }
 
@@ -3255,7 +3255,7 @@ class PetProcessor {
     });
 
     // If processing already completed, fire previewCompleted immediately.
-    // Omnisend's push queue handles ordering ($contactIdentified before previewCompleted).
+    // Omnisend's queue handles ordering (identifyContact before previewCompleted).
     if (this.processingComplete && window.omnisend && !this._previewCompletedFired) {
       try {
         omnisend.push(['track', 'previewCompleted', {
