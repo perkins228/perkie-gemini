@@ -2236,33 +2236,48 @@ class PetProcessor {
     const totalTime = Date.now() - startTime;
     warmthTracker.recordAPICall(true, totalTime);
 
-    // Fire Omnisend previewCompleted for all identified visitors (spec v2).
-    // Contact identification happens separately: via identifyContact (email capture),
-    // omnisendContactID URL param (email click-through), or identifyContact below (logged-in).
+    // Fire Omnisend previewCompleted for all identified visitors.
+    // JS snippet format: flat properties (not REST API's origin/properties wrapper).
     console.log('🔍 Omnisend check:', { omnisend: !!window.omnisend, alreadyFired: this._previewCompletedFired, capturedEmail: !!this.capturedEmail, isFromEmail: this._isFromEmail, isLoggedIn: this._isLoggedIn });
     if (window.omnisend && !this._previewCompletedFired
         && (this.capturedEmail || this._isFromEmail || this._isLoggedIn)) {
       try {
-        // For logged-in customers not yet identified in Omnisend, identify them first
-        if (this._isLoggedIn && !this.capturedEmail && !this._isFromEmail) {
-          const section = this.container.closest('.ks-pet-processor-section');
-          const customerEmail = section?.dataset?.customerEmail;
-          if (customerEmail) {
-            omnisend.identifyContact({ email: customerEmail });
-            console.log('✅ Omnisend identifyContact fired for:', customerEmail);
-          }
-        }
-        omnisend.push(['track', 'previewCompleted', {
-          origin: 'api',
-          properties: {
-            previewStyles: 'Black & White, Color, Ink Wash, Marker',
+        var self = this;
+        var firePreviewCompleted = function() {
+          omnisend.push(["track", "previewCompleted", {
+            previewStyles: "Black & White, Color, Ink Wash, Marker",
             previewPageUrl: window.location.href,
-            deviceType: window.innerWidth < 768 ? 'mobile' : 'desktop',
-            timestamp: new Date().toISOString()
+            deviceType: window.innerWidth < 768 ? "mobile" : "desktop",
+            callbacks: {
+              onSuccess: function() { console.log('✅ [Omnisend] previewCompleted DELIVERED (source: callAPI)'); },
+              onError: function() { console.log('❌ [Omnisend] previewCompleted REJECTED (source: callAPI)'); }
+            }
+          }]);
+          self._previewCompletedFired = true;
+        };
+
+        // For logged-in customers, identify first then track in onSuccess callback
+        if (this._isLoggedIn && !this.capturedEmail && !this._isFromEmail) {
+          var section = this.container.closest('.ks-pet-processor-section');
+          var customerEmail = section && section.dataset ? section.dataset.customerEmail : null;
+          if (customerEmail) {
+            omnisend.identifyContact({
+              email: customerEmail,
+              callbacks: {
+                onSuccess: function() {
+                  console.log('✅ [Omnisend] identifyContact DELIVERED for:', customerEmail);
+                  firePreviewCompleted();
+                },
+                onError: function() {
+                  console.log('❌ [Omnisend] identifyContact REJECTED for:', customerEmail);
+                }
+              }
+            });
           }
-        }]);
-        this._previewCompletedFired = true;
-        console.log('✅ Omnisend previewCompleted event fired (source: callAPI)');
+        } else {
+          // Already identified (email captured earlier or email click-through URL param)
+          firePreviewCompleted();
+        }
       } catch (e) { console.warn('Omnisend previewCompleted failed:', e); }
     }
 
@@ -3238,11 +3253,35 @@ class PetProcessor {
         .catch(err => console.warn('Shopify email form failed:', err));
     }
 
-    // Fire Omnisend identification
+    // Fire Omnisend identification, then previewCompleted if processing already done.
+    // Must chain via onSuccess callback to ensure contact is identified before event fires.
     if (window.omnisend) {
       try {
-        omnisend.identifyContact({ email: email });
-        console.log('✅ Omnisend identifyContact fired for:', email);
+        var self = this;
+        omnisend.identifyContact({
+          email: email,
+          callbacks: {
+            onSuccess: function() {
+              console.log('✅ [Omnisend] identifyContact DELIVERED for:', email);
+              // If processing already completed, fire previewCompleted now that contact is identified
+              if (self.processingComplete && !self._previewCompletedFired) {
+                omnisend.push(["track", "previewCompleted", {
+                  previewStyles: "Black & White, Color, Ink Wash, Marker",
+                  previewPageUrl: window.location.href,
+                  deviceType: window.innerWidth < 768 ? "mobile" : "desktop",
+                  callbacks: {
+                    onSuccess: function() { console.log('✅ [Omnisend] previewCompleted DELIVERED (source: handleEmailSubmit)'); },
+                    onError: function() { console.log('❌ [Omnisend] previewCompleted REJECTED (source: handleEmailSubmit)'); }
+                  }
+                }]);
+                self._previewCompletedFired = true;
+              }
+            },
+            onError: function() {
+              console.log('❌ [Omnisend] identifyContact REJECTED for:', email);
+            }
+          }
+        });
       } catch (e) { console.warn('Omnisend identification failed:', e); }
     }
 
@@ -3257,24 +3296,6 @@ class PetProcessor {
       event: 'email_capture',
       email_source: 'pet_processor_preview'
     });
-
-    // If processing already completed, fire previewCompleted immediately.
-    // Omnisend's queue handles ordering (identifyContact before previewCompleted).
-    if (this.processingComplete && window.omnisend && !this._previewCompletedFired) {
-      try {
-        omnisend.push(['track', 'previewCompleted', {
-          origin: 'api',
-          properties: {
-            previewStyles: 'Black & White, Color, Ink Wash, Marker',
-            previewPageUrl: window.location.href,
-            deviceType: window.innerWidth < 768 ? 'mobile' : 'desktop',
-            timestamp: new Date().toISOString()
-          }
-        }]);
-        this._previewCompletedFired = true;
-        console.log('✅ Omnisend previewCompleted event fired (source: handleEmailSubmit)');
-      } catch (e) { console.warn('Omnisend previewCompleted failed:', e); }
-    }
 
     console.log('📧 Email captured during processing:', email);
   }
