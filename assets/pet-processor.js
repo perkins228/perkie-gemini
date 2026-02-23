@@ -2256,23 +2256,21 @@ class PetProcessor {
           self._previewCompletedFired = true;
         };
 
-        // For logged-in customers, identify first then track in onSuccess callback
+        // For logged-in customers, identify first then track after a short delay.
+        // identifyContact() does NOT support a callbacks parameter (only omnisend.push("track") does).
+        // Passing callbacks to identifyContact silently discards the onSuccess/onError handlers.
+        // A 500ms delay is sufficient — Omnisend only requires the identify call to be in-flight
+        // before the track event; it does not require server-side confirmation.
         if (this._isLoggedIn && !this.capturedEmail && !this._isFromEmail) {
           var section = this.container.closest('.ks-pet-processor-section');
           var customerEmail = section && section.dataset ? section.dataset.customerEmail : null;
           if (customerEmail) {
-            omnisend.identifyContact({
-              email: customerEmail,
-              callbacks: {
-                onSuccess: function() {
-                  console.log('✅ [Omnisend] identifyContact DELIVERED for:', customerEmail);
-                  firePreviewCompleted();
-                },
-                onError: function() {
-                  console.log('❌ [Omnisend] identifyContact REJECTED for:', customerEmail);
-                }
-              }
-            });
+            omnisend.identifyContact({ email: customerEmail });
+            console.log('🔍 [Omnisend] identifyContact fired for logged-in user:', customerEmail);
+            setTimeout(function() {
+              console.log('✅ [Omnisend] firing previewCompleted after identify delay');
+              firePreviewCompleted();
+            }, 500);
           }
         } else {
           // Already identified (email captured earlier or email click-through URL param)
@@ -3254,34 +3252,29 @@ class PetProcessor {
     }
 
     // Fire Omnisend identification, then previewCompleted if processing already done.
-    // Must chain via onSuccess callback to ensure contact is identified before event fires.
+    // identifyContact() does NOT support callbacks — only omnisend.push("track") does.
+    // Use a 500ms delay to give the identify call time to reach Omnisend's servers before
+    // the track event fires. Server-side confirmation is not required, just in-flight ordering.
     if (window.omnisend) {
       try {
         var self = this;
-        omnisend.identifyContact({
-          email: email,
-          callbacks: {
-            onSuccess: function() {
-              console.log('✅ [Omnisend] identifyContact DELIVERED for:', email);
-              // If processing already completed, fire previewCompleted now that contact is identified
-              if (self.processingComplete && !self._previewCompletedFired) {
-                omnisend.push(["track", "previewCompleted", {
-                  previewStyles: "Black & White, Color, Ink Wash, Marker",
-                  previewPageUrl: window.location.href,
-                  deviceType: window.innerWidth < 768 ? "mobile" : "desktop",
-                  callbacks: {
-                    onSuccess: function() { console.log('✅ [Omnisend] previewCompleted DELIVERED (source: handleEmailSubmit)'); },
-                    onError: function() { console.log('❌ [Omnisend] previewCompleted REJECTED (source: handleEmailSubmit)'); }
-                  }
-                }]);
-                self._previewCompletedFired = true;
+        omnisend.identifyContact({ email: email });
+        console.log('🔍 [Omnisend] identifyContact fired for email capture:', email);
+        setTimeout(function() {
+          // If processing already completed, fire previewCompleted now that contact is identified
+          if (self.processingComplete && !self._previewCompletedFired) {
+            omnisend.push(["track", "previewCompleted", {
+              previewStyles: "Black & White, Color, Ink Wash, Marker",
+              previewPageUrl: window.location.href,
+              deviceType: window.innerWidth < 768 ? "mobile" : "desktop",
+              callbacks: {
+                onSuccess: function() { console.log('✅ [Omnisend] previewCompleted DELIVERED (source: handleEmailSubmit)'); },
+                onError: function() { console.log('❌ [Omnisend] previewCompleted REJECTED (source: handleEmailSubmit)'); }
               }
-            },
-            onError: function() {
-              console.log('❌ [Omnisend] identifyContact REJECTED for:', email);
-            }
+            }]);
+            self._previewCompletedFired = true;
           }
-        });
+        }, 500);
       } catch (e) { console.warn('Omnisend identification failed:', e); }
     }
 
