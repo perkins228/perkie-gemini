@@ -369,8 +369,21 @@
     "17606716083f933aed": {
       "type": "apps",
       "blocks": {
+        "junip_junip_ugc_gallery_bGawxm": {
+          "type": "shopify://apps/junip/blocks/junip-ugc-gallery/dc14f5a8-ed15-41b1-ad08-cfba23f9789b",
+          "settings": {
+            "layout": "tile",
+            "title": "From Our Customers:",
+            "product": "",
+            "reviewTag": "",
+            "paddingTop": 8,
+            "paddingBottom": 8,
+            "containerClass": ""
+          }
+        },
         "junip_junip_review_carousel_9L6AVX": {
           "type": "shopify://apps/junip/blocks/junip-review-carousel/dc14f5a8-ed15-41b1-ad08-cfba23f9789b",
+          "disabled": true,
           "settings": {
             "reviewsType": "product_reviews",
             "sortOrder": "mostRecent",
@@ -385,6 +398,7 @@
         }
       },
       "block_order": [
+        "junip_junip_ugc_gallery_bGawxm",
         "junip_junip_review_carousel_9L6AVX"
       ],
       "settings": {
