@@ -659,7 +659,7 @@
         "junip_junip_ugc_gallery_tgxjCi": {
           "type": "shopify://apps/junip/blocks/junip-ugc-gallery/dc14f5a8-ed15-41b1-ad08-cfba23f9789b",
           "settings": {
-            "layout": "scroll",
+            "layout": "tile",
             "title": "From Our Customers:",
             "product": "",
             "reviewTag": "",
