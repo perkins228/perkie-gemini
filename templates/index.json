@@ -627,6 +627,7 @@
         "slide_xkn8X9",
         "slide_XtVxbp"
       ],
+      "disabled": true,
       "custom_css": [
         "{text-align: center;}"
       ],
@@ -651,6 +652,45 @@
         "pt": 8,
         "pb": 0
       }
+    },
+    "1771962028512483f3": {
+      "type": "apps",
+      "blocks": {
+        "junip_junip_review_carousel_CgxPpU": {
+          "type": "shopify://apps/junip/blocks/junip-review-carousel/dc14f5a8-ed15-41b1-ad08-cfba23f9789b",
+          "settings": {
+            "reviewsType": "product_reviews",
+            "sortOrder": "mostRecent",
+            "product": "",
+            "reviewTag": "",
+            "showSummary": true,
+            "title": "From Our Customers:",
+            "paddingTop": 8,
+            "paddingBottom": 8,
+            "containerClass": ""
+          }
+        },
+        "junip_junip_ugc_gallery_tgxjCi": {
+          "type": "shopify://apps/junip/blocks/junip-ugc-gallery/dc14f5a8-ed15-41b1-ad08-cfba23f9789b",
+          "disabled": true,
+          "settings": {
+            "layout": "tile",
+            "title": "From Our Customers:",
+            "product": "",
+            "reviewTag": "",
+            "paddingTop": 8,
+            "paddingBottom": 8,
+            "containerClass": ""
+          }
+        }
+      },
+      "block_order": [
+        "junip_junip_review_carousel_CgxPpU",
+        "junip_junip_ugc_gallery_tgxjCi"
+      ],
+      "settings": {
+        "include_margins": true
+      }
     }
   },
   "order": [
@@ -663,6 +703,7 @@
     "ks_image_compare_FEc4MF",
     "featured_collection_Jxhrxe",
     "ks_media_slider_hDqb4F",
-    "ks_testimonials_XBY9Fx"
+    "ks_testimonials_XBY9Fx",
+    "1771962028512483f3"
   ]
 }
