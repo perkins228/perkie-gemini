@@ -2129,8 +2129,175 @@ See detailed findings in session context below.
 
 ---
 
+## 2026-02-23 - Omnisend Custom Events Research
+
+**Task**: Research how Omnisend custom events work with JS SDK vs REST API
+**Status**: Completed (research only, no code changes)
+
+**Key Findings**:
+1. The JS snippet DOES support custom events via `omnisend.push(["track", "eventName", {...}])`
+2. Custom events do NOT need to be pre-registered for the JS snippet to fire them
+3. BUT: The dashboard "Custom Events" tab uses the REST API (POST /v5/events) to create/register events
+4. The support article says: "Navigate to Store Settings -> API -> Custom events -> Create custom event" which redirects to the REST API docs
+5. JS snippet events require an identified contact (via `omnisend.identifyContact` or campaign click-through)
+6. REST API auto-creates events: "If custom event doesn't exist - it will be created with passed event's fields"
+7. The v5 REST endpoint is POST https://api.omnisend.com/v5/events with X-API-KEY header
+8. Use `callbacks: { onSuccess, onError }` in JS snippet to debug if events are actually sending
+
+**Root Cause of Events Not Appearing**: Likely one of:
+- Contact not properly identified before event fires (most common)
+- Event properties format mismatch
+- Events may be firing but not appearing in Custom Events dashboard (which expects REST API registration)
+
+**Next Steps** (if implementing):
+- Add onSuccess/onError callbacks to debug JS snippet events
+- Verify contact identification is working
+- Consider using REST API from backend instead of JS snippet for reliability
+
+---
+
+### 2026-02-23 - Omnisend identifyContact Callback Bug Fix
+
+**Issue**: `omnisend.identifyContact()` was called with a `callbacks: { onSuccess, onError }` parameter. Neither callback ever fired, silently breaking the `previewCompleted` tracking chain for logged-in users and email-capture users.
+
+**Root Cause**: `identifyContact()` does NOT support the `callbacks` parameter. Per official Omnisend JS SDK documentation, `callbacks: { onSuccess, onError }` is only a supported pattern on `omnisend.push(["track", eventName, {...}])`. Passing `callbacks` to `identifyContact()` causes the SDK to silently discard those functions — no error is thrown, but `onSuccess`/`onError` are never invoked. This is a silent API contract violation.
+
+**Two code paths affected**:
+1. `callAPI()` (line ~2264): logged-in customer path — `previewCompleted` never fired
+2. `handleEmailSubmit()` (line ~3261): email capture path — `previewCompleted` never fired post-identification
+
+**Fix Implemented** (`assets/pet-processor.js`):
+- Replaced `identifyContact({ email, callbacks: {...} })` with clean `identifyContact({ email })` call
+- Added a `setTimeout(fn, 500)` after identify call to fire `previewCompleted`
+- Rationale: Omnisend only requires the identify call to be in-flight before the track event; server confirmation is not required, just ordering
+- Added diagnostic `console.log` after each identify call to confirm execution
+
+**Files Modified**:
+- `assets/pet-processor.js` (two locations: callAPI ~line 2264, handleEmailSubmit ~line 3261)
+
+**Status**: Implementation complete — awaiting commit and deployment
+
+---
+
+### 2026-02-23 - Omnisend Custom Event 400 Error: Root Cause Analysis
+
+**Issue**: `omnisend.push(["track", "previewCompleted", {...}])` returns 400 from `api.omnisend.com/track` regardless of payload format.
+
+**Research Findings**:
+
+#### Root Cause: Missing `origin: 'api'` field
+
+The Omnisend JS snippet documentation specifies the following **required** format for custom events:
+
+```javascript
+omnisend.push(["track", "event_name", {
+  origin: 'api',
+  properties: {
+    // custom data here (values must be strings)
+  }
+}]);
+```
+
+All three attempts were missing the `origin: 'api'` field at the top level of the data object. This is a **required** field for custom events sent via the JS snippet.
+
+#### Additional Requirements Confirmed
+
+1. **Contact must be identified first** - `identifyContact({ email })` must complete before `track` calls
+2. **`origin: 'api'` is mandatory** - Must be at the top level of the data object
+3. **Properties must be nested** - Custom data goes inside a `properties` object, not flat at root
+4. **Property values should be strings** - Omnisend Help Center states "the only supported value type for property fields is string"
+5. **Custom events auto-create on first trigger** - v3 API doc confirms: "If custom event doesn't exist - it will be created with passed event's fields"
+6. **No pre-registration needed** - Events auto-register when first fired successfully
+
+#### What Was Wrong With Each Attempt
+
+1. **Attempt 1**: Had `origin: 'api'` and nested `properties` - this was closest to correct. 400 likely due to contact not being identified yet (timing issue with `identifyContact`).
+2. **Attempt 2**: Missing `origin: 'api'`, flat properties (not nested in `properties` object).
+3. **Attempt 3**: Missing `origin: 'api'`, flat properties (not nested in `properties` object).
+
+#### Recommended Fix
+
+```javascript
+// Step 1: Identify contact FIRST (must complete before tracking)
+omnisend.identifyContact({ email: userEmail });
+
+// Step 2: Wait for identification to register, then track
+setTimeout(function() {
+  omnisend.push(["track", "previewCompleted", {
+    origin: "api",
+    properties: {
+      previewStyles: "ink_wash,pen_and_marker",
+      previewPageUrl: window.location.href,
+      deviceType: "mobile"
+    }
+  }]);
+}, 500);
+```
+
+#### Alternative: REST API (if JS snippet continues to fail)
+
+If the JS snippet approach continues returning 400 even with the correct format, use the REST API from the backend:
+
+1. Create an API key in Omnisend dashboard (Store Settings > API)
+2. POST to `https://api.omnisend.com/v5/events` with `x-api-key` header
+3. Include `contact: { email }`, `eventName`, `origin: "api"`, and `properties`
+4. This bypasses the JS snippet entirely and is the officially recommended method for custom events
+
+**Status**: Research complete. Recommended trying the corrected JS format first.
+
+---
+
 ## Notes
 - Always append new work with timestamp
 - Archive when file > 400KB or task complete
 - Include commit references for all code changes
 - Cross-reference documentation created
+
+---
+
+### 2026-02-23 - Omnisend Preview Recovery Email: Image URL Strategy Analysis
+
+**Task**: Evaluated 5 options for including processed pet image URLs in `previewCompleted` Omnisend custom event for automated recovery emails.
+
+**Key Finding from Codebase Audit**:
+- `previewCompleted` fires in `assets/pet-processor.js` ~line 2251 immediately after BiRefNet completes
+- GCS uploads run in background via `this.pendingGcsUploads` promise (not awaited until cart time)
+- At event fire time: BW and Color GCS URLs are empty strings (`''`), Ink Wash and Marker have solid-background GCS URLs available
+- Option A (delay ~14-16s for GCS) gives BW+Color GCS URLs with transparent backgrounds; Option E (~45s) gives all transparent
+
+**Recommendation**: Option A — delay event 14-16s until `this.pendingGcsUploads` resolves.
+- Wire `.then()` on `this.pendingGcsUploads` to delay event, include 4 GCS URLs + original
+- BW/Color will have transparent backgrounds (render well in email); Ink Wash/Marker solid white (acceptable for email)
+- Estimated +15-25% email-to-purchase conversion vs. text-only or no email
+
+**Files of Interest**:
+- `assets/pet-processor.js` — lines ~2240-2260 (event fire), ~1978-2048 (GCS upload background logic)
+
+**No code changes made — analysis only.**
+
+---
+
+### 2026-02-24 - Dark Bar on custom-image-processing Page: Root Cause & Fix
+
+**Issue**: Customer on 2019 MacBook Pro 16" (Intel UHD 630, 1536x774 viewport, Chrome) reports a dark bar between the "Preview Your Perkie Print" heading and the effect grid, pushing the CHOOSE STYLE section down.
+
+**Root Cause**: CSS specificity conflict between `pet-processor-mobile.css` and the `[hidden]` HTML attribute.
+
+1. `pet-processor-mobile.css` line 14 has a GLOBAL (unscoped) `.upload-zone { display: flex; min-height: 200px; }` rule
+2. After processing, JS hides the upload zone via `uploadZone.hidden = true` (sets `[hidden]` attribute)
+3. The `[hidden]` attribute maps to `display: none` in the browser's UA stylesheet
+4. BUT `.upload-zone { display: flex; }` from the AUTHOR stylesheet (specificity 0,1,0) overrides `[hidden] { display: none }` from the UA stylesheet at equal specificity (author > UA in cascade)
+5. Normally, `ks-main.css` (Shopify theme CSS) provides `[hidden] { display: none !important; }` which overrides everything — but if the customer's browser has a CACHED OLD version of `ks-main.css` without this rule, the upload zone becomes visible
+
+**Reproduction**: Confirmed by removing `ks-main.css`'s `[hidden]` rule via DevTools — upload zone immediately appears at 250px height with dashed border, pushing effect grid down.
+
+**Fix** (2 files):
+
+| File | Change |
+|------|--------|
+| `assets/pet-processor-v5.css` | Added `.pet-processor-container [hidden] { display: none !important; }` — defensive override that works regardless of `ks-main.css` cache state |
+| `sections/ks-pet-processor-v5.liquid` | Cache buster v3.6 → v3.7 |
+
+**Verification**: Injected defensive rule via DevTools, then removed `ks-main.css` `[hidden]` rule — upload zone remained hidden (PASS).
+
+**Status**: Ready to commit to staging
