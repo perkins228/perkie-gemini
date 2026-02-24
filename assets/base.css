@@ -211,6 +211,7 @@ body:has(.section-header .drawer-menu) .announcement-bar-section .page-width {
   padding: 0;
   border: 0;
   clip: rect(0 0 0 0);
+  clip-path: inset(50%);
   word-wrap: normal !important;
 }
 
@@ -223,13 +224,14 @@ body:has(.section-header .drawer-menu) .announcement-bar-section .page-width {
   overflow: hidden;
 }
 
-.skip-to-content-link:focus {
+.skip-to-content-link:focus-visible {
   z-index: 9999;
   position: inherit;
   overflow: auto;
   width: auto;
   height: auto;
   clip: auto;
+  clip-path: none;
 }
 
 .full-width-link {

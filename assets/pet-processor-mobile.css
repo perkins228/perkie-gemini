@@ -264,6 +264,11 @@
   max-width: 480px;
 }
 
+.result-email-capture .email-capture-btn {
+  background: #FF5964;
+  color: #fff;
+}
+
 .result-email-capture .email-capture-form {
   justify-content: center;
   max-width: 400px;
