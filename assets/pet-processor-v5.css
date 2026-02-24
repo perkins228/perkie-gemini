@@ -17,6 +17,14 @@
   font-family: var(--font-body-family);
 }
 
+/* Defensive [hidden] override — prevent display:flex/block in pet-processor-mobile.css
+   from overriding the hidden attribute when ks-main.css is cached without its own
+   [hidden] { display: none !important } rule (causes visible ghost elements on
+   older cached browsers, e.g. Intel UHD 630 MacBook Pro). */
+.pet-processor-container [hidden] {
+  display: none !important;
+}
+
 /* Responsive container scaling for desktop */
 @media (min-width: 1024px) {
   .pet-processor-container {
