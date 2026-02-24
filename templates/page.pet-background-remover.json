@@ -388,7 +388,7 @@
             "reviewsType": "product_reviews",
             "sortOrder": "mostRecent",
             "product": "",
-            "reviewTag": "Featured",
+            "reviewTag": "",
             "showSummary": true,
             "title": "From Our Customers:",
             "paddingTop": 4,
