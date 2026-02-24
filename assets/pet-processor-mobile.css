@@ -150,7 +150,7 @@
   color: rgba(var(--color-foreground), 0.9);
 }
 
-/* Email Capture During Processing */
+/* Email Capture */
 @keyframes emailCaptureIn {
   from { opacity: 0; transform: translateY(8px); }
   to { opacity: 1; transform: translateY(0); }
@@ -179,7 +179,7 @@
   margin: 0 0 0.75rem;
 }
 
-.processing-view .email-capture-form {
+.email-capture-form {
   display: flex;
   gap: 0.5rem;
   align-items: stretch;
@@ -219,17 +219,6 @@
 .email-capture-btn:hover { opacity: 0.9; }
 .email-capture-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
-.email-capture-optional {
-  font-size: 0.75rem;
-  color: rgba(var(--color-foreground), 0.6);
-  margin: 0.5rem 0 0;
-}
-
-.email-capture-optional a {
-  color: rgba(var(--color-foreground), 0.6);
-  text-decoration: underline;
-}
-
 .email-capture-success {
   display: flex;
   align-items: center;
@@ -245,9 +234,9 @@
   flex-shrink: 0;
 }
 
-/* Mobile: stack input + button vertically (768px matches existing .processing-view breakpoint) */
+/* Mobile: stack input + button vertically */
 @media (max-width: 768px) {
-  .processing-view .email-capture-form {
+  .email-capture-form {
     flex-direction: column;
   }
 
@@ -266,6 +255,38 @@
   .email-capture-container {
     animation: none;
   }
+}
+
+/* Email capture below product grid */
+.result-email-capture {
+  margin: 2rem auto;
+  padding: 1.5rem 1rem;
+  max-width: 480px;
+}
+
+.result-email-capture .email-capture-form {
+  justify-content: center;
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+.result-email-capture .email-capture-nospam {
+  margin: 0.5rem 0 0;
+}
+
+.result-email-capture .email-capture-dismiss {
+  display: block;
+  margin: 0.75rem auto 0;
+  padding: 0.25rem 0.5rem;
+  background: none;
+  border: none;
+  color: rgba(var(--color-foreground), 0.5);
+  font-size: 0.8rem;
+  cursor: pointer;
+  text-decoration: underline;
+}
+.result-email-capture .email-capture-dismiss:hover {
+  color: rgba(var(--color-foreground), 0.7);
 }
 
 /* Result View */

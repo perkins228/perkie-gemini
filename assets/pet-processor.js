@@ -472,10 +472,9 @@ class PetProcessor {
     // Uploads happen in background, awaited only at cart time
     this.pendingGcsUploads = null;
 
-    // Email capture during processing
+    // Email capture state
     this.capturedEmail = null;
-    this._emailCaptureInitialized = false;
-    this._emailCaptureTimer = null;
+    this._resultEmailCaptureInitialized = false;
     this._isFromEmail = false;
     this._isLoggedIn = false;
     this._previewCompletedFired = false;
@@ -1278,7 +1277,6 @@ class PetProcessor {
                 <div class="progress-timer">⏱️ Estimating time...</div>
               </div>
               <div class="progress-stage-info"></div>
-              <div class="email-capture-container" hidden></div>
               <button class="cancel-processing-btn" onclick="window.petProcessor?.cancelProcessing()">
                 Cancel Upload
               </button>
@@ -1380,6 +1378,7 @@ class PetProcessor {
               <div class="share-buttons-container">
                 <!-- Simple share button will be inserted here by pet-social-sharing-simple.js -->
               </div>
+
             </div>
 
             <!-- Placeholder for when no image is loaded -->
@@ -1707,11 +1706,6 @@ class PetProcessor {
       // Process image with API (uploads original to GCS in background for fulfillment)
       const result = await this.callAPI(file);
 
-      // If no email captured during processing, mark as dismissed for this session
-      if (!this.capturedEmail) {
-        sessionStorage.setItem('perkieEmailDismissed', 'true');
-      }
-
       // Store result (originalUrl uploaded in background, available via effects._originalUrl)
       this.currentPet = {
         id: `pet_${crypto.randomUUID()}`,
@@ -1727,11 +1721,6 @@ class PetProcessor {
       this.updateEffectButtonStates();
 
     } catch (error) {
-      // Clean up email capture timer on error
-      if (this._emailCaptureTimer) {
-        clearTimeout(this._emailCaptureTimer);
-        this._emailCaptureTimer = null;
-      }
       this.showError('Processing failed. Please try again.');
       console.error('Processing error:', error);
     }
@@ -2025,6 +2014,7 @@ class PetProcessor {
     const allUploadPromises = [...uploadPromises, originalUploadPromise];
 
     // Store pending uploads - awaited at cart time via ensureUploadsComplete()
+    var currentPetId = this.currentPet ? this.currentPet.id : null;
     this.pendingGcsUploads = Promise.all(allUploadPromises).then(results => {
       timing.gcsUpload.end = Date.now();
       console.log(`⏱️ Background GCS uploads completed: ${timing.gcsUpload.end - timing.gcsUpload.start}ms`);
@@ -2045,6 +2035,12 @@ class PetProcessor {
           originalGcsUrl: this.currentPet.effects?._originalUrl || '',
           processedAt: Date.now()
         });
+      }
+
+      // Fire Omnisend previewCompleted now that GCS URLs are populated
+      // Guard against stale .then() from a cancelled/reset upload
+      if (this.currentPet && this.currentPet.id === currentPetId) {
+        this._firePreviewCompletedEvent();
       }
 
       this.pendingGcsUploads = null;  // Clear once complete
@@ -2219,14 +2215,6 @@ class PetProcessor {
       }
     }
 
-    // Check for mid-typing email before showing completion
-    const emailInput = this.container.querySelector('.email-capture-input');
-    const hasPartialEmail = emailInput && emailInput.value.trim().length > 0 && !this.capturedEmail;
-    if (hasPartialEmail) {
-      this.updateProgressWithTimer(100, 'Almost done! Finish entering your email...', 'Complete!');
-      await new Promise(resolve => setTimeout(resolve, 5000));
-    }
-
     // Final progress
     this.updateProgressWithTimer(100, '🎉 Your Perkie Print preview is ready!', 'Complete!');
     this.processingComplete = true;
@@ -2236,29 +2224,7 @@ class PetProcessor {
     const totalTime = Date.now() - startTime;
     warmthTracker.recordAPICall(true, totalTime);
 
-    // Fire Omnisend previewCompleted for all identified visitors.
-    if (window.omnisend && !this._previewCompletedFired
-        && (this.capturedEmail || this._isFromEmail || this._isLoggedIn)) {
-      try {
-        // For logged-in customers, identify them to Omnisend first
-        if (this._isLoggedIn && !this.capturedEmail && !this._isFromEmail) {
-          var section = this.container.closest('.ks-pet-processor-section');
-          var customerEmail = section && section.dataset ? section.dataset.customerEmail : null;
-          if (customerEmail) {
-            omnisend.identifyContact({ email: customerEmail });
-          }
-        }
-        omnisend.push(["track", "previewCompleted", {
-          origin: "api",
-          properties: {
-            previewStyles: "Black & White, Color, Ink Wash, Marker",
-            previewPageUrl: window.location.href,
-            deviceType: window.innerWidth < 768 ? "mobile" : "desktop"
-          }
-        }]);
-        this._previewCompletedFired = true;
-      } catch (e) { console.warn('Omnisend previewCompleted failed:', e); }
-    }
+    // Omnisend previewCompleted now fires from pendingGcsUploads.then() with GCS URLs
 
     // Record processing timestamp to prevent unnecessary warmup
     sessionStorage.setItem('last_processing_time', Date.now().toString());
@@ -2641,14 +2607,6 @@ class PetProcessor {
     this._isLoggedIn = section ? section.dataset.customerLoggedIn === 'true' : false;
     this._previewCompletedFired = false;
 
-    // Start email capture with delay (3.5s lets user orient to processing screen first)
-    if (this.shouldShowEmailCapture()) {
-      this._emailCaptureTimer = setTimeout(() => {
-        if (!this.processingComplete) {
-          this.initEmailCapture();
-        }
-      }, 3500);
-    }
   }
   
   showResult(result) {
@@ -2713,6 +2671,11 @@ class PetProcessor {
 
         // Dispatch event for product mockup grid to display
         this.dispatchProcessingComplete(result);
+
+        // Show email capture in result view if not already captured
+        if (!this.capturedEmail && this.shouldShowEmailCapture()) {
+          this.initResultEmailCapture();
+        }
 
         // Layout diagnostics overlay (gated behind ?debug=layout URL param)
         this._renderLayoutDiagnostics();
@@ -3093,12 +3056,7 @@ class PetProcessor {
     // Not for logged-in customers
     if (section.dataset.customerLoggedIn === 'true') return false;
 
-    // Check sessionStorage dismiss flag (ignored this session)
-    if (sessionStorage.getItem('perkieEmailDismissed')) return false;
-
     // Email click-through visitors are already known Omnisend contacts — skip capture.
-    // NOTE: Intentional side effect (localStorage write) in a predicate method.
-    // Safe because this method is only called once per upload in showProcessing().
     const urlParams = new URLSearchParams(window.location.search);
     const fromEmail = urlParams.get('utm_medium') === 'email'
       || urlParams.has('omnisendContactID')
@@ -3127,58 +3085,111 @@ class PetProcessor {
       }
     }
 
+    // Check if user declined (30-day TTL)
+    var declined = localStorage.getItem('perkieEmailDeclined');
+    if (declined) {
+      try {
+        var declinedData = JSON.parse(declined);
+        var thirtyDays = 30 * 24 * 60 * 60 * 1000;
+        if (Date.now() - declinedData.timestamp < thirtyDays) {
+          return false;
+        }
+        // Expired — remove stale flag
+        localStorage.removeItem('perkieEmailDeclined');
+      } catch (e) {
+        // Non-JSON value — treat as valid decline
+        return false;
+      }
+    }
+
     return true;
   }
 
-  initEmailCapture() {
-    if (this._emailCaptureInitialized) return;
-    if (this.processingComplete) return;
-    this._emailCaptureInitialized = true;
+  initResultEmailCapture() {
+    if (this.capturedEmail) return;
+    if (this._resultEmailCaptureInitialized) return;
+    this._resultEmailCaptureInitialized = true;
 
-    const container = this.container.querySelector('.email-capture-container');
-    if (!container) return;
+    // Insert email form after the product mockup grid section (separate Shopify section)
+    var mockupGrid = document.querySelector('.product-mockup-grid-section');
+    if (!mockupGrid) return;
 
-    container.innerHTML = `
-      <p class="email-capture-heading" id="email-capture-label">Get your previews by email</p>
-      <p class="email-capture-subtext">We'll send all four styles so you can share or revisit them.</p>
-      <div class="email-capture-form">
-        <input type="email"
-               class="email-capture-input"
-               placeholder="your@email.com"
-               autocomplete="email"
-               inputmode="email"
-               aria-label="Email address"
-               aria-labelledby="email-capture-label">
-        <button type="button" class="email-capture-btn">Email My Previews</button>
-      </div>
-      <p class="email-capture-optional">Totally optional. Previews appear here no matter what. We may send occasional offers. Unsubscribe anytime. <a href="/policies/privacy-policy" target="_blank">Privacy Policy</a>.</p>
-      <div class="email-capture-success" role="status" aria-live="polite" hidden></div>
-    `;
-    container.hidden = false;
+    var container = document.createElement('div');
+    container.className = 'email-capture-container result-email-capture page-width';
 
-    // Bind submit handler
-    const input = container.querySelector('.email-capture-input');
-    const btn = container.querySelector('.email-capture-btn');
+    container.innerHTML =
+      '<p class="email-capture-heading" id="result-email-capture-label">Be the first to see new art styles.</p>' +
+      '<p class="email-capture-subtext">We\'re adding new styles this year. Drop your email and we\'ll let you know when they drop.</p>' +
+      '<div class="email-capture-form">' +
+        '<input type="email" class="email-capture-input" placeholder="Email address"' +
+               ' autocomplete="email" inputmode="email" aria-label="Email address"' +
+               ' aria-labelledby="result-email-capture-label">' +
+        '<button type="button" class="email-capture-btn">Count Me In</button>' +
+      '</div>' +
+      '<p class="email-capture-subtext email-capture-nospam">No spam. Just new style announcements.</p>' +
+      '<button type="button" class="email-capture-dismiss">Not now</button>' +
+      '<div class="email-capture-success" role="status" aria-live="polite" hidden></div>';
 
-    const submitHandler = () => {
-      const email = input.value.trim();
-      if (email) this.handleEmailSubmit(email);
+    mockupGrid.parentNode.insertBefore(container, mockupGrid.nextSibling);
+
+    var input = container.querySelector('.email-capture-input');
+    var btn = container.querySelector('.email-capture-btn');
+    var dismiss = container.querySelector('.email-capture-dismiss');
+
+    var self = this;
+    var submitHandler = function() {
+      var email = input.value.trim();
+      if (email) self.handleEmailSubmit(email, container);
     };
-
     btn.addEventListener('click', submitHandler);
-    input.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') {
-        e.preventDefault();
-        submitHandler();
-      }
+    input.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') { e.preventDefault(); submitHandler(); }
+    });
+
+    // Dismiss: 30-day TTL, fade out
+    dismiss.addEventListener('click', function() {
+      localStorage.setItem('perkieEmailDeclined', JSON.stringify({ timestamp: Date.now() }));
+      container.style.transition = 'opacity 0.3s ease-out';
+      container.style.opacity = '0';
+      setTimeout(function() { container.remove(); }, 300);
     });
   }
 
-  handleEmailSubmit(email) {
+  _firePreviewCompletedEvent() {
+    if (this._previewCompletedFired) return;
+    if (!window.omnisend) return;
+    if (!(this.capturedEmail || this._isFromEmail || this._isLoggedIn)) return;
+
+    try {
+      if (this._isLoggedIn && !this.capturedEmail && !this._isFromEmail) {
+        var section = this.container.closest('.ks-pet-processor-section');
+        var customerEmail = section && section.dataset ? section.dataset.customerEmail : null;
+        if (customerEmail) omnisend.identifyContact({ email: customerEmail });
+      }
+
+      var effects = this.currentPet ? this.currentPet.effects : {};
+      omnisend.push(["track", "previewCompleted", {
+        origin: "api",
+        properties: {
+          previewStyles: "Black & White, Color, Ink Wash, Marker",
+          previewPageUrl: window.location.href,
+          deviceType: window.innerWidth < 768 ? "mobile" : "desktop",
+          bwImageUrl: (effects.enhancedblackwhite && effects.enhancedblackwhite.gcsUrl) || "",
+          colorImageUrl: (effects.color && effects.color.gcsUrl) || "",
+          inkWashImageUrl: (effects.ink_wash && effects.ink_wash.gcsUrl) || "",
+          markerImageUrl: (effects.sketch && effects.sketch.gcsUrl) || "",
+          originalImageUrl: effects._originalUrl || ""
+        }
+      }]);
+      this._previewCompletedFired = true;
+    } catch (e) { console.warn('Omnisend previewCompleted failed:', e); }
+  }
+
+  handleEmailSubmit(email, sourceContainer) {
     // Basic email validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
-      const input = this.container.querySelector('.email-capture-input');
+      const input = (sourceContainer || this.container).querySelector('.email-capture-input');
       if (input) {
         input.style.borderColor = '#ef4444';
         input.focus();
@@ -3190,25 +3201,23 @@ class PetProcessor {
     this.capturedEmail = email;
 
     // Show success state
-    const container = this.container.querySelector('.email-capture-container');
+    const container = sourceContainer || this.container.querySelector('.email-capture-container');
     if (container) {
       const form = container.querySelector('.email-capture-form');
       const heading = container.querySelector('.email-capture-heading');
-      const subtext = container.querySelector('.email-capture-subtext');
-      const optional = container.querySelector('.email-capture-optional');
+      const subtexts = container.querySelectorAll('.email-capture-subtext');
       const success = container.querySelector('.email-capture-success');
 
       if (form) form.hidden = true;
       if (heading) heading.hidden = true;
-      if (subtext) subtext.hidden = true;
-      if (optional) optional.hidden = true;
+      subtexts.forEach(function(el) { el.hidden = true; });
+      // Hide dismiss button on success
+      var dismiss = container.querySelector('.email-capture-dismiss');
+      if (dismiss) dismiss.hidden = true;
       if (success) {
-        success.innerHTML = `
-          <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-            <path d="M16.67 5L7.5 14.17 3.33 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-          You're all set! We'll email them when ready.
-        `;
+        success.innerHTML = '<svg width="20" height="20" viewBox="0 0 20 20" fill="none">' +
+          '<path d="M16.67 5L7.5 14.17 3.33 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>' +
+          '</svg> You\'re on the list.';
         success.hidden = false;
       }
     }
@@ -3232,20 +3241,27 @@ class PetProcessor {
         .catch(err => console.warn('Shopify email form failed:', err));
     }
 
-    // Fire Omnisend identification + previewCompleted if processing already done.
+    // Fire Omnisend identification + previewCompleted (deferred to GCS upload completion for image URLs)
     if (window.omnisend) {
       try {
         omnisend.identifyContact({ email: email });
-        if (this.processingComplete && !this._previewCompletedFired) {
-          omnisend.push(["track", "previewCompleted", {
-            origin: "api",
-            properties: {
-              previewStyles: "Black & White, Color, Ink Wash, Marker",
-              previewPageUrl: window.location.href,
-              deviceType: window.innerWidth < 768 ? "mobile" : "desktop"
-            }
-          }]);
-          this._previewCompletedFired = true;
+        if (this.processingComplete) {
+          if (this.pendingGcsUploads) {
+            var petIdAtSubmit = this.currentPet ? this.currentPet.id : null;
+            this.pendingGcsUploads
+              .then(() => {
+                if (this.currentPet && this.currentPet.id === petIdAtSubmit) {
+                  this._firePreviewCompletedEvent();
+                }
+              })
+              .catch(() => {
+                if (this.currentPet && this.currentPet.id === petIdAtSubmit) {
+                  this._firePreviewCompletedEvent();
+                }
+              });
+          } else {
+            this._firePreviewCompletedEvent();
+          }
         }
       } catch (e) { console.warn('Omnisend identification failed:', e); }
     }
@@ -3732,17 +3748,15 @@ class PetProcessor {
 
     // Clear email capture + Omnisend state
     this.capturedEmail = null;
-    this._emailCaptureInitialized = false;
+    this._resultEmailCaptureInitialized = false;
     this._isFromEmail = false;
     this._isLoggedIn = false;
     this._previewCompletedFired = false;
     this.processingComplete = false;
-    if (this._emailCaptureTimer) {
-      clearTimeout(this._emailCaptureTimer);
-      this._emailCaptureTimer = null;
-    }
-    const emailContainer = this.container.querySelector('.email-capture-container');
-    if (emailContainer) { emailContainer.innerHTML = ''; emailContainer.hidden = true; }
+    this.pendingGcsUploads = null;  // Prevent stale .then() from firing after cancel+re-upload
+    // Remove dynamically-created email capture below product grid
+    var emailContainers = document.querySelectorAll('.email-capture-container.result-email-capture');
+    emailContainers.forEach(function(c) { c.remove(); });
   }
 
   /**
