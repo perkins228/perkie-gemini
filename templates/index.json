@@ -627,6 +627,7 @@
         "slide_xkn8X9",
         "slide_XtVxbp"
       ],
+      "disabled": true,
       "custom_css": [
         "{text-align: center;}"
       ],
@@ -658,8 +659,8 @@
         "junip_junip_ugc_gallery_tgxjCi": {
           "type": "shopify://apps/junip/blocks/junip-ugc-gallery/dc14f5a8-ed15-41b1-ad08-cfba23f9789b",
           "settings": {
-            "layout": "tile",
-            "title": "",
+            "layout": "scroll",
+            "title": "From Our Customers:",
             "product": "",
             "reviewTag": "",
             "paddingTop": 8,
