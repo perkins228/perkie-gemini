@@ -24,6 +24,7 @@
         "heading": "Preview Your Perkie Print",
         "subheading": "Don't worry—this is just a mockup! You can leave a note for our artist to make sure your Perkie Print is a true work of art.",
         "enable_product_integration": true,
+        "enable_email_capture": true,
         "cart_success_message": "Your Perkie Print has been saved!",
         "session_expiry_days": 7,
         "max_pets_per_product": 3,
@@ -368,22 +369,35 @@
     "17606716083f933aed": {
       "type": "apps",
       "blocks": {
+        "junip_junip_ugc_gallery_RrB4pW": {
+          "type": "shopify://apps/junip/blocks/junip-ugc-gallery/dc14f5a8-ed15-41b1-ad08-cfba23f9789b",
+          "settings": {
+            "layout": "scroll",
+            "title": "",
+            "product": "",
+            "reviewTag": "",
+            "paddingTop": 48,
+            "paddingBottom": 48,
+            "containerClass": ""
+          }
+        },
         "junip_junip_review_carousel_9L6AVX": {
           "type": "shopify://apps/junip/blocks/junip-review-carousel/dc14f5a8-ed15-41b1-ad08-cfba23f9789b",
           "settings": {
             "reviewsType": "product_reviews",
             "sortOrder": "mostRecent",
-            "product": "personalized-pet-portrait-digital-artwork-download",
+            "product": "",
             "reviewTag": "",
             "showSummary": true,
             "title": "Reviews",
-            "paddingTop": 48,
-            "paddingBottom": 48,
+            "paddingTop": 10,
+            "paddingBottom": 10,
             "containerClass": ""
           }
         }
       },
       "block_order": [
+        "junip_junip_ugc_gallery_RrB4pW",
         "junip_junip_review_carousel_9L6AVX"
       ],
       "settings": {
