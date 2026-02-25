@@ -15,6 +15,7 @@
   margin: 0 auto;
   padding: 1rem;
   font-family: var(--font-body-family);
+  background-color: rgb(var(--color-background));
 }
 
 /* Defensive [hidden] override — prevent display:flex/block in pet-processor-mobile.css
@@ -111,6 +112,7 @@
 .processing-area {
   padding: 3rem 2rem;
   text-align: center;
+  background-color: rgb(var(--color-background));
 }
 
 .progress-container {
