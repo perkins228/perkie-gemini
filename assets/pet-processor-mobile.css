@@ -60,6 +60,7 @@
 .processing-view {
   text-align: center;
   padding: 3rem 1rem;
+  background-color: rgb(var(--color-background));
 }
 
 .processing-spinner {
