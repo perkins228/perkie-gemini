@@ -3161,28 +3161,45 @@ class PetProcessor {
     }
     if (!(this.capturedEmail || this._isFromEmail || this._isLoggedIn)) return;
 
+    var needsDelay = false;
+
     // Identify logged-in customers (separate try/catch so failure doesn't block event)
     if (this._isLoggedIn && !this.capturedEmail && !this._isFromEmail) {
       try {
         var section = this.container.closest('.ks-pet-processor-section');
         var customerEmail = section && section.dataset ? section.dataset.customerEmail : null;
-        if (customerEmail) omnisend.identifyContact({ email: customerEmail });
+        if (customerEmail) {
+          omnisend.identifyContact({ email: customerEmail });
+          console.log('📧 Omnisend identifyContact (logged-in):', customerEmail);
+          needsDelay = true; // identifyContact is async — need delay before track
+        }
       } catch (e) { console.warn('📧 Omnisend identifyContact (logged-in) failed:', e); }
     }
 
-    try {
-      omnisend.push(["track", "previewCompleted", {
-        origin: "api",
-        properties: {
-          previewStyles: "Black & White, Color, Ink Wash, Marker",
-          previewPageUrl: window.location.href,
-          deviceType: window.innerWidth < 768 ? "mobile" : "desktop",
-          timestamp: new Date().toISOString()
-        }
-      }]);
-      this._previewCompletedFired = true;
-      console.log('📧 Omnisend previewCompleted fired for:', this.capturedEmail ? 'captured email' : this._isLoggedIn ? 'logged-in user' : 'email click-through');
-    } catch (e) { console.warn('📧 Omnisend previewCompleted failed:', e); }
+    var self = this;
+    var fireTrack = function() {
+      if (self._previewCompletedFired) return; // guard against double-fire
+      try {
+        omnisend.push(["track", "previewCompleted", {
+          origin: "api",
+          properties: {
+            previewStyles: "Black & White, Color, Ink Wash, Marker",
+            previewPageUrl: window.location.href,
+            deviceType: window.innerWidth < 768 ? "mobile" : "desktop",
+            timestamp: new Date().toISOString()
+          }
+        }]);
+        self._previewCompletedFired = true;
+        console.log('📧 Omnisend previewCompleted fired for:', self.capturedEmail ? 'captured email' : self._isLoggedIn ? 'logged-in user' : 'email click-through');
+      } catch (e) { console.warn('📧 Omnisend previewCompleted failed:', e); }
+    };
+
+    // Delay track event when identifyContact was just called (async registration race)
+    if (needsDelay) {
+      setTimeout(fireTrack, 1500);
+    } else {
+      fireTrack();
+    }
   }
 
   handleEmailSubmit(email, sourceContainer) {
@@ -3225,32 +3242,50 @@ class PetProcessor {
     // Set localStorage with 90-day TTL
     localStorage.setItem('perkieEmailCaptured', JSON.stringify({ timestamp: Date.now() }));
 
-    // Submit to hidden Shopify customer form
-    const shopifyForm = document.getElementById('pet-email-capture-form');
+    // Submit to hidden Shopify customer form (creates customer with accepts_marketing=true)
+    var shopifyForm = document.getElementById('pet-email-capture-form');
     if (shopifyForm) {
-      const emailInput = document.getElementById('pet-email-input');
-      const tagsInput = document.getElementById('pet-email-tags');
+      var emailInput = document.getElementById('pet-email-input');
+      var tagsInput = document.getElementById('pet-email-tags');
       if (emailInput) emailInput.value = email;
       if (tagsInput) tagsInput.value = 'pet-processor,pet-processor-preview';
+      var formData = new FormData(shopifyForm);
+      console.log('📋 Shopify form action:', shopifyForm.action);
+      console.log('📋 Shopify form has auth token:', formData.has('authenticity_token'));
       fetch(shopifyForm.action, {
         method: 'POST',
-        body: new FormData(shopifyForm),
-        redirect: 'manual'
+        body: formData,
+        redirect: 'follow'
       })
-        .then(r => { if (!r.ok && r.type !== 'opaqueredirect') console.warn('Shopify email form:', r.status); })
-        .catch(err => console.warn('Shopify email form failed:', err));
+        .then(function(r) {
+          console.log('📋 Shopify form response:', r.status, r.type, r.url);
+          if (r.url && r.url.indexOf('/challenge') !== -1) {
+            console.warn('📋 Shopify CAPTCHA challenge triggered — customer NOT created');
+          } else if (!r.ok) {
+            console.warn('📋 Shopify form rejected:', r.status);
+          }
+        })
+        .catch(function(err) { console.warn('📋 Shopify form failed:', err); });
+    } else {
+      console.warn('📋 Shopify form #pet-email-capture-form not found in DOM');
     }
 
     // Fire Omnisend identification (separate try/catch so failure doesn't block event)
     if (window.omnisend) {
       try {
         omnisend.identifyContact({ email: email });
+        console.log('📧 Omnisend identifyContact called for:', email);
       } catch (e) { console.warn('📧 Omnisend identifyContact failed:', e); }
     }
 
-    // Fire previewCompleted event directly (independent of identifyContact success)
+    // Delay previewCompleted to allow identifyContact to register server-side
+    // (identifyContact is async — firing track immediately causes a race condition
+    // where the event arrives before the contact is identified, and gets dropped)
     if (this.processingComplete) {
-      this._firePreviewCompletedEvent();
+      var self = this;
+      setTimeout(function() {
+        self._firePreviewCompletedEvent();
+      }, 1500);
     }
 
     // Fire PerkieAnalytics (GA4 + Facebook Pixel)
