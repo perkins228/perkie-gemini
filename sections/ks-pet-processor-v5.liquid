@@ -52,19 +52,17 @@
       <!-- Pet processor UI will be inserted here by JavaScript -->
     </div>
 
-    {%- comment -%}
-    Hidden Shopify Native Email Capture Form
-    Submitted via JavaScript to store emails in Shopify customer database
-    Tags track: pet-processor, selected style, download date
-    {%- endcomment -%}
-    <div style="display: none;">
-      {% form 'customer', id: 'pet-email-capture-form', class: 'pet-email-form' %}
-        <input type="hidden" name="contact[tags]" id="pet-email-tags" value="pet-processor">
-        <input type="hidden" name="customer[accepts_marketing]" value="1">
-        <input type="email" name="contact[email]" id="pet-email-input" required>
-        <input type="text" name="contact[first_name]" id="pet-customer-name">
-      {% endform %}
-    </div>
+  </div>
+
+  {%- comment -%}
+  Omnisend embedded email capture form.
+  Hidden on load; JS moves this below the product mockup grid after processing completes.
+  Must be in static HTML so Omnisend's script finds and renders it on page load.
+  {%- endcomment -%}
+  <div id="omnisend-email-capture-wrapper" class="email-capture-container result-email-capture page-width" style="display: none;">
+    <div id="omnisend-embedded-v2-699e80e70448059b7ff7ef1d"></div>
+    <button type="button" class="email-capture-dismiss">Not now</button>
+    <div class="email-capture-success" role="status" aria-live="polite" hidden></div>
   </div>
 </section>
 

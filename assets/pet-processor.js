@@ -2217,7 +2217,7 @@ class PetProcessor {
     const totalTime = Date.now() - startTime;
     warmthTracker.recordAPICall(true, totalTime);
 
-    // Omnisend previewCompleted fires from handleEmailSubmit() or showResult() for identified contacts
+    // Omnisend previewCompleted fires from omnisendForms listener or showResult() for identified contacts
 
     // Record processing timestamp to prevent unnecessary warmup
     sessionStorage.setItem('last_processing_time', Date.now().toString());
@@ -3108,41 +3108,16 @@ class PetProcessor {
     if (this._resultEmailCaptureInitialized) return;
     this._resultEmailCaptureInitialized = true;
 
-    // Insert email form after the product mockup grid section (separate Shopify section)
+    // Find the Omnisend form container (in static Liquid HTML so Omnisend renders it on page load)
+    // and move it below the product mockup grid section
     var mockupGrid = document.querySelector('.product-mockup-grid-section');
-    if (!mockupGrid) return;
-
-    var container = document.createElement('div');
-    container.className = 'email-capture-container result-email-capture page-width';
-
-    container.innerHTML =
-      '<p class="email-capture-heading" id="result-email-capture-label">Be the first to see new art styles.</p>' +
-      '<p class="email-capture-subtext">We\'re adding new styles this year. Drop your email and we\'ll let you know when they drop.</p>' +
-      '<div class="email-capture-form">' +
-        '<input type="email" class="email-capture-input" placeholder="Email address"' +
-               ' autocomplete="email" inputmode="email" aria-label="Email address"' +
-               ' aria-labelledby="result-email-capture-label">' +
-        '<button type="button" class="email-capture-btn">Count Me In</button>' +
-      '</div>' +
-      '<p class="email-capture-subtext email-capture-nospam">No spam. Just new style announcements.</p>' +
-      '<button type="button" class="email-capture-dismiss">Not now</button>' +
-      '<div class="email-capture-success" role="status" aria-live="polite" hidden></div>';
+    var container = document.getElementById('omnisend-email-capture-wrapper');
+    if (!mockupGrid || !container) return;
 
     mockupGrid.parentNode.insertBefore(container, mockupGrid.nextSibling);
+    container.style.display = '';
 
-    var input = container.querySelector('.email-capture-input');
-    var btn = container.querySelector('.email-capture-btn');
     var dismiss = container.querySelector('.email-capture-dismiss');
-
-    var self = this;
-    var submitHandler = function() {
-      var email = input.value.trim();
-      if (email) self.handleEmailSubmit(email, container);
-    };
-    btn.addEventListener('click', submitHandler);
-    input.addEventListener('keydown', function(e) {
-      if (e.key === 'Enter') { e.preventDefault(); submitHandler(); }
-    });
 
     // Dismiss: 30-day TTL, fade out
     dismiss.addEventListener('click', function() {
@@ -3150,6 +3125,50 @@ class PetProcessor {
       container.style.transition = 'opacity 0.3s ease-out';
       container.style.opacity = '0';
       setTimeout(function() { container.remove(); }, 300);
+    });
+
+    // Listen for Omnisend form submission to fire previewCompleted + analytics
+    var self = this;
+    window.addEventListener('omnisendForms', function(e) {
+      if (!e.detail || e.detail.type !== 'submit') return;
+      if (self.capturedEmail) return; // already handled
+
+      self.capturedEmail = 'omnisend-subscriber';
+      localStorage.setItem('perkieEmailCaptured', JSON.stringify({ timestamp: Date.now() }));
+
+      // Show success state, hide Omnisend form
+      var omnisendForm = container.querySelector('[id^="omnisend-embedded"]');
+      if (omnisendForm) omnisendForm.style.display = 'none';
+      if (dismiss) dismiss.hidden = true;
+      var success = container.querySelector('.email-capture-success');
+      if (success) {
+        success.innerHTML = '<svg width="20" height="20" viewBox="0 0 20 20" fill="none">' +
+          '<path d="M16.67 5L7.5 14.17 3.33 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>' +
+          '</svg> You\'re on the list.';
+        success.hidden = false;
+      }
+
+      // Omnisend form already creates a subscribed contact — no identifyContact needed.
+      // Delay previewCompleted to allow Omnisend to finish server-side processing.
+      if (self.processingComplete) {
+        setTimeout(function() {
+          self._firePreviewCompletedEvent();
+        }, 1500);
+      }
+
+      // GA4 + Facebook Pixel
+      if (window.PerkieAnalytics) {
+        PerkieAnalytics.trackEmailCapture('pet_processor_preview', 5);
+      }
+
+      // GTM dataLayer
+      window.dataLayer = window.dataLayer || [];
+      window.dataLayer.push({
+        event: 'email_capture',
+        email_source: 'pet_processor_omnisend'
+      });
+
+      console.log('📧 Email captured via Omnisend embedded form');
     });
   }
 
@@ -3200,116 +3219,6 @@ class PetProcessor {
     } else {
       fireTrack();
     }
-  }
-
-  handleEmailSubmit(email, sourceContainer) {
-    // Basic email validation
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      const input = (sourceContainer || this.container).querySelector('.email-capture-input');
-      if (input) {
-        input.style.borderColor = '#ef4444';
-        input.focus();
-        setTimeout(() => { input.style.borderColor = ''; }, 2000);
-      }
-      return;
-    }
-
-    this.capturedEmail = email;
-
-    // Show success state
-    const container = sourceContainer || this.container.querySelector('.email-capture-container');
-    if (container) {
-      const form = container.querySelector('.email-capture-form');
-      const heading = container.querySelector('.email-capture-heading');
-      const subtexts = container.querySelectorAll('.email-capture-subtext');
-      const success = container.querySelector('.email-capture-success');
-
-      if (form) form.hidden = true;
-      if (heading) heading.hidden = true;
-      subtexts.forEach(function(el) { el.hidden = true; });
-      // Hide dismiss button on success
-      var dismiss = container.querySelector('.email-capture-dismiss');
-      if (dismiss) dismiss.hidden = true;
-      if (success) {
-        success.innerHTML = '<svg width="20" height="20" viewBox="0 0 20 20" fill="none">' +
-          '<path d="M16.67 5L7.5 14.17 3.33 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>' +
-          '</svg> You\'re on the list.';
-        success.hidden = false;
-      }
-    }
-
-    // Set localStorage with 90-day TTL
-    localStorage.setItem('perkieEmailCaptured', JSON.stringify({ timestamp: Date.now() }));
-
-    // Submit to hidden Shopify customer form via native form submission in hidden iframe.
-    // fetch() fails because Shopify's edge layer rejects programmatic /contact POSTs
-    // (Sec-Fetch-Mode: cors from fetch vs navigate from native form submission).
-    var shopifyForm = document.getElementById('pet-email-capture-form');
-    if (shopifyForm) {
-      var emailInput = document.getElementById('pet-email-input');
-      var tagsInput = document.getElementById('pet-email-tags');
-      if (emailInput) emailInput.value = email;
-      if (tagsInput) tagsInput.value = 'pet-processor,pet-processor-preview';
-
-      var iframe = document.createElement('iframe');
-      iframe.name = 'pet-email-capture-iframe';
-      iframe.style.display = 'none';
-      document.body.appendChild(iframe);
-      shopifyForm.target = 'pet-email-capture-iframe';
-      shopifyForm.submit();
-      console.log('📋 Shopify customer form submitted via hidden iframe');
-
-      iframe.addEventListener('load', function() {
-        try {
-          var iframeUrl = iframe.contentWindow.location.href;
-          if (iframeUrl.indexOf('customer_posted=true') !== -1) {
-            console.log('📋 Shopify customer created successfully');
-          } else {
-            console.log('📋 Shopify form iframe loaded:', iframeUrl);
-          }
-        } catch (e) {
-          console.log('📋 Shopify form submitted (iframe load detected)');
-        }
-        setTimeout(function() {
-          if (iframe.parentNode) iframe.parentNode.removeChild(iframe);
-        }, 5000);
-      });
-    } else {
-      console.warn('📋 Shopify form #pet-email-capture-form not found in DOM');
-    }
-
-    // Fire Omnisend identification (separate try/catch so failure doesn't block event)
-    if (window.omnisend) {
-      try {
-        omnisend.identifyContact({ email: email });
-        console.log('📧 Omnisend identifyContact called for:', email);
-      } catch (e) { console.warn('📧 Omnisend identifyContact failed:', e); }
-    }
-
-    // Delay previewCompleted to allow identifyContact to register server-side
-    // (identifyContact is async — firing track immediately causes a race condition
-    // where the event arrives before the contact is identified, and gets dropped)
-    if (this.processingComplete) {
-      var self = this;
-      setTimeout(function() {
-        self._firePreviewCompletedEvent();
-      }, 1500);
-    }
-
-    // Fire PerkieAnalytics (GA4 + Facebook Pixel)
-    if (window.PerkieAnalytics) {
-      PerkieAnalytics.trackEmailCapture('pet_processor_preview', 5);
-    }
-
-    // Push to dataLayer for GTM
-    window.dataLayer = window.dataLayer || [];
-    window.dataLayer.push({
-      event: 'email_capture',
-      email_source: 'pet_processor_preview'
-    });
-
-    console.log('📧 Email captured during processing:', email);
   }
 
   // ── End Email Capture ────────────────────────────────────────────

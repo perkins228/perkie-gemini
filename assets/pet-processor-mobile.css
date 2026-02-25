@@ -159,66 +159,12 @@
 
 .email-capture-container {
   animation: emailCaptureIn 0.4s ease-out;
-  background: rgba(var(--color-button), 0.05);
   border-radius: 8px;
   padding: 1rem;
   margin: 1.5rem auto 0;
-  max-width: 400px;
+  max-width: 480px;
   text-align: center;
 }
-
-.email-capture-heading {
-  font-size: 1rem;
-  font-weight: 600;
-  color: rgb(var(--color-foreground));
-  margin: 0 0 0.25rem;
-}
-
-.email-capture-subtext {
-  font-size: 0.85rem;
-  color: rgba(var(--color-foreground), 0.7);
-  margin: 0 0 0.75rem;
-}
-
-.email-capture-form {
-  display: flex;
-  gap: 0.5rem;
-  align-items: stretch;
-}
-
-.email-capture-input {
-  flex: 1;
-  min-height: 48px;
-  padding: 0 0.75rem;
-  border: 1px solid rgba(var(--color-foreground), 0.2);
-  border-radius: 6px;
-  font-size: 1rem;
-  color: rgb(var(--color-foreground));
-  background: rgb(var(--color-background));
-}
-
-.email-capture-input:focus {
-  outline: 2px solid rgb(var(--color-button));
-  outline-offset: -2px;
-  border-color: transparent;
-}
-
-.email-capture-btn {
-  min-height: 48px;
-  padding: 0 1rem;
-  background: rgb(var(--color-button));
-  color: rgb(var(--color-button-text));
-  border: none;
-  border-radius: 6px;
-  font-size: 0.9rem;
-  font-weight: 600;
-  cursor: pointer;
-  white-space: nowrap;
-  transition: opacity 0.2s;
-}
-
-.email-capture-btn:hover { opacity: 0.9; }
-.email-capture-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
 .email-capture-success {
   display: flex;
@@ -235,16 +181,7 @@
   flex-shrink: 0;
 }
 
-/* Mobile: stack input + button vertically */
 @media (max-width: 768px) {
-  .email-capture-form {
-    flex-direction: column;
-  }
-
-  .email-capture-btn {
-    width: 100%;
-  }
-
   .email-capture-container {
     margin: 1rem auto 0;
     padding: 0.75rem;
@@ -262,22 +199,6 @@
 .result-email-capture {
   margin: 2rem auto;
   padding: 1.5rem 1rem;
-  max-width: 480px;
-}
-
-.result-email-capture .email-capture-btn {
-  background: #FF5964;
-  color: #fff;
-}
-
-.result-email-capture .email-capture-form {
-  justify-content: center;
-  max-width: 400px;
-  margin: 0 auto;
-}
-
-.result-email-capture .email-capture-nospam {
-  margin: 0.5rem 0 0;
 }
 
 .result-email-capture .email-capture-dismiss {

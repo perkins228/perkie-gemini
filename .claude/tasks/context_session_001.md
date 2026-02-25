@@ -85,6 +85,157 @@ Form fields populated → Cart with all pet properties ✅
 
 ## Work Log
 
+### 2026-02-25 - Omnisend Embedded Form Integration (Email Capture Overhaul)
+
+**Task**: Replace broken Shopify customer form + custom email form HTML with Omnisend embedded form. User decision: no download gating, keep email capture below mockup grid, use simplest path (Omnisend embedded form).
+
+**Changes Made**:
+
+1. **`sections/ks-pet-processor-v5.liquid`** — Removed hidden Shopify `{% form 'customer' %}` block (lines 55-67). Dead code: CSP `frame-ancestors: 'none'` and `Sec-Fetch-Mode` validation make all programmatic Shopify form submissions impossible.
+
+2. **`assets/pet-processor.js`** — Three changes:
+   - **`initResultEmailCapture()`**: Replaced custom form HTML (heading, input, button, subtext, nospam) with Omnisend embedded form container (`<div id="omnisend-embedded-v2-699e80e70448059b7ff7ef1d">`). Added `omnisendForms` event listener that fires `previewCompleted` (1500ms delay), GA4/dataLayer events, and shows success checkmark on form submit.
+   - **`handleEmailSubmit()`**: Removed entirely — dead code after custom form HTML removal. All submission logic moved into `omnisendForms` event listener.
+   - **Removed broken iframe submission code**: 36 lines of Shopify iframe + CSP workaround code deleted from previous `handleEmailSubmit()`.
+
+3. **`assets/pet-processor-mobile.css`** — Removed dead CSS rules for custom form elements: `.email-capture-heading`, `.email-capture-subtext`, `.email-capture-form`, `.email-capture-input`, `.email-capture-btn`, `.email-capture-nospam`, and their responsive/modifier variants. Kept: `.email-capture-container`, `.email-capture-success`, `.email-capture-dismiss`, `.result-email-capture`.
+
+**Architecture**:
+- Omnisend embedded form renders inside dynamically-created container below `.product-mockup-grid-section`
+- Omnisend handles: email validation, contact creation (SUBSCRIBED status), Shopify customer sync
+- Our code handles: show/hide timing (after processing), dismiss (30-day TTL), `previewCompleted` event, GA4/dataLayer, success state
+- `theme.liquid` line 607 `omnisendForms` listener (unchanged) also sets `perkieEmailCaptured` localStorage
+
+**Omnisend Form ID**: `699e80e70448059b7ff7ef1d` (embedded type, created by user in Omnisend dashboard)
+
+**What still works**:
+- `shouldShowEmailCapture()` display logic (logged-in check, page handle, localStorage TTLs)
+- `_firePreviewCompletedEvent()` for logged-in users (identifyContact path)
+- Dismiss with 30-day TTL
+- `perkieEmailCaptured` 90-day TTL suppression
+
+**Status**: Code changes complete, pending deploy + live test
+
+---
+
+### 2026-02-24 - Evaluation: Email Capture Approach (Omnisend + Shopify Customer Creation)
+
+**Task**: Evaluate 5 options (A-E) for email capture on the pet processor page. Key constraints: (1) Shopify `{% form 'customer' %}` programmatic POST is blocked by Sec-Fetch-Mode, (2) iframe submission blocked by `frame-ancestors: 'none'` CSP, (3) page reload destroys processing results.
+
+**Research findings**:
+- Omnisend supports `window.omnisend.push(['openForm', 'FORM_ID'])` to trigger a form programmatically
+- Omnisend embedded forms create contacts with SUBSCRIBED status immediately
+- Omnisend syncs email subscription status back to Shopify (creates/updates Shopify customer with marketing consent)
+- The `omnisendForms` event listener is already in `layout/theme.liquid` (line 607) for cross-referencing popup submissions with pet processor email capture flag
+- Current code in `pet-processor.js` lines 3248-3280 attempts iframe submission (broken by CSP)
+- Current code in `pet-processor.js` lines 3283-3288 calls `omnisend.identifyContact()` which creates NON-subscribed contacts
+
+**Recommendation**: Option E (Hybrid) -- use Omnisend embedded/popup form for subscription + identifyContact for event tracking. See detailed evaluation below.
+
+---
+
+### 2026-02-24 - Debug: Email Capture Restructuring Console Log Review
+
+**Task**: Analyze console log from live test of `/pages/custom-image-processing` after email capture restructuring deploy. User logged in with `data-customer-logged-in="true"`.
+
+**Findings**:
+1. No JS errors -- processing flow is clean
+2. `shouldShowEmailCapture()` correctly returns false for logged-in user (line 3057)
+3. `_isLoggedIn` set to true at line 2607, enabling Omnisend previewCompleted for logged-in users
+4. GCS BW/Color upload completion logs missing from captured log (likely timing)
+5. Omnisend `previewCompleted` event fires from `pendingGcsUploads.then()` at line 2043
+6. Found: `PetStorage.save()` used at line 2179 is legacy wrapper -- works but inconsistent with `savePet()` at line 2031
+7. Found: Duplicate "Original image uploaded to GCS" logs (lines 2004 + 3855)
+8. Console log captured mid-flight before all GCS uploads resolved
+
+**Files analyzed**: `assets/pet-processor.js`, `assets/pet-storage.js`, `assets/gemini-api-client.js`, `assets/product-mockup-renderer.js`
+
+---
+
+### 2026-02-24 - Debug: Email Capture + Omnisend previewCompleted Broken for Non-Logged-In Users
+
+**Task**: Root cause analysis for two failures after email capture restructuring deploy:
+1. Shopify customer form POST failing (customer NOT being subscribed)
+2. Omnisend `previewCompleted` tag NOT being applied
+
+**Root Cause A - Shopify Form POST (BUG: `redirect: 'manual'` + `r.ok` logic)**:
+- `handleEmailSubmit()` at line 3229 finds `document.getElementById('pet-email-capture-form')` -- form IS present in DOM (inside the `<section>` at line 61 of `ks-pet-processor-v5.liquid`)
+- `fetch(shopifyForm.action, { method: 'POST', body: new FormData(shopifyForm), redirect: 'manual' })` at line 3235-3238
+- **BUG**: Shopify `/contact` endpoint returns HTTP 302 redirect on success. With `redirect: 'manual'`, the browser returns an `opaqueredirect` Response with `type: 'opaqueredirect'` and `status: 0`. `r.ok` is `false` for status 0. So the `.then()` always logs a warning but the POST **actually succeeds** (the browser sends the request and Shopify processes it -- the 302 is just the response being suppressed).
+- **VERDICT**: The Shopify form POST is likely WORKING. The `r.ok` check is a false negative warning. If users are truly not being subscribed, the issue is elsewhere (e.g., Shopify duplicate customer logic, or form action URL mismatch for non-logged-in users).
+- **UPDATE**: Actually, there IS a real failure scenario. The `{% form 'customer' %}` Liquid tag generates the form with an `authenticity_token`. However, Shopify MAY reject the POST if the authenticity token has expired (long page session). More critically: Shopify's `/contact` form submission for creating customers may require a `return_to` or may be rate-limited for anonymous users. Need to verify in live environment.
+
+**Root Cause B - Omnisend previewCompleted (BUG: `_previewCompletedFired` race condition)**:
+- Timeline for non-logged-in user: Processing completes (~30s) -> GCS uploads complete (~5-15s later) -> User enters email (~60-120s later)
+- **Step 1**: `callAPI()` sets up `pendingGcsUploads` at line 2018. The `.then()` at line 2040-2044 calls `this._firePreviewCompletedEvent()`.
+- **Step 2**: GCS uploads complete ~5-15s after processing. The `.then()` fires. At line 2042, `this.currentPet.id === currentPetId` passes. At line 2043, `_firePreviewCompletedEvent()` is called.
+- **Step 3**: Inside `_firePreviewCompletedEvent()` (line 3158):
+  - Line 3159: `if (this._previewCompletedFired) return;` -- FALSE, proceeds
+  - Line 3160: `if (!window.omnisend) return;` -- Omnisend app embed should be loaded by now, proceeds
+  - Line 3161: `if (!(this.capturedEmail || this._isFromEmail || this._isLoggedIn)) return;` -- **ALL THREE ARE FALSE** for a non-logged-in anonymous user who hasn't entered their email yet. **GUARD FAILS, RETURNS EARLY**.
+  - **CRITICAL**: `_previewCompletedFired` is NOT set to `true` (line 3184 is never reached). So the flag stays `false`.
+- **Step 4**: ~60-120s later, user enters email. `handleEmailSubmit()` fires. `this.capturedEmail` is set at line 3201.
+- **Step 5**: At line 3248, `if (this.processingComplete)` -- TRUE. At line 3249, `if (this.pendingGcsUploads)` -- **NULL** (it was cleared at line 2046 when uploads completed). Falls to `else` at line 3262: `this._firePreviewCompletedEvent()`.
+- **Step 6**: Inside `_firePreviewCompletedEvent()` again:
+  - Line 3159: `_previewCompletedFired` is `false` -- proceeds
+  - Line 3160: `window.omnisend` exists -- proceeds
+  - Line 3161: `this.capturedEmail` is now set -- **GUARD PASSES**
+  - Lines 3171-3183: Event fires with GCS URLs
+  - **BUT**: At this point, `this.currentPet.effects` should still have GCS URLs populated from the earlier `.then()` handler. So the event data should be correct.
+- **CONCLUSION for B**: The Omnisend flow **SHOULD actually work** for the non-logged-in email capture path. The guard at line 3161 fails in the initial `.then()` (Step 3) but `_previewCompletedFired` stays `false`, so the retry in `handleEmailSubmit()` at Step 5-6 succeeds. **This is actually correct behavior IF `window.omnisend` is defined.**
+
+**Revised Root Cause B - window.omnisend not defined**:
+- The Omnisend app embed loads asynchronously via Shopify's app block system. It may define `window.omnisend` lazily.
+- If `window.omnisend` is not yet a `push`-able object when `_firePreviewCompletedEvent()` runs, the event silently fails.
+- More importantly: at line 3245, `if (window.omnisend)` gates the ENTIRE Omnisend block in `handleEmailSubmit()`. If `window.omnisend` is undefined or null, `identifyContact` AND `_firePreviewCompletedEvent` are both skipped entirely.
+- **Need to verify**: Is `window.omnisend` defined on the free preview page for anonymous users? Omnisend's snippet typically defines `window.omnisend = window.omnisend || []` early, so it should be truthy as an array even before the full SDK loads.
+
+**Files analyzed**: `assets/pet-processor.js` (lines 2015-2048, 3045-3106, 3108-3156, 3158-3186, 3188-3282), `sections/ks-pet-processor-v5.liquid` (lines 1-68), `layout/theme.liquid` (lines 604-611), `config/settings_data.json` (line 215)
+
+**Next steps**:
+1. Add console.log before the `if (window.omnisend)` check at line 3245 to verify availability
+2. Verify Shopify form POST actually reaches Shopify (check Network tab for `/contact` request and response)
+3. If Omnisend is the issue, add a retry/polling mechanism or use `omnisend.push()` array pattern which queues commands
+
+---
+
+### 2026-02-24 - Debug: Dark/Black Bands During Processing State (MacBook Pro 2019, Intel UHD 630)
+
+**Task**: Root cause analysis for full-width dark bands seen during PROCESSING state on a 2019 MacBook Pro 16" (Intel UHD 630, Chrome, 1536x774 viewport). Dark header, dark band ~340px in middle, dark area at bottom.
+
+**Hypothesis Analysis**:
+
+**Hypothesis A - Chrome Auto Dark Mode (CONFIRMED PRIMARY CAUSE)**:
+- Chrome's `#enable-force-dark` flag forcibly inverts page colors on sites without explicit `color-scheme: light` protection
+- Dawn theme uses CSS custom properties: `--color-background: 255,255,255` resolved via `rgb(var(--color-background))`
+- Chrome Auto Dark Mode uses heuristics: elements with `background-color: rgb(var(...))` via custom properties are NOT reliably detected as "already light" by the inversion algorithm
+- The PROCESSING state has multiple animated layers stacked: `.processing-view` (transparent background), `.processing-spinner` (transparent border, border-top colored), `.progress-bar::after` (shine animation translateX), `.time-remaining` (pulse animation), potentially `.processing-area:not(.hidden)` (absolute positioned white overlay on desktop)
+- Chrome promotes animated elements to GPU compositor layers. Each compositor layer is inverted INDEPENDENTLY. Layers with transparent backgrounds get inverted to dark (no background = black on dark). Layers with explicit `rgba(255,255,255,0.95)` MAY get inverted to near-black or inconsistently not inverted.
+- The patchwork dark pattern EXACTLY matches: animated compositor layers (spinner, progress bar, pulse) promoted independently, some with transparent backgrounds → inverted to dark rectangles
+- The nav dark header = Chrome inverting the sticky header (its own compositor layer from `position: sticky`)
+- "Emulating prefers-color-scheme: dark shows NO change" = EXPECTED. Auto Dark Mode is NOT the same as `prefers-color-scheme: dark`. It bypasses CSS media queries entirely and works at the compositor/renderer level.
+
+**Hypothesis B - Intel UHD 630 GPU Compositing Artifacts**:
+- Less likely as primary cause but cannot be ruled out as a contributing factor
+- Intel UHD 630 IS known for compositor layer artifacts in Chrome (crbug.com reports)
+- However: GPU artifacts typically manifest as flickering or partial corruption, not consistent full-width bands
+- The FULL-WIDTH nature and stable dark color of the bands points more to color inversion than GPU corruption
+- Could amplify the Auto Dark Mode issue (inverted compositor layers may be improperly cached by the Intel GPU driver)
+
+**Conclusion**: Hypothesis A (Chrome Auto Dark Mode) is the dominant cause. The Intel UHD 630 may make it worse but is not the root cause.
+
+**Fix Recommendation**:
+1. Add `color-scheme: light` to `:root` and `body` in `base.css` or `theme.liquid` inline styles — prevents Chrome Auto Dark Mode from inverting the page
+2. Add explicit `background-color: rgb(var(--color-background))` to `.processing-view`, `.pet-processor-container`, `.processor-controls`, `.processor-columns` — eliminates transparent backgrounds that get inverted to dark
+3. The processing overlay at line 1163 of `pet-processor-v5.css` already has `background: rgba(255, 255, 255, 0.95)` but only on desktop. Needs to apply on mobile too.
+4. `color-scheme: light` alone is sufficient for Chrome Auto Dark Mode. Explicit backgrounds are belt-and-suspenders and also fix the GPU artifact scenario.
+
+**Files to modify**: `layout/theme.liquid` (add meta tag + inline style), `assets/pet-processor-mobile.css` (add background to `.processing-view`), `assets/pet-processor-v5.css` (add background to `.pet-processor-container`)
+
+**Status**: Analysis complete, not yet implemented (no implementation requested)
+
+---
+
 ### 2026-01-29 - Mobile LCP Regression Fix
 
 **Issue**: Lighthouse audit showed LCP regression from 6.4s to 7.5s after previous async CSS implementation.
@@ -2300,4 +2451,153 @@ If the JS snippet approach continues returning 400 even with the correct format,
 
 **Verification**: Injected defensive rule via DevTools, then removed `ks-main.css` `[hidden]` rule — upload zone remained hidden (PASS).
 
-**Status**: Ready to commit to staging
+**Status**: ✅ DEPLOYED (commit `11f2d01`, merged to main `2b24f12`)
+
+---
+
+### 2026-02-24 - Skip to Content Button Appearing Occasionally
+
+**Issue**: A bright yellow-green "Skip to Content" button (120x45px) occasionally appears in the upper-left corner of the live site on desktop Chrome.
+
+**Root Cause**: CSS used `.skip-to-content-link:focus` which fires on ALL focus types (keyboard, mouse, programmatic). When drawers/modals close, `removeTrapFocus()` orphans focus — the next Tab press lands on the skip link (first focusable element in `<body>`), triggering `:focus` which removes `clip: rect(0 0 0 0)` hiding. The `.button` class gives it full 120x45px dimensions instead of `.visually-hidden`'s intended 1x1px.
+
+Specific trigger paths identified by debug-specialist:
+1. Cart drawer `renderContents()` → `open()` without `triggeredBy` → orphaned focus on close
+2. Newsletter popup → `removeTrapFocus()` with no argument
+3. Wishlist/Recently Viewed drawers → undefined `activeElement`
+
+**Fix** (1 file, `assets/base.css`):
+
+| Line | Change |
+|------|--------|
+| 214 | Added `clip-path: inset(50%)` to `.visually-hidden` — modern supplement to deprecated `clip` |
+| 227 | Changed `.skip-to-content-link:focus` → `.skip-to-content-link:focus-visible` — only fires on keyboard Tab |
+| 234 | Added `clip-path: none` to `:focus-visible` rule — clears clip-path when keyboard-focused |
+
+**Agent Consultations**: debug-specialist (RCA: drawer focus orphaning + `:focus` vs `:focus-visible`), ux-design-ecommerce-expert (UX impact, `:focus-visible` recommendation, WCAG compliance), code-quality-reviewer (B+, safe for all `.visually-hidden` uses), solution-verification-auditor (PASS, 15/15 checks)
+
+**Status**: ✅ DEPLOYED (Shopify auto-sync committed changes, verified live via DevTools)
+
+---
+
+### 2026-02-24 - Debug: Shopify Customer Creation + Omnisend Subscription Status Root Cause Analysis
+
+**Task**: Deep RCA for two production bugs in email capture flow.
+
+**Bug 1 Verdict**: Shopify form POST is likely working but unverifiable due to opaque redirect. Real risks: authenticity token expiration (long sessions) and duplicate customer silently rejected.
+
+**Bug 2 Verdict**: `identifyContact()` is working AS DESIGNED -- it creates non-subscribed contacts. Subscription requires Omnisend forms or Shopify customer sync. The previewCompleted event has a timing race (identify + track fired simultaneously).
+
+**Recommended fixes documented in debug response** (no code changes in this entry).
+
+---
+
+### 2026-02-24 - Chrome Auto Dark Mode: Full-Width Dark Bands During Processing + Results
+
+**Issue**: Same 2019 MacBook Pro customer (Intel UHD 630, Chrome) reports full-width dark/black bands spanning the entire viewport during PROCESSING state AND result state. Different issue from the ghost upload zone fixed earlier.
+
+**Root Cause**: Chrome Auto Dark Mode (`chrome://flags/#enable-force-dark`) inverts elements with transparent backgrounds per GPU compositor layer. No `color-scheme` declaration existed, so Chrome had no signal that the page is light-only.
+
+**Fix** (4 files, commit `9e1f564`, merged to main `659c4bc`):
+
+| File | Change |
+|------|--------|
+| `layout/theme.liquid` | Added `<meta name="color-scheme" content="only light">` |
+| `assets/pet-processor-v5.css` | Explicit `background-color` on `.pet-processor-container` and `.processing-area` |
+| `assets/pet-processor-mobile.css` | Explicit `background-color` on `.processing-view` |
+| `sections/ks-pet-processor-v5.liquid` | Cache buster v3.7 → v3.8 |
+
+**Key Decision**: Did NOT add backgrounds to `.processor-columns`, `.processor-controls`, `.processor-preview` — would kill desktop card tint and is redundant (parent shields descendants from Auto Dark Mode).
+
+**Status**: ✅ DEPLOYED
+
+---
+
+### 2026-02-24 - Debug: Shopify Form Auth Token Missing + Omnisend previewCompleted Tag Not Applied
+
+**Task**: Root cause analysis for three issues from live test of email capture for non-logged-in user:
+1. `authenticity_token` missing from hidden Shopify `{% form 'customer' %}` form
+2. Shopify form submission returning redirect-as-rejection (200 with query params in URL)
+3. Omnisend contact showing as "non-subscribed" with no previewCompleted tag
+
+**Diagnostic Logs Analyzed**:
+```
+📋 Shopify form has auth token: false
+📋 Shopify form response: 200 basic https://perkieprints.com/pages/custom-image-processing?contact%5Btags%5D=...&form_type=customer
+📧 Omnisend identifyContact called for: coreyp@perkieprints.com
+📧 Omnisend previewCompleted fired for: captured email
+```
+
+**Root Cause 1 - Missing authenticity_token**: The `{% form 'customer' %}` Liquid tag DOES generate the token server-side, but FormData constructor may not capture it if the hidden input name differs from `authenticity_token`. Shopify Online Store 2.0 may use a different field name or inject the token via JS.
+
+**Root Cause 2 - Shopify form redirect**: The 200 response with query params in URL confirms form rejection. The customer was NOT created.
+
+**Root Cause 3 - Omnisend previewCompleted**: Code-side firing is CONFIRMED WORKING. The tag not appearing is either Omnisend automation misconfiguration or non-subscribed contacts not triggering automations.
+
+**Recommended Fix**: Option D (Omnisend-only) or Option E (Shopify Admin API from backend).
+
+**Files analyzed**: `assets/pet-processor.js` (lines 3156-3203, 3245-3271), `sections/ks-pet-processor-v5.liquid` (lines 60-66), `sections/footer.liquid` (lines 265-320)
+
+**Status**: Analysis complete, awaiting decision on fix approach
+
+
+---
+
+### 2026-02-24 - Debug: Missing Color Button + Displaced Ink Wash/Marker Cards (MacBook Pro 2019, Chrome Incognito)
+
+**Task**: Root cause analysis for two layout regressions reported after CSS commits 9e1f564 and f58d7c3
+(background-color additions to processing-view, pet-processor-container, .page-width, .pet-processor-content).
+
+**Issue 1**: Color style button invisible in Choose Style grid (only B&W visible).
+**Issue 2**: Ink Wash and Marker cards appear BELOW the product mockup grid, not inside the processor section.
+
+**Key findings from code review**:
+
+**Issue 2 root cause - NOT caused by CSS commits (background-color is paint-only)**:
+- All 4 style cards (B&W, Color, Ink Wash, Marker) are rendered in a single inline HTML template inside
+  render() (pet-processor.js lines 1292-1338), inside .processor-controls > .effect-grid-wrapper > .style-selector__grid
+- The CSS commits added only background-color which cannot move DOM nodes
+- Cards appearing in a different Shopify section requires them to be extracted from the DOM and re-inserted
+  elsewhere, OR for the JS to have inserted them into the wrong target at init time
+- initResultEmailCapture() (lines 3106-3131) inserts a div AFTER .product-mockup-grid-section - separate container
+- gemini-effects-ui.js createBannerContainer() (lines 39-65) inserts a banner into
+  this.container.querySelector('.effects-container') || this.container - inserts into pet-processor-content
+- **MOST LIKELY ROOT CAUSE**: JS cache mismatch. The script tags in ks-pet-processor-v5.liquid (lines 72-83)
+  have NO cache-busting query parameter, unlike the CSS files which have ?v=3.9. In Incognito mode (empty
+  cache), Shopify CDN may serve an edge-cached JS version lagging behind the HTML/CSS changes.
+
+**Issue 1 root cause - CSS boundary condition at 1536px viewport (768px CSS pixels)**:
+- MacBook Pro 2019 Retina: physical 1536px / devicePixelRatio 2 = 768px CSS viewport
+- At exactly 768px CSS width two conflicting rules fire:
+  - pet-processor-v5.css line 1420: base grid repeat(2, 1fr)
+  - pet-processor-mobile.css line 697: overrides to repeat(4, 1fr) !important in single row
+- The Color card IS in DOM (confirmed in render() at lines 1304-1311)
+- If only B&W is visible, Color has display:none or zero size
+- New background-color on .pet-processor-content/.page-width creates a Block Formatting Context (BFC).
+  A BFC clips overflow content and changes how overflow:hidden containers compute scroll width, potentially
+  causing the 4-col grid to overflow and clip at the right edge of .processor-controls.
+
+**CSS commits assessment**:
+- background-color is paint-only and CANNOT move DOM elements
+- However: background-color on a block element that previously had transparent background CAN change
+  stacking context behavior in combination with other properties (position:relative, z-index)
+- meta name=color-scheme has zero layout impact
+
+**Pre-existing vs. new regression**:
+- Issue 2 (cards in wrong section): LIKELY PRE-EXISTING or stale-JS-cache artifact. CSS commits cannot
+  cause DOM displacement. Incognito cold-cache exposes pre-existing JS versioning problems.
+- Issue 1 (Color hidden): BORDERLINE. 768px breakpoint collision is pre-existing; new BFC from
+  background-color on ancestor containers may have tipped a marginal layout over the edge.
+
+**Recommended diagnostic steps**:
+1. Add ?debug=layout to URL - built-in diagnostics overlay (pet-processor.js lines 2700-2784) reports
+   computed styles, grid template columns, and individual card positions for all 4 style cards.
+2. Check if [data-effect="color"] exists in DOM (F12 Elements) but has zero width/height or display:none.
+3. Confirm .style-selector__grid parent chain ends at .processor-controls not document.body or another section.
+4. Add ?v=3.9 cache-buster to all JS script tags in ks-pet-processor-v5.liquid (lines 72-83).
+
+**Files analyzed**: assets/pet-processor.js (lines 1252-1403, 2492-2530, 3106-3131, 2700-2784),
+assets/pet-processor-v5.css (lines 1-35, 964-1186, 1419-1437), assets/pet-processor-mobile.css (lines 628-702),
+sections/ks-pet-processor-v5.liquid (lines 11-83), assets/gemini-effects-ui.js (lines 39-65, 252-321)
+
+**Status**: Analysis complete, no implementation requested
