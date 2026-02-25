@@ -10,6 +10,14 @@
   --desktop-breakpoint: 1024px;
 }
 
+/* Explicit backgrounds on ancestor containers — prevents Chrome Auto Dark Mode
+   from inverting transparent wrappers between section and processor container.
+   Scoped to .ks-pet-processor-section to avoid affecting other sections. */
+.ks-pet-processor-section .page-width,
+.pet-processor-content {
+  background-color: rgb(var(--color-background));
+}
+
 .pet-processor-container {
   max-width: 800px;
   margin: 0 auto;
