@@ -60,6 +60,7 @@
     <div style="display: none;">
       {% form 'customer', id: 'pet-email-capture-form', class: 'pet-email-form' %}
         <input type="hidden" name="contact[tags]" id="pet-email-tags" value="pet-processor">
+        <input type="hidden" name="customer[accepts_marketing]" value="1">
         <input type="email" name="contact[email]" id="pet-email-input" required>
         <input type="text" name="contact[first_name]" id="pet-customer-name">
       {% endform %}

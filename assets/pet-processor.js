@@ -3242,38 +3242,39 @@ class PetProcessor {
     // Set localStorage with 90-day TTL
     localStorage.setItem('perkieEmailCaptured', JSON.stringify({ timestamp: Date.now() }));
 
-    // Submit to hidden Shopify customer form (creates customer with accepts_marketing=true)
-    // Uses URLSearchParams (not FormData) to send application/x-www-form-urlencoded
-    // which matches native browser form submission Content-Type
+    // Submit to hidden Shopify customer form via native form submission in hidden iframe.
+    // fetch() fails because Shopify's edge layer rejects programmatic /contact POSTs
+    // (Sec-Fetch-Mode: cors from fetch vs navigate from native form submission).
     var shopifyForm = document.getElementById('pet-email-capture-form');
     if (shopifyForm) {
       var emailInput = document.getElementById('pet-email-input');
       var tagsInput = document.getElementById('pet-email-tags');
       if (emailInput) emailInput.value = email;
       if (tagsInput) tagsInput.value = 'pet-processor,pet-processor-preview';
-      var formData = new URLSearchParams(new FormData(shopifyForm));
-      // Log all form fields for diagnostic (reveals actual CSRF token field name)
-      console.log('📋 Shopify form action:', shopifyForm.action);
-      formData.forEach(function(value, key) {
-        var display = value.length > 50 ? value.substring(0, 50) + '...' : value;
-        console.log('📋 Shopify form field:', key, '=', display);
-      });
-      fetch(shopifyForm.action, {
-        method: 'POST',
-        body: formData,
-        redirect: 'follow'
-      })
-        .then(function(r) {
-          console.log('📋 Shopify form response:', r.status, r.type, r.url);
-          if (r.url && r.url.indexOf('/challenge') !== -1) {
-            console.warn('📋 Shopify CAPTCHA challenge triggered — customer NOT created');
-          } else if (r.url && r.url.indexOf('customer_posted=true') !== -1) {
+
+      var iframe = document.createElement('iframe');
+      iframe.name = 'pet-email-capture-iframe';
+      iframe.style.display = 'none';
+      document.body.appendChild(iframe);
+      shopifyForm.target = 'pet-email-capture-iframe';
+      shopifyForm.submit();
+      console.log('📋 Shopify customer form submitted via hidden iframe');
+
+      iframe.addEventListener('load', function() {
+        try {
+          var iframeUrl = iframe.contentWindow.location.href;
+          if (iframeUrl.indexOf('customer_posted=true') !== -1) {
             console.log('📋 Shopify customer created successfully');
-          } else if (!r.ok) {
-            console.warn('📋 Shopify form rejected:', r.status);
+          } else {
+            console.log('📋 Shopify form iframe loaded:', iframeUrl);
           }
-        })
-        .catch(function(err) { console.warn('📋 Shopify form failed:', err); });
+        } catch (e) {
+          console.log('📋 Shopify form submitted (iframe load detected)');
+        }
+        setTimeout(function() {
+          if (iframe.parentNode) iframe.parentNode.removeChild(iframe);
+        }, 5000);
+      });
     } else {
       console.warn('📋 Shopify form #pet-email-capture-form not found in DOM');
     }
