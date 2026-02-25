@@ -3243,15 +3243,21 @@ class PetProcessor {
     localStorage.setItem('perkieEmailCaptured', JSON.stringify({ timestamp: Date.now() }));
 
     // Submit to hidden Shopify customer form (creates customer with accepts_marketing=true)
+    // Uses URLSearchParams (not FormData) to send application/x-www-form-urlencoded
+    // which matches native browser form submission Content-Type
     var shopifyForm = document.getElementById('pet-email-capture-form');
     if (shopifyForm) {
       var emailInput = document.getElementById('pet-email-input');
       var tagsInput = document.getElementById('pet-email-tags');
       if (emailInput) emailInput.value = email;
       if (tagsInput) tagsInput.value = 'pet-processor,pet-processor-preview';
-      var formData = new FormData(shopifyForm);
+      var formData = new URLSearchParams(new FormData(shopifyForm));
+      // Log all form fields for diagnostic (reveals actual CSRF token field name)
       console.log('📋 Shopify form action:', shopifyForm.action);
-      console.log('📋 Shopify form has auth token:', formData.has('authenticity_token'));
+      formData.forEach(function(value, key) {
+        var display = value.length > 50 ? value.substring(0, 50) + '...' : value;
+        console.log('📋 Shopify form field:', key, '=', display);
+      });
       fetch(shopifyForm.action, {
         method: 'POST',
         body: formData,
@@ -3261,6 +3267,8 @@ class PetProcessor {
           console.log('📋 Shopify form response:', r.status, r.type, r.url);
           if (r.url && r.url.indexOf('/challenge') !== -1) {
             console.warn('📋 Shopify CAPTCHA challenge triggered — customer NOT created');
+          } else if (r.url && r.url.indexOf('customer_posted=true') !== -1) {
+            console.log('📋 Shopify customer created successfully');
           } else if (!r.ok) {
             console.warn('📋 Shopify form rejected:', r.status);
           }
