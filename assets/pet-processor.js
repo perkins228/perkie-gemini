@@ -3108,19 +3108,14 @@ class PetProcessor {
     if (this._resultEmailCaptureInitialized) return;
     this._resultEmailCaptureInitialized = true;
 
-    // Insert Omnisend embedded form after the product mockup grid section
+    // Find the Omnisend form container (in static Liquid HTML so Omnisend renders it on page load)
+    // and move it below the product mockup grid section
     var mockupGrid = document.querySelector('.product-mockup-grid-section');
-    if (!mockupGrid) return;
-
-    var container = document.createElement('div');
-    container.className = 'email-capture-container result-email-capture page-width';
-
-    container.innerHTML =
-      '<div id="omnisend-embedded-v2-699e80e70448059b7ff7ef1d"></div>' +
-      '<button type="button" class="email-capture-dismiss">Not now</button>' +
-      '<div class="email-capture-success" role="status" aria-live="polite" hidden></div>';
+    var container = document.getElementById('omnisend-email-capture-wrapper');
+    if (!mockupGrid || !container) return;
 
     mockupGrid.parentNode.insertBefore(container, mockupGrid.nextSibling);
+    container.style.display = '';
 
     var dismiss = container.querySelector('.email-capture-dismiss');
 
