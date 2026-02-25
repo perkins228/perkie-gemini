@@ -2014,7 +2014,6 @@ class PetProcessor {
     const allUploadPromises = [...uploadPromises, originalUploadPromise];
 
     // Store pending uploads - awaited at cart time via ensureUploadsComplete()
-    var currentPetId = this.currentPet ? this.currentPet.id : null;
     this.pendingGcsUploads = Promise.all(allUploadPromises).then(results => {
       timing.gcsUpload.end = Date.now();
       console.log(`⏱️ Background GCS uploads completed: ${timing.gcsUpload.end - timing.gcsUpload.start}ms`);
@@ -2035,12 +2034,6 @@ class PetProcessor {
           originalGcsUrl: this.currentPet.effects?._originalUrl || '',
           processedAt: Date.now()
         });
-      }
-
-      // Fire Omnisend previewCompleted now that GCS URLs are populated
-      // Guard against stale .then() from a cancelled/reset upload
-      if (this.currentPet && this.currentPet.id === currentPetId) {
-        this._firePreviewCompletedEvent();
       }
 
       this.pendingGcsUploads = null;  // Clear once complete
@@ -2224,7 +2217,7 @@ class PetProcessor {
     const totalTime = Date.now() - startTime;
     warmthTracker.recordAPICall(true, totalTime);
 
-    // Omnisend previewCompleted now fires from pendingGcsUploads.then() with GCS URLs
+    // Omnisend previewCompleted fires from handleEmailSubmit() or showResult() for identified contacts
 
     // Record processing timestamp to prevent unnecessary warmup
     sessionStorage.setItem('last_processing_time', Date.now().toString());
@@ -2675,6 +2668,11 @@ class PetProcessor {
         // Show email capture in result view if not already captured
         if (!this.capturedEmail && this.shouldShowEmailCapture()) {
           this.initResultEmailCapture();
+        }
+
+        // Fire previewCompleted for identified contacts (logged-in, email click-through, or captured during processing)
+        if (this._isFromEmail || this._isLoggedIn || this.capturedEmail) {
+          this._firePreviewCompletedEvent();
         }
 
         // Layout diagnostics overlay (gated behind ?debug=layout URL param)
@@ -3157,32 +3155,34 @@ class PetProcessor {
 
   _firePreviewCompletedEvent() {
     if (this._previewCompletedFired) return;
-    if (!window.omnisend) return;
+    if (!window.omnisend) {
+      console.warn('📧 Omnisend not available, skipping previewCompleted');
+      return;
+    }
     if (!(this.capturedEmail || this._isFromEmail || this._isLoggedIn)) return;
 
-    try {
-      if (this._isLoggedIn && !this.capturedEmail && !this._isFromEmail) {
+    // Identify logged-in customers (separate try/catch so failure doesn't block event)
+    if (this._isLoggedIn && !this.capturedEmail && !this._isFromEmail) {
+      try {
         var section = this.container.closest('.ks-pet-processor-section');
         var customerEmail = section && section.dataset ? section.dataset.customerEmail : null;
         if (customerEmail) omnisend.identifyContact({ email: customerEmail });
-      }
+      } catch (e) { console.warn('📧 Omnisend identifyContact (logged-in) failed:', e); }
+    }
 
-      var effects = this.currentPet ? this.currentPet.effects : {};
+    try {
       omnisend.push(["track", "previewCompleted", {
         origin: "api",
         properties: {
           previewStyles: "Black & White, Color, Ink Wash, Marker",
           previewPageUrl: window.location.href,
           deviceType: window.innerWidth < 768 ? "mobile" : "desktop",
-          bwImageUrl: (effects.enhancedblackwhite && effects.enhancedblackwhite.gcsUrl) || "",
-          colorImageUrl: (effects.color && effects.color.gcsUrl) || "",
-          inkWashImageUrl: (effects.ink_wash && effects.ink_wash.gcsUrl) || "",
-          markerImageUrl: (effects.sketch && effects.sketch.gcsUrl) || "",
-          originalImageUrl: effects._originalUrl || ""
+          timestamp: new Date().toISOString()
         }
       }]);
       this._previewCompletedFired = true;
-    } catch (e) { console.warn('Omnisend previewCompleted failed:', e); }
+      console.log('📧 Omnisend previewCompleted fired for:', this.capturedEmail ? 'captured email' : this._isLoggedIn ? 'logged-in user' : 'email click-through');
+    } catch (e) { console.warn('📧 Omnisend previewCompleted failed:', e); }
   }
 
   handleEmailSubmit(email, sourceContainer) {
@@ -3237,33 +3237,20 @@ class PetProcessor {
         body: new FormData(shopifyForm),
         redirect: 'manual'
       })
-        .then(r => { if (!r.ok) console.warn('Shopify email form:', r.status); })
+        .then(r => { if (!r.ok && r.type !== 'opaqueredirect') console.warn('Shopify email form:', r.status); })
         .catch(err => console.warn('Shopify email form failed:', err));
     }
 
-    // Fire Omnisend identification + previewCompleted (deferred to GCS upload completion for image URLs)
+    // Fire Omnisend identification (separate try/catch so failure doesn't block event)
     if (window.omnisend) {
       try {
         omnisend.identifyContact({ email: email });
-        if (this.processingComplete) {
-          if (this.pendingGcsUploads) {
-            var petIdAtSubmit = this.currentPet ? this.currentPet.id : null;
-            this.pendingGcsUploads
-              .then(() => {
-                if (this.currentPet && this.currentPet.id === petIdAtSubmit) {
-                  this._firePreviewCompletedEvent();
-                }
-              })
-              .catch(() => {
-                if (this.currentPet && this.currentPet.id === petIdAtSubmit) {
-                  this._firePreviewCompletedEvent();
-                }
-              });
-          } else {
-            this._firePreviewCompletedEvent();
-          }
-        }
-      } catch (e) { console.warn('Omnisend identification failed:', e); }
+      } catch (e) { console.warn('📧 Omnisend identifyContact failed:', e); }
+    }
+
+    // Fire previewCompleted event directly (independent of identifyContact success)
+    if (this.processingComplete) {
+      this._firePreviewCompletedEvent();
     }
 
     // Fire PerkieAnalytics (GA4 + Facebook Pixel)
