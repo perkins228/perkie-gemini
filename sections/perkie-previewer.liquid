@@ -1,0 +1,94 @@
+{% comment %}
+  Perkie Previewer Section
+
+  Embeds the Preact previewer component. Configurable via section settings
+  for mode (compact, full, product) and optional style preselection.
+
+  Usage in templates:
+    {% section 'perkie-previewer' %}
+
+  Or as an app block in Online Store 2.0 templates.
+{% endcomment %}
+
+{{ 'perkie-previewer.css' | asset_url | stylesheet_tag }}
+
+<div
+  id="perkie-previewer-{{ section.id }}"
+  data-perkie-previewer="{{ section.settings.mode }}"
+  {% if section.settings.active_style != blank %}
+    data-perkie-style="{{ section.settings.active_style }}"
+  {% endif %}
+  {% if section.settings.memorial_mode %}
+    data-perkie-memorial="true"
+  {% endif %}
+>
+  {%- comment -%} Fallback content before JS loads {%- endcomment -%}
+  <noscript>
+    <div class="perkie-previewer-noscript">
+      <p>JavaScript is required to use the pet portrait previewer.</p>
+      <p>Please enable JavaScript or <a href="mailto:hello@perkieprints.com">contact us</a> for help.</p>
+    </div>
+  </noscript>
+</div>
+
+{%- comment -%} Set the API URL for the frontend {%- endcomment -%}
+<script>
+  window.__PERKIE_API_URL__ = {{ section.settings.api_url | json }};
+</script>
+
+{{ 'perkie-previewer.js' | asset_url | script_tag }}
+
+{% schema %}
+{
+  "name": "Pet Portrait Previewer",
+  "tag": "section",
+  "class": "perkie-previewer-section",
+  "settings": [
+    {
+      "type": "select",
+      "id": "mode",
+      "label": "Previewer Mode",
+      "options": [
+        { "value": "compact", "label": "Compact (Homepage)" },
+        { "value": "full", "label": "Full (Free Preview Page)" },
+        { "value": "product", "label": "Product Page" }
+      ],
+      "default": "compact"
+    },
+    {
+      "type": "select",
+      "id": "active_style",
+      "label": "Preselected Style",
+      "options": [
+        { "value": "", "label": "None" },
+        { "value": "bw", "label": "Black & White" },
+        { "value": "color", "label": "Color" },
+        { "value": "ink", "label": "Ink Wash" },
+        { "value": "marker", "label": "Marker" }
+      ],
+      "default": "",
+      "info": "Only applies in Product mode."
+    },
+    {
+      "type": "checkbox",
+      "id": "memorial_mode",
+      "label": "Memorial Mode",
+      "default": false,
+      "info": "Adapts copy for memorial/tribute context."
+    },
+    {
+      "type": "text",
+      "id": "api_url",
+      "label": "API URL",
+      "default": "https://perkie-api-production.up.railway.app",
+      "info": "Backend API endpoint. Change for staging/development."
+    }
+  ],
+  "presets": [
+    {
+      "name": "Pet Portrait Previewer",
+      "category": "Custom"
+    }
+  ]
+}
+{% endschema %}
