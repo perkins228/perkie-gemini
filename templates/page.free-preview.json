@@ -1,0 +1,131 @@
+{
+  "sections": {
+    "previewer": {
+      "type": "perkie-previewer",
+      "settings": {
+        "mode": "full",
+        "active_style": "",
+        "memorial_mode": false,
+        "api_url": "https://perkie-api-production.up.railway.app"
+      }
+    },
+    "how_it_works": {
+      "type": "multicolumn",
+      "blocks": {
+        "step1": {
+          "type": "column",
+          "settings": {
+            "title": "1. Upload a photo",
+            "text": "<p>Snap a pic of your pet or choose a favorite from your camera roll. Front-facing, well-lit photos work best.</p>",
+            "link_label": "Photo tips",
+            "link": "/pages/how-to-choose-the-perfect-image"
+          }
+        },
+        "step2": {
+          "type": "column",
+          "settings": {
+            "title": "2. Preview four styles",
+            "text": "<p>Our AI generates your pet in four distinct art styles in about 15-20 seconds. Every portrait is reviewed by a real artist before production.</p>",
+            "link_label": "",
+            "link": ""
+          }
+        },
+        "step3": {
+          "type": "column",
+          "settings": {
+            "title": "3. Pick your product",
+            "text": "<p>See your pet on 20+ products, from framed prints and canvas to mugs, tees, and more. We handle printing and shipping.</p>",
+            "link_label": "",
+            "link": ""
+          }
+        }
+      },
+      "block_order": ["step1", "step2", "step3"],
+      "settings": {
+        "title": "How it works",
+        "heading_size": "h1",
+        "image_width": "third",
+        "image_ratio": "adapt",
+        "columns_desktop": 3,
+        "column_alignment": "center",
+        "background_style": "none",
+        "button_label": "",
+        "button_link": "",
+        "swipe_on_mobile": false,
+        "color_scheme": "scheme-2",
+        "columns_mobile": "1",
+        "padding_top": 52,
+        "padding_bottom": 52
+      }
+    },
+    "faq": {
+      "type": "collapsible-content",
+      "blocks": {
+        "q1": {
+          "type": "collapsible_row",
+          "settings": {
+            "heading": "Is the preview really free?",
+            "icon": "none",
+            "row_content": "<p>Yes, completely free with no strings attached. Upload a photo, see your pet in all four art styles, and browse product mockups. You only pay if you decide to order.</p>",
+            "page": ""
+          }
+        },
+        "q2": {
+          "type": "collapsible_row",
+          "settings": {
+            "heading": "What kind of photo should I use?",
+            "icon": "none",
+            "row_content": "<p>A clear, front-facing photo where your pet's face is visible works best. Good lighting helps. The photo should be at least 500x500 pixels. Avoid heavy filters or extreme angles.</p>",
+            "page": ""
+          }
+        },
+        "q3": {
+          "type": "collapsible_row",
+          "settings": {
+            "heading": "How long does the preview take?",
+            "icon": "none",
+            "row_content": "<p>About 15-20 seconds for all four styles. Each style appears as it finishes generating, so you will start seeing results within a few seconds.</p>",
+            "page": ""
+          }
+        },
+        "q4": {
+          "type": "collapsible_row",
+          "settings": {
+            "heading": "Will my pet's portrait look exactly like the preview?",
+            "icon": "none",
+            "row_content": "<p>The preview is a close representation. Every ordered portrait is reviewed and refined by a real artist before production, so the final product may have subtle improvements in detail and quality.</p>",
+            "page": ""
+          }
+        },
+        "q5": {
+          "type": "collapsible_row",
+          "settings": {
+            "heading": "How long will my previews be saved?",
+            "icon": "none",
+            "row_content": "<p>Previews are saved for 48 hours by default. Enter your email during the preview and we will extend that to 30 days, plus send you a link to come back anytime.</p>",
+            "page": ""
+          }
+        }
+      },
+      "block_order": ["q1", "q2", "q3", "q4", "q5"],
+      "settings": {
+        "caption": "",
+        "heading": "Frequently asked questions",
+        "heading_size": "h1",
+        "heading_alignment": "center",
+        "layout": "none",
+        "color_scheme": "scheme-1",
+        "container_color_scheme": "scheme-2",
+        "open_first_collapsible_row": false,
+        "image_ratio": "adapt",
+        "padding_top": 36,
+        "padding_bottom": 52
+      }
+    }
+  },
+  "order": [
+    "previewer",
+    "how_it_works",
+    "faq"
+  ]
+}
